@@ -3,6 +3,7 @@ import EventEmiter from "./packages//Emit";
 import Storage, { createStorage, storageExample } from "./packages/Storage";
 import { addEventResize, removeResizeListener } from "./packages/ElementResize";
 import Request from "./packages/AxiosFactory";
+import DOMEventManager from "./packages/DOMEventManager";
 
 export {
   DownExcel,
@@ -11,12 +12,14 @@ export {
   storageExample,
   addEventResize,
   removeResizeListener,
-  Request
+  Request,
+  DOMEventManager
 };
 
 export default {
   DownExcel,
   EventEmiter,
   Storage,
-  Request
+  Request,
+  DOMEventManager
 };
