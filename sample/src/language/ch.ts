@@ -11,7 +11,9 @@ export default {
   APP_OTHER: {
     LOGIN_OUT_CANCEL_PROMPT: "取消退出登录",
     LOGIN_OUT_TITLE: "温馨提示",
-    LOGIN_OUT_PROMPT: "您即将退出登录，是否继续？"
+    LOGIN_OUT_PROMPT: "您即将退出登录，是否继续？",
+    LOCKER_SCREEN_BEFORE: "系统将在 ",
+    LOCKER_SCREEN_AFTER: " 秒后自动锁定"
   },
   INDEX_SYETEM_DESCRIBE: {
     DESCRIBE_1: "一个会成长的框架",

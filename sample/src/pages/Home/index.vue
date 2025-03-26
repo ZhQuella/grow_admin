@@ -66,11 +66,13 @@
         <LockScreen v-if="isLock" />
       </transition>
     </teleport>
+    <AutoLocker v-if="settingConfig.isAutoLocker"/>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import settingConfig from "@/setting";
 import Layout from "components/public/Layout/index.vue";
 import Logo from "components/base/GLogo/index.vue";
 import RenderView from "components/public/RenderView/index.vue";
@@ -81,6 +83,7 @@ import SettingContent from "components/business/Home/SettingContent/index.vue";
 import NavigationPath from "components/base/NavigationPath/index.vue";
 import AppSearch from "components/base/AppSearch/index.vue";
 import LockScreen from "components/business/Home/LockScreen/index.vue";
+import AutoLocker from "components/business/Home/AutoLocker/index.vue";
 
 import { useMenuStore } from "store/modules/menu";
 import { useLockScreen } from "store/modules/LockScreen";
