@@ -64,18 +64,25 @@ const initAutoLocker = () => {
 const unsubscribe = lockScreenStore.$onAction(({ store, after }) => {
   after(() => {
     if(!store.getLocale){
-      initAutoLocker()
+      initAutoLocker();
+    }
+    else{
+      unAutoLocker();
     }
   })
-})
+});
+
+const unAutoLocker = () => {
+  eventManager.removeAll(document.documentElement || document.body);
+  cancelAnimationFrame(idleAnimationFrame.value);
+}
 
 onMounted(() => {
   !lockScreenStore.getLocale && initAutoLocker()
 });
 
 onUnmounted(() => {
-  eventManager.removeAll(document.documentElement || document.body);
-  cancelAnimationFrame(idleAnimationFrame.value);
+  unAutoLocker();
   unsubscribe();
 });
 </script>
