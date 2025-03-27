@@ -12,11 +12,12 @@ const i18n = useI18n();
 const { lockScreenTime, warningTimte } = settingConfig;
 const countdown = ref((lockScreenTime - warningTimte) / 1000);
 
-const idleTimeout:Ref<any> = ref(null);
-const warningTimeout:Ref<any> = ref(null);
+const idleAnimationFrame: Ref<number> = ref(0);
 const lockScreenStore = useLockScreen();
+const warningShown = ref(false);
+const lastEventTime = ref(Date.now());
 
-const showWarnig = () => {
+const showWarning = () => {
   const time = warningTimte / 1000;
   ElMessage({
     showClose: true,
@@ -24,29 +25,47 @@ const showWarnig = () => {
     type: 'warning',
     duration: warningTimte
   });
-}
+  warningShown.value = true;
+};
 
-const eventHandler = (event?: Event) => {
-  clearTimeout(idleTimeout.value);
-  clearTimeout(warningTimeout.value);
-  countdown.value = (lockScreenTime - warningTimte) / 1000;
-  idleTimeout.value = setTimeout(async () => {
+const checkIdleTime = () => {
+  const currentTime = Date.now();
+  const elapsed = currentTime - lastEventTime.value;
+  countdown.value = Math.max(0, (lockScreenTime - elapsed) / 1000);
+  if (elapsed >= lockScreenTime) {
     lockScreenStore.setIsLockScreen(true);
     eventManager.removeAll(document.documentElement || document.body);
-  }, lockScreenTime);
-  warningTimeout.value = setTimeout(showWarnig,lockScreenTime - warningTimte)
+    cancelAnimationFrame(idleAnimationFrame.value);
+    return;
+  }
+  if ((elapsed >= lockScreenTime - warningTimte) && !warningShown.value) {
+    showWarning();
+  }
+  idleAnimationFrame.value = requestAnimationFrame(checkIdleTime);
+};
+
+const eventHandler = (event?: Event) => {
+  lastEventTime.value = Date.now();
+  warningShown.value = false;
+  cancelAnimationFrame(idleAnimationFrame.value);
+  countdown.value = (lockScreenTime - warningTimte) / 1000;
+  idleAnimationFrame.value = requestAnimationFrame(checkIdleTime);
 };
 
 const initAutoLocker = () => {
   const eventList = ['click','keyup','keydown','mousemove','mousedown','mouseup','wheel'];
   eventManager.add(document.documentElement || document.body, eventList, eventHandler);
+  lastEventTime.value = Date.now();
+  warningShown.value = false;
   eventHandler();
   countdown.value = (lockScreenTime - warningTimte) / 1000;
 };
 
 const unsubscribe = lockScreenStore.$onAction(({ store, after }) => {
   after(() => {
-    !store.getLocale && initAutoLocker()
+    if(!store.getLocale){
+      initAutoLocker()
+    }
   })
 })
 
@@ -56,12 +75,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   eventManager.removeAll(document.documentElement || document.body);
-  clearTimeout(idleTimeout.value);
-  clearTimeout(warningTimeout.value);
+  cancelAnimationFrame(idleAnimationFrame.value);
   unsubscribe();
 });
 </script>
-
-<style scoped>
-
-</style>
