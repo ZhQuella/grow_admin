@@ -7,6 +7,7 @@
       children: 'children'
     }"
     :render-content="renderContent"
+    @node-click="onNodeClick"
   >
   </ElTree>
 </template>
@@ -23,7 +24,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(["treeClick"]);
+const emit = defineEmits(["treeClick", "node-click"]);
 
 const { data } = toRefs(props);
 
@@ -33,5 +34,9 @@ const treeData = computed(() => {
 
 const renderContent = (_, { data: nodeData }) => {
   return `${data.value.renderArgument[nodeData.uuid].elName} `;
+};
+
+const onNodeClick = ({ uuid }) => {
+  emit('node-click', { uuid });
 };
 </script>

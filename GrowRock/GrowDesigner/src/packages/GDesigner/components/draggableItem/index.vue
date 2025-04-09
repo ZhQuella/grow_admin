@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative transition delay-0 pt-[20px] border-[1px] hover:border-PUBLIC_MAIN_COLOR border-dashed rounded-[5px] overflow-hidden duration-350"
+    class="relative transition delay-0 border-[1px] hover:border-PUBLIC_MAIN_COLOR border-dashed rounded-[5px] overflow-hidden duration-350"
     :class="{
       'border-PUBLIC_MAIN_COLOR': isActived,
       'border-slate-300': !isActived

@@ -46,6 +46,49 @@
       </draggable>
     </template>
 
+    <template v-if="['el-form','el-form-item'].includes(config.elTagName)">
+      <component :is="config.elTagName">
+        <draggable
+            group="draggable-group"
+            :animation="200"
+            item-key="uuid"
+            :component-data="{
+              tag: 'div',
+              type: 'transition-group',
+              name: 'draggable-group'
+            }"
+            :disabled="false"
+            ghostClass="ghost"
+            class="draggable-grop-wrap border-slate-300 w-full"
+            handle=".draggable-content-bar"
+            v-model="structure.children"
+            @add="onChildAdd"
+        >
+          <template #item="{ element }">
+            <DraggableItem
+                :structure="element"
+                @active="onActive"
+                @delete="onSpecialDelete"
+                @copy="onCopyItem"
+                @special="onDraggableAdd"
+                class="w-full"
+            >
+              <abstractionComponent
+                  :config="draggableConfig.renderArgument[element.uuid]"
+                  :structure="element"
+                  :drag="drag"
+                  @add="onAbstractionAdd"
+                  @special="onDraggableAdd"
+                  @delete="onSpecialDelete"
+                  @copy="onCopyItem"
+                  @active="onActive"
+              />
+            </DraggableItem>
+          </template>
+        </draggable>
+      </component>
+    </template>
+
     <component
       v-if="
         ['el-col', 'el-tab-pane', 'el-collapse-item', 'el-timeline-item'].includes(config.elTagName)
@@ -183,7 +226,7 @@
       </draggable>
     </el-card>
 
-    <template v-if="['el-tabs', 'el-row', 'el-collapse', 'el-timeline'].includes(config.elTagName)">
+    <template v-if="['el-tabs', 'el-row', 'el-collapse','el-timeline'].includes(config.elTagName)">
       <component :is="config.elTagName">
         <abstractionComponent
           v-for="ele in structure.children"

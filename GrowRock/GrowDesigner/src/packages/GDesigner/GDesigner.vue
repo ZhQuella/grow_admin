@@ -89,6 +89,7 @@
             :data="draggableConfig"
             class="flex-1 h-full"
             @dragstart="onGenerateKey"
+            @node-click="onActiveNode"
           />
         </div>
       </div>
@@ -141,7 +142,7 @@ const {
   activeUUID
 } = useOption();
 
-const { onGenerateKey, onDraggableViewAdd, onSpecialAdd, onActivated, onDeleteItem, onCopyItem } =
+const { onGenerateKey, onDraggableViewAdd, onSpecialAdd, onActivated, onDeleteItem, onCopyItem, onActiveNode } =
   useEvents({
     draggableConfig,
     activeUUID

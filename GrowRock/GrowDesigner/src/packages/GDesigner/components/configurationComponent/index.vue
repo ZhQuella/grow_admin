@@ -7,19 +7,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, toRefs } from "vue";
+import { toRefs } from "vue";
+import configurationList from "../../static/pageConfig";
 
 const emit = defineEmits(["change"]);
-const configurationList = ref([
-  {
-    eleType: "ElInput",
-    name: "123"
-  },
-  {
-    eleType: "ElSelect",
-    name: "Select"
-  }
-]);
+
 
 const props = defineProps({
   config: {
@@ -29,7 +21,6 @@ const props = defineProps({
 });
 const { config } = toRefs(props);
 
-console.log(config);
 </script>
 
 <style scoped></style>

@@ -25,6 +25,10 @@ export const useEvents = ({ draggableConfig, activeUUID }: props) => {
     console.log(list, index);
   };
 
+  const onActiveNode = ({ uuid }) => {
+    activeUUID.value = uuid;
+  };
+
   const setChildren = (isChild: boolean, structure: any, children: any[]): any => {
     if (isChild) {
       structure.children = children && children.length ? children : [];
@@ -116,6 +120,7 @@ export const useEvents = ({ draggableConfig, activeUUID }: props) => {
     onGenerateKey,
     onActivated,
     onDeleteItem,
-    onCopyItem
+    onCopyItem,
+    onActiveNode
   };
 };

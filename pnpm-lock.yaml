@@ -4,6 +4,9 @@ importers:
 
   .:
     dependencies:
+      '@grow-rock/grow-utils':
+        specifier: workspace:^
+        version: link:GrowRock/GrowUtils
       animate.css:
         specifier: ^4.1.1
         version: 4.1.1

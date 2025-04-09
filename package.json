@@ -16,7 +16,7 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "clean:all": "npx rimraf ./GrowRock/*/node_modules ./GrowCornerstone/*/node_modules ./libs/*/node_modules ./node_modules ./sample/node_modules",
-    "clean:dist":  "npx rimraf ./GrowRock/*/dist ./GrowCornerstone/*/dist ./libs/*/dist ./dist ./sample/dist",
+    "clean:dist": "npx rimraf ./GrowRock/*/dist ./GrowCornerstone/*/dist ./libs/*/dist ./dist ./sample/dist",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "test:run": "vitest run",
@@ -114,6 +114,7 @@
     "yorkie": "^2.0.0"
   },
   "dependencies": {
+    "@grow-rock/grow-utils": "workspace:^",
     "animate.css": "^4.1.1",
     "await-to-js": "^3.0.0",
     "axios": "^1.7.9",
