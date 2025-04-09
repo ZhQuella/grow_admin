@@ -1,6 +1,6 @@
 <template>
   <template v-if="!isSocket">
-    <component :is="config.elTagName"> </component>
+    <component :is="config.elTagName"></component>
   </template>
 </template>
 

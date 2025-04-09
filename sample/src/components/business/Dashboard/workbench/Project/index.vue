@@ -48,7 +48,7 @@ const groupItems: any[] = [
     date: "2021-04-01"
   },
   {
-    title: "Html5",
+    title: "HTML5",
     icon: "Html5Outlined",
     color: "#e18525",
     desc: "没有什么才能比努力更重要。",
