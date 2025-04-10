@@ -4,6 +4,7 @@ import { GRenderer } from "./packages/GRenderer";
 import { GDesigner } from "./packages/GDesigner";
 
 import "animate.css";
+import "@grow-rock/grow-editor/dist/index.css";
 import "./styles/tailwindcss/index.css";
 import "./styles/animate/index.css";
 
