@@ -10,21 +10,24 @@
       </ElTabs>
     </div>
     <ElScrollbar class="h-full flex-1">
-      <ElementSize v-model:styleOption="config.styles[activeUUID]" />
-      <ElementDisplay />
-      {{ tabModel }}
-      {{ config[tabModel][activeUUID] }}
-      {{ config.styles[activeUUID] }}
-      <p class="p-[10px] text-center">用爱发电中...😊</p>
+      <component :is="renderConfigComponent"
+                 :currentBasicConfig="currentBasicConfig">
+      </component>
+<!--      <ElementSize v-model:styleOption="config.styles[activeUUID]" />-->
+<!--      <ElementDisplay />-->
+<!--      {{ tabModel }}-->
+<!--      {{ config[tabModel][activeUUID] }}-->
+<!--      {{ config.styles[activeUUID] }}-->
+<!--      <p class="p-[10px] text-center">用爱发电中...😊</p>-->
     </ElScrollbar>
   </div>
 </template>
 
 <script setup lang="ts">
 defineOptions({ name: "eleOptions" });
-import { toRefs, ref } from "vue";
-import ElementSize from "../../optionComponent/ElementSize/index.vue";
-import ElementDisplay from "../../optionComponent/ElementDisplay/index.vue";
+import { toRefs, ref, computed } from "vue";
+// import ElementSize from "../../optionComponent/ElementSize/index.vue";
+// import ElementDisplay from "../../optionComponent/ElementDisplay/index.vue";
 
 const props = defineProps({
   activeUUID: {
@@ -39,6 +42,23 @@ const props = defineProps({
 
 const { activeUUID, config } = toRefs(props);
 const tabModel = ref("props");
+const currentBasicConfig = computed(() => {
+  return config.value['renderArgument'][activeUUID.value]
+});
+const renderConfigComponent = computed(() => {
+  const renderMap = {
+    props: "componentConfig"
+  };
+  return renderMap[tabModel.value] || null;
+})
+</script>
 
-// console.log( activeUUID, config);
+<script lang="ts">
+import componentConfig from "./componentConfig.vue";
+
+export default {
+  components: {
+    componentConfig
+  }
+}
 </script>

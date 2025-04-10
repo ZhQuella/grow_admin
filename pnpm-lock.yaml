@@ -268,7 +268,7 @@ importers:
   GrowRock/GrowDesigner:
     dependencies:
       '@grow-rock/grow-editor':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../GrowEditor
       vuedraggable:
         specifier: ^4.1.0

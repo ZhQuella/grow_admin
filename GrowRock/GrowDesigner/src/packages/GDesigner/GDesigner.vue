@@ -1,6 +1,11 @@
 <template>
-  <div class="h-full relative" @mouseup="onLeftOptionClose" @click="onActivated('')">
-    <div class="flex h-full rounded-[4px] overflow-hidden">
+  <div class="h-full relative flex flex-col" @mouseup="onLeftOptionClose" @click="onActivated('')">
+    <div class="h-[40px] border-b border-BORDER_COLOR] flex justify-end box-border px-[5px] py-[4px]">
+      <ElButton :icon="AccessibilityColor">
+        预览
+      </ElButton>
+    </div>
+    <div class="flex flex-1 rounded-[4px] overflow-hidden">
       <div
         class="grow-0 shrink-0 w-[50px] bg-BG_COLOR3 box-border p-[5px] border-r-[1px] border-BORDER_COLOR2 border-solid"
         @mouseup.stop
@@ -47,6 +52,36 @@
           >
             <el-icon :size="18" @click="onLeftOptionClose">
               <TreeView />
+            </el-icon>
+          </div>
+        </el-tooltip>
+        <el-tooltip class="box-item" effect="dark" content="数据源" placement="right">
+          <div
+              class="text-center leading-[40px] mb-[5px] cursor-pointer hover:text-PUBLIC_MAIN_COLOR transition duration-150"
+              :class="[
+              {
+                'text-PUBLIC_MAIN_COLOR': optionConfig.type === 'dataBin'
+              }
+            ]"
+              @click="onLeftOptionClick('dataBin')"
+          >
+            <el-icon :size="18" @click="onLeftOptionClose">
+              <DataBin />
+            </el-icon>
+          </div>
+        </el-tooltip>
+        <el-tooltip class="box-item" effect="dark" content="数据请求" placement="right">
+          <div
+              class="text-center leading-[40px] mb-[5px] cursor-pointer hover:text-PUBLIC_MAIN_COLOR transition duration-150"
+              :class="[
+              {
+                'text-PUBLIC_MAIN_COLOR': optionConfig.type === 'apiOutlined'
+              }
+            ]"
+              @click="onLeftOptionClick('apiOutlined')"
+          >
+            <el-icon :size="18" @click="onLeftOptionClose">
+              <ApiOutlined />
             </el-icon>
           </div>
         </el-tooltip>
@@ -112,7 +147,7 @@
         </div>
       </div>
       <div
-        class="grow-0 shrink-0 w-[300px] bg-BG_COLOR3 border-l-[1px] border-BORDER_COLOR2 border-solid"
+        class="grow-0 shrink-0 w-[320px] bg-BG_COLOR3 border-l-[1px] border-BORDER_COLOR2 border-solid"
         @click.stop
       >
         <component
@@ -126,7 +161,8 @@
 </template>
 
 <script setup lang="ts">
-import { FlowLogsVpc, Close, DataBase, TreeView } from "@vicons/carbon";
+import { FlowLogsVpc, Close, DataBase, TreeView, DataBin, AccessibilityColor } from "@vicons/carbon";
+import { ApiOutlined } from "@vicons/antd";
 import DraggableView from "./components/draggableView/index.vue";
 
 import { useOption } from "./use/useOption";
@@ -156,6 +192,8 @@ import reviewData from "./components/reviewData/index.vue";
 import reviewTree from "./components/reviewTree/index.vue";
 import EleOptions from "./components/eleOptions/index.vue";
 import PageOptions from "./components/pageOptions/index.vue";
+import dataSource from "./components/dataSource/index.vue";
+import apiOutlined from "./components/apiOutlined/index.vue";
 
 export default defineComponent({
   name: "GDesigner",
@@ -164,7 +202,9 @@ export default defineComponent({
     PageOptions,
     moduleOptions,
     reviewData,
-    reviewTree
+    reviewTree,
+    dataSource,
+    apiOutlined
   }
 });
 </script>

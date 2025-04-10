@@ -5,6 +5,10 @@ export const useOption = () => {
   const draggableConfig = reactive({
     //  页面配置
     pageConfig: {},
+    //  数据源
+    dataSource: {},
+    //  数据请求
+    apiOutlined: {},
     //  结构
     structures: [],
     //  附属信息  model/类型/props
@@ -42,6 +46,14 @@ export const useOption = () => {
     tree: {
       title: "结构树",
       componentName: "reviewTree"
+    },
+    dataBin: {
+      title: "数据源",
+      componentName: "dataSource"
+    },
+    apiOutlined: {
+      title: "数据请求",
+      componentName: "apiOutlined"
     }
   };
 
