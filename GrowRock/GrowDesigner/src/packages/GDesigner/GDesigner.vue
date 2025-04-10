@@ -112,7 +112,7 @@
         </div>
       </div>
       <div
-        class="grow-0 shrink-0 w-[300px] bg-BG_COLOR3 border-l-[1px] border-BORDER_COLOR2 border-solid"
+        class="grow-0 shrink-0 w-[320px] bg-BG_COLOR3 border-l-[1px] border-BORDER_COLOR2 border-solid"
         @click.stop
       >
         <component
