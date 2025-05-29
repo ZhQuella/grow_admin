@@ -4,13 +4,14 @@ import { useI18n } from "vue-i18n";
 import { storageExample } from "@grow-rock/grow-utils";
 import { useLoginSuccess } from "../../use/useLoginSuccess";
 import { ACCOUNT_INFO } from "@/assets/enums/cacheEnum";
+import { useLockScreen } from "store/modules/LockScreen";
 import formLogin from "api/Login";
 import { ElMessage } from "element-plus";
 
 export const useForm = () => {
   const i18n = useI18n();
   const { loginSuccess } = useLoginSuccess();
-
+  const { setIsLockScreen } = useLockScreen();
   const loginFormRef = ref();
   const loading = ref(false);
   const loginFormData = reactive({
@@ -45,6 +46,7 @@ export const useForm = () => {
     }
     const formData = { account, password, isRemember };
     storageExample.set(ACCOUNT_INFO, JSON.stringify(formData));
+    setIsLockScreen(false);
   };
 
   const onLogin = async () => {
