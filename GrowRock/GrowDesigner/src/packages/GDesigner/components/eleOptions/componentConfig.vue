@@ -13,7 +13,10 @@
           </el-tooltip>
         </template>
         <template #default>
-          <component :is="item.eleType" v-bind="item.props || {}" class="w-full">
+          <component :is="item.eleType"
+                     v-bind="item.props || {}" class="w-full"
+                     clearable
+                     v-model="currentPropsConfig[item.modelKey]">
             <template v-if="item.eleType === 'ElSelect'">
               <ElOption v-for="(item, index) in item.props.options || []"
                         :key="index"
@@ -29,20 +32,27 @@
 
 <script setup lang="ts">
 import { computed, toRefs } from "vue";
-import elFormConfig from "../../static/elFormConfig";
 import { Help } from "@vicons/carbon";
+import elFormConfig from "../../static/elementInfo/elFormConfig";
+import elFormItemConfig from "../../static/elementInfo/elFormItemConfig";
+import elButtonConfig from "../../static/elementInfo/elButtonConfig";
 
 const props = defineProps({
   currentBasicConfig: {
     type: Object,
     default: () => ({})
+  },
+  currentPropsConfig: {
+    type: Object,
+    default: () => ({})
   }
 });
-const { currentBasicConfig } = toRefs(props);
-
+const { currentBasicConfig, currentPropsConfig } = toRefs(props);
 const renderList = computed(() => {
   const renderMap = {
-    'el-form': elFormConfig.props
+    'el-form': elFormConfig.props,
+    'el-form-item': elFormItemConfig.props,
+    'el-button': elButtonConfig.props
   };
   return renderMap[currentBasicConfig.value.elTagName] || [];
 });

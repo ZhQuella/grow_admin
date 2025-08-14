@@ -1,10 +1,10 @@
 <template>
   <template v-if="config.elType === 'basic' && !config.isChild">
-    <basicComponent :config="config" />
+    <basicComponent :config="config" :propsInfo="propsInfo" />
   </template>
 
   <template v-if="config.elType === 'eleModule' && !config.isChild">
-    <eleModuleComponent :config="config" />
+    <eleModuleComponent :config="config" :propsInfo="propsInfo"/>
   </template>
 
   <template v-if="config.isChild">
@@ -35,6 +35,7 @@
           >
             <abstractionComponent
               :config="draggableConfig.renderArgument[element.uuid]"
+              :propsInfo="draggableConfig.props[element.uuid]"
               :structure="element"
               @add="onAbstractionAdd"
               @delete="onSpecialDelete"
@@ -47,7 +48,7 @@
     </template>
 
     <template v-if="['el-form','el-form-item'].includes(config.elTagName)">
-      <component :is="config.elTagName">
+      <component :is="config.elTagName" v-bind="propsInfo">
         <draggable
             group="draggable-group"
             :animation="200"
@@ -75,6 +76,7 @@
             >
               <abstractionComponent
                   :config="draggableConfig.renderArgument[element.uuid]"
+                  :propsInfo="draggableConfig.props[element.uuid]"
                   :structure="element"
                   :drag="drag"
                   @add="onAbstractionAdd"
@@ -126,6 +128,7 @@
           >
             <abstractionComponent
               :config="draggableConfig.renderArgument[element.uuid]"
+              :propsInfo="draggableConfig.props[element.uuid]"
               :structure="element"
               @add="onAbstractionAdd"
               @special="onDraggableAdd"
@@ -165,6 +168,7 @@
           >
             <abstractionComponent
               :config="draggableConfig.renderArgument[element.uuid]"
+              :propsInfo="draggableConfig.props[element.uuid]"
               :structure="element"
               @add="onAbstractionAdd"
               @delete="onSpecialDelete"
@@ -213,6 +217,7 @@
           >
             <abstractionComponent
               :config="draggableConfig.renderArgument[element.uuid]"
+              :propsInfo="draggableConfig.props[element.uuid]"
               :structure="element"
               :drag="drag"
               @add="onAbstractionAdd"
@@ -227,11 +232,12 @@
     </el-card>
 
     <template v-if="['el-tabs', 'el-row', 'el-collapse','el-timeline'].includes(config.elTagName)">
-      <component :is="config.elTagName">
+      <component :is="config.elTagName" v-bind="propsInfo">
         <abstractionComponent
           v-for="ele in structure.children"
           :structure="ele"
           :config="draggableConfig.renderArgument[ele.uuid]"
+          :propsInfo="draggableConfig.props[ele.uuid]"
           :key="ele.uuid"
           :drag="drag"
           @add="onAbstractionAdd"
@@ -245,11 +251,12 @@
 
     <template v-if="['el-drawer', 'el-dialog'].includes(config.elTagName)">
       <!--todo 需要后续增加事件之后才能添加-->
-      <component :is="config.elTagName">
+      <component :is="config.elTagName" v-bind="propsInfo">
         <abstractionComponent
           v-for="ele in structure.children"
           :structure="ele"
           :config="draggableConfig.renderArgument[ele.uuid]"
+          :propsInfo="draggableConfig.props[ele.uuid]"
           :key="ele.uuid"
           :drag="drag"
           @add="onAbstractionAdd"
@@ -280,15 +287,20 @@ const emit = defineEmits(["add", "special", "active", "delete", "copy"]);
 interface PropsType {
   config: any;
   structure: any;
+  propsInfo: any;
+  draggableConfig: any;
+  drag: boolean;
 }
 
 const props = withDefaults(defineProps<PropsType>(), {
   config: () => ({}),
+  propsInfo: () => ({}),
   structure: () => ({}),
+  draggableConfig: () => ({}),
   drag: false
 });
 
-const { structure, drag } = toRefs(props);
+const { structure, drag, propsInfo } = toRefs(props);
 
 const onAbstractionAdd = (event) => {
   emit("add", event);

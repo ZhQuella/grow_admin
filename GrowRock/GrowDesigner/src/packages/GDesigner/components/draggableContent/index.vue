@@ -18,6 +18,7 @@
     <template #item="{ element }">
       <DraggableItem
         :structure="element"
+        :config="draggableConfig.renderArgument[element.uuid]"
         @special="onSpecialAdd"
         @delete="onSpecialDelete"
         @copy="onCopyItem"
@@ -25,6 +26,8 @@
       >
         <abstractionComponent
           :config="draggableConfig.renderArgument[element.uuid]"
+          :propsInfo="draggableConfig.props[element.uuid]"
+          :draggableConfig="draggableConfig"
           :structure="element"
           @add="onChildAdd"
           @delete="onSpecialDelete"

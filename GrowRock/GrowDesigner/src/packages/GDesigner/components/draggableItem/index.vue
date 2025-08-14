@@ -53,12 +53,16 @@ const activeUUID = inject(ACTIVE_UUID) as Ref<string>;
 
 interface Props {
   structure: any;
+  config: any;
 }
 
 const emit = defineEmits(["special", "active", "delete", "copy"]);
 
-const props = defineProps<Props>();
-const { structure } = toRefs(props);
+const props =  withDefaults(defineProps<Props>(), {
+  config: () => ({}),
+  structure: () => ({})
+});
+const { structure, config } = toRefs(props);
 
 const uuid = computed(() => {
   return structure?.value?.uuid;
