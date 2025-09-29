@@ -11,7 +11,8 @@
     </div>
     <ElScrollbar class="h-full flex-1">
       <component :is="renderConfigComponent"
-                 :currentBasicConfig="currentBasicConfig">
+                 :currentBasicConfig="currentBasicConfig"
+                 :currentPropsConfig="currentPropsConfig">
       </component>
 <!--      <ElementSize v-model:styleOption="config.styles[activeUUID]" />-->
 <!--      <ElementDisplay />-->
@@ -24,8 +25,8 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "eleOptions" });
 import { toRefs, ref, computed } from "vue";
+defineOptions({ name: "eleOptions" });
 // import ElementSize from "../../optionComponent/ElementSize/index.vue";
 // import ElementDisplay from "../../optionComponent/ElementDisplay/index.vue";
 
@@ -44,6 +45,9 @@ const { activeUUID, config } = toRefs(props);
 const tabModel = ref("props");
 const currentBasicConfig = computed(() => {
   return config.value['renderArgument'][activeUUID.value]
+});
+const currentPropsConfig = computed(() => {
+  return config.value['props'][activeUUID.value]
 });
 const renderConfigComponent = computed(() => {
   const renderMap = {

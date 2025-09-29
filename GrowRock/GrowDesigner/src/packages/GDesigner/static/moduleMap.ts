@@ -11,12 +11,13 @@ export const BaseComponent = new Map([
           elIcon: "Image",
           isChild: false,
           isAdd: false,
-          childName: ""
+          childName: "",
+          isInlineBlock: true
         },
         {
           elName: "标题",
           elType: "basic",
-          elTagName: "h5",
+          elTagName: "BasicTitle",
           elIcon: "FontColorsOutlined",
           isChild: false,
           isAdd: false,
@@ -192,7 +193,8 @@ export const AtomicComponent = new Map([
           elIcon: "TouchInteraction",
           isChild: false,
           isAdd: false,
-          childName: ""
+          childName: "",
+          isInlineBlock: true
         },
         {
           elName: "链接",
