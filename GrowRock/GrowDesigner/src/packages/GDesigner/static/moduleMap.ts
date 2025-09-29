@@ -17,7 +17,7 @@ export const BaseComponent = new Map([
         {
           elName: "标题",
           elType: "basic",
-          elTagName: "h5",
+          elTagName: "BasicTitle",
           elIcon: "FontColorsOutlined",
           isChild: false,
           isAdd: false,

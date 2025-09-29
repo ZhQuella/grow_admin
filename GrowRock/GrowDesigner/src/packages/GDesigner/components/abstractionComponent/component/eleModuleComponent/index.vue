@@ -14,9 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, toRefs, ref } from "vue";
-
-const list = ref([]);
+import { computed, toRefs } from "vue";
 
 interface PropsType {
   config: any;

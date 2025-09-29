@@ -94,9 +94,6 @@ export default {
             props: {
                 placeholder: "请选择组件尺寸",
                 options: [{
-                    label: "默认",
-                    value: ""
-                },{
                     label: "大",
                     value: "large"
                 },{
