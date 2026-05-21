@@ -1,51 +1,23 @@
 {
+  "extends": "@grow-admin-config/tsconfig/base.json",
   "compilerOptions": {
-    "skipLibCheck": true,
-    "target": "es2022",
+    "target": "esnext",
     "module": "esnext",
-    "useDefineForClassFields": true,
-    "moduleResolution": "Node",
-    "strict": true,
-    "jsx": "preserve",
-    "sourceMap": false,
-    "noImplicitAny": true,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "strictNullChecks": false,
-    "noEmit": true,
-    "lib": ["esnext", "dom"],
-    "types": ["vite/client"],
+    "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "components/*": ["src/components/*"],
-      "api/*": ["src/apis/*"],
-      "api": ["src/apis/index"],
-      "util/*": ["src/utils/*"],
-      "pages/*": ["src/pages/*"],
-      "hooks/*": ["src/hooks/*"],
-      "router/*": ["src/routers/*"],
-      "language/*": ["src/language/*"],
-      "types/*": ["types/*"],
-      "plugin/*": ["src/plugins/*"],
-      "plugin": ["src/plugins/index"],
-      "store/*": ["src/stores/*"],
-      "store": ["src/stores/index"],
-      "style/*": ["src/style/*"],
-      "setting/*": ["src/settings/*"],
-      "image/*": ["src/assets/images/*"]
-    }
+      "@/*": ["src/*"]
+    },
+    "lib": ["dom", "esnext", "ES6"],
+    "types": [
+      "vite/client",
+      "reflect-metadata"
+    ]
   },
   "include": [
-    "src/**/*.ts",
-    "src/**/*.d.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "mock/**/*.ts",
-    "types/**/*.d.ts",
-    "types/**/*.ts",
-    "build/**/*.ts",
-    "build/**/*.d.ts"
+    "src",
+    "mock",
+    "vite.config.ts"
   ],
-  "exclude": ["node_modules", "dist", "**/*.js"]
+  "exclude": ["**/node_modules/**", "**/dist/**"]
 }
