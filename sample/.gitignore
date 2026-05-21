@@ -10,15 +10,11 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
-.turbo
-.vite-inspect
-.vscode
 *.local
-stats.html
-pnpm-lock.yaml
-coverage
 
 # Editor directories and files
+.vscode/*
+!.vscode/extensions.json
 .idea
 .DS_Store
 *.suo

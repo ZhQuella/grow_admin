@@ -1,0 +1,1341 @@
+{
+  "root": "/Users/aaron/Desktop/grow_admin/sample",
+  "modules": [
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-base-package/index.ts",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:esbuild",
+          "transform": 5
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 1
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 1
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 21
+        }
+      ],
+      "virtual": false,
+      "totalTime": 6,
+      "invokeCount": 1,
+      "sourceSize": 21,
+      "distSize": 95
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-base-package/src/AppContext.ts",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:esbuild",
+          "transform": 1
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 1
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 1
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        }
+      ],
+      "virtual": false,
+      "totalTime": 2,
+      "invokeCount": 1,
+      "sourceSize": 3216,
+      "distSize": 2421
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-base-package/src/Library.ts",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        }
+      ],
+      "virtual": false,
+      "totalTime": 0,
+      "invokeCount": 1,
+      "sourceSize": 1611,
+      "distSize": 0
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-base-package/src/index.ts",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:esbuild",
+          "transform": 41
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 1
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 1
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        }
+      ],
+      "virtual": false,
+      "totalTime": 42,
+      "invokeCount": 1,
+      "sourceSize": 1659,
+      "distSize": 999
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/index.ts",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:esbuild",
+          "transform": 5
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 1
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 1
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 20
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        }
+      ],
+      "virtual": false,
+      "totalTime": 6,
+      "invokeCount": 1,
+      "sourceSize": 259,
+      "distSize": 277
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/index.ts",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:esbuild",
+          "transform": 43
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 1
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 1
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        }
+      ],
+      "virtual": false,
+      "totalTime": 44,
+      "invokeCount": 1,
+      "sourceSize": 4155,
+      "distSize": 2837
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/ioc.ts",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:esbuild",
+          "transform": 1
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 1
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        }
+      ],
+      "virtual": false,
+      "totalTime": 2,
+      "invokeCount": 1,
+      "sourceSize": 992,
+      "distSize": 525
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/logger/config/default_settings.ts",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:esbuild",
+          "transform": 1
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 1
+        }
+      ],
+      "virtual": false,
+      "totalTime": 1,
+      "invokeCount": 1,
+      "sourceSize": 716,
+      "distSize": 498
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/logger/index.ts",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:esbuild",
+          "transform": 1
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 1
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        }
+      ],
+      "virtual": false,
+      "totalTime": 2,
+      "invokeCount": 1,
+      "sourceSize": 2334,
+      "distSize": 1779
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/logger/reducers/binding_reducer.ts",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:esbuild",
+          "transform": 1
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        }
+      ],
+      "virtual": false,
+      "totalTime": 1,
+      "invokeCount": 1,
+      "sourceSize": 724,
+      "distSize": 523
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/logger/reducers/request_reducer.ts",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:esbuild",
+          "transform": 2
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 1
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 1
+        }
+      ],
+      "virtual": false,
+      "totalTime": 3,
+      "invokeCount": 1,
+      "sourceSize": 1262,
+      "distSize": 1085
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/logger/reducers/target_reducer.ts",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:esbuild",
+          "transform": 1
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        }
+      ],
+      "virtual": false,
+      "totalTime": 1,
+      "invokeCount": 1,
+      "sourceSize": 908,
+      "distSize": 615
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/logger/utils/utils.ts",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:esbuild",
+          "transform": 3
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        }
+      ],
+      "virtual": false,
+      "totalTime": 3,
+      "invokeCount": 1,
+      "sourceSize": 1156,
+      "distSize": 875
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/plugin.ts",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:esbuild",
+          "transform": 40
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        }
+      ],
+      "virtual": false,
+      "totalTime": 40,
+      "invokeCount": 1,
+      "sourceSize": 261,
+      "distSize": 202
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-styles/index.ts",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:esbuild",
+          "transform": 4
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 38
+        }
+      ],
+      "virtual": false,
+      "totalTime": 4,
+      "invokeCount": 1,
+      "sourceSize": 21,
+      "distSize": 82
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-styles/src/common.css",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:css",
+          "transform": 70
+        },
+        {
+          "name": "vite:css-post",
+          "transform": 0
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 1
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        }
+      ],
+      "virtual": false,
+      "totalTime": 71,
+      "invokeCount": 1,
+      "sourceSize": 1220,
+      "distSize": 2052
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-styles/src/index.ts",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:esbuild",
+          "transform": 3
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 2
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 1
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        }
+      ],
+      "virtual": false,
+      "totalTime": 5,
+      "invokeCount": 1,
+      "sourceSize": 87,
+      "distSize": 306
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-styles/src/variables.css",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:css",
+          "transform": 69
+        },
+        {
+          "name": "vite:css-post",
+          "transform": 0
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 1
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        }
+      ],
+      "virtual": false,
+      "totalTime": 70,
+      "invokeCount": 1,
+      "sourceSize": 1670,
+      "distSize": 2311
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/node_modules/.pnpm/@inversifyjs+common@1.4.0/node_modules/@inversifyjs/common/lib/esm/index.js",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "vite:resolve (+alias)",
+          "resolveId": 1
+        },
+        {
+          "name": "vite:resolve (+alias)",
+          "resolveId": 1
+        }
+      ],
+      "virtual": true,
+      "totalTime": 0,
+      "invokeCount": 0,
+      "sourceSize": 0,
+      "distSize": 0
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/node_modules/.pnpm/@inversifyjs+core@1.3.5_reflect-metadata@0.2.2/node_modules/@inversifyjs/core/lib/esm/index.js",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "vite:resolve (+alias)",
+          "resolveId": 1
+        }
+      ],
+      "virtual": true,
+      "totalTime": 0,
+      "invokeCount": 0,
+      "sourceSize": 0,
+      "distSize": 0
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/node_modules/.pnpm/@inversifyjs+reflect-metadata-utils@0.2.4_reflect-metadata@0.2.2/node_modules/@inversifyjs/reflect-metadata-utils/lib/esm/index.js",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "vite:resolve (+alias)",
+          "resolveId": 2
+        }
+      ],
+      "virtual": true,
+      "totalTime": 0,
+      "invokeCount": 0,
+      "sourceSize": 0,
+      "distSize": 0
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/node_modules/.pnpm/@vue+compiler-core@3.3.13/node_modules/@vue/compiler-core/dist/compiler-core.esm-bundler.js",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "vite:resolve (+alias)",
+          "resolveId": 1
+        }
+      ],
+      "virtual": true,
+      "totalTime": 0,
+      "invokeCount": 0,
+      "sourceSize": 0,
+      "distSize": 0
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/node_modules/.pnpm/@vue+compiler-dom@3.3.13/node_modules/@vue/compiler-dom/dist/compiler-dom.esm-bundler.js",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "vite:resolve (+alias)",
+          "resolveId": 1
+        }
+      ],
+      "virtual": true,
+      "totalTime": 0,
+      "invokeCount": 0,
+      "sourceSize": 0,
+      "distSize": 0
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/node_modules/.pnpm/@vue+reactivity@3.3.13/node_modules/@vue/reactivity/dist/reactivity.esm-bundler.js",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "vite:resolve (+alias)",
+          "resolveId": 1
+        }
+      ],
+      "virtual": true,
+      "totalTime": 0,
+      "invokeCount": 0,
+      "sourceSize": 0,
+      "distSize": 0
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/node_modules/.pnpm/@vue+runtime-core@3.3.13/node_modules/@vue/runtime-core/dist/runtime-core.esm-bundler.js",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "vite:resolve (+alias)",
+          "resolveId": 1
+        }
+      ],
+      "virtual": true,
+      "totalTime": 0,
+      "invokeCount": 0,
+      "sourceSize": 0,
+      "distSize": 0
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/node_modules/.pnpm/@vue+runtime-dom@3.3.13/node_modules/@vue/runtime-dom/dist/runtime-dom.esm-bundler.js",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "vite:resolve (+alias)",
+          "resolveId": 1
+        }
+      ],
+      "virtual": true,
+      "totalTime": 0,
+      "invokeCount": 0,
+      "sourceSize": 0,
+      "distSize": 0
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/node_modules/.pnpm/@vue+shared@3.3.13/node_modules/@vue/shared/dist/shared.esm-bundler.js",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "vite:resolve (+alias)",
+          "resolveId": 1
+        },
+        {
+          "name": "vite:resolve (+alias)",
+          "resolveId": 2
+        },
+        {
+          "name": "vite:resolve (+alias)",
+          "resolveId": 1
+        },
+        {
+          "name": "vite:resolve (+alias)",
+          "resolveId": 1
+        },
+        {
+          "name": "vite:resolve (+alias)",
+          "resolveId": 1
+        },
+        {
+          "name": "vite:resolve (+alias)",
+          "resolveId": 0
+        }
+      ],
+      "virtual": true,
+      "totalTime": 0,
+      "invokeCount": 0,
+      "sourceSize": 0,
+      "distSize": 0
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/node_modules/.pnpm/dayjs@1.11.20/node_modules/dayjs/dayjs.min.js",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "vite:resolve (+alias)",
+          "resolveId": 1
+        },
+        {
+          "name": "vite:resolve (+alias)",
+          "resolveId": 1
+        },
+        {
+          "name": "vite:resolve (+alias)",
+          "resolveId": 1
+        }
+      ],
+      "virtual": true,
+      "totalTime": 0,
+      "invokeCount": 0,
+      "sourceSize": 0,
+      "distSize": 0
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/node_modules/.pnpm/dayjs@1.11.20/node_modules/dayjs/locale/en.js",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "vite:resolve (+alias)",
+          "resolveId": 1
+        }
+      ],
+      "virtual": true,
+      "totalTime": 0,
+      "invokeCount": 0,
+      "sourceSize": 0,
+      "distSize": 0
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/node_modules/.pnpm/dayjs@1.11.20/node_modules/dayjs/locale/eu.js",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "vite:resolve (+alias)",
+          "resolveId": 0
+        }
+      ],
+      "virtual": true,
+      "totalTime": 0,
+      "invokeCount": 0,
+      "sourceSize": 0,
+      "distSize": 0
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/node_modules/.pnpm/dayjs@1.11.20/node_modules/dayjs/locale/zh-cn.js",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "vite:resolve (+alias)",
+          "resolveId": 0
+        }
+      ],
+      "virtual": true,
+      "totalTime": 0,
+      "invokeCount": 0,
+      "sourceSize": 0,
+      "distSize": 0
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/node_modules/.pnpm/inversify@6.2.2_reflect-metadata@0.2.2/node_modules/inversify/lib/esm/index.js",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "vite:resolve",
+          "resolveId": 1
+        }
+      ],
+      "virtual": true,
+      "totalTime": 0,
+      "invokeCount": 0,
+      "sourceSize": 0,
+      "distSize": 0
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/node_modules/.pnpm/lodash-es@4.18.1/node_modules/lodash-es/lodash.js",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        }
+      ],
+      "virtual": true,
+      "totalTime": 0,
+      "invokeCount": 0,
+      "sourceSize": 0,
+      "distSize": 0
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/node_modules/.pnpm/reflect-metadata@0.2.2/node_modules/reflect-metadata/Reflect.js",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "vite:resolve",
+          "resolveId": 1
+        },
+        {
+          "name": "vite:resolve (+alias)",
+          "resolveId": 1
+        }
+      ],
+      "virtual": true,
+      "totalTime": 0,
+      "invokeCount": 0,
+      "sourceSize": 0,
+      "distSize": 0
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/node_modules/.pnpm/reset-css@5.0.2/node_modules/reset-css/reset.css",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:css",
+          "transform": 69
+        },
+        {
+          "name": "vite:css-post",
+          "transform": 0
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 1
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 1
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        }
+      ],
+      "virtual": false,
+      "totalTime": 70,
+      "invokeCount": 1,
+      "sourceSize": 1194,
+      "distSize": 1891
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/node_modules/.pnpm/vite@4.3.9_@types+node@25.9.1_less@4.6.4_terser@5.47.1/node_modules/vite/dist/client/client.mjs",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:client-inject",
+          "transform": 0
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 2
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "alias",
+          "resolveId": 0
+        },
+        {
+          "name": "alias",
+          "resolveId": 0
+        },
+        {
+          "name": "alias",
+          "resolveId": 0
+        },
+        {
+          "name": "alias",
+          "resolveId": 0
+        }
+      ],
+      "virtual": false,
+      "totalTime": 2,
+      "invokeCount": 1,
+      "sourceSize": 24218,
+      "distSize": 24275
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/node_modules/.pnpm/vite@4.3.9_@types+node@25.9.1_less@4.6.4_terser@5.47.1/node_modules/vite/dist/client/env.mjs",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:client-inject",
+          "transform": 0
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "alias",
+          "resolveId": 0
+        }
+      ],
+      "virtual": false,
+      "totalTime": 0,
+      "invokeCount": 1,
+      "sourceSize": 776,
+      "distSize": 1716
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/node_modules/.pnpm/vue@3.3.13_typescript@5.9.3/node_modules/vue/dist/vue.esm-bundler.js",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "alias",
+          "resolveId": 0
+        }
+      ],
+      "virtual": true,
+      "totalTime": 0,
+      "invokeCount": 0,
+      "sourceSize": 0,
+      "distSize": 0
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/sample/node_modules/.vite/deps/chunk-BO2KSW6Z.js?v=90dbfd45",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "vite:optimized-deps",
+          "transform": 14
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        }
+      ],
+      "virtual": true,
+      "totalTime": 14,
+      "invokeCount": 1,
+      "sourceSize": 1494,
+      "distSize": 1494
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/sample/node_modules/.vite/deps/chunk-DYAMSWWE.js?v=90dbfd45",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "vite:optimized-deps",
+          "transform": 14
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        }
+      ],
+      "virtual": true,
+      "totalTime": 14,
+      "invokeCount": 1,
+      "sourceSize": 36232,
+      "distSize": 36232
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/sample/node_modules/.vite/deps/inversify.js?v=4789f199",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "vite:optimized-deps",
+          "transform": 141
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 1
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 1
+        }
+      ],
+      "virtual": true,
+      "totalTime": 141,
+      "invokeCount": 1,
+      "sourceSize": 59477,
+      "distSize": 59545
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/sample/node_modules/.vite/deps/lodash-es.js?v=eca34194",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "vite:optimized-deps",
+          "transform": 154
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 2
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        }
+      ],
+      "virtual": true,
+      "totalTime": 156,
+      "invokeCount": 1,
+      "sourceSize": 309172,
+      "distSize": 309206
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/sample/node_modules/.vite/deps/reflect-metadata.js?v=f6e2a1f9",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "vite:optimized-deps",
+          "transform": 194
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 1
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        }
+      ],
+      "virtual": true,
+      "totalTime": 195,
+      "invokeCount": 1,
+      "sourceSize": 75,
+      "distSize": 109
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/sample/node_modules/.vite/deps/vue.js?v=bf32514c",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "vite:optimized-deps",
+          "transform": 203
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 3
+        },
+        {
+          "name": "vite:pre-alias",
+          "resolveId": 38
+        },
+        {
+          "name": "vite:pre-alias",
+          "resolveId": 23
+        },
+        {
+          "name": "vite:pre-alias",
+          "resolveId": 0
+        }
+      ],
+      "virtual": true,
+      "totalTime": 206,
+      "invokeCount": 1,
+      "sourceSize": 474989,
+      "distSize": 475023
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/sample/src/App.vue",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:vue",
+          "transform": 11
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 28
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        }
+      ],
+      "virtual": false,
+      "totalTime": 39,
+      "invokeCount": 1,
+      "sourceSize": 205,
+      "distSize": 1443
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/sample/src/main.ts",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:esbuild",
+          "transform": 9
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 43
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        }
+      ],
+      "virtual": false,
+      "totalTime": 52,
+      "invokeCount": 1,
+      "sourceSize": 429,
+      "distSize": 416
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/sample/src/plugin/initAppContext.ts",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:esbuild",
+          "transform": 1
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 22
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        }
+      ],
+      "virtual": false,
+      "totalTime": 23,
+      "invokeCount": 1,
+      "sourceSize": 117,
+      "distSize": 148
+    },
+    {
+      "id": "/Users/aaron/Desktop/grow_admin/sample/src/plugin/initIoc.ts",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "__load__",
+          "transform": 0
+        },
+        {
+          "name": "vite:esbuild",
+          "transform": 1
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 21
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 1
+        },
+        {
+          "name": "vite:resolve",
+          "resolveId": 0
+        }
+      ],
+      "virtual": false,
+      "totalTime": 22,
+      "invokeCount": 1,
+      "sourceSize": 497,
+      "distSize": 276
+    },
+    {
+      "id": "/__uno.css",
+      "deps": [],
+      "plugins": [
+        {
+          "name": "unocss:global",
+          "transform": 33
+        },
+        {
+          "name": "vite:css",
+          "transform": 80
+        },
+        {
+          "name": "vite:css-post",
+          "transform": 0
+        },
+        {
+          "name": "unocss:global:post",
+          "transform": 3
+        },
+        {
+          "name": "vite:import-analysis",
+          "transform": 0
+        },
+        {
+          "name": "unocss:global",
+          "resolveId": 0
+        },
+        {
+          "name": "unocss:global",
+          "resolveId": 0
+        }
+      ],
+      "virtual": true,
+      "totalTime": 116,
+      "invokeCount": 1,
+      "sourceSize": 40589,
+      "distSize": 41828
+    }
+  ],
+  "ssrModules": []
+}

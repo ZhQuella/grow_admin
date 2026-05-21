@@ -1,0 +1,145 @@
+{
+  "resolvedId": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/logger/reducers/request_reducer.ts",
+  "transforms": [
+    {
+      "name": "__load__",
+      "result": "import * as inversify from \"inversify\";\nimport bindingReducer from \"./binding_reducer\";\nimport targetReducer from \"./target_reducer\";\nimport interfaces from \"../interfaces/interfaces\";\n\nfunction requestReducer(\n    request: inversify.interfaces.Request,\n    options: interfaces.RequestLoggerSettings\n) {\n\n    let reducedRequest: any = {};\n    let requestOptions: any = options;\n\n    if (requestOptions.serviceIdentifier === true) {\n        reducedRequest.serviceIdentifier = request.serviceIdentifier;\n    }\n\n    // bindings\n    if (requestOptions.bindings !== undefined) {\n        let reducedBindings = request.bindings.map((binding: inversify.interfaces.Binding<any>) => {\n            return bindingReducer(binding, options.bindings);\n        });\n        reducedRequest.bindings = reducedBindings;\n    }\n\n    // target\n    if (requestOptions.target !== undefined && request.target !== null) {\n        reducedRequest.target = targetReducer(request.target, options.target);\n    }\n\n    // child requests\n    let reducedChieldRequest = request.childRequests.map((childRequest) => {\n        return requestReducer(childRequest, options);\n    });\n    reducedRequest.childRequests = reducedChieldRequest;\n\n    return reducedRequest;\n\n}\n\nexport default requestReducer;\n",
+      "start": 1779333432082,
+      "end": 1779333432082
+    },
+    {
+      "name": "unocss:transformers:pre",
+      "start": 1779333432082,
+      "end": 1779333432082,
+      "order": "pre"
+    },
+    {
+      "name": "unocss:global",
+      "start": 1779333432082,
+      "end": 1779333432082,
+      "order": "pre"
+    },
+    {
+      "name": "vite:css",
+      "start": 1779333432082,
+      "end": 1779333432082,
+      "order": "normal"
+    },
+    {
+      "name": "vite:esbuild",
+      "result": "import bindingReducer from \"./binding_reducer\";\nimport targetReducer from \"./target_reducer\";\nfunction requestReducer(request, options) {\n  let reducedRequest = {};\n  let requestOptions = options;\n  if (requestOptions.serviceIdentifier === true) {\n    reducedRequest.serviceIdentifier = request.serviceIdentifier;\n  }\n  if (requestOptions.bindings !== void 0) {\n    let reducedBindings = request.bindings.map((binding) => {\n      return bindingReducer(binding, options.bindings);\n    });\n    reducedRequest.bindings = reducedBindings;\n  }\n  if (requestOptions.target !== void 0 && request.target !== null) {\n    reducedRequest.target = targetReducer(request.target, options.target);\n  }\n  let reducedChieldRequest = request.childRequests.map((childRequest) => {\n    return requestReducer(childRequest, options);\n  });\n  reducedRequest.childRequests = reducedChieldRequest;\n  return reducedRequest;\n}\nexport default requestReducer;\n",
+      "start": 1779333432082,
+      "end": 1779333432084,
+      "order": "normal",
+      "sourcemaps": {
+        "version": 3,
+        "sources": [
+          "request_reducer.ts"
+        ],
+        "sourcesContent": [
+          "import * as inversify from \"inversify\";\nimport bindingReducer from \"./binding_reducer\";\nimport targetReducer from \"./target_reducer\";\nimport interfaces from \"../interfaces/interfaces\";\n\nfunction requestReducer(\n    request: inversify.interfaces.Request,\n    options: interfaces.RequestLoggerSettings\n) {\n\n    let reducedRequest: any = {};\n    let requestOptions: any = options;\n\n    if (requestOptions.serviceIdentifier === true) {\n        reducedRequest.serviceIdentifier = request.serviceIdentifier;\n    }\n\n    // bindings\n    if (requestOptions.bindings !== undefined) {\n        let reducedBindings = request.bindings.map((binding: inversify.interfaces.Binding<any>) => {\n            return bindingReducer(binding, options.bindings);\n        });\n        reducedRequest.bindings = reducedBindings;\n    }\n\n    // target\n    if (requestOptions.target !== undefined && request.target !== null) {\n        reducedRequest.target = targetReducer(request.target, options.target);\n    }\n\n    // child requests\n    let reducedChieldRequest = request.childRequests.map((childRequest) => {\n        return requestReducer(childRequest, options);\n    });\n    reducedRequest.childRequests = reducedChieldRequest;\n\n    return reducedRequest;\n\n}\n\nexport default requestReducer;\n"
+        ],
+        "mappings": "AACA,OAAO,oBAAoB;AAC3B,OAAO,mBAAmB;AAG1B,SAAS,eACL,SACA,SACF;AAEE,MAAI,iBAAsB,CAAC;AAC3B,MAAI,iBAAsB;AAE1B,MAAI,eAAe,sBAAsB,MAAM;AAC3C,mBAAe,oBAAoB,QAAQ;AAAA,EAC/C;AAGA,MAAI,eAAe,aAAa,QAAW;AACvC,QAAI,kBAAkB,QAAQ,SAAS,IAAI,CAAC,YAA+C;AACvF,aAAO,eAAe,SAAS,QAAQ,QAAQ;AAAA,IACnD,CAAC;AACD,mBAAe,WAAW;AAAA,EAC9B;AAGA,MAAI,eAAe,WAAW,UAAa,QAAQ,WAAW,MAAM;AAChE,mBAAe,SAAS,cAAc,QAAQ,QAAQ,QAAQ,MAAM;AAAA,EACxE;AAGA,MAAI,uBAAuB,QAAQ,cAAc,IAAI,CAAC,iBAAiB;AACnE,WAAO,eAAe,cAAc,OAAO;AAAA,EAC/C,CAAC;AACD,iBAAe,gBAAgB;AAE/B,SAAO;AAEX;AAEA,eAAe;",
+        "names": []
+      }
+    },
+    {
+      "name": "vite:json",
+      "start": 1779333432084,
+      "end": 1779333432084,
+      "order": "normal"
+    },
+    {
+      "name": "vite:worker",
+      "start": 1779333432084,
+      "end": 1779333432084,
+      "order": "normal"
+    },
+    {
+      "name": "vite:vue",
+      "start": 1779333432084,
+      "end": 1779333432084,
+      "order": "normal"
+    },
+    {
+      "name": "vite:vue-jsx",
+      "start": 1779333432084,
+      "end": 1779333432084,
+      "order": "normal"
+    },
+    {
+      "name": "unocss:transformers:default",
+      "start": 1779333432084,
+      "end": 1779333432084,
+      "order": "normal"
+    },
+    {
+      "name": "@grow-admin-plugins/unplugin-auto-import",
+      "start": 1779333432084,
+      "end": 1779333432084,
+      "order": "normal"
+    },
+    {
+      "name": "vite:define",
+      "start": 1779333432084,
+      "end": 1779333432084,
+      "order": "normal"
+    },
+    {
+      "name": "vite:css-post",
+      "start": 1779333432084,
+      "end": 1779333432084,
+      "order": "normal"
+    },
+    {
+      "name": "vite:worker-import-meta-url",
+      "start": 1779333432084,
+      "end": 1779333432084,
+      "order": "normal"
+    },
+    {
+      "name": "vite:asset-import-meta-url",
+      "start": 1779333432084,
+      "end": 1779333432084,
+      "order": "normal"
+    },
+    {
+      "name": "vite:dynamic-import-vars",
+      "start": 1779333432084,
+      "end": 1779333432084,
+      "order": "normal"
+    },
+    {
+      "name": "vite:import-glob",
+      "start": 1779333432084,
+      "end": 1779333432084,
+      "order": "normal"
+    },
+    {
+      "name": "unocss:transformers:post",
+      "start": 1779333432084,
+      "end": 1779333432084,
+      "order": "post"
+    },
+    {
+      "name": "unocss:global:post",
+      "start": 1779333432084,
+      "end": 1779333432084,
+      "order": "post"
+    },
+    {
+      "name": "vite:client-inject",
+      "start": 1779333432084,
+      "end": 1779333432084,
+      "order": "normal"
+    },
+    {
+      "name": "vite:import-analysis",
+      "result": "import bindingReducer from \"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/logger/reducers/binding_reducer.ts\";\nimport targetReducer from \"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/logger/reducers/target_reducer.ts\";\nfunction requestReducer(request, options) {\n  let reducedRequest = {};\n  let requestOptions = options;\n  if (requestOptions.serviceIdentifier === true) {\n    reducedRequest.serviceIdentifier = request.serviceIdentifier;\n  }\n  if (requestOptions.bindings !== void 0) {\n    let reducedBindings = request.bindings.map((binding) => {\n      return bindingReducer(binding, options.bindings);\n    });\n    reducedRequest.bindings = reducedBindings;\n  }\n  if (requestOptions.target !== void 0 && request.target !== null) {\n    reducedRequest.target = targetReducer(request.target, options.target);\n  }\n  let reducedChieldRequest = request.childRequests.map((childRequest) => {\n    return requestReducer(childRequest, options);\n  });\n  reducedRequest.childRequests = reducedChieldRequest;\n  return reducedRequest;\n}\nexport default requestReducer;\n",
+      "start": 1779333432084,
+      "end": 1779333432085,
+      "order": "normal",
+      "sourcemaps": null
+    }
+  ]
+}

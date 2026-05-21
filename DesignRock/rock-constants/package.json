@@ -1,0 +1,10 @@
+{
+  "name": "@grow-admin-rock/constants",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "module": "index.ts",
+  "license": "MIT",
+  "scripts": {
+    "clean": "pnpm rimraf pnpm rimraf dist && pnpm rimraf .turbo"
+  }
+}

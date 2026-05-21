@@ -1,0 +1,135 @@
+{
+  "resolvedId": "/Users/aaron/Desktop/grow_admin/node_modules/.pnpm/vite@4.3.9_@types+node@25.9.1_less@4.6.4_terser@5.47.1/node_modules/vite/dist/client/env.mjs",
+  "transforms": [
+    {
+      "name": "__load__",
+      "result": "const context = (() => {\n    if (typeof globalThis !== 'undefined') {\n        return globalThis;\n    }\n    else if (typeof self !== 'undefined') {\n        return self;\n    }\n    else if (typeof window !== 'undefined') {\n        return window;\n    }\n    else {\n        return Function('return this')();\n    }\n})();\n// assign defines\nconst defines = __DEFINES__;\nObject.keys(defines).forEach((key) => {\n    const segments = key.split('.');\n    let target = context;\n    for (let i = 0; i < segments.length; i++) {\n        const segment = segments[i];\n        if (i === segments.length - 1) {\n            target[segment] = defines[key];\n        }\n        else {\n            target = target[segment] || (target[segment] = {});\n        }\n    }\n});\n                                \n",
+      "start": 1779333431917,
+      "end": 1779333431917
+    },
+    {
+      "name": "unocss:transformers:pre",
+      "start": 1779333431917,
+      "end": 1779333431917,
+      "order": "pre"
+    },
+    {
+      "name": "unocss:global",
+      "start": 1779333431917,
+      "end": 1779333431917,
+      "order": "pre"
+    },
+    {
+      "name": "vite:css",
+      "start": 1779333431917,
+      "end": 1779333431917,
+      "order": "normal"
+    },
+    {
+      "name": "vite:esbuild",
+      "start": 1779333431917,
+      "end": 1779333431917,
+      "order": "normal"
+    },
+    {
+      "name": "vite:json",
+      "start": 1779333431917,
+      "end": 1779333431917,
+      "order": "normal"
+    },
+    {
+      "name": "vite:worker",
+      "start": 1779333431917,
+      "end": 1779333431917,
+      "order": "normal"
+    },
+    {
+      "name": "vite:vue",
+      "start": 1779333431917,
+      "end": 1779333431917,
+      "order": "normal"
+    },
+    {
+      "name": "vite:vue-jsx",
+      "start": 1779333431917,
+      "end": 1779333431917,
+      "order": "normal"
+    },
+    {
+      "name": "unocss:transformers:default",
+      "start": 1779333431917,
+      "end": 1779333431917,
+      "order": "normal"
+    },
+    {
+      "name": "@grow-admin-plugins/unplugin-auto-import",
+      "start": 1779333431917,
+      "end": 1779333431917,
+      "order": "normal"
+    },
+    {
+      "name": "vite:define",
+      "start": 1779333431917,
+      "end": 1779333431917,
+      "order": "normal"
+    },
+    {
+      "name": "vite:css-post",
+      "start": 1779333431917,
+      "end": 1779333431917,
+      "order": "normal"
+    },
+    {
+      "name": "vite:worker-import-meta-url",
+      "start": 1779333431917,
+      "end": 1779333431917,
+      "order": "normal"
+    },
+    {
+      "name": "vite:asset-import-meta-url",
+      "start": 1779333431917,
+      "end": 1779333431917,
+      "order": "normal"
+    },
+    {
+      "name": "vite:dynamic-import-vars",
+      "start": 1779333431917,
+      "end": 1779333431917,
+      "order": "normal"
+    },
+    {
+      "name": "vite:import-glob",
+      "start": 1779333431917,
+      "end": 1779333431917,
+      "order": "normal"
+    },
+    {
+      "name": "unocss:transformers:post",
+      "start": 1779333431917,
+      "end": 1779333431917,
+      "order": "post"
+    },
+    {
+      "name": "unocss:global:post",
+      "start": 1779333431917,
+      "end": 1779333431917,
+      "order": "post"
+    },
+    {
+      "name": "vite:client-inject",
+      "result": "const context = (() => {\n    if (typeof globalThis !== 'undefined') {\n        return globalThis;\n    }\n    else if (typeof self !== 'undefined') {\n        return self;\n    }\n    else if (typeof window !== 'undefined') {\n        return window;\n    }\n    else {\n        return Function('return this')();\n    }\n})();\n// assign defines\nconst defines = {\"__VITE_USE_MOCK__\": false, \"__INTLIFY_PROD_DEVTOOLS__\": false, \"__APP_INFO__\": ({\"pkg\":{\"dependencies\":{\"@grow-admin-rock/utils\":\"workspace:*\",\"@grow-admin-rock/base-package\":\"workspace:*\",\"@grow-admin-rock/infrastructure\":\"workspace:*\",\"@grow-admin-rock/ioc\":\"workspace:*\",\"@grow-admin-rock/locale\":\"workspace:*\",\"vue\":\"~3.3.4\",\"vue-router\":\"^4.1.6\",\"pinia\":\"~2.0.34\",\"dayjs\":\"^1.11.7\",\"mitt\":\"^3.0.0\"},\"devDependencies\":{\"@grow-admin-config/vite\":\"workspace:*\",\"@grow-admin-rock/types\":\"workspace:*\",\"@grow-admin-rock/styles\":\"workspace:*\",\"@types/lodash-es\":\"^4.17.6\",\"@vue/compiler-sfc\":\"~3.2.0\",\"@vue/test-utils\":\"^2.2.9\",\"rollup\":\"^3.19.1\",\"typescript\":\"^5.1.6\",\"vite\":\"4.3.9\",\"vite-plugin-mock\":\"^2.9.6\",\"vue-tsc\":\"^1.0.24\",\"mockjs\":\"^1.1.0\"},\"name\":\"grow-admin-sample\",\"version\":\"0.0.0\"},\"lastBuildTime\":\"2026-05-21 11:17:11\"}), \"__VUE_OPTIONS_API__\": true, \"__VUE_PROD_DEVTOOLS__\": false, \"__VUE_PROD_HYDRATION_MISMATCH_DETAILS__\": false, };\nObject.keys(defines).forEach((key) => {\n    const segments = key.split('.');\n    let target = context;\n    for (let i = 0; i < segments.length; i++) {\n        const segment = segments[i];\n        if (i === segments.length - 1) {\n            target[segment] = defines[key];\n        }\n        else {\n            target = target[segment] || (target[segment] = {});\n        }\n    }\n});\n                                \n",
+      "start": 1779333431917,
+      "end": 1779333431917,
+      "order": "normal",
+      "sourcemaps": null
+    },
+    {
+      "name": "vite:import-analysis",
+      "result": "const context = (() => {\n    if (typeof globalThis !== 'undefined') {\n        return globalThis;\n    }\n    else if (typeof self !== 'undefined') {\n        return self;\n    }\n    else if (typeof window !== 'undefined') {\n        return window;\n    }\n    else {\n        return Function('return this')();\n    }\n})();\n// assign defines\nconst defines = {\"__VITE_USE_MOCK__\": false, \"__INTLIFY_PROD_DEVTOOLS__\": false, \"__APP_INFO__\": ({\"pkg\":{\"dependencies\":{\"@grow-admin-rock/utils\":\"workspace:*\",\"@grow-admin-rock/base-package\":\"workspace:*\",\"@grow-admin-rock/infrastructure\":\"workspace:*\",\"@grow-admin-rock/ioc\":\"workspace:*\",\"@grow-admin-rock/locale\":\"workspace:*\",\"vue\":\"~3.3.4\",\"vue-router\":\"^4.1.6\",\"pinia\":\"~2.0.34\",\"dayjs\":\"^1.11.7\",\"mitt\":\"^3.0.0\"},\"devDependencies\":{\"@grow-admin-config/vite\":\"workspace:*\",\"@grow-admin-rock/types\":\"workspace:*\",\"@grow-admin-rock/styles\":\"workspace:*\",\"@types/lodash-es\":\"^4.17.6\",\"@vue/compiler-sfc\":\"~3.2.0\",\"@vue/test-utils\":\"^2.2.9\",\"rollup\":\"^3.19.1\",\"typescript\":\"^5.1.6\",\"vite\":\"4.3.9\",\"vite-plugin-mock\":\"^2.9.6\",\"vue-tsc\":\"^1.0.24\",\"mockjs\":\"^1.1.0\"},\"name\":\"grow-admin-sample\",\"version\":\"0.0.0\"},\"lastBuildTime\":\"2026-05-21 11:17:11\"}), \"__VUE_OPTIONS_API__\": true, \"__VUE_PROD_DEVTOOLS__\": false, \"__VUE_PROD_HYDRATION_MISMATCH_DETAILS__\": false, };\nObject.keys(defines).forEach((key) => {\n    const segments = key.split('.');\n    let target = context;\n    for (let i = 0; i < segments.length; i++) {\n        const segment = segments[i];\n        if (i === segments.length - 1) {\n            target[segment] = defines[key];\n        }\n        else {\n            target = target[segment] || (target[segment] = {});\n        }\n    }\n});\n                                \n",
+      "start": 1779333431917,
+      "end": 1779333431917,
+      "order": "normal",
+      "sourcemaps": null
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "extends": "@grow-admin-config/tsconfig/base.json",
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "types": ["vite/client"],
+    "baseUrl": ".",
+    "paths": {
+      "#/*": ["src/*"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["**/node_modules/**", "**/dist/**"]
+}

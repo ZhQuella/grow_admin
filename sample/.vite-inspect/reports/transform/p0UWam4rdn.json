@@ -1,0 +1,134 @@
+{
+  "resolvedId": "/Users/aaron/Desktop/grow_admin/sample/node_modules/.vite/deps/reflect-metadata.js?v=f6e2a1f9",
+  "transforms": [
+    {
+      "name": "vite:optimized-deps",
+      "result": "import \"./chunk-DYAMSWWE.js\";\n//# sourceMappingURL=reflect-metadata.js.map\n",
+      "start": 1779333431948,
+      "end": 1779333432142,
+      "sourcemaps": null
+    },
+    {
+      "name": "unocss:transformers:pre",
+      "start": 1779333432142,
+      "end": 1779333432142,
+      "order": "pre"
+    },
+    {
+      "name": "unocss:global",
+      "start": 1779333432142,
+      "end": 1779333432142,
+      "order": "pre"
+    },
+    {
+      "name": "vite:css",
+      "start": 1779333432142,
+      "end": 1779333432142,
+      "order": "normal"
+    },
+    {
+      "name": "vite:esbuild",
+      "start": 1779333432142,
+      "end": 1779333432142,
+      "order": "normal"
+    },
+    {
+      "name": "vite:json",
+      "start": 1779333432142,
+      "end": 1779333432142,
+      "order": "normal"
+    },
+    {
+      "name": "vite:worker",
+      "start": 1779333432142,
+      "end": 1779333432142,
+      "order": "normal"
+    },
+    {
+      "name": "vite:vue",
+      "start": 1779333432142,
+      "end": 1779333432142,
+      "order": "normal"
+    },
+    {
+      "name": "vite:vue-jsx",
+      "start": 1779333432142,
+      "end": 1779333432142,
+      "order": "normal"
+    },
+    {
+      "name": "unocss:transformers:default",
+      "start": 1779333432142,
+      "end": 1779333432142,
+      "order": "normal"
+    },
+    {
+      "name": "@grow-admin-plugins/unplugin-auto-import",
+      "start": 1779333432142,
+      "end": 1779333432142,
+      "order": "normal"
+    },
+    {
+      "name": "vite:define",
+      "start": 1779333432142,
+      "end": 1779333432142,
+      "order": "normal"
+    },
+    {
+      "name": "vite:css-post",
+      "start": 1779333432142,
+      "end": 1779333432142,
+      "order": "normal"
+    },
+    {
+      "name": "vite:worker-import-meta-url",
+      "start": 1779333432142,
+      "end": 1779333432142,
+      "order": "normal"
+    },
+    {
+      "name": "vite:asset-import-meta-url",
+      "start": 1779333432142,
+      "end": 1779333432142,
+      "order": "normal"
+    },
+    {
+      "name": "vite:dynamic-import-vars",
+      "start": 1779333432142,
+      "end": 1779333432142,
+      "order": "normal"
+    },
+    {
+      "name": "vite:import-glob",
+      "start": 1779333432142,
+      "end": 1779333432142,
+      "order": "normal"
+    },
+    {
+      "name": "unocss:transformers:post",
+      "start": 1779333432142,
+      "end": 1779333432142,
+      "order": "post"
+    },
+    {
+      "name": "unocss:global:post",
+      "start": 1779333432142,
+      "end": 1779333432142,
+      "order": "post"
+    },
+    {
+      "name": "vite:client-inject",
+      "start": 1779333432142,
+      "end": 1779333432142,
+      "order": "normal"
+    },
+    {
+      "name": "vite:import-analysis",
+      "result": "import \"/node_modules/.vite/deps/chunk-DYAMSWWE.js?v=90dbfd45\";\n//# sourceMappingURL=reflect-metadata.js.map\n",
+      "start": 1779333432142,
+      "end": 1779333432143,
+      "order": "normal",
+      "sourcemaps": null
+    }
+  ]
+}

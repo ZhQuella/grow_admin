@@ -1,0 +1,145 @@
+{
+  "resolvedId": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/plugin.ts",
+  "transforms": [
+    {
+      "name": "__load__",
+      "result": "import { App, Plugin } from 'vue';\nimport { setupByApp } from '.';\nimport type { IocContainerOptions } from './ioc';\nconst plugin: Plugin = {\n  install(app: App, options: IocContainerOptions): void {\n    setupByApp(app, options);\n  },\n};\nexport default plugin;\n",
+      "start": 1779333431958,
+      "end": 1779333431958
+    },
+    {
+      "name": "unocss:transformers:pre",
+      "start": 1779333431958,
+      "end": 1779333431958,
+      "order": "pre"
+    },
+    {
+      "name": "unocss:global",
+      "start": 1779333431958,
+      "end": 1779333431958,
+      "order": "pre"
+    },
+    {
+      "name": "vite:css",
+      "start": 1779333431958,
+      "end": 1779333431958,
+      "order": "normal"
+    },
+    {
+      "name": "vite:esbuild",
+      "result": "import { setupByApp } from \".\";\nconst plugin = {\n  install(app, options) {\n    setupByApp(app, options);\n  }\n};\nexport default plugin;\n",
+      "start": 1779333431958,
+      "end": 1779333431998,
+      "order": "normal",
+      "sourcemaps": {
+        "version": 3,
+        "sources": [
+          "plugin.ts"
+        ],
+        "sourcesContent": [
+          "import { App, Plugin } from 'vue';\nimport { setupByApp } from '.';\nimport type { IocContainerOptions } from './ioc';\nconst plugin: Plugin = {\n  install(app: App, options: IocContainerOptions): void {\n    setupByApp(app, options);\n  },\n};\nexport default plugin;\n"
+        ],
+        "mappings": "AACA,SAAS,kBAAkB;AAE3B,MAAM,SAAiB;AAAA,EACrB,QAAQ,KAAU,SAAoC;AACpD,eAAW,KAAK,OAAO;AAAA,EACzB;AACF;AACA,eAAe;",
+        "names": []
+      }
+    },
+    {
+      "name": "vite:json",
+      "start": 1779333431998,
+      "end": 1779333431998,
+      "order": "normal"
+    },
+    {
+      "name": "vite:worker",
+      "start": 1779333431998,
+      "end": 1779333431998,
+      "order": "normal"
+    },
+    {
+      "name": "vite:vue",
+      "start": 1779333431998,
+      "end": 1779333431998,
+      "order": "normal"
+    },
+    {
+      "name": "vite:vue-jsx",
+      "start": 1779333431998,
+      "end": 1779333431998,
+      "order": "normal"
+    },
+    {
+      "name": "unocss:transformers:default",
+      "start": 1779333431998,
+      "end": 1779333431998,
+      "order": "normal"
+    },
+    {
+      "name": "@grow-admin-plugins/unplugin-auto-import",
+      "start": 1779333431998,
+      "end": 1779333431998,
+      "order": "normal"
+    },
+    {
+      "name": "vite:define",
+      "start": 1779333431998,
+      "end": 1779333431998,
+      "order": "normal"
+    },
+    {
+      "name": "vite:css-post",
+      "start": 1779333431998,
+      "end": 1779333431998,
+      "order": "normal"
+    },
+    {
+      "name": "vite:worker-import-meta-url",
+      "start": 1779333431998,
+      "end": 1779333431998,
+      "order": "normal"
+    },
+    {
+      "name": "vite:asset-import-meta-url",
+      "start": 1779333431998,
+      "end": 1779333431998,
+      "order": "normal"
+    },
+    {
+      "name": "vite:dynamic-import-vars",
+      "start": 1779333431998,
+      "end": 1779333431998,
+      "order": "normal"
+    },
+    {
+      "name": "vite:import-glob",
+      "start": 1779333431998,
+      "end": 1779333431998,
+      "order": "normal"
+    },
+    {
+      "name": "unocss:transformers:post",
+      "start": 1779333431998,
+      "end": 1779333431998,
+      "order": "post"
+    },
+    {
+      "name": "unocss:global:post",
+      "start": 1779333431998,
+      "end": 1779333431998,
+      "order": "post"
+    },
+    {
+      "name": "vite:client-inject",
+      "start": 1779333431998,
+      "end": 1779333431998,
+      "order": "normal"
+    },
+    {
+      "name": "vite:import-analysis",
+      "result": "import { setupByApp } from \"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/index.ts\";\nconst plugin = {\n  install(app, options) {\n    setupByApp(app, options);\n  }\n};\nexport default plugin;\n",
+      "start": 1779333431998,
+      "end": 1779333431998,
+      "order": "normal",
+      "sourcemaps": null
+    }
+  ]
+}

@@ -1,0 +1,145 @@
+{
+  "resolvedId": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/index.ts",
+  "transforms": [
+    {
+      "name": "__load__",
+      "result": "import 'reflect-metadata';\nimport { IocContainer } from './src';\nexport * from './src';\nimport Plugin from './src/plugin'\n\nexport const IocPlugin = Plugin;\n\ndeclare module 'vue' {\n  interface ComponentCustomProperties {\n    $iocContainer: IocContainer;\n  }\n}\n",
+      "start": 1779333431941,
+      "end": 1779333431941
+    },
+    {
+      "name": "unocss:transformers:pre",
+      "start": 1779333431941,
+      "end": 1779333431941,
+      "order": "pre"
+    },
+    {
+      "name": "unocss:global",
+      "start": 1779333431941,
+      "end": 1779333431941,
+      "order": "pre"
+    },
+    {
+      "name": "vite:css",
+      "start": 1779333431941,
+      "end": 1779333431941,
+      "order": "normal"
+    },
+    {
+      "name": "vite:esbuild",
+      "result": "import \"reflect-metadata\";\nexport * from \"./src\";\nimport Plugin from \"./src/plugin\";\nexport const IocPlugin = Plugin;\n",
+      "start": 1779333431941,
+      "end": 1779333431946,
+      "order": "normal",
+      "sourcemaps": {
+        "version": 3,
+        "sources": [
+          "index.ts"
+        ],
+        "sourcesContent": [
+          "import 'reflect-metadata';\nimport { IocContainer } from './src';\nexport * from './src';\nimport Plugin from './src/plugin'\n\nexport const IocPlugin = Plugin;\n\ndeclare module 'vue' {\n  interface ComponentCustomProperties {\n    $iocContainer: IocContainer;\n  }\n}\n"
+        ],
+        "mappings": "AAAA,OAAO;AAEP,cAAc;AACd,OAAO,YAAY;AAEZ,aAAM,YAAY;",
+        "names": []
+      }
+    },
+    {
+      "name": "vite:json",
+      "start": 1779333431947,
+      "end": 1779333431947,
+      "order": "normal"
+    },
+    {
+      "name": "vite:worker",
+      "start": 1779333431947,
+      "end": 1779333431947,
+      "order": "normal"
+    },
+    {
+      "name": "vite:vue",
+      "start": 1779333431947,
+      "end": 1779333431947,
+      "order": "normal"
+    },
+    {
+      "name": "vite:vue-jsx",
+      "start": 1779333431947,
+      "end": 1779333431947,
+      "order": "normal"
+    },
+    {
+      "name": "unocss:transformers:default",
+      "start": 1779333431947,
+      "end": 1779333431947,
+      "order": "normal"
+    },
+    {
+      "name": "@grow-admin-plugins/unplugin-auto-import",
+      "start": 1779333431947,
+      "end": 1779333431947,
+      "order": "normal"
+    },
+    {
+      "name": "vite:define",
+      "start": 1779333431947,
+      "end": 1779333431947,
+      "order": "normal"
+    },
+    {
+      "name": "vite:css-post",
+      "start": 1779333431947,
+      "end": 1779333431947,
+      "order": "normal"
+    },
+    {
+      "name": "vite:worker-import-meta-url",
+      "start": 1779333431947,
+      "end": 1779333431947,
+      "order": "normal"
+    },
+    {
+      "name": "vite:asset-import-meta-url",
+      "start": 1779333431947,
+      "end": 1779333431947,
+      "order": "normal"
+    },
+    {
+      "name": "vite:dynamic-import-vars",
+      "start": 1779333431947,
+      "end": 1779333431947,
+      "order": "normal"
+    },
+    {
+      "name": "vite:import-glob",
+      "start": 1779333431947,
+      "end": 1779333431947,
+      "order": "normal"
+    },
+    {
+      "name": "unocss:transformers:post",
+      "start": 1779333431947,
+      "end": 1779333431947,
+      "order": "post"
+    },
+    {
+      "name": "unocss:global:post",
+      "start": 1779333431947,
+      "end": 1779333431947,
+      "order": "post"
+    },
+    {
+      "name": "vite:client-inject",
+      "start": 1779333431947,
+      "end": 1779333431947,
+      "order": "normal"
+    },
+    {
+      "name": "vite:import-analysis",
+      "result": "import \"/node_modules/.vite/deps/reflect-metadata.js?v=f6e2a1f9\";\nexport * from \"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/index.ts\";\nimport Plugin from \"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/plugin.ts\";\nexport const IocPlugin = Plugin;\n",
+      "start": 1779333431947,
+      "end": 1779333431948,
+      "order": "normal",
+      "sourcemaps": null
+    }
+  ]
+}

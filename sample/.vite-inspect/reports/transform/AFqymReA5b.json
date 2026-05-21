@@ -1,0 +1,145 @@
+{
+  "resolvedId": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/logger/reducers/target_reducer.ts",
+  "transforms": [
+    {
+      "name": "__load__",
+      "result": "import * as inversify from \"inversify\";\nimport interfaces from \"../interfaces/interfaces\";\n\nfunction targetReducer(\n    target: inversify.interfaces.Target,\n    options: interfaces.TargetLoggerSettings\n) {\n\n\n    let reducedTarget: any = {};\n    let targetOptions: any = options;\n    let oldTarget: any = target;\n\n    if (targetOptions.name) {\n        reducedTarget.name = oldTarget.name;\n    }\n\n    if (targetOptions.serviceIdentifier) {\n        reducedTarget.serviceIdentifier = oldTarget.serviceIdentifier;\n    }\n\n    if (targetOptions.metadata && Array.isArray(target.metadata)) {\n        let reducedMetadata = target.metadata.map((m: inversify.interfaces.Metadata, i: number) => {\n            return {\n                key: m.key,\n                value: m.value\n            };\n        });\n        reducedTarget.metadata = reducedMetadata;\n    }\n\n    return reducedTarget;\n}\n\nexport default targetReducer;\n",
+      "start": 1779333432089,
+      "end": 1779333432089
+    },
+    {
+      "name": "unocss:transformers:pre",
+      "start": 1779333432089,
+      "end": 1779333432089,
+      "order": "pre"
+    },
+    {
+      "name": "unocss:global",
+      "start": 1779333432089,
+      "end": 1779333432089,
+      "order": "pre"
+    },
+    {
+      "name": "vite:css",
+      "start": 1779333432089,
+      "end": 1779333432089,
+      "order": "normal"
+    },
+    {
+      "name": "vite:esbuild",
+      "result": "function targetReducer(target, options) {\n  let reducedTarget = {};\n  let targetOptions = options;\n  let oldTarget = target;\n  if (targetOptions.name) {\n    reducedTarget.name = oldTarget.name;\n  }\n  if (targetOptions.serviceIdentifier) {\n    reducedTarget.serviceIdentifier = oldTarget.serviceIdentifier;\n  }\n  if (targetOptions.metadata && Array.isArray(target.metadata)) {\n    let reducedMetadata = target.metadata.map((m, i) => {\n      return {\n        key: m.key,\n        value: m.value\n      };\n    });\n    reducedTarget.metadata = reducedMetadata;\n  }\n  return reducedTarget;\n}\nexport default targetReducer;\n",
+      "start": 1779333432089,
+      "end": 1779333432090,
+      "order": "normal",
+      "sourcemaps": {
+        "version": 3,
+        "sources": [
+          "target_reducer.ts"
+        ],
+        "sourcesContent": [
+          "import * as inversify from \"inversify\";\nimport interfaces from \"../interfaces/interfaces\";\n\nfunction targetReducer(\n    target: inversify.interfaces.Target,\n    options: interfaces.TargetLoggerSettings\n) {\n\n\n    let reducedTarget: any = {};\n    let targetOptions: any = options;\n    let oldTarget: any = target;\n\n    if (targetOptions.name) {\n        reducedTarget.name = oldTarget.name;\n    }\n\n    if (targetOptions.serviceIdentifier) {\n        reducedTarget.serviceIdentifier = oldTarget.serviceIdentifier;\n    }\n\n    if (targetOptions.metadata && Array.isArray(target.metadata)) {\n        let reducedMetadata = target.metadata.map((m: inversify.interfaces.Metadata, i: number) => {\n            return {\n                key: m.key,\n                value: m.value\n            };\n        });\n        reducedTarget.metadata = reducedMetadata;\n    }\n\n    return reducedTarget;\n}\n\nexport default targetReducer;\n"
+        ],
+        "mappings": "AAGA,SAAS,cACL,QACA,SACF;AAGE,MAAI,gBAAqB,CAAC;AAC1B,MAAI,gBAAqB;AACzB,MAAI,YAAiB;AAErB,MAAI,cAAc,MAAM;AACpB,kBAAc,OAAO,UAAU;AAAA,EACnC;AAEA,MAAI,cAAc,mBAAmB;AACjC,kBAAc,oBAAoB,UAAU;AAAA,EAChD;AAEA,MAAI,cAAc,YAAY,MAAM,QAAQ,OAAO,QAAQ,GAAG;AAC1D,QAAI,kBAAkB,OAAO,SAAS,IAAI,CAAC,GAAkC,MAAc;AACvF,aAAO;AAAA,QACH,KAAK,EAAE;AAAA,QACP,OAAO,EAAE;AAAA,MACb;AAAA,IACJ,CAAC;AACD,kBAAc,WAAW;AAAA,EAC7B;AAEA,SAAO;AACX;AAEA,eAAe;",
+        "names": []
+      }
+    },
+    {
+      "name": "vite:json",
+      "start": 1779333432090,
+      "end": 1779333432090,
+      "order": "normal"
+    },
+    {
+      "name": "vite:worker",
+      "start": 1779333432090,
+      "end": 1779333432090,
+      "order": "normal"
+    },
+    {
+      "name": "vite:vue",
+      "start": 1779333432090,
+      "end": 1779333432090,
+      "order": "normal"
+    },
+    {
+      "name": "vite:vue-jsx",
+      "start": 1779333432090,
+      "end": 1779333432090,
+      "order": "normal"
+    },
+    {
+      "name": "unocss:transformers:default",
+      "start": 1779333432090,
+      "end": 1779333432090,
+      "order": "normal"
+    },
+    {
+      "name": "@grow-admin-plugins/unplugin-auto-import",
+      "start": 1779333432090,
+      "end": 1779333432090,
+      "order": "normal"
+    },
+    {
+      "name": "vite:define",
+      "start": 1779333432090,
+      "end": 1779333432090,
+      "order": "normal"
+    },
+    {
+      "name": "vite:css-post",
+      "start": 1779333432090,
+      "end": 1779333432090,
+      "order": "normal"
+    },
+    {
+      "name": "vite:worker-import-meta-url",
+      "start": 1779333432090,
+      "end": 1779333432090,
+      "order": "normal"
+    },
+    {
+      "name": "vite:asset-import-meta-url",
+      "start": 1779333432090,
+      "end": 1779333432090,
+      "order": "normal"
+    },
+    {
+      "name": "vite:dynamic-import-vars",
+      "start": 1779333432090,
+      "end": 1779333432090,
+      "order": "normal"
+    },
+    {
+      "name": "vite:import-glob",
+      "start": 1779333432090,
+      "end": 1779333432090,
+      "order": "normal"
+    },
+    {
+      "name": "unocss:transformers:post",
+      "start": 1779333432090,
+      "end": 1779333432090,
+      "order": "post"
+    },
+    {
+      "name": "unocss:global:post",
+      "start": 1779333432090,
+      "end": 1779333432090,
+      "order": "post"
+    },
+    {
+      "name": "vite:client-inject",
+      "start": 1779333432090,
+      "end": 1779333432090,
+      "order": "normal"
+    },
+    {
+      "name": "vite:import-analysis",
+      "result": "function targetReducer(target, options) {\n  let reducedTarget = {};\n  let targetOptions = options;\n  let oldTarget = target;\n  if (targetOptions.name) {\n    reducedTarget.name = oldTarget.name;\n  }\n  if (targetOptions.serviceIdentifier) {\n    reducedTarget.serviceIdentifier = oldTarget.serviceIdentifier;\n  }\n  if (targetOptions.metadata && Array.isArray(target.metadata)) {\n    let reducedMetadata = target.metadata.map((m, i) => {\n      return {\n        key: m.key,\n        value: m.value\n      };\n    });\n    reducedTarget.metadata = reducedMetadata;\n  }\n  return reducedTarget;\n}\nexport default targetReducer;\n",
+      "start": 1779333432090,
+      "end": 1779333432090,
+      "order": "normal",
+      "sourcemaps": null
+    }
+  ]
+}

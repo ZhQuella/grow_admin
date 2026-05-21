@@ -1,0 +1,134 @@
+{
+  "resolvedId": "/Users/aaron/Desktop/grow_admin/sample/node_modules/.vite/deps/chunk-BO2KSW6Z.js?v=90dbfd45",
+  "transforms": [
+    {
+      "name": "vite:optimized-deps",
+      "result": "var __defProp = Object.defineProperty;\nvar __getOwnPropNames = Object.getOwnPropertyNames;\nvar __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;\nvar __commonJS = (cb, mod) => function __require() {\n  return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;\n};\nvar __export = (target, all) => {\n  for (var name in all)\n    __defProp(target, name, { get: all[name], enumerable: true });\n};\nvar __publicField = (obj, key, value) => {\n  __defNormalProp(obj, typeof key !== \"symbol\" ? key + \"\" : key, value);\n  return value;\n};\nvar __accessCheck = (obj, member, msg) => {\n  if (!member.has(obj))\n    throw TypeError(\"Cannot \" + msg);\n};\nvar __privateGet = (obj, member, getter) => {\n  __accessCheck(obj, member, \"read from private field\");\n  return getter ? getter.call(obj) : member.get(obj);\n};\nvar __privateAdd = (obj, member, value) => {\n  if (member.has(obj))\n    throw TypeError(\"Cannot add the same private member more than once\");\n  member instanceof WeakSet ? member.add(obj) : member.set(obj, value);\n};\nvar __privateSet = (obj, member, value, setter) => {\n  __accessCheck(obj, member, \"write to private field\");\n  setter ? setter.call(obj, value) : member.set(obj, value);\n  return value;\n};\n\nexport {\n  __commonJS,\n  __export,\n  __publicField,\n  __privateGet,\n  __privateAdd,\n  __privateSet\n};\n//# sourceMappingURL=chunk-BO2KSW6Z.js.map\n",
+      "start": 1779333432144,
+      "end": 1779333432158,
+      "sourcemaps": null
+    },
+    {
+      "name": "unocss:transformers:pre",
+      "start": 1779333432158,
+      "end": 1779333432158,
+      "order": "pre"
+    },
+    {
+      "name": "unocss:global",
+      "start": 1779333432158,
+      "end": 1779333432159,
+      "order": "pre"
+    },
+    {
+      "name": "vite:css",
+      "start": 1779333432159,
+      "end": 1779333432159,
+      "order": "normal"
+    },
+    {
+      "name": "vite:esbuild",
+      "start": 1779333432159,
+      "end": 1779333432159,
+      "order": "normal"
+    },
+    {
+      "name": "vite:json",
+      "start": 1779333432159,
+      "end": 1779333432159,
+      "order": "normal"
+    },
+    {
+      "name": "vite:worker",
+      "start": 1779333432159,
+      "end": 1779333432159,
+      "order": "normal"
+    },
+    {
+      "name": "vite:vue",
+      "start": 1779333432159,
+      "end": 1779333432159,
+      "order": "normal"
+    },
+    {
+      "name": "vite:vue-jsx",
+      "start": 1779333432159,
+      "end": 1779333432159,
+      "order": "normal"
+    },
+    {
+      "name": "unocss:transformers:default",
+      "start": 1779333432159,
+      "end": 1779333432159,
+      "order": "normal"
+    },
+    {
+      "name": "@grow-admin-plugins/unplugin-auto-import",
+      "start": 1779333432159,
+      "end": 1779333432159,
+      "order": "normal"
+    },
+    {
+      "name": "vite:define",
+      "start": 1779333432159,
+      "end": 1779333432159,
+      "order": "normal"
+    },
+    {
+      "name": "vite:css-post",
+      "start": 1779333432159,
+      "end": 1779333432159,
+      "order": "normal"
+    },
+    {
+      "name": "vite:worker-import-meta-url",
+      "start": 1779333432159,
+      "end": 1779333432159,
+      "order": "normal"
+    },
+    {
+      "name": "vite:asset-import-meta-url",
+      "start": 1779333432159,
+      "end": 1779333432159,
+      "order": "normal"
+    },
+    {
+      "name": "vite:dynamic-import-vars",
+      "start": 1779333432159,
+      "end": 1779333432159,
+      "order": "normal"
+    },
+    {
+      "name": "vite:import-glob",
+      "start": 1779333432159,
+      "end": 1779333432159,
+      "order": "normal"
+    },
+    {
+      "name": "unocss:transformers:post",
+      "start": 1779333432159,
+      "end": 1779333432159,
+      "order": "post"
+    },
+    {
+      "name": "unocss:global:post",
+      "start": 1779333432159,
+      "end": 1779333432159,
+      "order": "post"
+    },
+    {
+      "name": "vite:client-inject",
+      "start": 1779333432159,
+      "end": 1779333432159,
+      "order": "normal"
+    },
+    {
+      "name": "vite:import-analysis",
+      "result": "var __defProp = Object.defineProperty;\nvar __getOwnPropNames = Object.getOwnPropertyNames;\nvar __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;\nvar __commonJS = (cb, mod) => function __require() {\n  return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;\n};\nvar __export = (target, all) => {\n  for (var name in all)\n    __defProp(target, name, { get: all[name], enumerable: true });\n};\nvar __publicField = (obj, key, value) => {\n  __defNormalProp(obj, typeof key !== \"symbol\" ? key + \"\" : key, value);\n  return value;\n};\nvar __accessCheck = (obj, member, msg) => {\n  if (!member.has(obj))\n    throw TypeError(\"Cannot \" + msg);\n};\nvar __privateGet = (obj, member, getter) => {\n  __accessCheck(obj, member, \"read from private field\");\n  return getter ? getter.call(obj) : member.get(obj);\n};\nvar __privateAdd = (obj, member, value) => {\n  if (member.has(obj))\n    throw TypeError(\"Cannot add the same private member more than once\");\n  member instanceof WeakSet ? member.add(obj) : member.set(obj, value);\n};\nvar __privateSet = (obj, member, value, setter) => {\n  __accessCheck(obj, member, \"write to private field\");\n  setter ? setter.call(obj, value) : member.set(obj, value);\n  return value;\n};\n\nexport {\n  __commonJS,\n  __export,\n  __publicField,\n  __privateGet,\n  __privateAdd,\n  __privateSet\n};\n//# sourceMappingURL=chunk-BO2KSW6Z.js.map\n",
+      "start": 1779333432159,
+      "end": 1779333432159,
+      "order": "normal",
+      "sourcemaps": null
+    }
+  ]
+}
