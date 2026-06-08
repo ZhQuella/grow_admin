@@ -2,8 +2,8 @@ import type { Ref } from 'vue'
 import { ref, watch, unref } from 'vue'
 import { useThrottleFn, useDebounceFn } from '@grow-admin-rock/utils'
 
-export type RemoveEventFn = () => void
-export interface UseEventParams {
+type RemoveEventFn = () => void
+interface UseEventParams {
   el?: Element | Ref<Element | undefined> | Window | any
   name: string
   listener: EventListener

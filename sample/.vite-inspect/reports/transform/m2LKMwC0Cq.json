@@ -2,39 +2,40 @@
   "resolvedId": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/logger/utils/utils.ts",
   "transforms": [
     {
-      "name": "__load__",
+      "name": "vite:load-fallback",
       "result": "// @ts-ignore\r\nlet _global: any = this || {};\r\n\r\nfunction getTimeFactory(_window: any, _process: any, _date: any) {\r\n    return () => {\r\n        if (_window !== undefined && _window !== null) {\r\n\r\n            // modern browsers\r\n            return _window.performance.now();\r\n\r\n        } else if (_process !== undefined && _process !== null) {\r\n\r\n            // node\r\n            let nanoseconds = _process.hrtime()[1];\r\n            let milliseconds = nanoseconds / 1000000;\r\n            return milliseconds;\r\n\r\n        } else {\r\n\r\n            // old browsers\r\n            return new _date().getTime();\r\n\r\n        }\r\n    };\r\n}\r\n\r\nlet getTime = getTimeFactory(_global.window, _global.process , Date);\r\n\r\nfunction guid() {\r\n  function s4() {\r\n    return Math.floor((1 + Math.random()) * 0x10000)\r\n      .toString(16)\r\n      .substring(1);\r\n  }\r\n  return s4() + s4() + \"-\" + s4() + \"-\" + s4() + \"-\" +\r\n    s4() + \"-\" + s4() + s4() + s4();\r\n}\r\n\r\nfunction getTimeDiference( start: number, end: number) {\r\n    let diff = end - start;\r\n    let formatted = diff.toFixed(2);\r\n    return formatted;\r\n}\r\n\r\nexport { getTimeFactory, getTime, getTimeDiference, guid };\r\n",
-      "start": 1780883649669,
-      "end": 1780883649669
+      "start": 1780888450264,
+      "end": 1780888450282,
+      "sourcemaps": null
     },
     {
       "name": "unocss:transformers:pre",
-      "start": 1780883649669,
-      "end": 1780883649669,
+      "start": 1780888450282,
+      "end": 1780888450282,
       "order": "pre"
     },
     {
-      "name": "unocss:global",
-      "start": 1780883649669,
-      "end": 1780883649669,
+      "name": "unocss:global:build:scan",
+      "start": 1780888450282,
+      "end": 1780888450282,
       "order": "pre"
     },
     {
       "name": "vite:css",
-      "start": 1780883649669,
-      "end": 1780883649669,
+      "start": 1780888450282,
+      "end": 1780888450282,
       "order": "normal"
     },
     {
       "name": "vite:esbuild",
       "result": "let _global = {};\nfunction getTimeFactory(_window, _process, _date) {\n  return () => {\n    if (_window !== void 0 && _window !== null) {\n      return _window.performance.now();\n    } else if (_process !== void 0 && _process !== null) {\n      let nanoseconds = _process.hrtime()[1];\n      let milliseconds = nanoseconds / 1e6;\n      return milliseconds;\n    } else {\n      return new _date().getTime();\n    }\n  };\n}\nlet getTime = getTimeFactory(_global.window, _global.process, Date);\nfunction guid() {\n  function s4() {\n    return Math.floor((1 + Math.random()) * 65536).toString(16).substring(1);\n  }\n  return s4() + s4() + \"-\" + s4() + \"-\" + s4() + \"-\" + s4() + \"-\" + s4() + s4() + s4();\n}\nfunction getTimeDiference(start, end) {\n  let diff = end - start;\n  let formatted = diff.toFixed(2);\n  return formatted;\n}\nexport { getTimeFactory, getTime, getTimeDiference, guid };\n",
-      "start": 1780883649669,
-      "end": 1780883649671,
+      "start": 1780888450282,
+      "end": 1780888450285,
       "order": "normal",
       "sourcemaps": {
         "version": 3,
         "sources": [
-          "utils.ts"
+          "/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/logger/utils/utils.ts"
         ],
         "sourcesContent": [
           "// @ts-ignore\r\nlet _global: any = this || {};\r\n\r\nfunction getTimeFactory(_window: any, _process: any, _date: any) {\r\n    return () => {\r\n        if (_window !== undefined && _window !== null) {\r\n\r\n            // modern browsers\r\n            return _window.performance.now();\r\n\r\n        } else if (_process !== undefined && _process !== null) {\r\n\r\n            // node\r\n            let nanoseconds = _process.hrtime()[1];\r\n            let milliseconds = nanoseconds / 1000000;\r\n            return milliseconds;\r\n\r\n        } else {\r\n\r\n            // old browsers\r\n            return new _date().getTime();\r\n\r\n        }\r\n    };\r\n}\r\n\r\nlet getTime = getTimeFactory(_global.window, _global.process , Date);\r\n\r\nfunction guid() {\r\n  function s4() {\r\n    return Math.floor((1 + Math.random()) * 0x10000)\r\n      .toString(16)\r\n      .substring(1);\r\n  }\r\n  return s4() + s4() + \"-\" + s4() + \"-\" + s4() + \"-\" +\r\n    s4() + \"-\" + s4() + s4() + s4();\r\n}\r\n\r\nfunction getTimeDiference( start: number, end: number) {\r\n    let diff = end - start;\r\n    let formatted = diff.toFixed(2);\r\n    return formatted;\r\n}\r\n\r\nexport { getTimeFactory, getTime, getTimeDiference, guid };\r\n"
@@ -45,101 +46,105 @@
     },
     {
       "name": "vite:json",
-      "start": 1780883649671,
-      "end": 1780883649671,
+      "start": 1780888450285,
+      "end": 1780888450285,
       "order": "normal"
     },
     {
       "name": "vite:worker",
-      "start": 1780883649671,
-      "end": 1780883649671,
+      "start": 1780888450285,
+      "end": 1780888450285,
       "order": "normal"
     },
     {
       "name": "vite:vue",
-      "start": 1780883649671,
-      "end": 1780883649671,
+      "start": 1780888450285,
+      "end": 1780888450285,
       "order": "normal"
     },
     {
       "name": "vite:vue-jsx",
-      "start": 1780883649671,
-      "end": 1780883649671,
+      "start": 1780888450285,
+      "end": 1780888450285,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:default",
-      "start": 1780883649671,
-      "end": 1780883649671,
+      "start": 1780888450285,
+      "end": 1780888450285,
       "order": "normal"
     },
     {
       "name": "@grow-admin-plugins/unplugin-auto-import",
-      "start": 1780883649671,
-      "end": 1780883649671,
+      "start": 1780888450285,
+      "end": 1780888450285,
       "order": "normal"
     },
     {
       "name": "vite:define",
-      "start": 1780883649671,
-      "end": 1780883649671,
+      "start": 1780888450285,
+      "end": 1780888450285,
       "order": "normal"
     },
     {
       "name": "vite:css-post",
-      "start": 1780883649671,
-      "end": 1780883649671,
+      "start": 1780888450285,
+      "end": 1780888450285,
+      "order": "normal"
+    },
+    {
+      "name": "vite:build-html",
+      "start": 1780888450285,
+      "end": 1780888450285,
       "order": "normal"
     },
     {
       "name": "vite:worker-import-meta-url",
-      "start": 1780883649671,
-      "end": 1780883649671,
+      "start": 1780888450285,
+      "end": 1780888450285,
       "order": "normal"
     },
     {
       "name": "vite:asset-import-meta-url",
-      "start": 1780883649671,
-      "end": 1780883649671,
+      "start": 1780888450285,
+      "end": 1780888450285,
+      "order": "normal"
+    },
+    {
+      "name": "commonjs",
+      "start": 1780888450285,
+      "end": 1780888450285,
       "order": "normal"
     },
     {
       "name": "vite:dynamic-import-vars",
-      "start": 1780883649671,
-      "end": 1780883649671,
+      "start": 1780888450285,
+      "end": 1780888450285,
       "order": "normal"
     },
     {
       "name": "vite:import-glob",
-      "start": 1780883649671,
-      "end": 1780883649671,
+      "start": 1780888450285,
+      "end": 1780888450285,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:post",
-      "start": 1780883649671,
-      "end": 1780883649671,
+      "start": 1780888450285,
+      "end": 1780888450285,
       "order": "post"
     },
     {
-      "name": "unocss:global:post",
-      "start": 1780883649671,
-      "end": 1780883649671,
-      "order": "post"
-    },
-    {
-      "name": "vite:client-inject",
-      "start": 1780883649671,
-      "end": 1780883649671,
+      "name": "vite:build-import-analysis",
+      "start": 1780888450285,
+      "end": 1780888450285,
       "order": "normal"
     },
     {
-      "name": "vite:import-analysis",
-      "result": "let _global = {};\nfunction getTimeFactory(_window, _process, _date) {\n  return () => {\n    if (_window !== void 0 && _window !== null) {\n      return _window.performance.now();\n    } else if (_process !== void 0 && _process !== null) {\n      let nanoseconds = _process.hrtime()[1];\n      let milliseconds = nanoseconds / 1e6;\n      return milliseconds;\n    } else {\n      return new _date().getTime();\n    }\n  };\n}\nlet getTime = getTimeFactory(_global.window, _global.process, Date);\nfunction guid() {\n  function s4() {\n    return Math.floor((1 + Math.random()) * 65536).toString(16).substring(1);\n  }\n  return s4() + s4() + \"-\" + s4() + \"-\" + s4() + \"-\" + s4() + \"-\" + s4() + s4() + s4();\n}\nfunction getTimeDiference(start, end) {\n  let diff = end - start;\n  let formatted = diff.toFixed(2);\n  return formatted;\n}\nexport { getTimeFactory, getTime, getTimeDiference, guid };\n",
-      "start": 1780883649671,
-      "end": 1780883649672,
-      "order": "normal",
-      "sourcemaps": null
+      "name": "vite:reporter",
+      "start": 1780888450285,
+      "end": 1780888450285,
+      "order": "normal"
     }
   ]
 }

@@ -46,18 +46,6 @@ export enum MenuModeEnum {
   INLINE = 'inline',
 }
 
-export enum MenuSplitTyeEnum {
-  NONE,
-  TOP,
-  LEFT,
-}
-
-export enum TopMenuAlignEnum {
-  CENTER = 'center',
-  START = 'start',
-  END = 'end',
-}
-
 export enum MixSidebarTriggerEnum {
   HOVER = 'hover',
   CLICK = 'click',

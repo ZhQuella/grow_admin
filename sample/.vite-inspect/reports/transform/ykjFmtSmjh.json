@@ -2,166 +2,40 @@
   "resolvedId": "/Users/aaron/Desktop/grow_admin/sample/src/main.ts",
   "transforms": [
     {
-      "name": "__load__",
+      "name": "vite:load-fallback",
       "result": "import '@grow-admin-rock/styles'\nimport { createApp } from 'vue';\nimport App from './App.vue';\nimport { initIoc } from './plugin/initIoc';\nimport { appContext } from './plugin/initAppContext';\n\nimport {\n  InfrastructureOptions,\n  Lib as infrastructureLib,\n} from '@grow-admin-rock/infrastructure'\n\n\n;(async () => {\n  const app = createApp(App);\n  await initIoc(app);\n\n\n\n  await appContext.load(app);\n\n\n  app.mount('#app');\n})();\n",
-      "start": 1780884422072,
-      "end": 1780884422072,
-      "sourcemaps": {
-        "version": 3,
-        "sources": [
-          "main.ts"
-        ],
-        "sourcesContent": [
-          "import '@grow-admin-rock/styles'\nimport { createApp } from 'vue';\nimport App from './App.vue';\nimport { initIoc } from './plugin/initIoc';\nimport { appContext } from './plugin/initAppContext';\n\nimport {\n  InfrastructureOptions,\n  Lib as infrastructureLib,\n} from '@grow-admin-rock/infrastructure'\n\n\n;(async () => {\n  const app = createApp(App);\n  await initIoc(app);\n\n\n\n  await appContext.load(app);\n\n\n  app.mount('#app');\n})();\n"
-        ],
-        "mappings": "AAAA,OAAO;AACP,SAAS,iBAAiB;AAC1B,OAAO,SAAS;AAChB,SAAS,eAAe;AACxB,SAAS,kBAAkB;AAAA,CAQzB,YAAY;AACZ,QAAM,MAAM,UAAU,GAAG;AACzB,QAAM,QAAQ,GAAG;AAIjB,QAAM,WAAW,KAAK,GAAG;AAGzB,MAAI,MAAM,MAAM;AAClB,GAAG;",
-        "names": []
-      }
-    },
-    {
-      "name": "vite:esbuild",
-      "result": "import \"@grow-admin-rock/styles\";\nimport { createApp } from \"vue\";\nimport App from \"./App.vue\";\nimport { initIoc } from \"./plugin/initIoc\";\nimport { appContext } from \"./plugin/initAppContext\";\n(async () => {\n  const app = createApp(App);\n  await initIoc(app);\n  await appContext.load(app);\n  app.mount(\"#app\");\n})();\n",
-      "start": 1780884422072,
-      "end": 1780884422077,
-      "order": "normal",
-      "sourcemaps": {
-        "version": 3,
-        "sources": [
-          "main.ts"
-        ],
-        "sourcesContent": [
-          "import '@grow-admin-rock/styles'\nimport { createApp } from 'vue';\nimport App from './App.vue';\nimport { initIoc } from './plugin/initIoc';\nimport { appContext } from './plugin/initAppContext';\n\nimport {\n  InfrastructureOptions,\n  Lib as infrastructureLib,\n} from '@grow-admin-rock/infrastructure'\n\n\n;(async () => {\n  const app = createApp(App);\n  await initIoc(app);\n\n\n\n  await appContext.load(app);\n\n\n  app.mount('#app');\n})();\n"
-        ],
-        "mappings": "AAAA,OAAO;AACP,SAAS,iBAAiB;AAC1B,OAAO,SAAS;AAChB,SAAS,eAAe;AACxB,SAAS,kBAAkB;AAAA,CAQzB,YAAY;AACZ,QAAM,MAAM,UAAU,GAAG;AACzB,QAAM,QAAQ,GAAG;AAIjB,QAAM,WAAW,KAAK,GAAG;AAGzB,MAAI,MAAM,MAAM;AAClB,GAAG;",
-        "names": []
-      }
-    },
-    {
-      "name": "vite:json",
-      "start": 1780884422077,
-      "end": 1780884422077,
-      "order": "normal"
-    },
-    {
-      "name": "vite:worker",
-      "start": 1780884422077,
-      "end": 1780884422077,
-      "order": "normal"
-    },
-    {
-      "name": "vite:vue",
-      "start": 1780884422077,
-      "end": 1780884422077,
-      "order": "normal"
-    },
-    {
-      "name": "vite:vue-jsx",
-      "start": 1780884422077,
-      "end": 1780884422077,
-      "order": "normal"
-    },
-    {
-      "name": "unocss:transformers:default",
-      "start": 1780884422078,
-      "end": 1780884422078,
-      "order": "normal"
-    },
-    {
-      "name": "@grow-admin-plugins/unplugin-auto-import",
-      "start": 1780884422078,
-      "end": 1780884422078,
-      "order": "normal"
-    },
-    {
-      "name": "vite:define",
-      "start": 1780884422078,
-      "end": 1780884422078,
-      "order": "normal"
-    },
-    {
-      "name": "vite:css-post",
-      "start": 1780884422078,
-      "end": 1780884422078,
-      "order": "normal"
-    },
-    {
-      "name": "vite:worker-import-meta-url",
-      "start": 1780884422078,
-      "end": 1780884422078,
-      "order": "normal"
-    },
-    {
-      "name": "vite:asset-import-meta-url",
-      "start": 1780884422078,
-      "end": 1780884422078,
-      "order": "normal"
-    },
-    {
-      "name": "vite:dynamic-import-vars",
-      "start": 1780884422078,
-      "end": 1780884422078,
-      "order": "normal"
-    },
-    {
-      "name": "vite:import-glob",
-      "start": 1780884422080,
-      "end": 1780884422080,
-      "order": "normal"
-    },
-    {
-      "name": "unocss:transformers:post",
-      "start": 1780884422080,
-      "end": 1780884422080,
-      "order": "post"
-    },
-    {
-      "name": "unocss:global:post",
-      "start": 1780884422080,
-      "end": 1780884422080,
-      "order": "post"
-    },
-    {
-      "name": "vite:client-inject",
-      "start": 1780884422080,
-      "end": 1780884422080,
-      "order": "normal"
-    },
-    {
-      "name": "vite:import-analysis",
-      "result": "import \"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-styles/index.ts\";\nimport { createApp } from \"/node_modules/.vite/deps/vue.js?v=643c096e\";\nimport App from \"/src/App.vue\";\nimport { initIoc } from \"/src/plugin/initIoc.ts\";\nimport { appContext } from \"/src/plugin/initAppContext.ts?t=1780884422012\";\n(async () => {\n  const app = createApp(App);\n  await initIoc(app);\n  await appContext.load(app);\n  app.mount(\"#app\");\n})();\n",
-      "start": 1780884422080,
-      "end": 1780884422083,
-      "order": "normal",
+      "start": 1780888449536,
+      "end": 1780888449698,
       "sourcemaps": null
     },
     {
       "name": "unocss:transformers:pre",
-      "start": 1780884422084,
-      "end": 1780884422084,
+      "start": 1780888449698,
+      "end": 1780888449698,
       "order": "pre"
     },
     {
-      "name": "unocss:global",
-      "start": 1780884422084,
-      "end": 1780884422085,
+      "name": "unocss:global:build:scan",
+      "start": 1780888449698,
+      "end": 1780888449698,
       "order": "pre"
     },
     {
       "name": "vite:css",
-      "start": 1780884422085,
-      "end": 1780884422085,
+      "start": 1780888449698,
+      "end": 1780888449698,
       "order": "normal"
     },
     {
       "name": "vite:esbuild",
       "result": "import \"@grow-admin-rock/styles\";\nimport { createApp } from \"vue\";\nimport App from \"./App.vue\";\nimport { initIoc } from \"./plugin/initIoc\";\nimport { appContext } from \"./plugin/initAppContext\";\n(async () => {\n  const app = createApp(App);\n  await initIoc(app);\n  await appContext.load(app);\n  app.mount(\"#app\");\n})();\n",
-      "start": 1780884422085,
-      "end": 1780884422087,
+      "start": 1780888449698,
+      "end": 1780888449701,
       "order": "normal",
       "sourcemaps": {
         "version": 3,
         "sources": [
-          "main.ts"
+          "/Users/aaron/Desktop/grow_admin/sample/src/main.ts"
         ],
         "sourcesContent": [
           "import '@grow-admin-rock/styles'\nimport { createApp } from 'vue';\nimport App from './App.vue';\nimport { initIoc } from './plugin/initIoc';\nimport { appContext } from './plugin/initAppContext';\n\nimport {\n  InfrastructureOptions,\n  Lib as infrastructureLib,\n} from '@grow-admin-rock/infrastructure'\n\n\n;(async () => {\n  const app = createApp(App);\n  await initIoc(app);\n\n\n\n  await appContext.load(app);\n\n\n  app.mount('#app');\n})();\n"
@@ -172,101 +46,105 @@
     },
     {
       "name": "vite:json",
-      "start": 1780884422087,
-      "end": 1780884422087,
+      "start": 1780888449701,
+      "end": 1780888449701,
       "order": "normal"
     },
     {
       "name": "vite:worker",
-      "start": 1780884422087,
-      "end": 1780884422087,
+      "start": 1780888449701,
+      "end": 1780888449701,
       "order": "normal"
     },
     {
       "name": "vite:vue",
-      "start": 1780884422087,
-      "end": 1780884422087,
+      "start": 1780888449701,
+      "end": 1780888449701,
       "order": "normal"
     },
     {
       "name": "vite:vue-jsx",
-      "start": 1780884422087,
-      "end": 1780884422087,
+      "start": 1780888449701,
+      "end": 1780888449701,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:default",
-      "start": 1780884422087,
-      "end": 1780884422087,
+      "start": 1780888449701,
+      "end": 1780888449701,
       "order": "normal"
     },
     {
       "name": "@grow-admin-plugins/unplugin-auto-import",
-      "start": 1780884422087,
-      "end": 1780884422087,
+      "start": 1780888449701,
+      "end": 1780888449701,
       "order": "normal"
     },
     {
       "name": "vite:define",
-      "start": 1780884422087,
-      "end": 1780884422087,
+      "start": 1780888449701,
+      "end": 1780888449702,
       "order": "normal"
     },
     {
       "name": "vite:css-post",
-      "start": 1780884422087,
-      "end": 1780884422087,
+      "start": 1780888449702,
+      "end": 1780888449702,
+      "order": "normal"
+    },
+    {
+      "name": "vite:build-html",
+      "start": 1780888449702,
+      "end": 1780888449702,
       "order": "normal"
     },
     {
       "name": "vite:worker-import-meta-url",
-      "start": 1780884422087,
-      "end": 1780884422087,
+      "start": 1780888449702,
+      "end": 1780888449702,
       "order": "normal"
     },
     {
       "name": "vite:asset-import-meta-url",
-      "start": 1780884422087,
-      "end": 1780884422087,
+      "start": 1780888449702,
+      "end": 1780888449702,
+      "order": "normal"
+    },
+    {
+      "name": "commonjs",
+      "start": 1780888449702,
+      "end": 1780888449702,
       "order": "normal"
     },
     {
       "name": "vite:dynamic-import-vars",
-      "start": 1780884422087,
-      "end": 1780884422087,
+      "start": 1780888449702,
+      "end": 1780888449702,
       "order": "normal"
     },
     {
       "name": "vite:import-glob",
-      "start": 1780884422087,
-      "end": 1780884422087,
+      "start": 1780888449702,
+      "end": 1780888449702,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:post",
-      "start": 1780884422087,
-      "end": 1780884422087,
+      "start": 1780888449702,
+      "end": 1780888449702,
       "order": "post"
     },
     {
-      "name": "unocss:global:post",
-      "start": 1780884422087,
-      "end": 1780884422087,
-      "order": "post"
-    },
-    {
-      "name": "vite:client-inject",
-      "start": 1780884422087,
-      "end": 1780884422087,
+      "name": "vite:build-import-analysis",
+      "start": 1780888449702,
+      "end": 1780888449702,
       "order": "normal"
     },
     {
-      "name": "vite:import-analysis",
-      "result": "import \"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-styles/index.ts\";\nimport { createApp } from \"/node_modules/.vite/deps/vue.js?v=643c096e\";\nimport App from \"/src/App.vue\";\nimport { initIoc } from \"/src/plugin/initIoc.ts\";\nimport { appContext } from \"/src/plugin/initAppContext.ts?t=1780884422012\";\n(async () => {\n  const app = createApp(App);\n  await initIoc(app);\n  await appContext.load(app);\n  app.mount(\"#app\");\n})();\n",
-      "start": 1780884422087,
-      "end": 1780884422088,
-      "order": "normal",
-      "sourcemaps": null
+      "name": "vite:reporter",
+      "start": 1780888449702,
+      "end": 1780888449702,
+      "order": "normal"
     }
   ]
 }

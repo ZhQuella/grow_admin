@@ -10,10 +10,10 @@ import { Beans } from '#/../beankeys'
 import { Router, type RoutesTable, type RouteLocationRaw } from '#/../.';
 import { unref } from 'vue';
 
-export type PathAsPageEnum<T> = T extends { path: string }
+type PathAsPageEnum<T> = T extends { path: string }
   ? T & { path: PageEnum }
   : T;
-export type RouteLocationRawEx = PathAsPageEnum<RouteLocationRaw>;
+type RouteLocationRawEx = PathAsPageEnum<RouteLocationRaw>;
 
 const handleError = (failData: FailData, e: Error) => {
   resolveByKey(THROWN_HANDLER)?.error(e.message, 'logger', undefined, e);

@@ -7,9 +7,3 @@ export interface AppContextConfigration {
   appStatus: AppStatus
   appSetting: Ref<boolean>
 }
-
-export const createAppContextConfigration = (context: AppContextConfigration) => {
-  return {
-
-  }
-}

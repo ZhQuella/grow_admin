@@ -1,10 +1,6 @@
 export const REDIRECT_NAME = 'Redirect'
 
-export const PAGE_NOT_FOUND_NAME = 'PageNotFound'
-
 export const BASIC_LOGIN_PATH = '/login?redirect=/'
-export const BASIC_HOME_PATH = '/ddi-server-front/collection-board/dashbord'
-export const BASIC_ERROR_PATH = '/exception'
 export const BASIC_LOCK_PATH = '/lock'
 
 export enum PageEnum {

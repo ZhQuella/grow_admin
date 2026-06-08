@@ -6,22 +6,13 @@ let globalScreenRef: ComputedRef<ScreenSizeEnum | undefined>
 let globalWidthRef: ComputedRef<number>
 let globalRealWidthRef: ComputedRef<number>
 
-export interface CreateCallbackParams {
+interface CreateCallbackParams {
   screen: ComputedRef<ScreenSizeEnum | undefined>
   width: ComputedRef<number>
   realWidth: ComputedRef<number>
   screenEnum: typeof ScreenValueEnum
   screenMap: Map<ScreenSizeEnum, number>
   sizeEnum: typeof ScreenSizeEnum
-}
-
-export function useBreakpoint() {
-  return {
-    screenRef: computed(() => unref(globalScreenRef)),
-    widthRef: globalWidthRef,
-    screenEnum: ScreenValueEnum,
-    realWidthRef: globalRealWidthRef,
-  }
 }
 
 // Just call it once

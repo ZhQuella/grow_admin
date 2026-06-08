@@ -1,6 +1,6 @@
 import { Router, createRouter, createWebHistory } from 'vue-router';
 
-export class RouteTableRecord {
+class RouteTableRecord {
   routes: RouteRecordItem[] = [];
   names: string[] = [];
   paths: string[] = [];

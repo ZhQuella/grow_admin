@@ -55,23 +55,3 @@ export enum RoleEnum {
   // tester
   TEST = 'test',
 }
-
-export enum ComponentSizeEnum {
-  DEFAULT = 'default',
-  SMALL = 'small',
-  LARGE = 'large',
-}
-
-export enum ComponentSizeValueEnum {
-  DEFAULT = 48,
-  SMALL = 16,
-  LARGE = 64,
-}
-
-export enum ErrorTypeEnum {
-  VUE = 'vue',
-  SCRIPT = 'script',
-  RESOURCE = 'resource',
-  AJAX = 'ajax',
-  PROMISE = 'promise',
-}

@@ -3,7 +3,7 @@ import mitt from 'mitt'
 import type { EventType, Emitter, Handler } from 'mitt'
 import { onMounted, onUnmounted, onActivated, onDeactivated } from 'vue'
 
-export type Events = Record<
+type Events = Record<
   EventType,
   {
     /**
