@@ -1,14 +1,14 @@
 <script lang="ts" setup>
-import { useI18n } from '@weiming-rock/locale'
-import { createNamespace, getGlobalConfig } from '@vben/utils'
+import { useI18n } from '@grow-admin-rock/locale'
+import { createNamespace, getGlobalConfig } from '@grow-admin-rock/utils'
 import LoginForm from './login-form.vue'
 import ForgetPasswordForm from './forget-password-form.vue'
 import RegisterForm from './register-form.vue'
 import MobileForm from './mobile-form.vue'
 import QrCodeForm from './qrcode-form.vue'
 import OAuthForm from './oauth-form.vue'
-import { DarkModeToggle } from '@weiming-rock/layouts-component'
-import { AuthorizationModeEnum } from '@weiming-rock/constants'
+import { DarkModeToggle } from '@grow-admin-rock/layouts-component'
+import { AuthorizationModeEnum } from '@grow-admin-rock/constants'
 import { computed } from 'vue'
 const { bem } = createNamespace('login')
 

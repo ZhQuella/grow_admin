@@ -1,4 +1,4 @@
-import { genMessage } from '../helper'
+import { genMessage } from '#/helper'
 
 const modules = import.meta.glob('./zh-CN/**/*.ts', { eager: true })
 

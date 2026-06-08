@@ -4,12 +4,12 @@ import {
   BASIC_LOGIN_PATH,
   AuthorizationModeEnum,
   PermissionModeEnum,
-} from '@weiming-rock/constants'
-import { Lib as routeLib } from '@weiming-rock/middleware-router'
-import { Lib as layoutLib, LayoutRoutes } from '@weiming-rock/layouts-component'
-import { Lib as stateLib } from '@weiming-rock/state'
+} from '@grow-admin-rock/constants'
+import { Lib as routeLib } from '@grow-admin-rock/middleware-router'
+import { Lib as layoutLib, LayoutRoutes } from '@grow-admin-rock/layouts-component'
+import { Lib as stateLib } from '@grow-admin-rock/state'
 import { useOAuth2Config, useAuthMode } from '../usage'
-import { diKT } from '@weiming-rock/ioc'
+import { diKT } from '@grow-admin-rock/ioc'
 
 const LOCK_PATH = BASIC_LOCK_PATH
 const LOGIN_PATH = BASIC_LOGIN_PATH

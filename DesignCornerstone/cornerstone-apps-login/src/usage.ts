@@ -1,8 +1,8 @@
-import { AuthorizationModeEnum } from "@weiming-rock/constants";
+import { AuthorizationModeEnum } from "@grow-admin-rock/constants";
 import { LoginStateEnum } from "./constant";
 import { Ref, computed, ref, unref } from "vue";
-import { useI18n } from "@weiming-rock/locale";
-import { useGlobConfig } from "@weiming-rock/hooks";
+import { useI18n } from "@grow-admin-rock/locale";
+import { useGlobConfig } from "@grow-admin-rock/hooks";
 
 export const useAuthMode = () => {
   return useGlobConfig().authMode;

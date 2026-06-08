@@ -67,6 +67,37 @@ importers:
         specifier: ^4.2.0
         version: 4.3.2(typescript@5.9.3)(vite@4.3.9(@types/node@25.9.1)(less@4.6.4)(terser@5.47.1))
 
+  DesignCornerstone/cornerstone-apps-login:
+    dependencies:
+      vue:
+        specifier: ~3.3.4
+        version: 3.3.13(typescript@5.9.3)
+    devDependencies:
+      '@grow-admin-rock/constants':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-constants
+      '@grow-admin-rock/ioc':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-ioc
+      '@grow-admin-rock/locale':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-locale
+      '@grow-admin-rock/middleware-router':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-middleware-router
+      '@grow-admin-rock/state':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-state
+      typescript:
+        specifier: ^5.0.2
+        version: 5.9.3
+      vite:
+        specifier: 4.3.9
+        version: 4.3.9(@types/node@25.9.1)(less@4.6.4)(terser@5.47.1)
+      vue-tsc:
+        specifier: ^1.0.24
+        version: 1.8.27(typescript@5.9.3)
+
   DesignRock/rock-base-package:
     dependencies:
       '@grow-admin-rock/ioc':
@@ -80,6 +111,43 @@ importers:
         version: 3.3.13(typescript@5.9.3)
 
   DesignRock/rock-constants: {}
+
+  DesignRock/rock-hooks:
+    dependencies:
+      '@grow-admin-rock/base-package':
+        specifier: workspace:*
+        version: link:../rock-base-package
+      '@grow-admin-rock/constants':
+        specifier: workspace:*
+        version: link:../rock-constants
+      '@grow-admin-rock/ioc':
+        specifier: workspace:*
+        version: link:../rock-ioc
+      '@grow-admin-rock/locale':
+        specifier: workspace:*
+        version: link:../rock-locale
+      '@grow-admin-rock/middleware-router':
+        specifier: workspace:*
+        version: link:../rock-middleware-router
+      '@grow-admin-rock/settings':
+        specifier: workspace:*
+        version: link:../rock-settings
+      '@grow-admin-rock/state':
+        specifier: workspace:*
+        version: link:../rock-state
+      '@grow-admin-rock/utils':
+        specifier: workspace:*
+        version: link:../rock-utils
+      vue:
+        specifier: ~3.3.4
+        version: 3.3.13(typescript@5.9.3)
+    devDependencies:
+      '@grow-admin-rock/types':
+        specifier: workspace:*
+        version: link:../rock-types
+      '@types/lodash-es':
+        specifier: ^4.17.6
+        version: 4.17.12
 
   DesignRock/rock-infrastructure:
     dependencies:
@@ -181,6 +249,37 @@ importers:
       vue-router:
         specifier: ^4.1.6
         version: 4.6.4(vue@3.3.13(typescript@5.9.3))
+    devDependencies:
+      '@grow-admin-rock/types':
+        specifier: workspace:*
+        version: link:../rock-types
+
+  DesignRock/rock-settings:
+    dependencies:
+      '@grow-admin-rock/base-package':
+        specifier: workspace:*
+        version: link:../rock-base-package
+      '@grow-admin-rock/constants':
+        specifier: workspace:*
+        version: link:../rock-constants
+      '@grow-admin-rock/ioc':
+        specifier: workspace:*
+        version: link:../rock-ioc
+      '@grow-admin-rock/locale':
+        specifier: workspace:*
+        version: link:../rock-locale
+      '@grow-admin-rock/middleware-router':
+        specifier: workspace:*
+        version: link:../rock-middleware-router
+      '@grow-admin-rock/state':
+        specifier: workspace:*
+        version: link:../rock-state
+      '@grow-admin-rock/utils':
+        specifier: workspace:*
+        version: link:../rock-utils
+      vue:
+        specifier: ~3.3.4
+        version: 3.3.13(typescript@5.9.3)
     devDependencies:
       '@grow-admin-rock/types':
         specifier: workspace:*

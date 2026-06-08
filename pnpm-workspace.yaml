@@ -1,6 +1,7 @@
 packages:
   - 'configs/*'
   - 'DesignRock/*'
+  - 'DesignCornerstone/*'
   - 'sample'
   - 'scripts'
   - 'docs'

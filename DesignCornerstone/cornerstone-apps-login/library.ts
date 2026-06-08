@@ -1,9 +1,9 @@
 import * as pack from "./package.json"
-import { install } from '@weiming-rock/base-package';
-import type { ModuleLibContext } from '@weiming-rock/base-package';
-import { AsyncIocModule } from '@weiming-rock/ioc';
+import { install } from '@grow-admin-rock/base-package';
+import type { ModuleLibContext } from '@grow-admin-rock/base-package';
+import { AsyncIocModule } from '@grow-admin-rock/ioc';
 import { useUserStore } from '#/domain';
-import { Lib as layoutLib } from '@weiming-rock/layouts-component';
+import { Lib as layoutLib } from '@grow-admin-rock/layouts-component';
 import { RouteList } from '#/.'
 
 export const Lib: ModuleLibContext<'types', any> = {

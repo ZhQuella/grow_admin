@@ -14,6 +14,7 @@ const runObsOrdered = async (app: App, observers: PriorityObserver[]) => {
     observers,
     (o: PriorityObserver) => o.pri
   );
+  // @ts-ignore
   const sortedKeys: number[] = keys(preObservers).sort((a: number, b: number) => a - b);
   for (const key of sortedKeys) {
     await Promise.all(preObservers[key].map((o: PriorityObserver) => o.obs(app)))
