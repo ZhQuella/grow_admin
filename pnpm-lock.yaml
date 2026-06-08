@@ -73,6 +73,9 @@ importers:
         specifier: ~3.3.4
         version: 3.3.13(typescript@5.9.3)
     devDependencies:
+      '@grow-admin-rock/base-package':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-base-package
       '@grow-admin-rock/constants':
         specifier: workspace:*
         version: link:../../DesignRock/rock-constants
@@ -535,6 +538,9 @@ importers:
 
   sample:
     dependencies:
+      '@grow-admin-cornerstone/apps-login':
+        specifier: workspace:*
+        version: link:../DesignCornerstone/cornerstone-apps-login
       '@grow-admin-rock/base-package':
         specifier: workspace:*
         version: link:../DesignRock/rock-base-package
@@ -547,6 +553,9 @@ importers:
       '@grow-admin-rock/locale':
         specifier: workspace:*
         version: link:../DesignRock/rock-locale
+      '@grow-admin-rock/middleware-router':
+        specifier: workspace:*
+        version: link:../DesignRock/rock-middleware-router
       '@grow-admin-rock/utils':
         specifier: workspace:*
         version: link:../DesignRock/rock-utils

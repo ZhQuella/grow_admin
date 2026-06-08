@@ -2,40 +2,39 @@
   "resolvedId": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-base-package/index.ts",
   "transforms": [
     {
-      "name": "vite:load-fallback",
+      "name": "__load__",
       "result": "export * from './src'",
-      "start": 1780888449728,
-      "end": 1780888449795,
-      "sourcemaps": null
+      "start": 1780893043137,
+      "end": 1780893043137
     },
     {
       "name": "unocss:transformers:pre",
-      "start": 1780888449795,
-      "end": 1780888449795,
+      "start": 1780893043137,
+      "end": 1780893043137,
       "order": "pre"
     },
     {
-      "name": "unocss:global:build:scan",
-      "start": 1780888449795,
-      "end": 1780888449795,
+      "name": "unocss:global",
+      "start": 1780893043137,
+      "end": 1780893043137,
       "order": "pre"
     },
     {
       "name": "vite:css",
-      "start": 1780888449795,
-      "end": 1780888449795,
+      "start": 1780893043137,
+      "end": 1780893043137,
       "order": "normal"
     },
     {
       "name": "vite:esbuild",
       "result": "export * from \"./src\";\n",
-      "start": 1780888449795,
-      "end": 1780888449908,
+      "start": 1780893043137,
+      "end": 1780893043391,
       "order": "normal",
       "sourcemaps": {
         "version": 3,
         "sources": [
-          "/Users/aaron/Desktop/grow_admin/DesignRock/rock-base-package/index.ts"
+          "index.ts"
         ],
         "sourcesContent": [
           "export * from './src'"
@@ -46,105 +45,101 @@
     },
     {
       "name": "vite:json",
-      "start": 1780888449908,
-      "end": 1780888449908,
+      "start": 1780893043391,
+      "end": 1780893043391,
       "order": "normal"
     },
     {
       "name": "vite:worker",
-      "start": 1780888449908,
-      "end": 1780888449908,
+      "start": 1780893043391,
+      "end": 1780893043391,
       "order": "normal"
     },
     {
       "name": "vite:vue",
-      "start": 1780888449908,
-      "end": 1780888449908,
+      "start": 1780893043391,
+      "end": 1780893043391,
       "order": "normal"
     },
     {
       "name": "vite:vue-jsx",
-      "start": 1780888449908,
-      "end": 1780888449908,
+      "start": 1780893043391,
+      "end": 1780893043391,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:default",
-      "start": 1780888449908,
-      "end": 1780888449908,
+      "start": 1780893043391,
+      "end": 1780893043391,
       "order": "normal"
     },
     {
       "name": "@grow-admin-plugins/unplugin-auto-import",
-      "start": 1780888449908,
-      "end": 1780888449908,
+      "start": 1780893043391,
+      "end": 1780893043391,
       "order": "normal"
     },
     {
       "name": "vite:define",
-      "start": 1780888449908,
-      "end": 1780888449908,
+      "start": 1780893043391,
+      "end": 1780893043391,
       "order": "normal"
     },
     {
       "name": "vite:css-post",
-      "start": 1780888449908,
-      "end": 1780888449908,
-      "order": "normal"
-    },
-    {
-      "name": "vite:build-html",
-      "start": 1780888449908,
-      "end": 1780888449908,
+      "start": 1780893043391,
+      "end": 1780893043391,
       "order": "normal"
     },
     {
       "name": "vite:worker-import-meta-url",
-      "start": 1780888449908,
-      "end": 1780888449908,
+      "start": 1780893043391,
+      "end": 1780893043391,
       "order": "normal"
     },
     {
       "name": "vite:asset-import-meta-url",
-      "start": 1780888449908,
-      "end": 1780888449908,
-      "order": "normal"
-    },
-    {
-      "name": "commonjs",
-      "start": 1780888449908,
-      "end": 1780888449909,
+      "start": 1780893043391,
+      "end": 1780893043391,
       "order": "normal"
     },
     {
       "name": "vite:dynamic-import-vars",
-      "start": 1780888449909,
-      "end": 1780888449909,
+      "start": 1780893043391,
+      "end": 1780893043391,
       "order": "normal"
     },
     {
       "name": "vite:import-glob",
-      "start": 1780888449909,
-      "end": 1780888449909,
+      "start": 1780893043391,
+      "end": 1780893043391,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:post",
-      "start": 1780888449909,
-      "end": 1780888449909,
+      "start": 1780893043391,
+      "end": 1780893043391,
       "order": "post"
     },
     {
-      "name": "vite:build-import-analysis",
-      "start": 1780888449909,
-      "end": 1780888449909,
+      "name": "unocss:global:post",
+      "start": 1780893043391,
+      "end": 1780893043391,
+      "order": "post"
+    },
+    {
+      "name": "vite:client-inject",
+      "start": 1780893043391,
+      "end": 1780893043391,
       "order": "normal"
     },
     {
-      "name": "vite:reporter",
-      "start": 1780888449909,
-      "end": 1780888449909,
-      "order": "normal"
+      "name": "vite:import-analysis",
+      "result": "export * from \"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-base-package/src/index.ts\";\n",
+      "start": 1780893043391,
+      "end": 1780893043391,
+      "order": "normal",
+      "sourcemaps": null
     }
   ]
 }

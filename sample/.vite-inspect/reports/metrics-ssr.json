@@ -30,17 +30,6 @@
       "invokeCount": 0,
       "totalTime": 0
     },
-    "name": "commonjs"
-  },
-  {
-    "transform": {
-      "invokeCount": 0,
-      "totalTime": 0
-    },
-    "resolveId": {
-      "invokeCount": 0,
-      "totalTime": 0
-    },
     "name": "generate-config"
   },
   {
@@ -119,30 +108,7 @@
       "invokeCount": 0,
       "totalTime": 0
     },
-    "name": "unocss:global:build:bundle",
-    "enforce": "post"
-  },
-  {
-    "transform": {
-      "invokeCount": 0,
-      "totalTime": 0
-    },
-    "resolveId": {
-      "invokeCount": 0,
-      "totalTime": 0
-    },
-    "name": "unocss:global:build:generate"
-  },
-  {
-    "transform": {
-      "invokeCount": 0,
-      "totalTime": 0
-    },
-    "resolveId": {
-      "invokeCount": 0,
-      "totalTime": 0
-    },
-    "name": "unocss:global:build:scan",
+    "name": "unocss:global",
     "enforce": "pre"
   },
   {
@@ -156,6 +122,29 @@
     },
     "name": "unocss:global:content",
     "enforce": "pre"
+  },
+  {
+    "transform": {
+      "invokeCount": 0,
+      "totalTime": 0
+    },
+    "resolveId": {
+      "invokeCount": 0,
+      "totalTime": 0
+    },
+    "name": "unocss:global:post",
+    "enforce": "post"
+  },
+  {
+    "transform": {
+      "invokeCount": 0,
+      "totalTime": 0
+    },
+    "resolveId": {
+      "invokeCount": 0,
+      "totalTime": 0
+    },
+    "name": "unocss:inspector"
   },
   {
     "transform": {
@@ -246,41 +235,7 @@
       "invokeCount": 0,
       "totalTime": 0
     },
-    "name": "vite:build-html"
-  },
-  {
-    "transform": {
-      "invokeCount": 0,
-      "totalTime": 0
-    },
-    "resolveId": {
-      "invokeCount": 0,
-      "totalTime": 0
-    },
-    "name": "vite:build-import-analysis"
-  },
-  {
-    "transform": {
-      "invokeCount": 0,
-      "totalTime": 0
-    },
-    "resolveId": {
-      "invokeCount": 0,
-      "totalTime": 0
-    },
-    "name": "vite:build-metadata"
-  },
-  {
-    "transform": {
-      "invokeCount": 0,
-      "totalTime": 0
-    },
-    "resolveId": {
-      "invokeCount": 0,
-      "totalTime": 0
-    },
-    "name": "vite:compression",
-    "enforce": "post"
+    "name": "vite:client-inject"
   },
   {
     "transform": {
@@ -303,17 +258,6 @@
       "totalTime": 0
     },
     "name": "vite:css-post"
-  },
-  {
-    "transform": {
-      "invokeCount": 0,
-      "totalTime": 0
-    },
-    "resolveId": {
-      "invokeCount": 0,
-      "totalTime": 0
-    },
-    "name": "vite:data-uri"
   },
   {
     "transform": {
@@ -357,28 +301,6 @@
       "invokeCount": 0,
       "totalTime": 0
     },
-    "name": "vite:esbuild-transpile"
-  },
-  {
-    "transform": {
-      "invokeCount": 0,
-      "totalTime": 0
-    },
-    "resolveId": {
-      "invokeCount": 0,
-      "totalTime": 0
-    },
-    "name": "vite:force-systemjs-wrap-complete"
-  },
-  {
-    "transform": {
-      "invokeCount": 0,
-      "totalTime": 0
-    },
-    "resolveId": {
-      "invokeCount": 0,
-      "totalTime": 0
-    },
     "name": "vite:html",
     "enforce": "pre"
   },
@@ -402,6 +324,17 @@
       "invokeCount": 0,
       "totalTime": 0
     },
+    "name": "vite:import-analysis"
+  },
+  {
+    "transform": {
+      "invokeCount": 0,
+      "totalTime": 0
+    },
+    "resolveId": {
+      "invokeCount": 0,
+      "totalTime": 0
+    },
     "name": "vite:import-glob"
   },
   {
@@ -414,17 +347,6 @@
       "totalTime": 0
     },
     "name": "vite:json"
-  },
-  {
-    "transform": {
-      "invokeCount": 0,
-      "totalTime": 0
-    },
-    "resolveId": {
-      "invokeCount": 0,
-      "totalTime": 0
-    },
-    "name": "vite:load-fallback"
   },
   {
     "transform": {
@@ -458,7 +380,7 @@
       "invokeCount": 0,
       "totalTime": 0
     },
-    "name": "vite:pre-alias"
+    "name": "vite:optimized-deps"
   },
   {
     "transform": {
@@ -469,7 +391,7 @@
       "invokeCount": 0,
       "totalTime": 0
     },
-    "name": "vite:reporter"
+    "name": "vite:pre-alias"
   },
   {
     "transform": {
@@ -492,17 +414,6 @@
       "totalTime": 0
     },
     "name": "vite:svg-icons"
-  },
-  {
-    "transform": {
-      "invokeCount": 0,
-      "totalTime": 0
-    },
-    "resolveId": {
-      "invokeCount": 0,
-      "totalTime": 0
-    },
-    "name": "vite:terser"
   },
   {
     "transform": {

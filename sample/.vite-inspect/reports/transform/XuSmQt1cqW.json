@@ -2,40 +2,39 @@
   "resolvedId": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/logger/index.ts",
   "transforms": [
     {
-      "name": "vite:load-fallback",
+      "name": "__load__",
       "result": "import * as inversify from \"inversify\";\nimport deatultOptions from \"./config/default_settings\";\n// import consoleRenderer from \"./renderers/console_renderer\";\nimport requestReducer from \"./reducers/request_reducer\";\n// import textSerializer from \"./serializers/text/text_serializer\";\nimport interfaces from \"./interfaces/interfaces\";\nimport { guid, getTime, getTimeDiference } from \"./utils/utils\";\n\nfunction makeLoggerMiddleware(\n    settings?: interfaces.LoggerSettings,\n    renderer?: (out: interfaces.LogEntry) => void\n): inversify.interfaces.Middleware {\n    let logger = function (next: inversify.interfaces.Next): inversify.interfaces.Next {\n        const _setting = settings || deatultOptions;\n        const _renderer = renderer || ((out) => {\n            if (out.error) {\n                console.debug('grow-admin IOC', out, out.exception);\n            }\n        });\n        return (args: inversify.interfaces.NextArgs) => {\n            let results: any = null;\n\n            let logEntry: interfaces.LogEntry = {\n                error: false,\n                exception: null,\n                guid: guid(),\n                multiInject: args.isMultiInject,\n                results: [],\n                rootRequest: null,\n                serviceIdentifier: args.serviceIdentifier,\n                time: null\n            };\n            let nextContextInterceptor = args.contextInterceptor;\n            args.contextInterceptor = (context: inversify.interfaces.Context) => {\n                logEntry.rootRequest = requestReducer(context.plan.rootRequest, _setting.request || {});\n                return nextContextInterceptor(context);\n            };\n            try {\n                let start =  getTime();\n                results = next(args);\n                let end = getTime();\n                logEntry.results = results;\n                logEntry.time = (_setting.time) ? getTimeDiference(start, end) : null;\n            } catch (e) {\n                logEntry.error = true;\n                logEntry.exception = e;\n                logEntry.time = null;\n            }\n            _renderer(logEntry);\n            if (results) {\n                return results;\n            } else {\n                throw new Error(logEntry.exception.message);\n            }\n        };\n    };\n    return logger;\n}\nexport { makeLoggerMiddleware };",
-      "start": 1780888449962,
-      "end": 1780888450022,
-      "sourcemaps": null
+      "start": 1780893044216,
+      "end": 1780893044216
     },
     {
       "name": "unocss:transformers:pre",
-      "start": 1780888450022,
-      "end": 1780888450022,
+      "start": 1780893044216,
+      "end": 1780893044216,
       "order": "pre"
     },
     {
-      "name": "unocss:global:build:scan",
-      "start": 1780888450022,
-      "end": 1780888450023,
+      "name": "unocss:global",
+      "start": 1780893044216,
+      "end": 1780893044222,
       "order": "pre"
     },
     {
       "name": "vite:css",
-      "start": 1780888450023,
-      "end": 1780888450023,
+      "start": 1780893044222,
+      "end": 1780893044223,
       "order": "normal"
     },
     {
       "name": "vite:esbuild",
       "result": "import deatultOptions from \"./config/default_settings\";\nimport requestReducer from \"./reducers/request_reducer\";\nimport { guid, getTime, getTimeDiference } from \"./utils/utils\";\nfunction makeLoggerMiddleware(settings, renderer) {\n  let logger = function(next) {\n    const _setting = settings || deatultOptions;\n    const _renderer = renderer || ((out) => {\n      if (out.error) {\n        console.debug(\"grow-admin IOC\", out, out.exception);\n      }\n    });\n    return (args) => {\n      let results = null;\n      let logEntry = {\n        error: false,\n        exception: null,\n        guid: guid(),\n        multiInject: args.isMultiInject,\n        results: [],\n        rootRequest: null,\n        serviceIdentifier: args.serviceIdentifier,\n        time: null\n      };\n      let nextContextInterceptor = args.contextInterceptor;\n      args.contextInterceptor = (context) => {\n        logEntry.rootRequest = requestReducer(context.plan.rootRequest, _setting.request || {});\n        return nextContextInterceptor(context);\n      };\n      try {\n        let start = getTime();\n        results = next(args);\n        let end = getTime();\n        logEntry.results = results;\n        logEntry.time = _setting.time ? getTimeDiference(start, end) : null;\n      } catch (e) {\n        logEntry.error = true;\n        logEntry.exception = e;\n        logEntry.time = null;\n      }\n      _renderer(logEntry);\n      if (results) {\n        return results;\n      } else {\n        throw new Error(logEntry.exception.message);\n      }\n    };\n  };\n  return logger;\n}\nexport { makeLoggerMiddleware };\n",
-      "start": 1780888450023,
-      "end": 1780888450064,
+      "start": 1780893044223,
+      "end": 1780893044299,
       "order": "normal",
       "sourcemaps": {
         "version": 3,
         "sources": [
-          "/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/logger/index.ts"
+          "index.ts"
         ],
         "sourcesContent": [
           "import * as inversify from \"inversify\";\nimport deatultOptions from \"./config/default_settings\";\n// import consoleRenderer from \"./renderers/console_renderer\";\nimport requestReducer from \"./reducers/request_reducer\";\n// import textSerializer from \"./serializers/text/text_serializer\";\nimport interfaces from \"./interfaces/interfaces\";\nimport { guid, getTime, getTimeDiference } from \"./utils/utils\";\n\nfunction makeLoggerMiddleware(\n    settings?: interfaces.LoggerSettings,\n    renderer?: (out: interfaces.LogEntry) => void\n): inversify.interfaces.Middleware {\n    let logger = function (next: inversify.interfaces.Next): inversify.interfaces.Next {\n        const _setting = settings || deatultOptions;\n        const _renderer = renderer || ((out) => {\n            if (out.error) {\n                console.debug('grow-admin IOC', out, out.exception);\n            }\n        });\n        return (args: inversify.interfaces.NextArgs) => {\n            let results: any = null;\n\n            let logEntry: interfaces.LogEntry = {\n                error: false,\n                exception: null,\n                guid: guid(),\n                multiInject: args.isMultiInject,\n                results: [],\n                rootRequest: null,\n                serviceIdentifier: args.serviceIdentifier,\n                time: null\n            };\n            let nextContextInterceptor = args.contextInterceptor;\n            args.contextInterceptor = (context: inversify.interfaces.Context) => {\n                logEntry.rootRequest = requestReducer(context.plan.rootRequest, _setting.request || {});\n                return nextContextInterceptor(context);\n            };\n            try {\n                let start =  getTime();\n                results = next(args);\n                let end = getTime();\n                logEntry.results = results;\n                logEntry.time = (_setting.time) ? getTimeDiference(start, end) : null;\n            } catch (e) {\n                logEntry.error = true;\n                logEntry.exception = e;\n                logEntry.time = null;\n            }\n            _renderer(logEntry);\n            if (results) {\n                return results;\n            } else {\n                throw new Error(logEntry.exception.message);\n            }\n        };\n    };\n    return logger;\n}\nexport { makeLoggerMiddleware };"
@@ -46,105 +45,101 @@
     },
     {
       "name": "vite:json",
-      "start": 1780888450064,
-      "end": 1780888450064,
+      "start": 1780893044299,
+      "end": 1780893044300,
       "order": "normal"
     },
     {
       "name": "vite:worker",
-      "start": 1780888450064,
-      "end": 1780888450064,
+      "start": 1780893044300,
+      "end": 1780893044300,
       "order": "normal"
     },
     {
       "name": "vite:vue",
-      "start": 1780888450064,
-      "end": 1780888450064,
+      "start": 1780893044300,
+      "end": 1780893044300,
       "order": "normal"
     },
     {
       "name": "vite:vue-jsx",
-      "start": 1780888450064,
-      "end": 1780888450064,
+      "start": 1780893044300,
+      "end": 1780893044300,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:default",
-      "start": 1780888450064,
-      "end": 1780888450064,
+      "start": 1780893044300,
+      "end": 1780893044300,
       "order": "normal"
     },
     {
       "name": "@grow-admin-plugins/unplugin-auto-import",
-      "start": 1780888450064,
-      "end": 1780888450064,
+      "start": 1780893044300,
+      "end": 1780893044300,
       "order": "normal"
     },
     {
       "name": "vite:define",
-      "start": 1780888450064,
-      "end": 1780888450064,
+      "start": 1780893044300,
+      "end": 1780893044300,
       "order": "normal"
     },
     {
       "name": "vite:css-post",
-      "start": 1780888450064,
-      "end": 1780888450064,
-      "order": "normal"
-    },
-    {
-      "name": "vite:build-html",
-      "start": 1780888450064,
-      "end": 1780888450064,
+      "start": 1780893044300,
+      "end": 1780893044300,
       "order": "normal"
     },
     {
       "name": "vite:worker-import-meta-url",
-      "start": 1780888450064,
-      "end": 1780888450064,
+      "start": 1780893044300,
+      "end": 1780893044300,
       "order": "normal"
     },
     {
       "name": "vite:asset-import-meta-url",
-      "start": 1780888450064,
-      "end": 1780888450064,
-      "order": "normal"
-    },
-    {
-      "name": "commonjs",
-      "start": 1780888450064,
-      "end": 1780888450064,
+      "start": 1780893044300,
+      "end": 1780893044300,
       "order": "normal"
     },
     {
       "name": "vite:dynamic-import-vars",
-      "start": 1780888450064,
-      "end": 1780888450064,
+      "start": 1780893044300,
+      "end": 1780893044300,
       "order": "normal"
     },
     {
       "name": "vite:import-glob",
-      "start": 1780888450064,
-      "end": 1780888450064,
+      "start": 1780893044300,
+      "end": 1780893044300,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:post",
-      "start": 1780888450064,
-      "end": 1780888450064,
+      "start": 1780893044300,
+      "end": 1780893044300,
       "order": "post"
     },
     {
-      "name": "vite:build-import-analysis",
-      "start": 1780888450064,
-      "end": 1780888450064,
+      "name": "unocss:global:post",
+      "start": 1780893044300,
+      "end": 1780893044300,
+      "order": "post"
+    },
+    {
+      "name": "vite:client-inject",
+      "start": 1780893044300,
+      "end": 1780893044300,
       "order": "normal"
     },
     {
-      "name": "vite:reporter",
-      "start": 1780888450064,
-      "end": 1780888450064,
-      "order": "normal"
+      "name": "vite:import-analysis",
+      "result": "import deatultOptions from \"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/logger/config/default_settings.ts\";\nimport requestReducer from \"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/logger/reducers/request_reducer.ts\";\nimport { guid, getTime, getTimeDiference } from \"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/logger/utils/utils.ts\";\nfunction makeLoggerMiddleware(settings, renderer) {\n  let logger = function(next) {\n    const _setting = settings || deatultOptions;\n    const _renderer = renderer || ((out) => {\n      if (out.error) {\n        console.debug(\"grow-admin IOC\", out, out.exception);\n      }\n    });\n    return (args) => {\n      let results = null;\n      let logEntry = {\n        error: false,\n        exception: null,\n        guid: guid(),\n        multiInject: args.isMultiInject,\n        results: [],\n        rootRequest: null,\n        serviceIdentifier: args.serviceIdentifier,\n        time: null\n      };\n      let nextContextInterceptor = args.contextInterceptor;\n      args.contextInterceptor = (context) => {\n        logEntry.rootRequest = requestReducer(context.plan.rootRequest, _setting.request || {});\n        return nextContextInterceptor(context);\n      };\n      try {\n        let start = getTime();\n        results = next(args);\n        let end = getTime();\n        logEntry.results = results;\n        logEntry.time = _setting.time ? getTimeDiference(start, end) : null;\n      } catch (e) {\n        logEntry.error = true;\n        logEntry.exception = e;\n        logEntry.time = null;\n      }\n      _renderer(logEntry);\n      if (results) {\n        return results;\n      } else {\n        throw new Error(logEntry.exception.message);\n      }\n    };\n  };\n  return logger;\n}\nexport { makeLoggerMiddleware };\n",
+      "start": 1780893044300,
+      "end": 1780893044325,
+      "order": "normal",
+      "sourcemaps": null
     }
   ]
 }

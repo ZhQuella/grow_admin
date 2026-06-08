@@ -2,6 +2,8 @@ import { App } from "vue";
 import { forEach, isEmpty, groupBy, keys } from 'lodash-es';
 import { AsyncIocModule, ServiceIdentifier, contextContianer } from "@grow-admin-rock/ioc";
 
+export const APP_CONTEXT: ServiceIdentifier<AppContext> = Symbol.for('GrowAdminAppContext') as ServiceIdentifier<AppContext>;
+
 type PriorityObserver = { pri: number, obs: (app: App) => Promise<void> };
 
 type IocLoadedObserver = {
@@ -105,10 +107,14 @@ export class AppContext {
    * @param app
    */
   async load(app: App, onLoadFinished?: () => Promise<void>) {
+    const container = contextContianer();
+    if (!container.isBound(APP_CONTEXT)) {
+      container.bind(APP_CONTEXT).toConstantValue(this);
+    }
     if (!isEmpty(this.loadedObservers.preObservers)) {
       runObsOrdered(app, this.loadedObservers.preObservers)
     }
-    await contextContianer().loadAsync(...this.iocModules)
+    await container.loadAsync(...this.iocModules)
     if (!isEmpty(this.loadedObservers.loadedObservers)) {
       runObsOrdered(app, this.loadedObservers.loadedObservers)
     }

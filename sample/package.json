@@ -18,29 +18,31 @@
     "type:check": "vue-tsc --noEmit --skipLibCheck"
   },
   "dependencies": {
-    "@grow-admin-rock/utils": "workspace:*",
+    "@grow-admin-cornerstone/apps-login": "workspace:*",
     "@grow-admin-rock/base-package": "workspace:*",
     "@grow-admin-rock/infrastructure": "workspace:*",
     "@grow-admin-rock/ioc": "workspace:*",
     "@grow-admin-rock/locale": "workspace:*",
-    "vue": "~3.3.4",
-    "vue-router": "^4.1.6",
-    "pinia": "~2.0.34",
+    "@grow-admin-rock/utils": "workspace:*",
+    "@grow-admin-rock/middleware-router": "workspace:*",
     "dayjs": "^1.11.7",
-    "mitt": "^3.0.0"
+    "mitt": "^3.0.0",
+    "pinia": "~2.0.34",
+    "vue": "~3.3.4",
+    "vue-router": "^4.1.6"
   },
   "devDependencies": {
     "@grow-admin-config/vite": "workspace:*",
-    "@grow-admin-rock/types": "workspace:*",
     "@grow-admin-rock/styles": "workspace:*",
+    "@grow-admin-rock/types": "workspace:*",
     "@types/lodash-es": "^4.17.6",
     "@vue/compiler-sfc": "~3.2.0",
     "@vue/test-utils": "^2.2.9",
+    "mockjs": "^1.1.0",
     "rollup": "^3.19.1",
     "typescript": "^5.1.6",
     "vite": "4.3.9",
     "vite-plugin-mock": "^2.9.6",
-    "vue-tsc": "^1.0.24",
-    "mockjs": "^1.1.0"
+    "vue-tsc": "^1.0.24"
   }
 }

@@ -4,8 +4,6 @@ import type { App } from 'vue';
 import type { Library, ModuleLibContext } from './Library';
 import type { AppContext } from './AppContext';
 import { isEmpty } from 'lodash-es'
-import { ServiceIdentifier } from '@grow-admin-rock/ioc';
-export const APP_CONTEXT: ServiceIdentifier<AppContext> = Symbol.for('WmqAppContext') as ServiceIdentifier<AppContext>;
 export async function install<T extends Library<any>>(
   this: any,
   _: App, context: AppContext
