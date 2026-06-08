@@ -1,0 +1,35 @@
+{
+  "name": "@weiming-cornerstone/apps-account",
+  "version": "0.0.0",
+  "main": "index.ts",
+  "module": "index.ts",
+  "license": "MIT",
+  "description": "砥柱-​账号登录管理",
+  "scripts": {
+    "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
+  },
+  "dependencies": {
+    "@vben/utils": "workspace:*",
+    "@weiming-cornerstone/components": "workspace:*",
+    "@weiming-rock/app-components": "workspace:*",
+    "@weiming-rock/base-package": "workspace:*",
+    "@weiming-rock/components": "workspace:*",
+    "@weiming-rock/constants": "workspace:*",
+    "@weiming-rock/hooks": "workspace:*",
+    "@weiming-rock/infrastructure": "workspace:*",
+    "@weiming-rock/ioc": "workspace:*",
+    "@weiming-rock/layouts-component": "workspace:*",
+    "@weiming-rock/locale": "workspace:*",
+    "@weiming-rock/middleware-router": "workspace:*",
+    "@weiming-rock/state": "workspace:*"
+  },
+  "devDependencies": {
+    "@weiming-rock/types": "workspace:*",
+    "typescript": "^5.0.2",
+    "vite": "4.3.9",
+    "vue-tsc": "^1.0.24"
+  },
+  "peerDependencies": {
+    "vue": "~3.3.4"
+  }
+}
