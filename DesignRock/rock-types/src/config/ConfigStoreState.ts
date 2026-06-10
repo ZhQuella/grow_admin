@@ -1,6 +1,6 @@
 import { ThemeEnum } from "@grow-admin-rock/constants"
 import { BeforeMiniState } from "#/menu"
-import { HeaderSetting, MenuSetting, MultiTabsSetting, ProjectConfig, TransitionSetting } from "#/setting"
+import { ProjectConfig, TransitionSetting } from "#/setting"
 import { Store } from "pinia"
 
 /**
@@ -21,9 +21,6 @@ export namespace Config {
     getDarkMode: ThemeEnum
     getBeforeMiniInfo: BeforeMiniState
     getProjectConfig: ProjectConfig
-    getHeaderSetting: HeaderSetting
-    getMenuSetting: MenuSetting
-    getMultiTabsSetting: MultiTabsSetting
     getPageLoading: boolean
     getTransitionSetting: TransitionSetting
   }

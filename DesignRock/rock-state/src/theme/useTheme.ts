@@ -3,7 +3,6 @@ import { storeToRefs } from 'pinia'
 import { ThemeEnum, ThemeModeEnum } from '@grow-admin-rock/constants'
 import { useAppConfig } from '../modules/appConfig'
 import {
-  applyBodyFilters,
   applyDarkClass,
   applyThemeColor,
   generateThemeColorPalette,
@@ -13,7 +12,7 @@ import {
 
 export function useTheme() {
   const appConfig = useAppConfig()
-  const { themeMode, themeColor, grayMode, colorWeak } = storeToRefs(appConfig)
+  const { themeMode, themeColor } = storeToRefs(appConfig)
 
   const resolvedTheme = computed(() => resolveThemeMode(themeMode.value))
   const isDark = computed(() => resolvedTheme.value === ThemeEnum.DARK)
@@ -34,10 +33,6 @@ export function useTheme() {
   function applyThemeToDom() {
     applyDarkClass(isDark.value)
     applyThemeColor(themeColor.value)
-    applyBodyFilters({
-      grayMode: grayMode.value,
-      colorWeak: colorWeak.value,
-    })
   }
 
   function syncThemeToDom() {
@@ -49,7 +44,7 @@ export function useTheme() {
     withThemeTransition(applyThemeToDom)
   }
 
-  watch([themeMode, themeColor, grayMode, colorWeak], syncThemeToDom, { immediate: true })
+  watch([themeMode, themeColor], syncThemeToDom, { immediate: true })
 
   let media: MediaQueryList | undefined
   let onSystemChange: (() => void) | undefined

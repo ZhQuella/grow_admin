@@ -125,47 +125,6 @@ export class AppStatusContext implements AppStatus {
       getTheme: settings.getDarkMode,
       isPageLoading: settings.getPageLoading,
     })
-    // 内部方法
-    this.restoreState = () => {
-      if (unref(mobileStatus)) {
-        if (!unref(mobileStatus)) {
-          isSetState.value = true;
-          const {
-            menuSetting: {
-              type: menuType,
-              mode: menuMode,
-              collapsed: menuCollapsed,
-              split: menuSplit,
-            },
-          } = settings.settingStore.getProjectConfig;
-          settings.settingStore.setProjectConfig({
-            menuSetting: {
-              type: menuType,
-              mode: menuMode,
-              split: false,
-            },
-          });
-          settings.settingStore.setBeforeMiniInfo({
-            menuMode,
-            menuCollapsed,
-            menuType,
-            menuSplit,
-          });
-        }
-      } else {
-        if (unref(mobileStatus)) {
-          isSetState.value = false;
-          const { menuMode, menuCollapsed, menuType, menuSplit } = settings.settingStore.getBeforeMiniInfo;
-          settings.settingStore.setProjectConfig({
-            menuSetting: {
-              type: menuType,
-              mode: menuMode,
-              collapsed: menuCollapsed,
-              split: menuSplit,
-            },
-          });
-        }
-      }
-    }
+    this.restoreState = () => {}
   }
 }

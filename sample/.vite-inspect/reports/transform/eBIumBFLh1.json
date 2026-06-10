@@ -4,32 +4,32 @@
     {
       "name": "__load__",
       "result": "export * from './Library';\nexport * from './AppContext';\nimport type { App } from 'vue';\nimport type { Library, ModuleLibContext } from './Library';\nimport type { AppContext } from './AppContext';\nimport { isEmpty } from 'lodash-es'\nexport async function install<T extends Library<any>>(\n  this: any,\n  _: App, context: AppContext\n) {\n  const lib = this as T\n  console.debug(`Library 【${lib.name}:${lib.version}】 auto configing`);\n  // 如果lib中存在types，则将其注册到ioc容器中\n  if (lib.module) {\n    context.iocModules.push(lib.module);\n  }\n  // 如果lib中存在beforeSetup方法，则构造一个函数，将其放入ioc加载完成前执行\n  if (lib.beforeSetup) {\n    context.onBeforeIocLoaded(async (app: App) => {\n      await lib.beforeSetup?.(app, context);\n    }, lib.priority);\n  }\n  // 如果lib中存在onSetup方法，则构造一个函数，将其放入ioc加载完成后执行\n  if (lib.onSetup) {\n    context.onIocLoaded(async (app: App) => {\n      await lib.onSetup?.(app, context);\n    }, lib.priority);\n  }\n  // 如果lib中存在routes，则将其注册到路由表中\n  if (lib.routes && !isEmpty(lib.routes)) {\n    context.registerRoutes(lib.routes)\n  }\n}\n\n/**\n * 将配置信息转换为Package\n * \n * @param rawLib \n * @returns \n */\nexport const toPackage: <T extends ModuleLibContext<'install' | 'types' | 'module' | 'routes', any>, R>(rawLib: T) => R = (rawLib) => {\n  const lib = rawLib as any\n  lib.install = install\n  return lib\n}",
-      "start": 1781073288870,
-      "end": 1781073288870
+      "start": 1781075641770,
+      "end": 1781075641770
     },
     {
       "name": "unocss:transformers:pre",
-      "start": 1781073288870,
-      "end": 1781073288870,
+      "start": 1781075641770,
+      "end": 1781075641770,
       "order": "pre"
     },
     {
       "name": "unocss:global",
-      "start": 1781073288870,
-      "end": 1781073288870,
+      "start": 1781075641770,
+      "end": 1781075641770,
       "order": "pre"
     },
     {
       "name": "vite:css",
-      "start": 1781073288870,
-      "end": 1781073288870,
+      "start": 1781075641770,
+      "end": 1781075641770,
       "order": "normal"
     },
     {
       "name": "vite:esbuild",
       "result": "export * from \"./Library\";\nexport * from \"./AppContext\";\nimport { isEmpty } from \"lodash-es\";\nexport async function install(_, context) {\n  const lib = this;\n  console.debug(`Library 【${lib.name}:${lib.version}】 auto configing`);\n  if (lib.module) {\n    context.iocModules.push(lib.module);\n  }\n  if (lib.beforeSetup) {\n    context.onBeforeIocLoaded(async (app) => {\n      await lib.beforeSetup?.(app, context);\n    }, lib.priority);\n  }\n  if (lib.onSetup) {\n    context.onIocLoaded(async (app) => {\n      await lib.onSetup?.(app, context);\n    }, lib.priority);\n  }\n  if (lib.routes && !isEmpty(lib.routes)) {\n    context.registerRoutes(lib.routes);\n  }\n}\nexport const toPackage = (rawLib) => {\n  const lib = rawLib;\n  lib.install = install;\n  return lib;\n};\n",
-      "start": 1781073288870,
-      "end": 1781073288961,
+      "start": 1781075641770,
+      "end": 1781075641865,
       "order": "normal",
       "sourcemaps": {
         "version": 3,
@@ -45,105 +45,105 @@
     },
     {
       "name": "vite:json",
-      "start": 1781073288961,
-      "end": 1781073288961,
+      "start": 1781075641865,
+      "end": 1781075641865,
       "order": "normal"
     },
     {
       "name": "vite:worker",
-      "start": 1781073288961,
-      "end": 1781073288961,
+      "start": 1781075641865,
+      "end": 1781075641865,
       "order": "normal"
     },
     {
       "name": "vite:vue",
-      "start": 1781073288961,
-      "end": 1781073288961,
+      "start": 1781075641865,
+      "end": 1781075641865,
       "order": "normal"
     },
     {
       "name": "vite:vue-jsx",
-      "start": 1781073288961,
-      "end": 1781073288961,
+      "start": 1781075641865,
+      "end": 1781075641865,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:default",
-      "start": 1781073288961,
-      "end": 1781073288961,
+      "start": 1781075641865,
+      "end": 1781075641865,
       "order": "normal"
     },
     {
       "name": "@grow-admin-plugins/unplugin-auto-import",
-      "start": 1781073288961,
-      "end": 1781073288961,
+      "start": 1781075641865,
+      "end": 1781075641865,
       "order": "normal"
     },
     {
       "name": "vite:define",
-      "start": 1781073288961,
-      "end": 1781073288961,
+      "start": 1781075641865,
+      "end": 1781075641865,
       "order": "normal"
     },
     {
       "name": "vite:css-post",
-      "start": 1781073288961,
-      "end": 1781073288961,
+      "start": 1781075641865,
+      "end": 1781075641865,
       "order": "normal"
     },
     {
       "name": "vite:worker-import-meta-url",
-      "start": 1781073288961,
-      "end": 1781073288961,
+      "start": 1781075641865,
+      "end": 1781075641865,
       "order": "normal"
     },
     {
       "name": "vite:asset-import-meta-url",
-      "start": 1781073288961,
-      "end": 1781073288961,
+      "start": 1781075641865,
+      "end": 1781075641865,
       "order": "normal"
     },
     {
       "name": "vite:dynamic-import-vars",
-      "start": 1781073288961,
-      "end": 1781073288962,
+      "start": 1781075641865,
+      "end": 1781075641865,
       "order": "normal"
     },
     {
       "name": "vite:import-glob",
-      "start": 1781073288962,
-      "end": 1781073288962,
+      "start": 1781075641865,
+      "end": 1781075641865,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:post",
-      "start": 1781073288962,
-      "end": 1781073288962,
+      "start": 1781075641865,
+      "end": 1781075641865,
       "order": "post"
     },
     {
       "name": "unocss:global:post",
-      "start": 1781073288962,
-      "end": 1781073288962,
+      "start": 1781075641865,
+      "end": 1781075641865,
       "order": "post"
     },
     {
       "name": "unplugin-vue-components",
-      "start": 1781073288962,
-      "end": 1781073288962,
+      "start": 1781075641865,
+      "end": 1781075641865,
       "order": "post"
     },
     {
       "name": "vite:client-inject",
-      "start": 1781073288962,
-      "end": 1781073288962,
+      "start": 1781075641865,
+      "end": 1781075641865,
       "order": "normal"
     },
     {
       "name": "vite:import-analysis",
-      "result": "export * from \"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-base-package/src/Library.ts\";\nexport * from \"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-base-package/src/AppContext.ts\";\nimport { isEmpty } from \"/node_modules/.vite/deps/lodash-es.js?v=551d6742\";\nexport async function install(_, context) {\n  const lib = this;\n  console.debug(`Library 【${lib.name}:${lib.version}】 auto configing`);\n  if (lib.module) {\n    context.iocModules.push(lib.module);\n  }\n  if (lib.beforeSetup) {\n    context.onBeforeIocLoaded(async (app) => {\n      await lib.beforeSetup?.(app, context);\n    }, lib.priority);\n  }\n  if (lib.onSetup) {\n    context.onIocLoaded(async (app) => {\n      await lib.onSetup?.(app, context);\n    }, lib.priority);\n  }\n  if (lib.routes && !isEmpty(lib.routes)) {\n    context.registerRoutes(lib.routes);\n  }\n}\nexport const toPackage = (rawLib) => {\n  const lib = rawLib;\n  lib.install = install;\n  return lib;\n};\n",
-      "start": 1781073288962,
-      "end": 1781073288963,
+      "result": "export * from \"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-base-package/src/Library.ts\";\nexport * from \"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-base-package/src/AppContext.ts\";\nimport { isEmpty } from \"/node_modules/.vite/deps/lodash-es.js?v=2111a4f1\";\nexport async function install(_, context) {\n  const lib = this;\n  console.debug(`Library 【${lib.name}:${lib.version}】 auto configing`);\n  if (lib.module) {\n    context.iocModules.push(lib.module);\n  }\n  if (lib.beforeSetup) {\n    context.onBeforeIocLoaded(async (app) => {\n      await lib.beforeSetup?.(app, context);\n    }, lib.priority);\n  }\n  if (lib.onSetup) {\n    context.onIocLoaded(async (app) => {\n      await lib.onSetup?.(app, context);\n    }, lib.priority);\n  }\n  if (lib.routes && !isEmpty(lib.routes)) {\n    context.registerRoutes(lib.routes);\n  }\n}\nexport const toPackage = (rawLib) => {\n  const lib = rawLib;\n  lib.install = install;\n  return lib;\n};\n",
+      "start": 1781075641865,
+      "end": 1781075641867,
       "order": "normal",
       "sourcemaps": null
     }

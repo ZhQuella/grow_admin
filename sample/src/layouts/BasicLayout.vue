@@ -1,18 +1,23 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, provide, ref } from 'vue'
 import { SettingDrawer } from '@grow-admin-rock/layouts'
 import { ThemeEnum, ThemeModeEnum } from '@grow-admin-rock/constants'
 import { resolveThemeMode, storeToRefs, useAppConfig } from '@grow-admin-rock/state'
 
+import { OPEN_PROJECT_SETTING_KEY } from '@/constants/setting'
+
 const appConfig = useAppConfig()
+const settingVisible = ref(false)
 const {
-  header,
-  sidebar,
   showThemeModeToggle,
   showSettingButton,
   showSettingDrawer,
   themeMode,
 } = storeToRefs(appConfig)
+
+provide(OPEN_PROJECT_SETTING_KEY, () => {
+  settingVisible.value = true
+})
 
 const themeToggleLabel = computed(() => {
   if (themeMode.value === ThemeModeEnum.SYSTEM) return '跟随系统'
@@ -30,20 +35,15 @@ function toggleThemeMode() {
   }
   appConfig.setThemeMode(ThemeModeEnum.LIGHT)
 }
-
-function openSettingDrawer() {
-  appConfig.setOpenSettingDrawer(true)
-}
 </script>
 
 <template>
   <GrowLayout class="grow-admin-layout">
     <GrowLayoutHeader
-      v-if="header.show"
       class="grow-admin-layout__header"
       :style="{
-        background: header.theme === ThemeEnum.DARK ? '#151515' : 'var(--header-background-color)',
-        color: header.theme === ThemeEnum.DARK ? '#fff' : 'var(--header-text-color)',
+        background: '#151515',
+        color: '#fff',
       }"
     >
       <div class="grow-admin-layout__header-title">Grow Admin Sample</div>
@@ -51,7 +51,7 @@ function openSettingDrawer() {
         <GrowButton v-if="showThemeModeToggle" @click="toggleThemeMode">
           {{ themeToggleLabel }}
         </GrowButton>
-        <GrowButton v-if="showSettingButton" type="primary" @click="openSettingDrawer">
+        <GrowButton v-if="showSettingButton" type="primary" @click="settingVisible = true">
           项目配置
         </GrowButton>
       </div>
@@ -59,13 +59,11 @@ function openSettingDrawer() {
 
     <GrowLayout>
       <GrowLayoutSider
-        v-if="sidebar.show"
         class="grow-admin-layout__sider"
-        :width="sidebar.width"
+        :width="210"
         :style="{
-          background:
-            sidebar.theme === ThemeEnum.DARK ? sidebar.bgColor : 'var(--component-background-color)',
-          color: sidebar.theme === ThemeEnum.DARK ? '#fff' : 'var(--text-color)',
+          background: '#001529',
+          color: '#fff',
         }"
       >
         <div class="p-4 text-sm opacity-80">导航菜单占位</div>
@@ -76,6 +74,6 @@ function openSettingDrawer() {
       </GrowLayoutContent>
     </GrowLayout>
 
-    <SettingDrawer v-if="showSettingDrawer" />
+    <SettingDrawer v-if="showSettingDrawer" v-model="settingVisible" />
   </GrowLayout>
 </template>

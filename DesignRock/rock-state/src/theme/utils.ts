@@ -118,12 +118,6 @@ export function applyDarkClass(isDark: boolean, el: HTMLElement = document.docum
   el.classList.toggle('dark', isDark)
 }
 
-export function applyBodyFilters(options: { grayMode: boolean; colorWeak: boolean }) {
-  const body = document.body
-  body.classList.toggle('gray-mode', options.grayMode)
-  body.classList.toggle('color-weak', options.colorWeak)
-}
-
 export const THEME_TRANSITION_CLASS = 'theme-transition'
 
 const THEME_TRANSITION_MS = 350

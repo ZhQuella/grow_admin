@@ -1,31 +1,16 @@
 import { defineStore } from 'pinia'
 import {
-  ContentConfigOptions,
   DefineAppConfigOptions,
-  FooterConfigOptions,
-  HeaderConfigOptions,
-  LogoConfigOptions,
-  MenuConfigOptions,
-  SidebarConfigOptions,
-  TabTbrConfigOptions,
   TransitionConfigOptions,
 } from '@grow-admin-rock/types'
 import { _assign } from '@grow-admin-rock/utils'
 import {
   CacheTypeEnum,
-  ContentLayoutEnum,
-  HEADER_PRESET_BG_COLOR_LIST,
-  MenuModeEnum,
-  MixSidebarTriggerEnum,
-  MenuTypeEnum,
   PermissionModeEnum,
   RouterTransitionEnum,
   SessionTimeoutProcessingEnum,
   SettingButtonPositionEnum,
-  SIDE_BAR_BG_COLOR_LIST,
-  ThemeEnum,
   ThemeModeEnum,
-  TriggerEnum,
 } from '@grow-admin-rock/constants'
 
 export type AppConfigStore = ReturnType<typeof useAppConfig>
@@ -35,123 +20,34 @@ export const useAppConfig = defineStore({
   id: 'APP_CONFIG',
   state: (): DefineAppConfigOptions => ({
     themeMode: ThemeModeEnum.SYSTEM,
-    navBarMode: MenuTypeEnum.SIDEBAR,
     themeColor: '#8b5cf6',
     showThemeModeToggle: true,
     showSettingButton: true,
     showSettingDrawer: true,
-    openKeepAlive: true,
     useOpenBackTop: true,
     closeMessageOnSwitch: false,
     removeAllHttpPending: true,
     permissionCacheType: CacheTypeEnum.LOCAL,
     settingButtonPosition: SettingButtonPositionEnum.AUTO,
-    openSettingDrawer: false,
     permissionMode: PermissionModeEnum.ROUTE_MAPPING,
     sessionTimeoutProcessing: SessionTimeoutProcessingEnum.ROUTE_JUMP,
-    grayMode: false,
-    colorWeak: false,
     lockTime: 0,
     useLockPage: false,
     canEmbedIFramePage: true,
-    closeMixSidebarOnChange: false,
-    sidebar: {
-      theme: ThemeEnum.LIGHT,
-      show: true,
-      visible: true,
-      bgColor: SIDE_BAR_BG_COLOR_LIST[0],
-      fixed: false,
-      width: 210,
-      mixSidebarWidth: 80,
-      collapsedWidth: 48,
-      collapsed: false,
-      trigger: TriggerEnum.CENTER,
-    },
-    menu: {
-      canDrag: false,
-      split: false,
-      mode: MenuModeEnum.VERTICAL,
-      accordion: false,
-      collapsedShowTitle: false,
-      mixSideTrigger: MixSidebarTriggerEnum.CLICK,
-      mixSideFixed: false,
-      topMenuAlign: 'start',
-      dropdownPlacement: 'top-start',
-      subMenuWidth: 0,
-    },
-    header: {
-      theme: ThemeEnum.DARK,
-      show: true,
-      visible: true,
-      bgColor: HEADER_PRESET_BG_COLOR_LIST[0],
-      fixed: false,
-      height: 48,
-      showDoc: true,
-      showBreadCrumb: true,
-      showBreadCrumbIcon: true,
-      showFullScreen: true,
-      showNotice: true,
-      showSearch: true,
-      showLocalePicker: true,
-      showSetting: true,
-    },
-    logo: {
-      show: true,
-      visible: true,
-      showTitle: true,
-    },
-    tabTar: {
-      show: true,
-      visible: true,
-      height: 36,
-      cache: true,
-      canDrag: false,
-      showFold: true,
-      showQuick: true,
-      showRedo: true,
-    },
-    content: {
-      fullScreen: false,
-      mode: ContentLayoutEnum.FULL,
-    },
-    footer: {
-      height: 60,
-      show: false,
-      visible: false,
-    },
     transition: {
       enable: true,
       basicTransition: RouterTransitionEnum.FADE_SIDE,
-      openPageLoading: true,
-      openNProgress: false,
     },
   }),
-  getters: {
-    isSidebar: (state) => state.navBarMode === MenuTypeEnum.SIDEBAR,
-    isTopMenu: (state) => state.navBarMode === MenuTypeEnum.TOP_MENU,
-    isMixSidebar: (state) => state.navBarMode === MenuTypeEnum.MIX_SIDEBAR,
-    isMix: (state) => state.navBarMode === MenuTypeEnum.MIX,
-    isMixMode: (state) =>
-      state.menu.mode === MenuModeEnum.INLINE &&
-      state.navBarMode === MenuTypeEnum.MIX,
-    isHorizontal: (state) => state.menu.mode === MenuModeEnum.HORIZONTAL,
-    getTabTarCache: (state) => state.tabTar.cache,
-  },
   actions: {
     setThemeMode(value: ThemeModeEnum) {
       this.themeMode = value
-    },
-    setNavBarMode(value: MenuTypeEnum) {
-      this.navBarMode = value
     },
     setThemeColor(value: string) {
       this.themeColor = value
     },
     setShowThemeModeToggle(value: boolean) {
       this.showThemeModeToggle = value
-    },
-    setOpenKeepAlive(value: boolean) {
-      this.openKeepAlive = value
     },
     setUseOpenBackTop(value: boolean) {
       this.useOpenBackTop = value
@@ -168,20 +64,11 @@ export const useAppConfig = defineStore({
     setSettingButtonPosition(value: SettingButtonPositionEnum) {
       this.settingButtonPosition = value
     },
-    setOpenSettingDrawer(value: boolean) {
-      this.openSettingDrawer = value
-    },
     setPermissionMode(value: PermissionModeEnum) {
       this.permissionMode = value
     },
     setSessionTimeoutProcessing(value: SessionTimeoutProcessingEnum) {
       this.sessionTimeoutProcessing = value
-    },
-    setGrayMode(value: boolean) {
-      this.grayMode = value
-    },
-    setColorWeak(value: boolean) {
-      this.colorWeak = value
     },
     setLockTime(value: number) {
       this.lockTime = value
@@ -192,31 +79,6 @@ export const useAppConfig = defineStore({
     setCanEmbedIFramePage(value: boolean) {
       this.canEmbedIFramePage = value
     },
-    setSidebar(
-      value: Partial<
-        Omit<SidebarConfigOptions, 'mixSidebarWidth' | 'collapsedWidth'>
-      >,
-    ) {
-      _assign(this.sidebar, value)
-    },
-    setMenu(value: Partial<MenuConfigOptions>) {
-      _assign(this.menu, value)
-    },
-    setHeader(value: Partial<Omit<HeaderConfigOptions, 'height'>>) {
-      _assign(this.header, value)
-    },
-    setLogo(value: Partial<LogoConfigOptions>) {
-      _assign(this.logo, value)
-    },
-    setTabTar(value: Partial<TabTbrConfigOptions>) {
-      _assign(this.tabTar, value)
-    },
-    setContent(value: Partial<ContentConfigOptions>) {
-      _assign(this.content, value)
-    },
-    setFooter(value: Partial<Omit<FooterConfigOptions, 'height'>>) {
-      _assign(this.footer, value)
-    },
     setTransition(value: Partial<TransitionConfigOptions>) {
       _assign(this.transition, value)
     },
@@ -224,12 +86,10 @@ export const useAppConfig = defineStore({
   persist: {
     paths: [
       'themeMode',
-      'navBarMode',
       'themeColor',
       'showThemeModeToggle',
       'showSettingButton',
       'showSettingDrawer',
-      'openKeepAlive',
       'useOpenBackTop',
       'closeMessageOnSwitch',
       'removeAllHttpPending',
@@ -237,18 +97,9 @@ export const useAppConfig = defineStore({
       'settingButtonPosition',
       'permissionMode',
       'sessionTimeoutProcessing',
-      'grayMode',
-      'colorWeak',
       'lockTime',
       'useLockPage',
       'canEmbedIFramePage',
-      'sidebar',
-      'menu',
-      'header',
-      'logo',
-      'tabTar',
-      'content',
-      'footer',
       'transition',
     ],
   },

@@ -72,6 +72,9 @@ importers:
       '@grow-admin-rock/constants':
         specifier: workspace:*
         version: link:../../DesignRock/rock-constants
+      '@grow-admin-rock/layouts':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-layouts
       '@grow-admin-rock/state':
         specifier: workspace:*
         version: link:../../DesignRock/rock-state

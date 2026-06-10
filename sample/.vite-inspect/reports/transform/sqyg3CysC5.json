@@ -4,32 +4,32 @@
     {
       "name": "__load__",
       "result": "import { App, Plugin } from 'vue';\nimport { setupByApp } from '.';\nimport type { IocContainerOptions } from './ioc';\nconst plugin: Plugin = {\n  install(app: App, options: IocContainerOptions): void {\n    setupByApp(app, options);\n  },\n};\nexport default plugin;\n",
-      "start": 1781073288874,
-      "end": 1781073288874
+      "start": 1781075641772,
+      "end": 1781075641772
     },
     {
       "name": "unocss:transformers:pre",
-      "start": 1781073288874,
-      "end": 1781073288874,
+      "start": 1781075641772,
+      "end": 1781075641772,
       "order": "pre"
     },
     {
       "name": "unocss:global",
-      "start": 1781073288874,
-      "end": 1781073288874,
+      "start": 1781075641772,
+      "end": 1781075641772,
       "order": "pre"
     },
     {
       "name": "vite:css",
-      "start": 1781073288874,
-      "end": 1781073288874,
+      "start": 1781075641772,
+      "end": 1781075641772,
       "order": "normal"
     },
     {
       "name": "vite:esbuild",
       "result": "import { setupByApp } from \".\";\nconst plugin = {\n  install(app, options) {\n    setupByApp(app, options);\n  }\n};\nexport default plugin;\n",
-      "start": 1781073288874,
-      "end": 1781073288994,
+      "start": 1781075641772,
+      "end": 1781075641869,
       "order": "normal",
       "sourcemaps": {
         "version": 3,
@@ -45,105 +45,105 @@
     },
     {
       "name": "vite:json",
-      "start": 1781073288994,
-      "end": 1781073288994,
+      "start": 1781075641869,
+      "end": 1781075641869,
       "order": "normal"
     },
     {
       "name": "vite:worker",
-      "start": 1781073288994,
-      "end": 1781073288994,
+      "start": 1781075641869,
+      "end": 1781075641869,
       "order": "normal"
     },
     {
       "name": "vite:vue",
-      "start": 1781073288994,
-      "end": 1781073288994,
+      "start": 1781075641869,
+      "end": 1781075641869,
       "order": "normal"
     },
     {
       "name": "vite:vue-jsx",
-      "start": 1781073288994,
-      "end": 1781073288994,
+      "start": 1781075641869,
+      "end": 1781075641869,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:default",
-      "start": 1781073288994,
-      "end": 1781073288994,
+      "start": 1781075641869,
+      "end": 1781075641869,
       "order": "normal"
     },
     {
       "name": "@grow-admin-plugins/unplugin-auto-import",
-      "start": 1781073288994,
-      "end": 1781073288994,
+      "start": 1781075641869,
+      "end": 1781075641869,
       "order": "normal"
     },
     {
       "name": "vite:define",
-      "start": 1781073288994,
-      "end": 1781073288994,
+      "start": 1781075641869,
+      "end": 1781075641869,
       "order": "normal"
     },
     {
       "name": "vite:css-post",
-      "start": 1781073288994,
-      "end": 1781073288994,
+      "start": 1781075641869,
+      "end": 1781075641869,
       "order": "normal"
     },
     {
       "name": "vite:worker-import-meta-url",
-      "start": 1781073288994,
-      "end": 1781073288994,
+      "start": 1781075641869,
+      "end": 1781075641869,
       "order": "normal"
     },
     {
       "name": "vite:asset-import-meta-url",
-      "start": 1781073288994,
-      "end": 1781073288994,
+      "start": 1781075641869,
+      "end": 1781075641869,
       "order": "normal"
     },
     {
       "name": "vite:dynamic-import-vars",
-      "start": 1781073288994,
-      "end": 1781073288994,
+      "start": 1781075641869,
+      "end": 1781075641869,
       "order": "normal"
     },
     {
       "name": "vite:import-glob",
-      "start": 1781073288994,
-      "end": 1781073288994,
+      "start": 1781075641869,
+      "end": 1781075641869,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:post",
-      "start": 1781073288994,
-      "end": 1781073288994,
+      "start": 1781075641869,
+      "end": 1781075641869,
       "order": "post"
     },
     {
       "name": "unocss:global:post",
-      "start": 1781073288994,
-      "end": 1781073288994,
+      "start": 1781075641869,
+      "end": 1781075641869,
       "order": "post"
     },
     {
       "name": "unplugin-vue-components",
-      "start": 1781073288994,
-      "end": 1781073288994,
+      "start": 1781075641869,
+      "end": 1781075641869,
       "order": "post"
     },
     {
       "name": "vite:client-inject",
-      "start": 1781073288994,
-      "end": 1781073288994,
+      "start": 1781075641869,
+      "end": 1781075641869,
       "order": "normal"
     },
     {
       "name": "vite:import-analysis",
       "result": "import { setupByApp } from \"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/index.ts\";\nconst plugin = {\n  install(app, options) {\n    setupByApp(app, options);\n  }\n};\nexport default plugin;\n",
-      "start": 1781073288994,
-      "end": 1781073288994,
+      "start": 1781075641869,
+      "end": 1781075641870,
       "order": "normal",
       "sourcemaps": null
     }
