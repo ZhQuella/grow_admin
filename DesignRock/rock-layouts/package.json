@@ -1,0 +1,19 @@
+{
+  "name": "@grow-admin-rock/layouts",
+  "version": "0.0.0",
+  "main": "index.ts",
+  "module": "index.ts",
+  "license": "MIT",
+  "description": "Grow Admin 布局壳组件：主题设置、菜单、标签页等",
+  "scripts": {
+    "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
+  },
+  "dependencies": {
+    "@grow-admin-rock/constants": "workspace:*",
+    "@grow-admin-rock/state": "workspace:*"
+  },
+  "peerDependencies": {
+    "pinia": "~2.0.34",
+    "vue": "~3.3.4"
+  }
+}

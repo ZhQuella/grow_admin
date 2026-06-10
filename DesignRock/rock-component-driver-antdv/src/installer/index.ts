@@ -15,7 +15,6 @@ import {
   DatePicker,
   Descriptions,
   Divider,
-  Drawer,
   Dropdown,
   Empty,
   Form,
@@ -49,6 +48,7 @@ import ButtonGroup from '#/components/ButtonGroup.vue'
 import Config from '#/components/Config.vue'
 import Dialog from '#/components/Dialog.vue'
 import DialogProvider from '#/components/DialogProvider.vue'
+import Drawer from '#/components/Drawer.vue'
 import DrawerContent from '#/components/DrawerContent.vue'
 import DynamicInput from '#/components/DynamicInput.vue'
 import DynamicTags from '#/components/DynamicTags.vue'

@@ -108,10 +108,20 @@ export const configUnocss = (
     shortcuts: {
       'flex-center': 'flex justify-center items-center',
       'grid-center': 'grid place-content-center',
+      'surface-panel': 'bg-component border border-border rounded-lg',
+      'text-muted': 'text-text-secondary',
     },
     theme: {
       colors: {
         primary: 'var(--primary-color)',
+        layout: 'var(--layout-container-background-color)',
+        component: 'var(--component-background-color)',
+        text: 'var(--text-color)',
+        'text-secondary': 'var(--text-color-secondary)',
+        border: 'var(--layout-border-color)',
+      },
+      boxShadow: {
+        card: 'var(--card-shadow)',
       },
       backgroundColor: {},
       transitionProperty: [],

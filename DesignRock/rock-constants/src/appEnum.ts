@@ -11,6 +11,13 @@ export enum ThemeEnum {
   LIGHT = 'light',
 }
 
+/** 全局亮暗模式（含跟随系统） */
+export enum ThemeModeEnum {
+  LIGHT = 'light',
+  DARK = 'dark',
+  SYSTEM = 'system',
+}
+
 export enum SettingButtonPositionEnum {
   AUTO = 'auto',
   HEADER = 'header',

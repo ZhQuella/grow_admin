@@ -2,40 +2,39 @@
   "resolvedId": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-base-package/src/AppContext.ts",
   "transforms": [
     {
-      "name": "vite:load-fallback",
+      "name": "__load__",
       "result": "import { App } from \"vue\";\nimport { forEach, isEmpty, groupBy, keys } from 'lodash-es';\nimport { AsyncIocModule, ServiceIdentifier, contextContianer } from \"@grow-admin-rock/ioc\";\n\nexport const APP_CONTEXT: ServiceIdentifier<AppContext> = Symbol.for('GrowAdminAppContext') as ServiceIdentifier<AppContext>;\n\ntype PriorityObserver = { pri: number, obs: (app: App) => Promise<void> };\n\ntype IocLoadedObserver = {\n  preObservers: PriorityObserver[];\n  loadedObservers: PriorityObserver[];\n};\n\nconst runObsOrdered = async (app: App, observers: PriorityObserver[]) => {\n  const preObservers: { [key: number]: PriorityObserver[] } = groupBy(\n    observers,\n    (o: PriorityObserver) => o.pri\n  );\n  // @ts-ignore\n  const sortedKeys: number[] = keys(preObservers).sort((a: number, b: number) => a - b);\n  for (const key of sortedKeys) {\n    await Promise.all(preObservers[key].map((o: PriorityObserver) => o.obs(app)))\n  }\n}\n\n\n/**\n * A generic type for defining properties in the AppContext class.\n *\n * @template T The type of the property.\n */\nexport type AppContextPropertyGeneric<T> = Symbol;\n\nexport class AppContext {\n  iocModules: AsyncIocModule[];\n  basicRoutes: RouteRecordItem[];\n  appRoutes: RouteRecordItem[];\n  loadedObservers: IocLoadedObserver = {\n    preObservers: [],\n    loadedObservers: []\n  };\n  [key: string]: any;\n  constructor() {\n    this.basicRoutes = [];\n    this.appRoutes = [];\n    this.iocModules = [];\n  }\n\n  getParam<T, K extends AppContextPropertyGeneric<T>>(key: K): T {\n    const keyStr = key.toString()\n    const data = this[keyStr]\n    if (data) {\n      return data as T\n    } else {\n      throw new Error(`AppContext中缺少参数<${keyStr}>`)\n    }\n  }\n\n  registerParam<T, K extends AppContextPropertyGeneric<T>>(key: K, data: T) {\n    this[key.toString()] = data\n  }\n\n  /**\n   * 注册路由\n   * @param routes\n   */\n  registerRoutes(routes: RouteRecordItem[]) {\n    forEach(routes, (route: RouteRecordItem) => {\n      if (route.meta?.isBasic) {\n        this.basicRoutes.push(route)\n      } else {\n        this.appRoutes.push(route)\n      }\n    })\n  }\n\n  /**\n   * 监听IocModule加载前\n   * @param on\n   * @param priority 不传递默认优先级为9999\n   */\n  onBeforeIocLoaded(on: (app: App) => Promise<void>, priority?: number) {\n    if (priority) {\n      this.loadedObservers.preObservers.push({ pri: priority, obs: on });\n    } else {\n      this.loadedObservers.preObservers.push({ pri: 9999, obs: on });\n    }\n  }\n\n  /**\n   * 监听IocModule加载完成\n   * @param on\n   * @param priority 不传递默认优先级为9999，传递负数则为预加载，传递正数则为加载完成后执行\n   */\n  onIocLoaded(on: (app: App) => Promise<void>, priority?: number) {\n    if (priority) {\n      this.loadedObservers.loadedObservers.push({ pri: priority, obs: on });\n    } else {\n      this.loadedObservers.loadedObservers.push({ pri: 9999, obs: on });\n    }\n  }\n\n\n\n  /**\n   * 加载VueApp\n   * @param app\n   */\n  async load(app: App, onLoadFinished?: () => Promise<void>) {\n    const container = contextContianer();\n    if (!container.isBound(APP_CONTEXT)) {\n      container.bind(APP_CONTEXT).toConstantValue(this);\n    }\n    if (!isEmpty(this.loadedObservers.preObservers)) {\n      runObsOrdered(app, this.loadedObservers.preObservers)\n    }\n    await container.loadAsync(...this.iocModules)\n    if (!isEmpty(this.loadedObservers.loadedObservers)) {\n      runObsOrdered(app, this.loadedObservers.loadedObservers)\n    }\n    await onLoadFinished?.();\n  }\n}\n",
-      "start": 1781061701799,
-      "end": 1781061702041,
-      "sourcemaps": null
+      "start": 1781072585263,
+      "end": 1781072585263
     },
     {
       "name": "unocss:transformers:pre",
-      "start": 1781061702041,
-      "end": 1781061702041,
+      "start": 1781072585263,
+      "end": 1781072585263,
       "order": "pre"
     },
     {
-      "name": "unocss:global:build:scan",
-      "start": 1781061702041,
-      "end": 1781061702041,
+      "name": "unocss:global",
+      "start": 1781072585263,
+      "end": 1781072585263,
       "order": "pre"
     },
     {
       "name": "vite:css",
-      "start": 1781061702041,
-      "end": 1781061702041,
+      "start": 1781072585263,
+      "end": 1781072585263,
       "order": "normal"
     },
     {
       "name": "vite:esbuild",
       "result": "import { forEach, isEmpty, groupBy, keys } from \"lodash-es\";\nimport { contextContianer } from \"@grow-admin-rock/ioc\";\nexport const APP_CONTEXT = Symbol.for(\"GrowAdminAppContext\");\nconst runObsOrdered = async (app, observers) => {\n  const preObservers = groupBy(\n    observers,\n    (o) => o.pri\n  );\n  const sortedKeys = keys(preObservers).sort((a, b) => a - b);\n  for (const key of sortedKeys) {\n    await Promise.all(preObservers[key].map((o) => o.obs(app)));\n  }\n};\nexport class AppContext {\n  iocModules;\n  basicRoutes;\n  appRoutes;\n  loadedObservers = {\n    preObservers: [],\n    loadedObservers: []\n  };\n  constructor() {\n    this.basicRoutes = [];\n    this.appRoutes = [];\n    this.iocModules = [];\n  }\n  getParam(key) {\n    const keyStr = key.toString();\n    const data = this[keyStr];\n    if (data) {\n      return data;\n    } else {\n      throw new Error(`AppContext中缺少参数<${keyStr}>`);\n    }\n  }\n  registerParam(key, data) {\n    this[key.toString()] = data;\n  }\n  /**\n   * 注册路由\n   * @param routes\n   */\n  registerRoutes(routes) {\n    forEach(routes, (route) => {\n      if (route.meta?.isBasic) {\n        this.basicRoutes.push(route);\n      } else {\n        this.appRoutes.push(route);\n      }\n    });\n  }\n  /**\n   * 监听IocModule加载前\n   * @param on\n   * @param priority 不传递默认优先级为9999\n   */\n  onBeforeIocLoaded(on, priority) {\n    if (priority) {\n      this.loadedObservers.preObservers.push({ pri: priority, obs: on });\n    } else {\n      this.loadedObservers.preObservers.push({ pri: 9999, obs: on });\n    }\n  }\n  /**\n   * 监听IocModule加载完成\n   * @param on\n   * @param priority 不传递默认优先级为9999，传递负数则为预加载，传递正数则为加载完成后执行\n   */\n  onIocLoaded(on, priority) {\n    if (priority) {\n      this.loadedObservers.loadedObservers.push({ pri: priority, obs: on });\n    } else {\n      this.loadedObservers.loadedObservers.push({ pri: 9999, obs: on });\n    }\n  }\n  /**\n   * 加载VueApp\n   * @param app\n   */\n  async load(app, onLoadFinished) {\n    const container = contextContianer();\n    if (!container.isBound(APP_CONTEXT)) {\n      container.bind(APP_CONTEXT).toConstantValue(this);\n    }\n    if (!isEmpty(this.loadedObservers.preObservers)) {\n      runObsOrdered(app, this.loadedObservers.preObservers);\n    }\n    await container.loadAsync(...this.iocModules);\n    if (!isEmpty(this.loadedObservers.loadedObservers)) {\n      runObsOrdered(app, this.loadedObservers.loadedObservers);\n    }\n    await onLoadFinished?.();\n  }\n}\n",
-      "start": 1781061702041,
-      "end": 1781061702192,
+      "start": 1781072585263,
+      "end": 1781072585449,
       "order": "normal",
       "sourcemaps": {
         "version": 3,
         "sources": [
-          "/Users/aaron/Desktop/grow_admin/DesignRock/rock-base-package/src/AppContext.ts"
+          "AppContext.ts"
         ],
         "sourcesContent": [
           "import { App } from \"vue\";\nimport { forEach, isEmpty, groupBy, keys } from 'lodash-es';\nimport { AsyncIocModule, ServiceIdentifier, contextContianer } from \"@grow-admin-rock/ioc\";\n\nexport const APP_CONTEXT: ServiceIdentifier<AppContext> = Symbol.for('GrowAdminAppContext') as ServiceIdentifier<AppContext>;\n\ntype PriorityObserver = { pri: number, obs: (app: App) => Promise<void> };\n\ntype IocLoadedObserver = {\n  preObservers: PriorityObserver[];\n  loadedObservers: PriorityObserver[];\n};\n\nconst runObsOrdered = async (app: App, observers: PriorityObserver[]) => {\n  const preObservers: { [key: number]: PriorityObserver[] } = groupBy(\n    observers,\n    (o: PriorityObserver) => o.pri\n  );\n  // @ts-ignore\n  const sortedKeys: number[] = keys(preObservers).sort((a: number, b: number) => a - b);\n  for (const key of sortedKeys) {\n    await Promise.all(preObservers[key].map((o: PriorityObserver) => o.obs(app)))\n  }\n}\n\n\n/**\n * A generic type for defining properties in the AppContext class.\n *\n * @template T The type of the property.\n */\nexport type AppContextPropertyGeneric<T> = Symbol;\n\nexport class AppContext {\n  iocModules: AsyncIocModule[];\n  basicRoutes: RouteRecordItem[];\n  appRoutes: RouteRecordItem[];\n  loadedObservers: IocLoadedObserver = {\n    preObservers: [],\n    loadedObservers: []\n  };\n  [key: string]: any;\n  constructor() {\n    this.basicRoutes = [];\n    this.appRoutes = [];\n    this.iocModules = [];\n  }\n\n  getParam<T, K extends AppContextPropertyGeneric<T>>(key: K): T {\n    const keyStr = key.toString()\n    const data = this[keyStr]\n    if (data) {\n      return data as T\n    } else {\n      throw new Error(`AppContext中缺少参数<${keyStr}>`)\n    }\n  }\n\n  registerParam<T, K extends AppContextPropertyGeneric<T>>(key: K, data: T) {\n    this[key.toString()] = data\n  }\n\n  /**\n   * 注册路由\n   * @param routes\n   */\n  registerRoutes(routes: RouteRecordItem[]) {\n    forEach(routes, (route: RouteRecordItem) => {\n      if (route.meta?.isBasic) {\n        this.basicRoutes.push(route)\n      } else {\n        this.appRoutes.push(route)\n      }\n    })\n  }\n\n  /**\n   * 监听IocModule加载前\n   * @param on\n   * @param priority 不传递默认优先级为9999\n   */\n  onBeforeIocLoaded(on: (app: App) => Promise<void>, priority?: number) {\n    if (priority) {\n      this.loadedObservers.preObservers.push({ pri: priority, obs: on });\n    } else {\n      this.loadedObservers.preObservers.push({ pri: 9999, obs: on });\n    }\n  }\n\n  /**\n   * 监听IocModule加载完成\n   * @param on\n   * @param priority 不传递默认优先级为9999，传递负数则为预加载，传递正数则为加载完成后执行\n   */\n  onIocLoaded(on: (app: App) => Promise<void>, priority?: number) {\n    if (priority) {\n      this.loadedObservers.loadedObservers.push({ pri: priority, obs: on });\n    } else {\n      this.loadedObservers.loadedObservers.push({ pri: 9999, obs: on });\n    }\n  }\n\n\n\n  /**\n   * 加载VueApp\n   * @param app\n   */\n  async load(app: App, onLoadFinished?: () => Promise<void>) {\n    const container = contextContianer();\n    if (!container.isBound(APP_CONTEXT)) {\n      container.bind(APP_CONTEXT).toConstantValue(this);\n    }\n    if (!isEmpty(this.loadedObservers.preObservers)) {\n      runObsOrdered(app, this.loadedObservers.preObservers)\n    }\n    await container.loadAsync(...this.iocModules)\n    if (!isEmpty(this.loadedObservers.loadedObservers)) {\n      runObsOrdered(app, this.loadedObservers.loadedObservers)\n    }\n    await onLoadFinished?.();\n  }\n}\n"
@@ -46,111 +45,107 @@
     },
     {
       "name": "vite:json",
-      "start": 1781061702192,
-      "end": 1781061702192,
+      "start": 1781072585449,
+      "end": 1781072585449,
       "order": "normal"
     },
     {
       "name": "vite:worker",
-      "start": 1781061702192,
-      "end": 1781061702192,
+      "start": 1781072585449,
+      "end": 1781072585449,
       "order": "normal"
     },
     {
       "name": "vite:vue",
-      "start": 1781061702192,
-      "end": 1781061702193,
+      "start": 1781072585449,
+      "end": 1781072585449,
       "order": "normal"
     },
     {
       "name": "vite:vue-jsx",
-      "start": 1781061702193,
-      "end": 1781061702193,
+      "start": 1781072585449,
+      "end": 1781072585449,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:default",
-      "start": 1781061702193,
-      "end": 1781061702193,
+      "start": 1781072585449,
+      "end": 1781072585449,
       "order": "normal"
     },
     {
       "name": "@grow-admin-plugins/unplugin-auto-import",
-      "start": 1781061702193,
-      "end": 1781061702193,
+      "start": 1781072585449,
+      "end": 1781072585449,
       "order": "normal"
     },
     {
       "name": "vite:define",
-      "start": 1781061702193,
-      "end": 1781061702193,
+      "start": 1781072585449,
+      "end": 1781072585449,
       "order": "normal"
     },
     {
       "name": "vite:css-post",
-      "start": 1781061702193,
-      "end": 1781061702193,
-      "order": "normal"
-    },
-    {
-      "name": "vite:build-html",
-      "start": 1781061702193,
-      "end": 1781061702193,
+      "start": 1781072585449,
+      "end": 1781072585449,
       "order": "normal"
     },
     {
       "name": "vite:worker-import-meta-url",
-      "start": 1781061702193,
-      "end": 1781061702193,
+      "start": 1781072585449,
+      "end": 1781072585449,
       "order": "normal"
     },
     {
       "name": "vite:asset-import-meta-url",
-      "start": 1781061702193,
-      "end": 1781061702193,
-      "order": "normal"
-    },
-    {
-      "name": "commonjs",
-      "start": 1781061702193,
-      "end": 1781061702193,
+      "start": 1781072585449,
+      "end": 1781072585449,
       "order": "normal"
     },
     {
       "name": "vite:dynamic-import-vars",
-      "start": 1781061702193,
-      "end": 1781061702193,
+      "start": 1781072585449,
+      "end": 1781072585449,
       "order": "normal"
     },
     {
       "name": "vite:import-glob",
-      "start": 1781061702193,
-      "end": 1781061702199,
+      "start": 1781072585449,
+      "end": 1781072585449,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:post",
-      "start": 1781061702201,
-      "end": 1781061702201,
+      "start": 1781072585449,
+      "end": 1781072585449,
+      "order": "post"
+    },
+    {
+      "name": "unocss:global:post",
+      "start": 1781072585449,
+      "end": 1781072585449,
       "order": "post"
     },
     {
       "name": "unplugin-vue-components",
-      "start": 1781061702201,
-      "end": 1781061702201,
+      "start": 1781072585449,
+      "end": 1781072585449,
       "order": "post"
     },
     {
-      "name": "vite:build-import-analysis",
-      "start": 1781061702201,
-      "end": 1781061702201,
+      "name": "vite:client-inject",
+      "start": 1781072585449,
+      "end": 1781072585449,
       "order": "normal"
     },
     {
-      "name": "vite:reporter",
-      "start": 1781061702201,
-      "end": 1781061702201,
-      "order": "normal"
+      "name": "vite:import-analysis",
+      "result": "import { forEach, isEmpty, groupBy, keys } from \"/node_modules/.vite/deps/lodash-es.js?v=745f5ef5\";\nimport { contextContianer } from \"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/index.ts\";\nexport const APP_CONTEXT = Symbol.for(\"GrowAdminAppContext\");\nconst runObsOrdered = async (app, observers) => {\n  const preObservers = groupBy(\n    observers,\n    (o) => o.pri\n  );\n  const sortedKeys = keys(preObservers).sort((a, b) => a - b);\n  for (const key of sortedKeys) {\n    await Promise.all(preObservers[key].map((o) => o.obs(app)));\n  }\n};\nexport class AppContext {\n  iocModules;\n  basicRoutes;\n  appRoutes;\n  loadedObservers = {\n    preObservers: [],\n    loadedObservers: []\n  };\n  constructor() {\n    this.basicRoutes = [];\n    this.appRoutes = [];\n    this.iocModules = [];\n  }\n  getParam(key) {\n    const keyStr = key.toString();\n    const data = this[keyStr];\n    if (data) {\n      return data;\n    } else {\n      throw new Error(`AppContext中缺少参数<${keyStr}>`);\n    }\n  }\n  registerParam(key, data) {\n    this[key.toString()] = data;\n  }\n  /**\n   * 注册路由\n   * @param routes\n   */\n  registerRoutes(routes) {\n    forEach(routes, (route) => {\n      if (route.meta?.isBasic) {\n        this.basicRoutes.push(route);\n      } else {\n        this.appRoutes.push(route);\n      }\n    });\n  }\n  /**\n   * 监听IocModule加载前\n   * @param on\n   * @param priority 不传递默认优先级为9999\n   */\n  onBeforeIocLoaded(on, priority) {\n    if (priority) {\n      this.loadedObservers.preObservers.push({ pri: priority, obs: on });\n    } else {\n      this.loadedObservers.preObservers.push({ pri: 9999, obs: on });\n    }\n  }\n  /**\n   * 监听IocModule加载完成\n   * @param on\n   * @param priority 不传递默认优先级为9999，传递负数则为预加载，传递正数则为加载完成后执行\n   */\n  onIocLoaded(on, priority) {\n    if (priority) {\n      this.loadedObservers.loadedObservers.push({ pri: priority, obs: on });\n    } else {\n      this.loadedObservers.loadedObservers.push({ pri: 9999, obs: on });\n    }\n  }\n  /**\n   * 加载VueApp\n   * @param app\n   */\n  async load(app, onLoadFinished) {\n    const container = contextContianer();\n    if (!container.isBound(APP_CONTEXT)) {\n      container.bind(APP_CONTEXT).toConstantValue(this);\n    }\n    if (!isEmpty(this.loadedObservers.preObservers)) {\n      runObsOrdered(app, this.loadedObservers.preObservers);\n    }\n    await container.loadAsync(...this.iocModules);\n    if (!isEmpty(this.loadedObservers.loadedObservers)) {\n      runObsOrdered(app, this.loadedObservers.loadedObservers);\n    }\n    await onLoadFinished?.();\n  }\n}\n",
+      "start": 1781072585449,
+      "end": 1781072585450,
+      "order": "normal",
+      "sourcemaps": null
     }
   ]
 }

@@ -24,6 +24,7 @@ import {
   SettingButtonPositionEnum,
   SIDE_BAR_BG_COLOR_LIST,
   ThemeEnum,
+  ThemeModeEnum,
   TriggerEnum,
 } from '@grow-admin-rock/constants'
 
@@ -33,10 +34,12 @@ export type AppConfigStore = ReturnType<typeof useAppConfig>
 export const useAppConfig = defineStore({
   id: 'APP_CONFIG',
   state: (): DefineAppConfigOptions => ({
-    theme: ThemeEnum.LIGHT,
+    themeMode: ThemeModeEnum.SYSTEM,
     navBarMode: MenuTypeEnum.SIDEBAR,
-    themeColor: '',
+    themeColor: '#8b5cf6',
     showThemeModeToggle: true,
+    showSettingButton: true,
+    showSettingDrawer: true,
     openKeepAlive: true,
     useOpenBackTop: true,
     closeMessageOnSwitch: false,
@@ -135,8 +138,8 @@ export const useAppConfig = defineStore({
     getTabTarCache: (state) => state.tabTar.cache,
   },
   actions: {
-    setTheme(value: ThemeEnum) {
-      this.theme = value
+    setThemeMode(value: ThemeModeEnum) {
+      this.themeMode = value
     },
     setNavBarMode(value: MenuTypeEnum) {
       this.navBarMode = value
@@ -219,12 +222,13 @@ export const useAppConfig = defineStore({
     },
   },
   persist: {
-    // excludedPaths: ['openSettingDrawer'], // Temporarily invalid
     paths: [
-      'theme',
+      'themeMode',
       'navBarMode',
       'themeColor',
       'showThemeModeToggle',
+      'showSettingButton',
+      'showSettingDrawer',
       'openKeepAlive',
       'useOpenBackTop',
       'closeMessageOnSwitch',

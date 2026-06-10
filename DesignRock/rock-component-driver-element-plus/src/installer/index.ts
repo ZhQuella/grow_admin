@@ -17,7 +17,6 @@ import {
   ElDescriptionsItem,
   ElDialog,
   ElDivider,
-  ElDrawer,
   ElDropdown,
   ElEmpty,
   ElForm,
@@ -49,6 +48,7 @@ import ButtonGroup from '#/components/ButtonGroup.vue'
 import CheckboxGroup from '#/components/CheckboxGroup.vue'
 import Config from '#/components/Config.vue'
 import DialogProvider from '#/components/DialogProvider.vue'
+import Drawer from '#/components/Drawer.vue'
 import DrawerContent from '#/components/DrawerContent.vue'
 import DynamicInput from '#/components/DynamicInput.vue'
 import DynamicTags from '#/components/DynamicTags.vue'
@@ -107,7 +107,7 @@ const allComponents: Partial<Record<RockComponent, any>> = {
   [RockComponent.Dialog]: ElDialog,
   [RockComponent.DialogProvider]: DialogProvider,
   [RockComponent.Divider]: ElDivider,
-  [RockComponent.Drawer]: ElDrawer,
+  [RockComponent.Drawer]: Drawer,
   [RockComponent.DrawerContent]: DrawerContent,
   [RockComponent.Dropdown]: ElDropdown,
   [RockComponent.DynamicInput]: DynamicInput,

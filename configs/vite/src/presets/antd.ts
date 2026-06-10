@@ -1,7 +1,7 @@
 import type { UserConfig } from 'vite'
 
 export async function createAntdPreset(): Promise<UserConfig> {
-  const primaryColor = '#0960bd'
+  const primaryColor = '#8b5cf6'
   return {
     optimizeDeps: {
       include: [

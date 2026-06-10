@@ -8,6 +8,7 @@ import {
   SessionTimeoutProcessingEnum,
   SettingButtonPositionEnum,
   ThemeEnum,
+  ThemeModeEnum,
   TriggerEnum,
   RouterTransitionEnum,
   AuthorizationModeEnum,
@@ -85,12 +86,16 @@ export interface GlobEnvConfig {
 export interface DefineAppConfigOptions {
   // Navigation bar mode
   navBarMode: MenuTypeEnum
-  // Theme
-  theme: ThemeEnum
+  // Global theme mode (light / dark / system)
+  themeMode: ThemeModeEnum
   // Theme color
   themeColor: string
   // Whether to show the theme switch button
   showThemeModeToggle: boolean
+  // Whether to show the project config button
+  showSettingButton: boolean
+  // Whether to enable the project config drawer
+  showSettingDrawer: boolean
   // pageLayout whether to enable keep-alive
   openKeepAlive: boolean
   // Whether to open back to top

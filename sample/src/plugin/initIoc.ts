@@ -18,12 +18,16 @@ import {
   Lib as infrastructureLib,
 } from '@grow-admin-rock/infrastructure'
 
+import { Lib as stateLib } from '@grow-admin-rock/state'
+
 import { Lib as componentsLib } from '@grow-admin-rock/components'
 
 import {
   Lib as appsLoginLib,
   useUserStore,
 } from '@grow-admin-cornerstone/apps-login'
+
+import { bootstrapAppConfig } from '../initAppConfig'
 
 // IOC插件配置
 const iocOptions = {
@@ -48,6 +52,8 @@ export const initIoc = async (app: App) => {
     .use(IocPlugin, iocOptions)
     // 使用基础设施
     .use(infrastructureLib, appContext)
+    // 应用状态与主题配置
+    .use(stateLib, appContext)
     // 使用路由
     .use(routeLib, appContext)
     // 使用登录模块
@@ -58,6 +64,8 @@ export const initIoc = async (app: App) => {
 
   // 载入应用
   await appContext.load(app)
+
+  bootstrapAppConfig()
 
   const router = diKT(routeLib.types.RouteTable).router
   app.use(router);

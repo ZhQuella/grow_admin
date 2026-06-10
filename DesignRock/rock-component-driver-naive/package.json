@@ -10,6 +10,7 @@
   "dependencies": {
     "@grow-admin-rock/component-driver": "workspace:*",
     "@grow-admin-rock/components": "workspace:*",
+    "@grow-admin-rock/state": "workspace:*",
     "lodash-es": "^4.17.21",
     "naive-ui": "^2.38.1"
   },

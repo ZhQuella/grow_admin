@@ -3,7 +3,7 @@ import types from './beankeys';
 import type { CommonModuleLibContext } from '@grow-admin-rock/base-package';
 import { install } from '@grow-admin-rock/base-package';
 import { AsyncIocModule, di } from '@grow-admin-rock/ioc';
-import { useAppConfig, AppConfigStore, DataEventBus, setupPinia } from "#/.";
+import { useAppConfig, AppConfigStore, DataEventBus, setupPinia, useAuthStore, AuthStore } from "#/.";
 
 export const Lib: CommonModuleLibContext<typeof types> = {
   install,
@@ -13,6 +13,7 @@ export const Lib: CommonModuleLibContext<typeof types> = {
   module: new AsyncIocModule(async (bind) => {
     console.debug(`【${pack.name}】 IocModule start load`);
     bind<AppConfigStore>(types.DefineAppConfigOptions).toConstantValue(useAppConfig());
+    bind<AuthStore>(types.AuthStore).toConstantValue(useAuthStore());
     bind<DataEventBus>(types.DataEventBus).to(DataEventBus);
   }),
   async onSetup(app) {

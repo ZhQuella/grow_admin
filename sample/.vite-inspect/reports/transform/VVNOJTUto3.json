@@ -2,40 +2,39 @@
   "resolvedId": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/logger/config/default_settings.ts",
   "transforms": [
     {
-      "name": "vite:load-fallback",
+      "name": "__load__",
       "result": "import interfaces from \"../interfaces/interfaces\";\r\n\r\nlet deatultOptions: interfaces.LoggerSettings = {\r\n    request: {\r\n        bindings: {\r\n            activated: false,\r\n            cache: false,\r\n            constraint: false,\r\n            dynamicValue: false,\r\n            factory: false,\r\n            implementationType: true,\r\n            onActivation: false,\r\n            provider: false,\r\n            scope: true,\r\n            serviceIdentifier: false,\r\n            type: true\r\n        },\r\n        serviceIdentifier: true,\r\n        target: {\r\n            metadata: true,\r\n            name: true,\r\n            serviceIdentifier: true\r\n        }\r\n    },\r\n    time: true\r\n};\r\n\r\nexport default deatultOptions;\r\n",
-      "start": 1781061708674,
-      "end": 1781061708749,
-      "sourcemaps": null
+      "start": 1781072585332,
+      "end": 1781072585332
     },
     {
       "name": "unocss:transformers:pre",
-      "start": 1781061708749,
-      "end": 1781061708749,
+      "start": 1781072585332,
+      "end": 1781072585332,
       "order": "pre"
     },
     {
-      "name": "unocss:global:build:scan",
-      "start": 1781061708749,
-      "end": 1781061708750,
+      "name": "unocss:global",
+      "start": 1781072585332,
+      "end": 1781072585332,
       "order": "pre"
     },
     {
       "name": "vite:css",
-      "start": 1781061708750,
-      "end": 1781061708750,
+      "start": 1781072585332,
+      "end": 1781072585332,
       "order": "normal"
     },
     {
       "name": "vite:esbuild",
       "result": "let deatultOptions = {\n  request: {\n    bindings: {\n      activated: false,\n      cache: false,\n      constraint: false,\n      dynamicValue: false,\n      factory: false,\n      implementationType: true,\n      onActivation: false,\n      provider: false,\n      scope: true,\n      serviceIdentifier: false,\n      type: true\n    },\n    serviceIdentifier: true,\n    target: {\n      metadata: true,\n      name: true,\n      serviceIdentifier: true\n    }\n  },\n  time: true\n};\nexport default deatultOptions;\n",
-      "start": 1781061708750,
-      "end": 1781061708811,
+      "start": 1781072585332,
+      "end": 1781072585522,
       "order": "normal",
       "sourcemaps": {
         "version": 3,
         "sources": [
-          "/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/logger/config/default_settings.ts"
+          "default_settings.ts"
         ],
         "sourcesContent": [
           "import interfaces from \"../interfaces/interfaces\";\r\n\r\nlet deatultOptions: interfaces.LoggerSettings = {\r\n    request: {\r\n        bindings: {\r\n            activated: false,\r\n            cache: false,\r\n            constraint: false,\r\n            dynamicValue: false,\r\n            factory: false,\r\n            implementationType: true,\r\n            onActivation: false,\r\n            provider: false,\r\n            scope: true,\r\n            serviceIdentifier: false,\r\n            type: true\r\n        },\r\n        serviceIdentifier: true,\r\n        target: {\r\n            metadata: true,\r\n            name: true,\r\n            serviceIdentifier: true\r\n        }\r\n    },\r\n    time: true\r\n};\r\n\r\nexport default deatultOptions;\r\n"
@@ -46,111 +45,107 @@
     },
     {
       "name": "vite:json",
-      "start": 1781061708811,
-      "end": 1781061708811,
+      "start": 1781072585522,
+      "end": 1781072585522,
       "order": "normal"
     },
     {
       "name": "vite:worker",
-      "start": 1781061708811,
-      "end": 1781061708811,
+      "start": 1781072585522,
+      "end": 1781072585522,
       "order": "normal"
     },
     {
       "name": "vite:vue",
-      "start": 1781061708812,
-      "end": 1781061708812,
+      "start": 1781072585522,
+      "end": 1781072585522,
       "order": "normal"
     },
     {
       "name": "vite:vue-jsx",
-      "start": 1781061708812,
-      "end": 1781061708812,
+      "start": 1781072585522,
+      "end": 1781072585522,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:default",
-      "start": 1781061708812,
-      "end": 1781061708812,
+      "start": 1781072585522,
+      "end": 1781072585522,
       "order": "normal"
     },
     {
       "name": "@grow-admin-plugins/unplugin-auto-import",
-      "start": 1781061708812,
-      "end": 1781061708812,
+      "start": 1781072585522,
+      "end": 1781072585522,
       "order": "normal"
     },
     {
       "name": "vite:define",
-      "start": 1781061708812,
-      "end": 1781061708812,
+      "start": 1781072585522,
+      "end": 1781072585522,
       "order": "normal"
     },
     {
       "name": "vite:css-post",
-      "start": 1781061708812,
-      "end": 1781061708812,
-      "order": "normal"
-    },
-    {
-      "name": "vite:build-html",
-      "start": 1781061708812,
-      "end": 1781061708812,
+      "start": 1781072585522,
+      "end": 1781072585522,
       "order": "normal"
     },
     {
       "name": "vite:worker-import-meta-url",
-      "start": 1781061708812,
-      "end": 1781061708812,
+      "start": 1781072585522,
+      "end": 1781072585522,
       "order": "normal"
     },
     {
       "name": "vite:asset-import-meta-url",
-      "start": 1781061708812,
-      "end": 1781061708812,
-      "order": "normal"
-    },
-    {
-      "name": "commonjs",
-      "start": 1781061708812,
-      "end": 1781061708812,
+      "start": 1781072585522,
+      "end": 1781072585522,
       "order": "normal"
     },
     {
       "name": "vite:dynamic-import-vars",
-      "start": 1781061708813,
-      "end": 1781061708813,
+      "start": 1781072585522,
+      "end": 1781072585522,
       "order": "normal"
     },
     {
       "name": "vite:import-glob",
-      "start": 1781061708813,
-      "end": 1781061708813,
+      "start": 1781072585522,
+      "end": 1781072585522,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:post",
-      "start": 1781061708813,
-      "end": 1781061708813,
+      "start": 1781072585522,
+      "end": 1781072585522,
+      "order": "post"
+    },
+    {
+      "name": "unocss:global:post",
+      "start": 1781072585522,
+      "end": 1781072585522,
       "order": "post"
     },
     {
       "name": "unplugin-vue-components",
-      "start": 1781061708813,
-      "end": 1781061708813,
+      "start": 1781072585522,
+      "end": 1781072585522,
       "order": "post"
     },
     {
-      "name": "vite:build-import-analysis",
-      "start": 1781061708813,
-      "end": 1781061708814,
+      "name": "vite:client-inject",
+      "start": 1781072585522,
+      "end": 1781072585522,
       "order": "normal"
     },
     {
-      "name": "vite:reporter",
-      "start": 1781061708814,
-      "end": 1781061708814,
-      "order": "normal"
+      "name": "vite:import-analysis",
+      "result": "let deatultOptions = {\n  request: {\n    bindings: {\n      activated: false,\n      cache: false,\n      constraint: false,\n      dynamicValue: false,\n      factory: false,\n      implementationType: true,\n      onActivation: false,\n      provider: false,\n      scope: true,\n      serviceIdentifier: false,\n      type: true\n    },\n    serviceIdentifier: true,\n    target: {\n      metadata: true,\n      name: true,\n      serviceIdentifier: true\n    }\n  },\n  time: true\n};\nexport default deatultOptions;\n",
+      "start": 1781072585522,
+      "end": 1781072585522,
+      "order": "normal",
+      "sourcemaps": null
     }
   ]
 }

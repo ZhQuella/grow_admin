@@ -1,0 +1,21 @@
+/**
+ * 主题切换过渡：由 useTheme 在切换时短暂挂载 .theme-transition
+ * @see @grow-admin-rock/state/theme/utils withThemeTransition
+ */
+@media (prefers-reduced-motion: no-preference) {
+  html.theme-transition,
+  html.theme-transition *,
+  html.theme-transition *::before,
+  html.theme-transition *::after {
+    transition-property: background-color, border-color, color, fill, stroke, box-shadow,
+      outline-color !important;
+    transition-duration: var(--theme-transition-duration, 0.35s) !important;
+    transition-timing-function: var(--transition-bezier, cubic-bezier(0.4, 0, 0.2, 1)) !important;
+  }
+
+  html.theme-transition body {
+    transition-property: background-color, color, filter !important;
+    transition-duration: var(--theme-transition-duration, 0.35s) !important;
+    transition-timing-function: var(--transition-bezier, cubic-bezier(0.4, 0, 0.2, 1)) !important;
+  }
+}

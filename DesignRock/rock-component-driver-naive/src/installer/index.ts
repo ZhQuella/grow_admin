@@ -35,7 +35,6 @@ import {
   NRadioButton,
   NRadioGroup,
   NText,
-  NConfigProvider,
   NDynamicTags,
   NColorPicker,
   NDescriptions,
@@ -77,7 +76,6 @@ import {
   NH6,
   NInputGroupLabel,
   NInputGroup,
-  NDrawer,
   NDrawerContent,
   NDynamicInput,
   NPopselect,
@@ -100,6 +98,8 @@ import {
   NTimeline,
   NTimelineItem
 } from 'naive-ui';
+import Config from '#/components/Config.vue'
+import Drawer from '#/components/Drawer.vue'
 import { AtomSpinner } from 'epic-spinners'
 import {
   ComponentEntry,
@@ -110,7 +110,7 @@ const allComponents = {
   [RockComponent.NotificationProvider]: NNotificationProvider,
   [RockComponent.DialogProvider]: NDialogProvider,
   [RockComponent.Dialog]: NDialog,
-  [RockComponent.Drawer]: NDrawer,
+  [RockComponent.Drawer]: Drawer,
   [RockComponent.DrawerContent]: NDrawerContent,
   [RockComponent.Tag]: NTag,
   [RockComponent.Card]: NCard,
@@ -150,7 +150,7 @@ const allComponents = {
   [RockComponent.RadioGroup]: NRadioGroup,
   [RockComponent.RadioButtonGroup]: NRadioGroup,
   [RockComponent.Text]: NText,
-  [RockComponent.Config]: NConfigProvider,
+  [RockComponent.Config]: Config,
   [RockComponent.DynamicTags]: NDynamicTags,
   [RockComponent.Descriptions]: NDescriptions,
   [RockComponent.DescriptionsItem]: NDescriptionsItem,

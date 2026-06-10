@@ -44,6 +44,18 @@ export const SIDE_BAR_BG_COLOR_LIST: string[] = [
   '#383f45',
 ];
 
+export const APP_THEME_COLOR_LIST: string[] = [
+  '#8b5cf6',
+  '#0084f4',
+  '#009688',
+  '#536dfe',
+  '#ff5c93',
+  '#ee4f12',
+  '#0096c7',
+  '#9c27b0',
+  '#ff9800',
+];
+
 export enum HandlerSettingEnum {
   /**
    * 修改布局

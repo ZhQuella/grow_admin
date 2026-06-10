@@ -37,7 +37,7 @@ export const projectSetting: ProjectSetting = {
   sessionTimeoutProcessing: SessionTimeoutProcessingEnum.ROUTE_JUMP,
   grayMode: false,
   colorWeak: false,
-  themeColor: '#0960bd',
+  themeColor: '#8b5cf6',
   fullContent: false,
   contentMode: ContentLayoutEnum.FULL,
   showLogo: true,
