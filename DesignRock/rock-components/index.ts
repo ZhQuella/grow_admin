@@ -7,6 +7,8 @@ export {
   useMsg,
   useDialog,
 } from './src';
+/** @alias useMsg */
+export { useMsg as useMessage } from './src';
 export { default as ComponentMap } from '#/ComponentMap';
 export { withInstall, type WithInstall, type CustomComponent } from './src/utils/installSupport';
 export { useComponent, useDriverComponent } from './src';

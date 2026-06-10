@@ -10,6 +10,10 @@ type DriverFactory = () => GrowAdminComponentDriver;
 const driverFactories: Record<ComponentLibraryType, () => Promise<DriverFactory>> = {
   [ComponentLibraryType.ElementPlus]: async () => {
     const { EPComponentDriver } = await import('@grow-admin-rock/component-driver-element-plus');
+    const { ElMessage, ElNotification, ElMessageBox } = await import('element-plus');
+    setMessage(() => ElMessage);
+    setNotice(() => ElNotification);
+    setDialog(() => ElMessageBox);
     return () => EPComponentDriver.builder().enableAll();
   },
   [ComponentLibraryType.NaiveUI]: async () => {

@@ -2,39 +2,40 @@
   "resolvedId": "/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/ioc.ts",
   "transforms": [
     {
-      "name": "__load__",
+      "name": "vite:load-fallback",
       "result": "import { ThrownHandler } from '@grow-admin-rock/types';\nimport {\n  interfaces,\n  Container,\n  ContainerModule,\n  AsyncContainerModule,\n} from 'inversify';\nimport { injectable, inject } from 'inversify';\nimport { InjectionKey } from 'vue';\n\nexport type ServiceIdentifier<T> = interfaces.ServiceIdentifier<T> & InjectionKey<T>;\nexport type IocModule = interfaces.ContainerModule;\nexport const IocModule = ContainerModule;\nexport type AsyncIocModule = interfaces.AsyncContainerModule;\nexport const AsyncIocModule = AsyncContainerModule;\nexport type IocContainer = Container;\nexport const IocContainer = Container;\nexport type IocContainerOptions = interfaces.ContainerOptions;\nexport const Bean = injectable;\nexport const Autowired = inject;\n\nexport const CONTAINER_KEY:ServiceIdentifier<IocContainer> = Symbol.for('CONTAINER_KEY') as ServiceIdentifier<IocContainer>;\nexport const THROWN_HANDLER:ServiceIdentifier<ThrownHandler> = Symbol.for('ThrownHandler') as ServiceIdentifier<ThrownHandler>;",
-      "start": 1781060638772,
-      "end": 1781060638772
+      "start": 1781061702954,
+      "end": 1781061703114,
+      "sourcemaps": null
     },
     {
       "name": "unocss:transformers:pre",
-      "start": 1781060638772,
-      "end": 1781060638772,
+      "start": 1781061703114,
+      "end": 1781061703114,
       "order": "pre"
     },
     {
-      "name": "unocss:global",
-      "start": 1781060638772,
-      "end": 1781060638772,
+      "name": "unocss:global:build:scan",
+      "start": 1781061703114,
+      "end": 1781061703114,
       "order": "pre"
     },
     {
       "name": "vite:css",
-      "start": 1781060638772,
-      "end": 1781060638772,
+      "start": 1781061703114,
+      "end": 1781061703114,
       "order": "normal"
     },
     {
       "name": "vite:esbuild",
       "result": "import {\n  Container,\n  ContainerModule,\n  AsyncContainerModule\n} from \"inversify\";\nimport { injectable, inject } from \"inversify\";\nexport const IocModule = ContainerModule;\nexport const AsyncIocModule = AsyncContainerModule;\nexport const IocContainer = Container;\nexport const Bean = injectable;\nexport const Autowired = inject;\nexport const CONTAINER_KEY = Symbol.for(\"CONTAINER_KEY\");\nexport const THROWN_HANDLER = Symbol.for(\"ThrownHandler\");\n",
-      "start": 1781060638772,
-      "end": 1781060639345,
+      "start": 1781061703114,
+      "end": 1781061703180,
       "order": "normal",
       "sourcemaps": {
         "version": 3,
         "sources": [
-          "ioc.ts"
+          "/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/ioc.ts"
         ],
         "sourcesContent": [
           "import { ThrownHandler } from '@grow-admin-rock/types';\nimport {\n  interfaces,\n  Container,\n  ContainerModule,\n  AsyncContainerModule,\n} from 'inversify';\nimport { injectable, inject } from 'inversify';\nimport { InjectionKey } from 'vue';\n\nexport type ServiceIdentifier<T> = interfaces.ServiceIdentifier<T> & InjectionKey<T>;\nexport type IocModule = interfaces.ContainerModule;\nexport const IocModule = ContainerModule;\nexport type AsyncIocModule = interfaces.AsyncContainerModule;\nexport const AsyncIocModule = AsyncContainerModule;\nexport type IocContainer = Container;\nexport const IocContainer = Container;\nexport type IocContainerOptions = interfaces.ContainerOptions;\nexport const Bean = injectable;\nexport const Autowired = inject;\n\nexport const CONTAINER_KEY:ServiceIdentifier<IocContainer> = Symbol.for('CONTAINER_KEY') as ServiceIdentifier<IocContainer>;\nexport const THROWN_HANDLER:ServiceIdentifier<ThrownHandler> = Symbol.for('ThrownHandler') as ServiceIdentifier<ThrownHandler>;"
@@ -45,107 +46,111 @@
     },
     {
       "name": "vite:json",
-      "start": 1781060639345,
-      "end": 1781060639345,
+      "start": 1781061703180,
+      "end": 1781061703180,
       "order": "normal"
     },
     {
       "name": "vite:worker",
-      "start": 1781060639345,
-      "end": 1781060639345,
+      "start": 1781061703180,
+      "end": 1781061703180,
       "order": "normal"
     },
     {
       "name": "vite:vue",
-      "start": 1781060639345,
-      "end": 1781060639345,
+      "start": 1781061703180,
+      "end": 1781061703180,
       "order": "normal"
     },
     {
       "name": "vite:vue-jsx",
-      "start": 1781060639345,
-      "end": 1781060639345,
+      "start": 1781061703181,
+      "end": 1781061703181,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:default",
-      "start": 1781060639345,
-      "end": 1781060639345,
+      "start": 1781061703181,
+      "end": 1781061703181,
       "order": "normal"
     },
     {
       "name": "@grow-admin-plugins/unplugin-auto-import",
-      "start": 1781060639345,
-      "end": 1781060639345,
+      "start": 1781061703181,
+      "end": 1781061703181,
       "order": "normal"
     },
     {
       "name": "vite:define",
-      "start": 1781060639345,
-      "end": 1781060639345,
+      "start": 1781061703181,
+      "end": 1781061703181,
       "order": "normal"
     },
     {
       "name": "vite:css-post",
-      "start": 1781060639345,
-      "end": 1781060639345,
+      "start": 1781061703181,
+      "end": 1781061703181,
+      "order": "normal"
+    },
+    {
+      "name": "vite:build-html",
+      "start": 1781061703181,
+      "end": 1781061703181,
       "order": "normal"
     },
     {
       "name": "vite:worker-import-meta-url",
-      "start": 1781060639345,
-      "end": 1781060639345,
+      "start": 1781061703181,
+      "end": 1781061703181,
       "order": "normal"
     },
     {
       "name": "vite:asset-import-meta-url",
-      "start": 1781060639345,
-      "end": 1781060639345,
+      "start": 1781061703181,
+      "end": 1781061703181,
+      "order": "normal"
+    },
+    {
+      "name": "commonjs",
+      "start": 1781061703181,
+      "end": 1781061703181,
       "order": "normal"
     },
     {
       "name": "vite:dynamic-import-vars",
-      "start": 1781060639345,
-      "end": 1781060639345,
+      "start": 1781061703181,
+      "end": 1781061703181,
       "order": "normal"
     },
     {
       "name": "vite:import-glob",
-      "start": 1781060639345,
-      "end": 1781060639350,
+      "start": 1781061703181,
+      "end": 1781061703181,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:post",
-      "start": 1781060639350,
-      "end": 1781060639350,
-      "order": "post"
-    },
-    {
-      "name": "unocss:global:post",
-      "start": 1781060639352,
-      "end": 1781060639352,
+      "start": 1781061703181,
+      "end": 1781061703181,
       "order": "post"
     },
     {
       "name": "unplugin-vue-components",
-      "start": 1781060639352,
-      "end": 1781060639352,
+      "start": 1781061703181,
+      "end": 1781061703181,
       "order": "post"
     },
     {
-      "name": "vite:client-inject",
-      "start": 1781060639352,
-      "end": 1781060639352,
+      "name": "vite:build-import-analysis",
+      "start": 1781061703182,
+      "end": 1781061703184,
       "order": "normal"
     },
     {
-      "name": "vite:import-analysis",
-      "result": "import {\n  Container,\n  ContainerModule,\n  AsyncContainerModule\n} from \"/node_modules/.vite/deps/inversify.js?v=5e47a18f\";\nimport { injectable, inject } from \"/node_modules/.vite/deps/inversify.js?v=5e47a18f\";\nexport const IocModule = ContainerModule;\nexport const AsyncIocModule = AsyncContainerModule;\nexport const IocContainer = Container;\nexport const Bean = injectable;\nexport const Autowired = inject;\nexport const CONTAINER_KEY = Symbol.for(\"CONTAINER_KEY\");\nexport const THROWN_HANDLER = Symbol.for(\"ThrownHandler\");\n",
-      "start": 1781060639352,
-      "end": 1781060639352,
-      "order": "normal",
-      "sourcemaps": null
+      "name": "vite:reporter",
+      "start": 1781061703184,
+      "end": 1781061703184,
+      "order": "normal"
     }
   ]
 }
