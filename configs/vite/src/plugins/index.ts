@@ -1,4 +1,5 @@
 import type { PluginOption } from 'vite'
+import { resolve } from 'path'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import legacy from '@vitejs/plugin-legacy'
@@ -17,6 +18,12 @@ import monacoEditorPlugin from 'vite-plugin-monaco-editor'
 import { createUnplugin } from 'unplugin'
 import autoimport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
+import {
+  ElementPlusResolver,
+  NaiveUiResolver,
+  AntDesignVueResolver,
+} from 'unplugin-vue-components/resolvers'
+import type { PresetType } from '../presets'
 import Inspect from 'vite-plugin-inspect'
 import { terser } from 'rollup-plugin-terser';
 
@@ -27,10 +34,24 @@ import WmqAutoImport from '@grow-admin-plugins/unplugin-auto-import/src/vite'
 
 export const MonoRepoResolverPlugin = configMonoRepoResolverPlugin
 
+function getComponentResolvers(preset: PresetType) {
+  switch (preset) {
+    case 'ele':
+      return [ElementPlusResolver()];
+    case 'naive':
+      return [NaiveUiResolver()];
+    case 'antd':
+      return [AntDesignVueResolver({ importStyle: false })];
+    default:
+      return [ElementPlusResolver()];
+  }
+}
+
 export async function configVitePlugins(
   root: string,
   viteEnv: ViteEnv,
   isBuild: boolean,
+  preset: PresetType = 'ele',
 ) {
   const {
     VITE_USE_IMAGEMIN,
@@ -95,6 +116,12 @@ export async function configVitePlugins(
   }
   vitePlugins.push(Inspect())
   vitePlugins.push(WmqAutoImport())
+  vitePlugins.push(
+    Components({
+      dts: resolve(root, 'src/components.d.ts'),
+      resolvers: getComponentResolvers(preset),
+    }),
+  )
 
   return vitePlugins
 }

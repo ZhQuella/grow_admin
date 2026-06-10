@@ -4,26 +4,26 @@
     {
       "name": "__load__",
       "result": ":root {\n  --primary-color: #0960bd;\n  --success-color: #55d187;\n  --error-color: #ed6f6f;\n  --warning-color: #efbd47;\n\n  /* component */\n  --component-background-color: #fff;\n\n  /* transition */\n  --transition-bezier: cubic-bezier(0.4, 0, 0.2, 1);\n  --transition-all: all 0.3s var(--transition-bezier);\n\n  /* layout start */\n\n  --layout-color: #fff;\n  --layout-container-background-color: #fff;\n  --layout-border-color: rgb(239, 239, 245);\n\n  /* header */\n  --header-height: 48px;\n  --header-width: calc(100% - var(--aside-width));\n  --header-background-color: #fff;\n  --header-text-color: rgba(0,0,0,0.85);\n  --header-icon-color: var(--header-text-color);\n  --header-action-hover-bg-color: #f6f6f6;\n\n  /* tab */\n  --tab-bar-height: 36px;\n  --tab-bar-width: calc(100% - var(--aside-width));\n\n  /* aside */\n  --aside-height: calc(100% - var(--header-height));\n  --aside-width: 210px;\n  --aside-background-color: #001529;\n  --aside-submenu-background-color: #0c2135;\n  --aside-text-color: #fff;\n\n  --trigger-background-color: rgb(72, 72, 78);\n  /*--trigger-border: 1px solid rgb(239, 239, 245);*/\n  --trigger-border-color: rgb(239, 239, 245);\n  /*--trigger-border-color: rgb(239, 239, 245);*/\n  /*--trigger-icon-color: #f3f1f1;*/\n  /*--trigger-icon-color: rgb(51, 54, 57);*/\n  /*--trigger-hover-icon-color: #fff;*/\n\n  /* main */\n  --main-height: calc(100% - var(--footer-height));\n  --main-width: 100%;\n\n  /* footer */\n  --footer-height: 60px;\n  --footer-width: 100%;\n\n  /* layout end */\n\n}\n\n:root[class=dark] {\n  --layout-border-color: rgba(255, 255, 255, 0.09);\n  --layout-container-background-color: rgb(16, 16, 20);\n\n  --component-background-color: rgb(24, 24, 28);\n}\n",
-      "start": 1780893043433,
-      "end": 1780893043433
+      "start": 1781060638979,
+      "end": 1781060638979
     },
     {
       "name": "unocss:transformers:pre",
-      "start": 1780893043433,
-      "end": 1780893043433,
+      "start": 1781060638979,
+      "end": 1781060638979,
       "order": "pre"
     },
     {
       "name": "unocss:global",
-      "start": 1780893043433,
-      "end": 1780893043433,
+      "start": 1781060638979,
+      "end": 1781060638979,
       "order": "pre"
     },
     {
       "name": "vite:css",
       "result": ":root {\n  --primary-color: #0960bd;\n  --success-color: #55d187;\n  --error-color: #ed6f6f;\n  --warning-color: #efbd47;\n\n  /* component */\n  --component-background-color: #fff;\n\n  /* transition */\n  --transition-bezier: cubic-bezier(0.4, 0, 0.2, 1);\n  --transition-all: all 0.3s var(--transition-bezier);\n\n  /* layout start */\n\n  --layout-color: #fff;\n  --layout-container-background-color: #fff;\n  --layout-border-color: rgb(239, 239, 245);\n\n  /* header */\n  --header-height: 48px;\n  --header-width: calc(100% - var(--aside-width));\n  --header-background-color: #fff;\n  --header-text-color: rgba(0,0,0,0.85);\n  --header-icon-color: var(--header-text-color);\n  --header-action-hover-bg-color: #f6f6f6;\n\n  /* tab */\n  --tab-bar-height: 36px;\n  --tab-bar-width: calc(100% - var(--aside-width));\n\n  /* aside */\n  --aside-height: calc(100% - var(--header-height));\n  --aside-width: 210px;\n  --aside-background-color: #001529;\n  --aside-submenu-background-color: #0c2135;\n  --aside-text-color: #fff;\n\n  --trigger-background-color: rgb(72, 72, 78);\n  /*--trigger-border: 1px solid rgb(239, 239, 245);*/\n  --trigger-border-color: rgb(239, 239, 245);\n  /*--trigger-border-color: rgb(239, 239, 245);*/\n  /*--trigger-icon-color: #f3f1f1;*/\n  /*--trigger-icon-color: rgb(51, 54, 57);*/\n  /*--trigger-hover-icon-color: #fff;*/\n\n  /* main */\n  --main-height: calc(100% - var(--footer-height));\n  --main-width: 100%;\n\n  /* footer */\n  --footer-height: 60px;\n  --footer-width: 100%;\n\n  /* layout end */\n\n}\n\n:root[class=dark] {\n  --layout-border-color: rgba(255, 255, 255, 0.09);\n  --layout-container-background-color: rgb(16, 16, 20);\n\n  --component-background-color: rgb(24, 24, 28);\n}\n",
-      "start": 1780893043433,
-      "end": 1780893043981,
+      "start": 1781060638979,
+      "end": 1781060639328,
       "order": "normal",
       "sourcemaps": {
         "mappings": ""
@@ -31,57 +31,57 @@
     },
     {
       "name": "vite:esbuild",
-      "start": 1780893043981,
-      "end": 1780893043981,
+      "start": 1781060639328,
+      "end": 1781060639328,
       "order": "normal"
     },
     {
       "name": "vite:json",
-      "start": 1780893043981,
-      "end": 1780893043981,
+      "start": 1781060639328,
+      "end": 1781060639328,
       "order": "normal"
     },
     {
       "name": "vite:worker",
-      "start": 1780893043981,
-      "end": 1780893043981,
+      "start": 1781060639328,
+      "end": 1781060639328,
       "order": "normal"
     },
     {
       "name": "vite:vue",
-      "start": 1780893043981,
-      "end": 1780893043981,
+      "start": 1781060639328,
+      "end": 1781060639328,
       "order": "normal"
     },
     {
       "name": "vite:vue-jsx",
-      "start": 1780893043981,
-      "end": 1780893043981,
+      "start": 1781060639328,
+      "end": 1781060639328,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:default",
-      "start": 1780893043981,
-      "end": 1780893043981,
+      "start": 1781060639328,
+      "end": 1781060639328,
       "order": "normal"
     },
     {
       "name": "@grow-admin-plugins/unplugin-auto-import",
-      "start": 1780893043981,
-      "end": 1780893043981,
+      "start": 1781060639328,
+      "end": 1781060639328,
       "order": "normal"
     },
     {
       "name": "vite:define",
-      "start": 1780893043981,
-      "end": 1780893043981,
+      "start": 1781060639328,
+      "end": 1781060639328,
       "order": "normal"
     },
     {
       "name": "vite:css-post",
       "result": "import { updateStyle as __vite__updateStyle, removeStyle as __vite__removeStyle } from \"/@vite/client\"\nconst __vite__id = \"/Users/aaron/Desktop/grow_admin/DesignRock/rock-styles/src/variables.css\"\nconst __vite__css = \":root {\\n  --primary-color: #0960bd;\\n  --success-color: #55d187;\\n  --error-color: #ed6f6f;\\n  --warning-color: #efbd47;\\n\\n  /* component */\\n  --component-background-color: #fff;\\n\\n  /* transition */\\n  --transition-bezier: cubic-bezier(0.4, 0, 0.2, 1);\\n  --transition-all: all 0.3s var(--transition-bezier);\\n\\n  /* layout start */\\n\\n  --layout-color: #fff;\\n  --layout-container-background-color: #fff;\\n  --layout-border-color: rgb(239, 239, 245);\\n\\n  /* header */\\n  --header-height: 48px;\\n  --header-width: calc(100% - var(--aside-width));\\n  --header-background-color: #fff;\\n  --header-text-color: rgba(0,0,0,0.85);\\n  --header-icon-color: var(--header-text-color);\\n  --header-action-hover-bg-color: #f6f6f6;\\n\\n  /* tab */\\n  --tab-bar-height: 36px;\\n  --tab-bar-width: calc(100% - var(--aside-width));\\n\\n  /* aside */\\n  --aside-height: calc(100% - var(--header-height));\\n  --aside-width: 210px;\\n  --aside-background-color: #001529;\\n  --aside-submenu-background-color: #0c2135;\\n  --aside-text-color: #fff;\\n\\n  --trigger-background-color: rgb(72, 72, 78);\\n  /*--trigger-border: 1px solid rgb(239, 239, 245);*/\\n  --trigger-border-color: rgb(239, 239, 245);\\n  /*--trigger-border-color: rgb(239, 239, 245);*/\\n  /*--trigger-icon-color: #f3f1f1;*/\\n  /*--trigger-icon-color: rgb(51, 54, 57);*/\\n  /*--trigger-hover-icon-color: #fff;*/\\n\\n  /* main */\\n  --main-height: calc(100% - var(--footer-height));\\n  --main-width: 100%;\\n\\n  /* footer */\\n  --footer-height: 60px;\\n  --footer-width: 100%;\\n\\n  /* layout end */\\n\\n}\\n\\n:root[class=dark] {\\n  --layout-border-color: rgba(255, 255, 255, 0.09);\\n  --layout-container-background-color: rgb(16, 16, 20);\\n\\n  --component-background-color: rgb(24, 24, 28);\\n}\\n\"\n__vite__updateStyle(__vite__id, __vite__css)\nimport.meta.hot.accept()\nexport default __vite__css\nimport.meta.hot.prune(() => __vite__removeStyle(__vite__id))",
-      "start": 1780893043981,
-      "end": 1780893043981,
+      "start": 1781060639328,
+      "end": 1781060639328,
       "order": "normal",
       "sourcemaps": {
         "mappings": ""
@@ -89,51 +89,57 @@
     },
     {
       "name": "vite:worker-import-meta-url",
-      "start": 1780893043981,
-      "end": 1780893043981,
+      "start": 1781060639328,
+      "end": 1781060639328,
       "order": "normal"
     },
     {
       "name": "vite:asset-import-meta-url",
-      "start": 1780893043981,
-      "end": 1780893043981,
+      "start": 1781060639328,
+      "end": 1781060639328,
       "order": "normal"
     },
     {
       "name": "vite:dynamic-import-vars",
-      "start": 1780893043981,
-      "end": 1780893043981,
+      "start": 1781060639328,
+      "end": 1781060639328,
       "order": "normal"
     },
     {
       "name": "vite:import-glob",
-      "start": 1780893043981,
-      "end": 1780893043981,
+      "start": 1781060639328,
+      "end": 1781060639328,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:post",
-      "start": 1780893043981,
-      "end": 1780893043981,
+      "start": 1781060639328,
+      "end": 1781060639328,
       "order": "post"
     },
     {
       "name": "unocss:global:post",
-      "start": 1780893043981,
-      "end": 1780893043981,
+      "start": 1781060639328,
+      "end": 1781060639328,
+      "order": "post"
+    },
+    {
+      "name": "unplugin-vue-components",
+      "start": 1781060639344,
+      "end": 1781060639344,
       "order": "post"
     },
     {
       "name": "vite:client-inject",
-      "start": 1780893044007,
-      "end": 1780893044007,
+      "start": 1781060639344,
+      "end": 1781060639344,
       "order": "normal"
     },
     {
       "name": "vite:import-analysis",
       "result": "import { createHotContext as __vite__createHotContext } from \"/@vite/client\";import.meta.hot = __vite__createHotContext(\"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-styles/src/variables.css\");import { updateStyle as __vite__updateStyle, removeStyle as __vite__removeStyle } from \"/@vite/client\"\nconst __vite__id = \"/Users/aaron/Desktop/grow_admin/DesignRock/rock-styles/src/variables.css\"\nconst __vite__css = \":root {\\n  --primary-color: #0960bd;\\n  --success-color: #55d187;\\n  --error-color: #ed6f6f;\\n  --warning-color: #efbd47;\\n\\n  /* component */\\n  --component-background-color: #fff;\\n\\n  /* transition */\\n  --transition-bezier: cubic-bezier(0.4, 0, 0.2, 1);\\n  --transition-all: all 0.3s var(--transition-bezier);\\n\\n  /* layout start */\\n\\n  --layout-color: #fff;\\n  --layout-container-background-color: #fff;\\n  --layout-border-color: rgb(239, 239, 245);\\n\\n  /* header */\\n  --header-height: 48px;\\n  --header-width: calc(100% - var(--aside-width));\\n  --header-background-color: #fff;\\n  --header-text-color: rgba(0,0,0,0.85);\\n  --header-icon-color: var(--header-text-color);\\n  --header-action-hover-bg-color: #f6f6f6;\\n\\n  /* tab */\\n  --tab-bar-height: 36px;\\n  --tab-bar-width: calc(100% - var(--aside-width));\\n\\n  /* aside */\\n  --aside-height: calc(100% - var(--header-height));\\n  --aside-width: 210px;\\n  --aside-background-color: #001529;\\n  --aside-submenu-background-color: #0c2135;\\n  --aside-text-color: #fff;\\n\\n  --trigger-background-color: rgb(72, 72, 78);\\n  /*--trigger-border: 1px solid rgb(239, 239, 245);*/\\n  --trigger-border-color: rgb(239, 239, 245);\\n  /*--trigger-border-color: rgb(239, 239, 245);*/\\n  /*--trigger-icon-color: #f3f1f1;*/\\n  /*--trigger-icon-color: rgb(51, 54, 57);*/\\n  /*--trigger-hover-icon-color: #fff;*/\\n\\n  /* main */\\n  --main-height: calc(100% - var(--footer-height));\\n  --main-width: 100%;\\n\\n  /* footer */\\n  --footer-height: 60px;\\n  --footer-width: 100%;\\n\\n  /* layout end */\\n\\n}\\n\\n:root[class=dark] {\\n  --layout-border-color: rgba(255, 255, 255, 0.09);\\n  --layout-container-background-color: rgb(16, 16, 20);\\n\\n  --component-background-color: rgb(24, 24, 28);\\n}\\n\"\n__vite__updateStyle(__vite__id, __vite__css)\nimport.meta.hot.accept()\nexport default __vite__css\nimport.meta.hot.prune(() => __vite__removeStyle(__vite__id))",
-      "start": 1780893044007,
-      "end": 1780893044007,
+      "start": 1781060639344,
+      "end": 1781060639344,
       "order": "normal",
       "sourcemaps": null
     }

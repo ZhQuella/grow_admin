@@ -1,0 +1,106 @@
+import type { Component, Ref } from 'vue';
+import type { DataDictionary } from '@grow-admin-rock/types';
+import type { RockComponent } from './src/RockComponent';
+
+declare global {
+  type WmqComponent<T extends Component> = Component & {
+    customOptions?: {
+      isPresetComponent?: boolean;
+      [key: string]: any;
+    };
+    DriverRef?: Ref<T>;
+  };
+  type AutoExportFunction = Function | { name: string | RockComponent; isPresetComponent: boolean };
+  type WmqComponentDictionary = DataDictionary<WmqComponent<any>>;
+}
+
+declare module 'vue' {
+  export interface GlobalComponents {
+    GrowMessageProvider: import('vue').Component;
+    GrowNotificationProvider: import('vue').Component;
+    GrowDialogProvider: import('vue').Component;
+    GrowDialog: import('vue').Component;
+    GrowDrawer: import('vue').Component;
+    GrowDrawerContent: import('vue').Component;
+    GrowTag: import('vue').Component;
+    GrowCard: import('vue').Component;
+    GrowMenu: import('vue').Component;
+    GrowDivider: import('vue').Component;
+    GrowSpace: import('vue').Component;
+    GrowPopover: import('vue').Component;
+    GrowButton: import('vue').Component;
+    GrowButtonGroup: import('vue').Component;
+    GrowAvatar: import('vue').Component;
+    GrowStatistic: import('vue').Component;
+    GrowSelect: import('vue').Component;
+    GrowInput: import('vue').Component;
+    GrowInputGroup: import('vue').Component;
+    GrowInputGroupLabel: import('vue').Component;
+    GrowInputNumber: import('vue').Component;
+    GrowForm: import('vue').Component;
+    GrowFormItem: import('vue').Component;
+    GrowThing: import('vue').Component;
+    GrowCheckbox: import('vue').Component;
+    GrowCheckboxGroup: import('vue').Component;
+    GrowBreadcrumb: import('vue').Component;
+    GrowBreadcrumbItem: import('vue').Component;
+    GrowModal: import('vue').Component;
+    GrowEmpty: import('vue').Component;
+    GrowUpload: import('vue').Component;
+    GrowUploadDragger: import('vue').Component;
+    GrowTabs: import('vue').Component;
+    GrowTab: import('vue').Component;
+    GrowTabPane: import('vue').Component;
+    GrowGrid: import('vue').Component;
+    GrowGridItem: import('vue').Component;
+    GrowEllipsis: import('vue').Component;
+    GrowPagination: import('vue').Component;
+    GrowRadio: import('vue').Component;
+    GrowRadioGroup: import('vue').Component;
+    GrowRadioButton: import('vue').Component;
+    GrowRadioButtonGroup: import('vue').Component;
+    GrowText: import('vue').Component;
+    GrowConfig: import('vue').Component;
+    GrowDynamicTags: import('vue').Component;
+    GrowDescriptions: import('vue').Component;
+    GrowDescriptionsItem: import('vue').Component;
+    GrowSwitch: import('vue').Component;
+    GrowLayout: import('vue').Component;
+    GrowLayoutHeader: import('vue').Component;
+    GrowLayoutFooter: import('vue').Component;
+    GrowLayoutSider: import('vue').Component;
+    GrowLayoutContent: import('vue').Component;
+    GrowDropdown: import('vue').Component;
+    GrowTreeSelect: import('vue').Component;
+    GrowBadge: import('vue').Component;
+    GrowListItem: import('vue').Component;
+    GrowList: import('vue').Component;
+    GrowCascader: import('vue').Component;
+    GrowDatePicker: import('vue').Component;
+    GrowFormItemGi: import('vue').Component;
+    GrowTree: import('vue').Component;
+    GrowH1: import('vue').Component;
+    GrowH2: import('vue').Component;
+    GrowH3: import('vue').Component;
+    GrowH4: import('vue').Component;
+    GrowH5: import('vue').Component;
+    GrowH6: import('vue').Component;
+    GrowDynamicInput: import('vue').Component;
+    GrowPopSelect: import('vue').Component;
+    GrowTimeline: import('vue').Component;
+    GrowTimelineItem: import('vue').Component;
+    GrowScrollbar: import('vue').Component;
+    GrowSkeleton: import('vue').Component;
+    GrowTooltip: import('vue').Component;
+    GrowResult: import('vue').Component;
+    GrowGradientText: import('vue').Component;
+    GrowSpinner: import('vue').Component;
+    GrowCol: import('vue').Component;
+    GrowRow: import('vue').Component;
+    GrowProgress: import('vue').Component;
+    GrowPageHeader: import('vue').Component;
+    GrowNumberAnimation: import('vue').Component;
+  }
+}
+
+export {};

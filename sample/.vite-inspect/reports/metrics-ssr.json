@@ -190,6 +190,18 @@
       "invokeCount": 0,
       "totalTime": 0
     },
+    "name": "unplugin-vue-components",
+    "enforce": "post"
+  },
+  {
+    "transform": {
+      "invokeCount": 0,
+      "totalTime": 0
+    },
+    "resolveId": {
+      "invokeCount": 0,
+      "totalTime": 0
+    },
     "name": "vite-plugin-inspect",
     "enforce": "pre"
   },

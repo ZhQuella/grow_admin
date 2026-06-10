@@ -18,6 +18,8 @@ import {
   Lib as infrastructureLib,
 } from '@grow-admin-rock/infrastructure'
 
+import { Lib as componentsLib } from '@grow-admin-rock/components'
+
 import {
   Lib as appsLoginLib,
   useUserStore,
@@ -39,7 +41,7 @@ export const initIoc = async (app: App) => {
     autoBindInjectable: true,
     skipBaseClassChecks: true,
   } as IocContainerOptions;
-  installComponentDriver(app, appContext);
+  await installComponentDriver(app, appContext);
 
   app
     // 安装IOC插件
@@ -49,7 +51,9 @@ export const initIoc = async (app: App) => {
     // 使用路由
     .use(routeLib, appContext)
     // 使用登录模块
-    .use(appsLoginLib, appContext);
+    .use(appsLoginLib, appContext)
+    // 使用契约组件库
+    .use(componentsLib, appContext);
 
 
   // 载入应用

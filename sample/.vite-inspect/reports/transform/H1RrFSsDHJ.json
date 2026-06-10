@@ -4,32 +4,32 @@
     {
       "name": "__load__",
       "result": "export * from './src'",
-      "start": 1780893043137,
-      "end": 1780893043137
+      "start": 1781060638600,
+      "end": 1781060638600
     },
     {
       "name": "unocss:transformers:pre",
-      "start": 1780893043137,
-      "end": 1780893043137,
+      "start": 1781060638600,
+      "end": 1781060638600,
       "order": "pre"
     },
     {
       "name": "unocss:global",
-      "start": 1780893043137,
-      "end": 1780893043137,
+      "start": 1781060638600,
+      "end": 1781060638600,
       "order": "pre"
     },
     {
       "name": "vite:css",
-      "start": 1780893043137,
-      "end": 1780893043137,
+      "start": 1781060638600,
+      "end": 1781060638600,
       "order": "normal"
     },
     {
       "name": "vite:esbuild",
       "result": "export * from \"./src\";\n",
-      "start": 1780893043137,
-      "end": 1780893043391,
+      "start": 1781060638600,
+      "end": 1781060638629,
       "order": "normal",
       "sourcemaps": {
         "version": 3,
@@ -45,99 +45,105 @@
     },
     {
       "name": "vite:json",
-      "start": 1780893043391,
-      "end": 1780893043391,
+      "start": 1781060638629,
+      "end": 1781060638629,
       "order": "normal"
     },
     {
       "name": "vite:worker",
-      "start": 1780893043391,
-      "end": 1780893043391,
+      "start": 1781060638629,
+      "end": 1781060638629,
       "order": "normal"
     },
     {
       "name": "vite:vue",
-      "start": 1780893043391,
-      "end": 1780893043391,
+      "start": 1781060638629,
+      "end": 1781060638629,
       "order": "normal"
     },
     {
       "name": "vite:vue-jsx",
-      "start": 1780893043391,
-      "end": 1780893043391,
+      "start": 1781060638629,
+      "end": 1781060638629,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:default",
-      "start": 1780893043391,
-      "end": 1780893043391,
+      "start": 1781060638629,
+      "end": 1781060638629,
       "order": "normal"
     },
     {
       "name": "@grow-admin-plugins/unplugin-auto-import",
-      "start": 1780893043391,
-      "end": 1780893043391,
+      "start": 1781060638629,
+      "end": 1781060638629,
       "order": "normal"
     },
     {
       "name": "vite:define",
-      "start": 1780893043391,
-      "end": 1780893043391,
+      "start": 1781060638629,
+      "end": 1781060638629,
       "order": "normal"
     },
     {
       "name": "vite:css-post",
-      "start": 1780893043391,
-      "end": 1780893043391,
+      "start": 1781060638629,
+      "end": 1781060638629,
       "order": "normal"
     },
     {
       "name": "vite:worker-import-meta-url",
-      "start": 1780893043391,
-      "end": 1780893043391,
+      "start": 1781060638629,
+      "end": 1781060638629,
       "order": "normal"
     },
     {
       "name": "vite:asset-import-meta-url",
-      "start": 1780893043391,
-      "end": 1780893043391,
+      "start": 1781060638629,
+      "end": 1781060638629,
       "order": "normal"
     },
     {
       "name": "vite:dynamic-import-vars",
-      "start": 1780893043391,
-      "end": 1780893043391,
+      "start": 1781060638629,
+      "end": 1781060638629,
       "order": "normal"
     },
     {
       "name": "vite:import-glob",
-      "start": 1780893043391,
-      "end": 1780893043391,
+      "start": 1781060638629,
+      "end": 1781060638629,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:post",
-      "start": 1780893043391,
-      "end": 1780893043391,
+      "start": 1781060638629,
+      "end": 1781060638629,
       "order": "post"
     },
     {
       "name": "unocss:global:post",
-      "start": 1780893043391,
-      "end": 1780893043391,
+      "start": 1781060638629,
+      "end": 1781060638629,
+      "order": "post"
+    },
+    {
+      "name": "unplugin-vue-components",
+      "start": 1781060638629,
+      "end": 1781060638629,
       "order": "post"
     },
     {
       "name": "vite:client-inject",
-      "start": 1780893043391,
-      "end": 1780893043391,
+      "start": 1781060638629,
+      "end": 1781060638629,
       "order": "normal"
     },
     {
       "name": "vite:import-analysis",
       "result": "export * from \"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-base-package/src/index.ts\";\n",
-      "start": 1780893043391,
-      "end": 1780893043391,
+      "start": 1781060638629,
+      "end": 1781060638631,
       "order": "normal",
       "sourcemaps": null
     }

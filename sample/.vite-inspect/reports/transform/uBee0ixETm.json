@@ -4,32 +4,32 @@
     {
       "name": "__load__",
       "result": "import { Container } from 'inversify';\nimport { App, InjectionKey, getCurrentInstance, inject } from 'vue';\nimport type { interfaces } from 'inversify';\nimport {\n  CONTAINER_KEY,\n  IocContainer,\n  IocContainerOptions,\n  ServiceIdentifier,\n} from './ioc';\nimport { makeLoggerMiddleware } from './logger';\n\nexport * from './ioc';\n\nlet container: IocContainer | undefined;\n\n/**\n * 通过app对象设置IOC容器\n * @param app vue实例\n * @param options vue实例\n */\nexport const setupByApp = (app: App, options: IocContainerOptions) => {\n  if (container || app.config.globalProperties.$iocContainer) {\n    throw new Error('IOC容器已经初始化, 请勿重复初始化');\n  }\n  const _container = createIocContainer(options);\n  console.debug('Grow Admin IOC Plugin create container');\n  app.config.globalProperties.$iocContainer = _container;\n  app.provide(CONTAINER_KEY as InjectionKey<IocContainer>, _container);\n  container = _container;\n};\n\n/**\n * 生成唯一标志\n * @param target 唯一标志原始值\n * @returns\n */\nexport const keyOf = <T>(key: any): ServiceIdentifier<T> => {\n  return Symbol.for(key.name) as ServiceIdentifier<T>;\n};\n\n/**\n * 从Vue的上下文中获取IOC容器\n * @returns\n */\nexport const contextContianer = (\n  currentContainer?: IocContainer\n): IocContainer => {\n  if (currentContainer) {\n    return currentContainer;\n  }\n  const instance = getCurrentInstance();\n  if (instance) {\n    // 在Vue的上下文中，可以通过inject获取容器\n    const _container = inject(CONTAINER_KEY as InjectionKey<IocContainer>);\n    if (_container) {\n      return _container;\n    }\n  }\n  if (!container) {\n    throw new Error('IOC容器未初始化, 请确认插件已安装');\n  }\n  return container;\n};\n\n/**\n * 根据keyOf计算的BeanKey获取ioc容器中的实例，如果不存在则抛出异常\n * @param key beanKey, 会使用keyOf方法计算BeanKey\n * @param container\n * @returns\n */\nexport const resolveByTypeOrThrow = <T>(\n  key: any,\n  container?: IocContainer\n): T => {\n  try {\n    return contextContianer(container).get(keyOf<T>(key));\n  } catch (error) {\n    console.debug('ResolveByType fail Throw:', key, error);\n    throw error;\n  }\n};\n\n/**\n * 根据keyOf计算的BeanKey获取ioc容器中的实例，如果不存在则返回undefined\n * @param key beanKey, 会使用keyOf方法计算BeanKey\n * @param container\n * @returns\n */\nexport const resolveByType = <T>(\n  key: any,\n  container?: IocContainer\n): T | undefined => {\n  try {\n    return resolveByTypeOrThrow(key, container);\n  } catch (error) {\n    console.debug('ResolveByType fail', key, error);\n    return undefined;\n  }\n};\n\n/**\n * 异步获取ioc容器中的实例，如果不存在则抛出异常\n * @param key \n * @param container \n * @returns \n */\nexport const di = async <T>(\n  key: ServiceIdentifier<T>,\n  container?: IocContainer\n): Promise<T> => {\n  try {\n    return await contextContianer(container).getAsync(key);\n  } catch (error) {\n    console.debug('FetchByKey fail Throw:', key, error);\n    throw error;\n  }\n};\n\nexport const fetchByKey = di\n\n/**\n * 获取ioc容器中的实例，如果不存在则抛出异常\n * @param key \n * @param container \n * @returns \n */\nexport const diKT = <T>(\n  key: ServiceIdentifier<T>,\n  container?: IocContainer\n): T => {\n  try {\n    return contextContianer(container).get(key);\n  } catch (error) {\n    throw error;\n  }\n};\n/**\n * @see diKT\n */\nexport const resolveByKeyOrThrow = diKT;\n\n/**\n * 获取ioc容器中的实例，如果不存在则返回undefined\n * @param key beanKey\n * @returns\n */\nexport const diK = <T>(\n  key: ServiceIdentifier<T>,\n  container?: IocContainer\n): T | undefined => {\n  try {\n    return diKT(key, container);\n  } catch (ignore) {\n    return undefined;\n  }\n}\n/**\n * @see diK\n */\nexport const resolveByKey = diK\n\n/**\n * 创建IOC容器\n * @param options\n * @returns\n */\nexport const createIocContainer = (\n  options?: interfaces.ContainerOptions\n): IocContainer => {\n  const con = new Container(options || { defaultScope: 'Singleton' });\n  if (import.meta.env.DEV) {\n    // 开发模式下开启IOC的LOG插件\n    con.applyMiddleware(makeLoggerMiddleware());\n  }\n  return con;\n};\n",
-      "start": 1780893043472,
-      "end": 1780893043472
+      "start": 1781060638659,
+      "end": 1781060638659
     },
     {
       "name": "unocss:transformers:pre",
-      "start": 1780893043472,
-      "end": 1780893043472,
+      "start": 1781060638659,
+      "end": 1781060638659,
       "order": "pre"
     },
     {
       "name": "unocss:global",
-      "start": 1780893043472,
-      "end": 1780893043472,
+      "start": 1781060638659,
+      "end": 1781060638659,
       "order": "pre"
     },
     {
       "name": "vite:css",
-      "start": 1780893043472,
-      "end": 1780893043472,
+      "start": 1781060638659,
+      "end": 1781060638659,
       "order": "normal"
     },
     {
       "name": "vite:esbuild",
       "result": "import { Container } from \"inversify\";\nimport { getCurrentInstance, inject } from \"vue\";\nimport {\n  CONTAINER_KEY\n} from \"./ioc\";\nimport { makeLoggerMiddleware } from \"./logger\";\nexport * from \"./ioc\";\nlet container;\nexport const setupByApp = (app, options) => {\n  if (container || app.config.globalProperties.$iocContainer) {\n    throw new Error(\"IOC容器已经初始化, 请勿重复初始化\");\n  }\n  const _container = createIocContainer(options);\n  console.debug(\"Grow Admin IOC Plugin create container\");\n  app.config.globalProperties.$iocContainer = _container;\n  app.provide(CONTAINER_KEY, _container);\n  container = _container;\n};\nexport const keyOf = (key) => {\n  return Symbol.for(key.name);\n};\nexport const contextContianer = (currentContainer) => {\n  if (currentContainer) {\n    return currentContainer;\n  }\n  const instance = getCurrentInstance();\n  if (instance) {\n    const _container = inject(CONTAINER_KEY);\n    if (_container) {\n      return _container;\n    }\n  }\n  if (!container) {\n    throw new Error(\"IOC容器未初始化, 请确认插件已安装\");\n  }\n  return container;\n};\nexport const resolveByTypeOrThrow = (key, container2) => {\n  try {\n    return contextContianer(container2).get(keyOf(key));\n  } catch (error) {\n    console.debug(\"ResolveByType fail Throw:\", key, error);\n    throw error;\n  }\n};\nexport const resolveByType = (key, container2) => {\n  try {\n    return resolveByTypeOrThrow(key, container2);\n  } catch (error) {\n    console.debug(\"ResolveByType fail\", key, error);\n    return void 0;\n  }\n};\nexport const di = async (key, container2) => {\n  try {\n    return await contextContianer(container2).getAsync(key);\n  } catch (error) {\n    console.debug(\"FetchByKey fail Throw:\", key, error);\n    throw error;\n  }\n};\nexport const fetchByKey = di;\nexport const diKT = (key, container2) => {\n  try {\n    return contextContianer(container2).get(key);\n  } catch (error) {\n    throw error;\n  }\n};\nexport const resolveByKeyOrThrow = diKT;\nexport const diK = (key, container2) => {\n  try {\n    return diKT(key, container2);\n  } catch (ignore) {\n    return void 0;\n  }\n};\nexport const resolveByKey = diK;\nexport const createIocContainer = (options) => {\n  const con = new Container(options || { defaultScope: \"Singleton\" });\n  if (import.meta.env.DEV) {\n    con.applyMiddleware(makeLoggerMiddleware());\n  }\n  return con;\n};\n",
-      "start": 1780893043472,
-      "end": 1780893044079,
+      "start": 1781060638659,
+      "end": 1781060638749,
       "order": "normal",
       "sourcemaps": {
         "version": 3,
@@ -47,99 +47,105 @@
     },
     {
       "name": "vite:json",
-      "start": 1780893044079,
-      "end": 1780893044079,
+      "start": 1781060638749,
+      "end": 1781060638749,
       "order": "normal"
     },
     {
       "name": "vite:worker",
-      "start": 1780893044079,
-      "end": 1780893044079,
+      "start": 1781060638749,
+      "end": 1781060638749,
       "order": "normal"
     },
     {
       "name": "vite:vue",
-      "start": 1780893044079,
-      "end": 1780893044079,
+      "start": 1781060638749,
+      "end": 1781060638749,
       "order": "normal"
     },
     {
       "name": "vite:vue-jsx",
-      "start": 1780893044079,
-      "end": 1780893044079,
+      "start": 1781060638749,
+      "end": 1781060638749,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:default",
-      "start": 1780893044079,
-      "end": 1780893044079,
+      "start": 1781060638749,
+      "end": 1781060638749,
       "order": "normal"
     },
     {
       "name": "@grow-admin-plugins/unplugin-auto-import",
-      "start": 1780893044079,
-      "end": 1780893044079,
+      "start": 1781060638749,
+      "end": 1781060638749,
       "order": "normal"
     },
     {
       "name": "vite:define",
-      "start": 1780893044079,
-      "end": 1780893044079,
+      "start": 1781060638749,
+      "end": 1781060638749,
       "order": "normal"
     },
     {
       "name": "vite:css-post",
-      "start": 1780893044079,
-      "end": 1780893044079,
+      "start": 1781060638749,
+      "end": 1781060638749,
       "order": "normal"
     },
     {
       "name": "vite:worker-import-meta-url",
-      "start": 1780893044079,
-      "end": 1780893044079,
+      "start": 1781060638749,
+      "end": 1781060638749,
       "order": "normal"
     },
     {
       "name": "vite:asset-import-meta-url",
-      "start": 1780893044079,
-      "end": 1780893044079,
+      "start": 1781060638749,
+      "end": 1781060638749,
       "order": "normal"
     },
     {
       "name": "vite:dynamic-import-vars",
-      "start": 1780893044079,
-      "end": 1780893044079,
+      "start": 1781060638749,
+      "end": 1781060638749,
       "order": "normal"
     },
     {
       "name": "vite:import-glob",
-      "start": 1780893044079,
-      "end": 1780893044079,
+      "start": 1781060638749,
+      "end": 1781060638749,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:post",
-      "start": 1780893044079,
-      "end": 1780893044079,
+      "start": 1781060638749,
+      "end": 1781060638749,
       "order": "post"
     },
     {
       "name": "unocss:global:post",
-      "start": 1780893044079,
-      "end": 1780893044079,
+      "start": 1781060638749,
+      "end": 1781060638749,
+      "order": "post"
+    },
+    {
+      "name": "unplugin-vue-components",
+      "start": 1781060638749,
+      "end": 1781060638749,
       "order": "post"
     },
     {
       "name": "vite:client-inject",
-      "start": 1780893044079,
-      "end": 1780893044079,
+      "start": 1781060638749,
+      "end": 1781060638749,
       "order": "normal"
     },
     {
       "name": "vite:import-analysis",
-      "result": "import.meta.env = {\"VITE_GLOB_APP_TITLE\":\"Grow Admin\",\"VITE_GLOB_APP_SHORT_NAME\":\"grow_admin\",\"VITE_USE_MOCK\":\"false\",\"VITE_PUBLIC_PATH\":\"/\",\"BASE_URL\":\"/\",\"MODE\":\"development\",\"DEV\":true,\"PROD\":false,\"SSR\":false};import { Container } from \"/node_modules/.vite/deps/inversify.js?v=961f30ed\";\nimport { getCurrentInstance, inject } from \"/node_modules/.vite/deps/vue.js?v=961f30ed\";\nimport {\n  CONTAINER_KEY\n} from \"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/ioc.ts\";\nimport { makeLoggerMiddleware } from \"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/logger/index.ts\";\nexport * from \"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/ioc.ts\";\nlet container;\nexport const setupByApp = (app, options) => {\n  if (container || app.config.globalProperties.$iocContainer) {\n    throw new Error(\"IOC容器已经初始化, 请勿重复初始化\");\n  }\n  const _container = createIocContainer(options);\n  console.debug(\"Grow Admin IOC Plugin create container\");\n  app.config.globalProperties.$iocContainer = _container;\n  app.provide(CONTAINER_KEY, _container);\n  container = _container;\n};\nexport const keyOf = (key) => {\n  return Symbol.for(key.name);\n};\nexport const contextContianer = (currentContainer) => {\n  if (currentContainer) {\n    return currentContainer;\n  }\n  const instance = getCurrentInstance();\n  if (instance) {\n    const _container = inject(CONTAINER_KEY);\n    if (_container) {\n      return _container;\n    }\n  }\n  if (!container) {\n    throw new Error(\"IOC容器未初始化, 请确认插件已安装\");\n  }\n  return container;\n};\nexport const resolveByTypeOrThrow = (key, container2) => {\n  try {\n    return contextContianer(container2).get(keyOf(key));\n  } catch (error) {\n    console.debug(\"ResolveByType fail Throw:\", key, error);\n    throw error;\n  }\n};\nexport const resolveByType = (key, container2) => {\n  try {\n    return resolveByTypeOrThrow(key, container2);\n  } catch (error) {\n    console.debug(\"ResolveByType fail\", key, error);\n    return void 0;\n  }\n};\nexport const di = async (key, container2) => {\n  try {\n    return await contextContianer(container2).getAsync(key);\n  } catch (error) {\n    console.debug(\"FetchByKey fail Throw:\", key, error);\n    throw error;\n  }\n};\nexport const fetchByKey = di;\nexport const diKT = (key, container2) => {\n  try {\n    return contextContianer(container2).get(key);\n  } catch (error) {\n    throw error;\n  }\n};\nexport const resolveByKeyOrThrow = diKT;\nexport const diK = (key, container2) => {\n  try {\n    return diKT(key, container2);\n  } catch (ignore) {\n    return void 0;\n  }\n};\nexport const resolveByKey = diK;\nexport const createIocContainer = (options) => {\n  const con = new Container(options || { defaultScope: \"Singleton\" });\n  if (import.meta.env.DEV) {\n    con.applyMiddleware(makeLoggerMiddleware());\n  }\n  return con;\n};\n",
-      "start": 1780893044079,
-      "end": 1780893044085,
+      "result": "import.meta.env = {\"VITE_GLOB_APP_TITLE\":\"Grow Admin\",\"VITE_GLOB_APP_SHORT_NAME\":\"grow_admin\",\"VITE_USE_MOCK\":\"false\",\"VITE_PUBLIC_PATH\":\"/\",\"BASE_URL\":\"/\",\"MODE\":\"development\",\"DEV\":true,\"PROD\":false,\"SSR\":false};import { Container } from \"/node_modules/.vite/deps/inversify.js?v=5e47a18f\";\nimport { getCurrentInstance, inject } from \"/node_modules/.vite/deps/vue.js?v=9f4f8a48\";\nimport {\n  CONTAINER_KEY\n} from \"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/ioc.ts\";\nimport { makeLoggerMiddleware } from \"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/logger/index.ts\";\nexport * from \"/@fs/Users/aaron/Desktop/grow_admin/DesignRock/rock-ioc/src/ioc.ts\";\nlet container;\nexport const setupByApp = (app, options) => {\n  if (container || app.config.globalProperties.$iocContainer) {\n    throw new Error(\"IOC容器已经初始化, 请勿重复初始化\");\n  }\n  const _container = createIocContainer(options);\n  console.debug(\"Grow Admin IOC Plugin create container\");\n  app.config.globalProperties.$iocContainer = _container;\n  app.provide(CONTAINER_KEY, _container);\n  container = _container;\n};\nexport const keyOf = (key) => {\n  return Symbol.for(key.name);\n};\nexport const contextContianer = (currentContainer) => {\n  if (currentContainer) {\n    return currentContainer;\n  }\n  const instance = getCurrentInstance();\n  if (instance) {\n    const _container = inject(CONTAINER_KEY);\n    if (_container) {\n      return _container;\n    }\n  }\n  if (!container) {\n    throw new Error(\"IOC容器未初始化, 请确认插件已安装\");\n  }\n  return container;\n};\nexport const resolveByTypeOrThrow = (key, container2) => {\n  try {\n    return contextContianer(container2).get(keyOf(key));\n  } catch (error) {\n    console.debug(\"ResolveByType fail Throw:\", key, error);\n    throw error;\n  }\n};\nexport const resolveByType = (key, container2) => {\n  try {\n    return resolveByTypeOrThrow(key, container2);\n  } catch (error) {\n    console.debug(\"ResolveByType fail\", key, error);\n    return void 0;\n  }\n};\nexport const di = async (key, container2) => {\n  try {\n    return await contextContianer(container2).getAsync(key);\n  } catch (error) {\n    console.debug(\"FetchByKey fail Throw:\", key, error);\n    throw error;\n  }\n};\nexport const fetchByKey = di;\nexport const diKT = (key, container2) => {\n  try {\n    return contextContianer(container2).get(key);\n  } catch (error) {\n    throw error;\n  }\n};\nexport const resolveByKeyOrThrow = diKT;\nexport const diK = (key, container2) => {\n  try {\n    return diKT(key, container2);\n  } catch (ignore) {\n    return void 0;\n  }\n};\nexport const resolveByKey = diK;\nexport const createIocContainer = (options) => {\n  const con = new Container(options || { defaultScope: \"Singleton\" });\n  if (import.meta.env.DEV) {\n    con.applyMiddleware(makeLoggerMiddleware());\n  }\n  return con;\n};\n",
+      "start": 1781060638749,
+      "end": 1781060638749,
       "order": "normal",
       "sourcemaps": null
     }

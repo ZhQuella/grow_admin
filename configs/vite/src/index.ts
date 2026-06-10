@@ -67,21 +67,7 @@ export async function createViteConfig(
       port: 3000,
       host: true,
       proxy: !VITE_USE_HTTPS ? {
-        ...resolveProxy(VITE_PROXY),
-        "/country/100000_country_boundary.json": {
-          target: "https://geo.datav.aliyun.com",
-          changeOrigin: true,
-          rewrite: (path) => {
-            return path.replace("/country/100000_country_boundary.json", '/areas_v3/bound/100000.json');
-          },
-        },
-        "/country/100000_country_province.json": {
-          target: "https://geo.datav.aliyun.com",
-          changeOrigin: true,
-          rewrite: (path) => {
-            return path.replace("/country/100000_country_province.json", '/areas_v3/bound/100000_full.json');
-          },
-        }
+        ...resolveProxy(VITE_PROXY)
       } : undefined,
     },
     esbuild: {
@@ -105,7 +91,7 @@ export async function createViteConfig(
       include: ['dayjs/locale/en', 'dayjs/locale/zh-cn', '@iconify/iconify'],
       // exclude: ['vue-demi'],
     },
-    plugins: await configVitePlugins(root, viteEnv, command === 'build'),
+    plugins: await configVitePlugins(root, viteEnv, command === 'build', preset),
   };
 
   return mergeConfig(commonConfig, await createPreset(preset)());

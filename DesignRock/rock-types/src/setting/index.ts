@@ -12,6 +12,7 @@ import {
   RouterTransitionEnum,
 } from '@grow-admin-rock/constants'
 import { LocaleType } from '#/config'
+import type { ComponentLibrarySetting } from './componentLibrary'
 
 /**
  * @description:  菜单设置
@@ -169,7 +170,7 @@ export type ProjectConfig = ProjectSetting
 /**
  * @description:  Setting interface parameters
  */
-export interface ProjectSetting extends SporadicSetting {
+export interface ProjectSetting extends SporadicSetting, ComponentLibrarySetting {
   // menuType: MenuTypeEnum;
   headerSetting: HeaderSetting
   // menuSetting
@@ -179,5 +180,7 @@ export interface ProjectSetting extends SporadicSetting {
   // Animation configuration
   transitionSetting: TransitionSetting
 }
+
+export * from './componentLibrary'
 
 export * from './store'

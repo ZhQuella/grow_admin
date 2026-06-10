@@ -1,0 +1,19 @@
+{
+  "name": "@grow-admin-rock/component-driver",
+  "version": "0.0.0",
+  "main": "index.ts",
+  "module": "index.ts",
+  "license": "MIT",
+  "scripts": {
+    "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
+  },
+  "dependencies": {
+    "@grow-admin-rock/components": "workspace:*",
+    "@grow-admin-rock/ioc": "workspace:*",
+    "@grow-admin-rock/types": "workspace:*",
+    "lodash-es": "^4.17.21"
+  },
+  "peerDependencies": {
+    "vue": "~3.3.4"
+  }
+}
