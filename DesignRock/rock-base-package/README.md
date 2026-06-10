@@ -43,7 +43,7 @@ grow-admin Design中每个模块都是一个可以直接被加载进Vue3项目�
   "author": {
     "name": "Randy Zhang",
     "email": "zhangshi@tenez.cn",
-    "url": "https://git.wmqhealth.com/zhangshi"
+    "url": "https://git.growhealth.com/zhangshi"
   },
   "scripts": {
     "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"

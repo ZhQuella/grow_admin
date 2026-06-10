@@ -3,7 +3,7 @@ import type { DataDictionary } from '@grow-admin-rock/types';
 import type { RockComponent } from './src/RockComponent';
 
 declare global {
-  type WmqComponent<T extends Component> = Component & {
+  type GrowComponent<T extends Component> = Component & {
     customOptions?: {
       isPresetComponent?: boolean;
       [key: string]: any;
@@ -11,7 +11,7 @@ declare global {
     DriverRef?: Ref<T>;
   };
   type AutoExportFunction = Function | { name: string | RockComponent; isPresetComponent: boolean };
-  type WmqComponentDictionary = DataDictionary<WmqComponent<any>>;
+  type GrowComponentDictionary = DataDictionary<GrowComponent<any>>;
 }
 
 declare module 'vue' {

@@ -4,32 +4,32 @@
     {
       "name": "__load__",
       "result": "import * as inversify from \"inversify\";\nimport interfaces from \"../interfaces/interfaces\";\n\nfunction bindingReducer(\n    binding: inversify.interfaces.Binding<any>,\n    options: interfaces.BindingLoggerSettings\n) {\n\n    let props = [\n        \"type\", \"serviceIdentifier\", \"implementationType\",\n        \"activated\", \"cache\", \"constraint\", \"dynamicValue\",\n        \"factory\", \"onActivation\", \"provider\", \"scope\"\n    ];\n\n    let reducedBinding: any = {};\n    let bindingOptions: any = options;\n    let oldBinding: any = binding;\n\n    props.forEach((prop) => {\n        if (bindingOptions[prop]) {\n            reducedBinding[prop] = oldBinding[prop];\n        }\n    });\n\n    return reducedBinding;\n}\n\nexport default bindingReducer;\n",
-      "start": 1781072585613,
-      "end": 1781072585613
+      "start": 1781073289226,
+      "end": 1781073289226
     },
     {
       "name": "unocss:transformers:pre",
-      "start": 1781072585613,
-      "end": 1781072585613,
+      "start": 1781073289226,
+      "end": 1781073289226,
       "order": "pre"
     },
     {
       "name": "unocss:global",
-      "start": 1781072585613,
-      "end": 1781072585613,
+      "start": 1781073289226,
+      "end": 1781073289226,
       "order": "pre"
     },
     {
       "name": "vite:css",
-      "start": 1781072585613,
-      "end": 1781072585613,
+      "start": 1781073289226,
+      "end": 1781073289226,
       "order": "normal"
     },
     {
       "name": "vite:esbuild",
       "result": "function bindingReducer(binding, options) {\n  let props = [\n    \"type\",\n    \"serviceIdentifier\",\n    \"implementationType\",\n    \"activated\",\n    \"cache\",\n    \"constraint\",\n    \"dynamicValue\",\n    \"factory\",\n    \"onActivation\",\n    \"provider\",\n    \"scope\"\n  ];\n  let reducedBinding = {};\n  let bindingOptions = options;\n  let oldBinding = binding;\n  props.forEach((prop) => {\n    if (bindingOptions[prop]) {\n      reducedBinding[prop] = oldBinding[prop];\n    }\n  });\n  return reducedBinding;\n}\nexport default bindingReducer;\n",
-      "start": 1781072585613,
-      "end": 1781072585649,
+      "start": 1781073289226,
+      "end": 1781073289266,
       "order": "normal",
       "sourcemaps": {
         "version": 3,
@@ -45,105 +45,105 @@
     },
     {
       "name": "vite:json",
-      "start": 1781072585649,
-      "end": 1781072585649,
+      "start": 1781073289266,
+      "end": 1781073289266,
       "order": "normal"
     },
     {
       "name": "vite:worker",
-      "start": 1781072585649,
-      "end": 1781072585649,
+      "start": 1781073289266,
+      "end": 1781073289266,
       "order": "normal"
     },
     {
       "name": "vite:vue",
-      "start": 1781072585649,
-      "end": 1781072585649,
+      "start": 1781073289266,
+      "end": 1781073289266,
       "order": "normal"
     },
     {
       "name": "vite:vue-jsx",
-      "start": 1781072585649,
-      "end": 1781072585649,
+      "start": 1781073289266,
+      "end": 1781073289266,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:default",
-      "start": 1781072585649,
-      "end": 1781072585649,
+      "start": 1781073289266,
+      "end": 1781073289266,
       "order": "normal"
     },
     {
       "name": "@grow-admin-plugins/unplugin-auto-import",
-      "start": 1781072585649,
-      "end": 1781072585649,
+      "start": 1781073289266,
+      "end": 1781073289266,
       "order": "normal"
     },
     {
       "name": "vite:define",
-      "start": 1781072585649,
-      "end": 1781072585649,
+      "start": 1781073289266,
+      "end": 1781073289266,
       "order": "normal"
     },
     {
       "name": "vite:css-post",
-      "start": 1781072585649,
-      "end": 1781072585649,
+      "start": 1781073289266,
+      "end": 1781073289266,
       "order": "normal"
     },
     {
       "name": "vite:worker-import-meta-url",
-      "start": 1781072585649,
-      "end": 1781072585649,
+      "start": 1781073289266,
+      "end": 1781073289266,
       "order": "normal"
     },
     {
       "name": "vite:asset-import-meta-url",
-      "start": 1781072585649,
-      "end": 1781072585649,
+      "start": 1781073289266,
+      "end": 1781073289266,
       "order": "normal"
     },
     {
       "name": "vite:dynamic-import-vars",
-      "start": 1781072585649,
-      "end": 1781072585649,
+      "start": 1781073289266,
+      "end": 1781073289266,
       "order": "normal"
     },
     {
       "name": "vite:import-glob",
-      "start": 1781072585649,
-      "end": 1781072585649,
+      "start": 1781073289266,
+      "end": 1781073289266,
       "order": "normal"
     },
     {
       "name": "unocss:transformers:post",
-      "start": 1781072585649,
-      "end": 1781072585649,
+      "start": 1781073289266,
+      "end": 1781073289266,
       "order": "post"
     },
     {
       "name": "unocss:global:post",
-      "start": 1781072585649,
-      "end": 1781072585649,
+      "start": 1781073289266,
+      "end": 1781073289266,
       "order": "post"
     },
     {
       "name": "unplugin-vue-components",
-      "start": 1781072585649,
-      "end": 1781072585649,
+      "start": 1781073289266,
+      "end": 1781073289266,
       "order": "post"
     },
     {
       "name": "vite:client-inject",
-      "start": 1781072585649,
-      "end": 1781072585649,
+      "start": 1781073289266,
+      "end": 1781073289266,
       "order": "normal"
     },
     {
       "name": "vite:import-analysis",
       "result": "function bindingReducer(binding, options) {\n  let props = [\n    \"type\",\n    \"serviceIdentifier\",\n    \"implementationType\",\n    \"activated\",\n    \"cache\",\n    \"constraint\",\n    \"dynamicValue\",\n    \"factory\",\n    \"onActivation\",\n    \"provider\",\n    \"scope\"\n  ];\n  let reducedBinding = {};\n  let bindingOptions = options;\n  let oldBinding = binding;\n  props.forEach((prop) => {\n    if (bindingOptions[prop]) {\n      reducedBinding[prop] = oldBinding[prop];\n    }\n  });\n  return reducedBinding;\n}\nexport default bindingReducer;\n",
-      "start": 1781072585649,
-      "end": 1781072585649,
+      "start": 1781073289266,
+      "end": 1781073289266,
       "order": "normal",
       "sourcemaps": null
     }

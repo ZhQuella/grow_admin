@@ -9,15 +9,15 @@ import { InfrastructureOptions } from '#/../bridge';
 /**
  * 标准请求响应类型
  */
-export type WmqResponse = AxiosResponse<RequestResult>;
+export type GrowResponse = AxiosResponse<RequestResult>;
 /**
  * 任意类型请求响应类型
  */
-export type WmqResponseAny = AxiosResponse<any>;
+export type GrowResponseAny = AxiosResponse<any>;
 /**
  * 请求配置
  */
-export type WmqRequestConfig = AxiosRequestConfig;
+export type GrowRequestConfig = AxiosRequestConfig;
 
 export interface CreateAxiosOptions extends AxiosRequestConfig {
   transform?: AxiosTransform;
@@ -42,12 +42,12 @@ export abstract class AxiosTransform {
    * 请求前置钩子
    * @param config 数据配置
    * @param options Axios配置
-   * @returns {WmqRequestConfig}
+   * @returns {GrowRequestConfig}
    */
   beforeRequestHook?: (
-    config: WmqRequestConfig,
+    config: GrowRequestConfig,
     options: RequestOptions
-  ) => WmqRequestConfig;
+  ) => GrowRequestConfig;
 
   /**
    * 请求成功后转换钩子
@@ -56,7 +56,7 @@ export abstract class AxiosTransform {
    * @returns 拆箱后的数据
    */
   transformRequestHook?: (
-    res: WmqResponse,
+    res: GrowResponse,
     options: RequestOptions
   ) => any;
 
@@ -69,14 +69,14 @@ export abstract class AxiosTransform {
    * @description: 请求之前的拦截器
    */
   requestInterceptors?: (
-    config: WmqRequestConfig,
+    config: GrowRequestConfig,
     options: CreateAxiosOptions
-  ) => WmqRequestConfig;
+  ) => GrowRequestConfig;
 
   /**
    * @description: 请求之后的拦截器
    */
-  responseInterceptors?: (res: WmqResponseAny) => WmqResponseAny;
+  responseInterceptors?: (res: GrowResponseAny) => GrowResponseAny;
 
   /**
    * @description: 请求之前的拦截器错误处理

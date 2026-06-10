@@ -4,7 +4,7 @@ import * as pack from './package.json';
 import { AsyncIocModule } from '@grow-admin-rock/ioc';
 import ComponentMap from '#/ComponentMap';
 import { default as Beans, AppContextParamDef } from './beankeys';
-import { registerWmqComponent } from './src';
+import { registerGrowComponent } from './src';
 
 export const Lib: Library<typeof Beans> = toPackage({
   name: pack.name,
@@ -15,9 +15,9 @@ export const Lib: Library<typeof Beans> = toPackage({
     bind(Beans.ComponentMap).toConstantValue(new ComponentMap());
   }),
   onSetup: async (app, appContext) => {
-    const componentMap: WmqComponentDictionary = appContext.getParam(
+    const componentMap: GrowComponentDictionary = appContext.getParam(
       AppContextParamDef.DriverComponentDictionary,
     );
-    registerWmqComponent(app, componentMap);
+    registerGrowComponent(app, componentMap);
   },
 });

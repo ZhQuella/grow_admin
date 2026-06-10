@@ -4,11 +4,11 @@ import { unref } from 'vue';
 export const DriverRefKey = 'DriverRef';
 
 export const driverRef = <T extends Component>(
-  wmqComponentRef: MaybeRef<WmqComponent<T>>,
+  growComponentRef: MaybeRef<GrowComponent<T>>,
 ): Component | undefined => {
-  const wmqComponent = unref(wmqComponentRef);
-  if (!wmqComponent) {
+  const growComponent = unref(growComponentRef);
+  if (!growComponent) {
     return undefined;
   }
-  return unref(wmqComponent[DriverRefKey]);
+  return unref(growComponent[DriverRefKey]);
 };

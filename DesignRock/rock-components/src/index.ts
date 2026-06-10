@@ -5,7 +5,7 @@ import { forIn, isEmpty, isUndefined } from 'lodash-es';
 import { Lib } from '../library';
 import { RockComponent } from './RockComponent';
 import ComponentMap from './ComponentMap';
-import scanWmqComponens from './ScanWmqComponens';
+import scanGrowComponens from './ScanGrowComponens';
 
 export { RockComponent } from './RockComponent';
 
@@ -22,14 +22,14 @@ export const useComponentMap = (forceFromIoc = false): ComponentMap => {
   return diKT(Lib.types.ComponentMap);
 };
 
-const autoExportComponent: Record<string, WmqComponent<any>> = {};
-const allWmqComponent: Record<string, WmqComponent<any>> = {};
+const autoExportComponent: Record<string, GrowComponent<any>> = {};
+const allGrowComponent: Record<string, GrowComponent<any>> = {};
 
 type ReturnType<T extends boolean> = T extends true
-  ? WmqComponent<any>
-  : WmqComponent<any> | undefined;
+  ? GrowComponent<any>
+  : GrowComponent<any> | undefined;
 
-export const useDriverComponent = <T extends WmqComponent<any>>(
+export const useDriverComponent = <T extends GrowComponent<any>>(
   component: RockComponent | string,
 ): T | undefined => {
   let realComponent = useComponentMap().get(component);
@@ -50,12 +50,12 @@ export const useComponent = <T extends boolean>(
   if (!realComponent) {
     realComponent = useComponentMap(true).get(component);
   }
-  if (isEmpty(autoExportComponent) || isEmpty(allWmqComponent)) {
-    scanWmqComponens(autoExportComponent, allWmqComponent);
+  if (isEmpty(autoExportComponent) || isEmpty(allGrowComponent)) {
+    scanGrowComponens(autoExportComponent, allGrowComponent);
   }
-  const wmqComponent = allWmqComponent[component];
-  if (wmqComponent) {
-    return wmqComponent as ReturnType<T>;
+  const growComponent = allGrowComponent[component];
+  if (growComponent) {
+    return growComponent as ReturnType<T>;
   }
   if (realComponent) {
     return realComponent as ReturnType<T>;
@@ -66,23 +66,23 @@ export const useComponent = <T extends boolean>(
   return false as unknown as ReturnType<T>;
 };
 
-export const registerWmqComponent = (Vue: App, componentDict: WmqComponentDictionary) => {
+export const registerGrowComponent = (Vue: App, componentDict: GrowComponentDictionary) => {
   console.debug('RockComponent install components into ComponentMap in IOC...');
   const componentMap = useComponentMap(true);
-  scanWmqComponens(autoExportComponent, allWmqComponent);
+  scanGrowComponens(autoExportComponent, allGrowComponent);
 
   const missingDrivers: string[] = [];
 
   forIn(RockComponent, (rockComponent: RockComponent) => {
-    let finalRegisterComponent: WmqComponent<any> | undefined;
+    let finalRegisterComponent: GrowComponent<any> | undefined;
     const _comp = componentDict[rockComponent];
-    const wmqComp = allWmqComponent[rockComponent];
+    const growComp = allGrowComponent[rockComponent];
 
-    if (wmqComp) {
-      const { customOptions: { isPresetComponent = false } = {} } = wmqComp;
+    if (growComp) {
+      const { customOptions: { isPresetComponent = false } = {} } = growComp;
       if (isPresetComponent) {
         if (_comp === null) {
-          finalRegisterComponent = wmqComp;
+          finalRegisterComponent = growComp;
         } else if (!isUndefined(_comp)) {
           finalRegisterComponent = _comp;
         }
@@ -94,7 +94,7 @@ export const registerWmqComponent = (Vue: App, componentDict: WmqComponentDictio
       if (finalRegisterComponent) {
         componentMap.register(rockComponent, finalRegisterComponent);
       }
-      Vue.component(`${COMPONENT_PREFIX}${rockComponent}`, wmqComp);
+      Vue.component(`${COMPONENT_PREFIX}${rockComponent}`, growComp);
     } else if (_comp) {
       componentMap.register(rockComponent, _comp);
     }

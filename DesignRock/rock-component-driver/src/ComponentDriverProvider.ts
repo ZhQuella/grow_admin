@@ -49,8 +49,8 @@ export default defineComponent({
       console.debug('ComponentDriverProvider 缺少默认插槽，不会 render 任何内容！');
     }
     const driver = unref(props.driver);
-    const wmqComponents = computed(() => useComponentMap());
-    const { driverHook, driverComponentMap } = createDriverHook(driver, wmqComponents.value);
+    const growComponents = computed(() => useComponentMap());
+    const { driverHook, driverComponentMap } = createDriverHook(driver, growComponents.value);
     provide(DriverHookKey, driverHook);
     if (driverComponentMap !== null) {
       provide(Beans.ComponentMap, driverComponentMap);

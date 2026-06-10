@@ -6,7 +6,7 @@ import type ComponentMap from '#/ComponentMap';
 export const AppContextParamDef = {
   DriverComponentDictionary: Symbol.for(
     `${pack.name}/DriverComponentDictionary`,
-  ) as AppContextPropertyGeneric<WmqComponentDictionary>,
+  ) as AppContextPropertyGeneric<GrowComponentDictionary>,
 };
 
 export default {

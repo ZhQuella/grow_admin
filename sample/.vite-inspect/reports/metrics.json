@@ -1,8 +1,8 @@
 [
   {
     "transform": {
-      "invokeCount": 383,
-      "totalTime": 5
+      "invokeCount": 226,
+      "totalTime": 1
     },
     "resolveId": {
       "invokeCount": 0,
@@ -16,8 +16,8 @@
       "totalTime": 0
     },
     "resolveId": {
-      "invokeCount": 1760,
-      "totalTime": 4831
+      "invokeCount": 790,
+      "totalTime": 402
     },
     "name": "alias"
   },
@@ -101,12 +101,12 @@
   },
   {
     "transform": {
-      "invokeCount": 379,
-      "totalTime": 130
+      "invokeCount": 227,
+      "totalTime": 35
     },
     "resolveId": {
-      "invokeCount": 4,
-      "totalTime": 1
+      "invokeCount": 2,
+      "totalTime": 0
     },
     "name": "unocss:global",
     "enforce": "pre"
@@ -125,8 +125,8 @@
   },
   {
     "transform": {
-      "invokeCount": 383,
-      "totalTime": 6
+      "invokeCount": 226,
+      "totalTime": 0
     },
     "resolveId": {
       "invokeCount": 0,
@@ -148,8 +148,8 @@
   },
   {
     "transform": {
-      "invokeCount": 383,
-      "totalTime": 4
+      "invokeCount": 226,
+      "totalTime": 2
     },
     "resolveId": {
       "invokeCount": 0,
@@ -159,7 +159,7 @@
   },
   {
     "transform": {
-      "invokeCount": 383,
+      "invokeCount": 226,
       "totalTime": 2
     },
     "resolveId": {
@@ -171,8 +171,8 @@
   },
   {
     "transform": {
-      "invokeCount": 378,
-      "totalTime": 5
+      "invokeCount": 226,
+      "totalTime": 2
     },
     "resolveId": {
       "invokeCount": 0,
@@ -183,8 +183,8 @@
   },
   {
     "transform": {
-      "invokeCount": 383,
-      "totalTime": 48
+      "invokeCount": 226,
+      "totalTime": 9
     },
     "resolveId": {
       "invokeCount": 0,
@@ -229,8 +229,8 @@
   },
   {
     "transform": {
-      "invokeCount": 383,
-      "totalTime": 7
+      "invokeCount": 226,
+      "totalTime": 4
     },
     "resolveId": {
       "invokeCount": 0,
@@ -240,8 +240,8 @@
   },
   {
     "transform": {
-      "invokeCount": 383,
-      "totalTime": 1
+      "invokeCount": 226,
+      "totalTime": 3
     },
     "resolveId": {
       "invokeCount": 0,
@@ -251,8 +251,8 @@
   },
   {
     "transform": {
-      "invokeCount": 378,
-      "totalTime": 1557
+      "invokeCount": 226,
+      "totalTime": 733
     },
     "resolveId": {
       "invokeCount": 0,
@@ -262,8 +262,8 @@
   },
   {
     "transform": {
-      "invokeCount": 383,
-      "totalTime": 2
+      "invokeCount": 226,
+      "totalTime": 5
     },
     "resolveId": {
       "invokeCount": 0,
@@ -273,8 +273,8 @@
   },
   {
     "transform": {
-      "invokeCount": 383,
-      "totalTime": 0
+      "invokeCount": 226,
+      "totalTime": 2
     },
     "resolveId": {
       "invokeCount": 0,
@@ -284,8 +284,8 @@
   },
   {
     "transform": {
-      "invokeCount": 383,
-      "totalTime": 4
+      "invokeCount": 226,
+      "totalTime": 7
     },
     "resolveId": {
       "invokeCount": 0,
@@ -295,8 +295,8 @@
   },
   {
     "transform": {
-      "invokeCount": 383,
-      "totalTime": 30207
+      "invokeCount": 226,
+      "totalTime": 7133
     },
     "resolveId": {
       "invokeCount": 0,
@@ -329,8 +329,8 @@
   },
   {
     "transform": {
-      "invokeCount": 383,
-      "totalTime": 872
+      "invokeCount": 226,
+      "totalTime": 216
     },
     "resolveId": {
       "invokeCount": 0,
@@ -340,8 +340,8 @@
   },
   {
     "transform": {
-      "invokeCount": 383,
-      "totalTime": 224
+      "invokeCount": 226,
+      "totalTime": 49
     },
     "resolveId": {
       "invokeCount": 0,
@@ -351,8 +351,8 @@
   },
   {
     "transform": {
-      "invokeCount": 383,
-      "totalTime": 4
+      "invokeCount": 226,
+      "totalTime": 2
     },
     "resolveId": {
       "invokeCount": 0,
@@ -386,7 +386,7 @@
   {
     "transform": {
       "invokeCount": 35,
-      "totalTime": 36972
+      "totalTime": 1515
     },
     "resolveId": {
       "invokeCount": 0,
@@ -400,8 +400,8 @@
       "totalTime": 0
     },
     "resolveId": {
-      "invokeCount": 1764,
-      "totalTime": 2157
+      "invokeCount": 1224,
+      "totalTime": 410
     },
     "name": "vite:pre-alias"
   },
@@ -411,21 +411,10 @@
       "totalTime": 0
     },
     "resolveId": {
-      "invokeCount": 2420,
-      "totalTime": 1568
+      "invokeCount": 1375,
+      "totalTime": 414
     },
     "name": "vite:resolve"
-  },
-  {
-    "transform": {
-      "invokeCount": 0,
-      "totalTime": 0
-    },
-    "resolveId": {
-      "invokeCount": 4272,
-      "totalTime": 8376
-    },
-    "name": "vite:resolve (+alias)"
   },
   {
     "transform": {
@@ -440,8 +429,8 @@
   },
   {
     "transform": {
-      "invokeCount": 384,
-      "totalTime": 52788
+      "invokeCount": 227,
+      "totalTime": 3662
     },
     "resolveId": {
       "invokeCount": 0,
@@ -451,8 +440,8 @@
   },
   {
     "transform": {
-      "invokeCount": 383,
-      "totalTime": 9
+      "invokeCount": 226,
+      "totalTime": 7
     },
     "resolveId": {
       "invokeCount": 0,
@@ -495,8 +484,8 @@
   },
   {
     "transform": {
-      "invokeCount": 383,
-      "totalTime": 7
+      "invokeCount": 226,
+      "totalTime": 2
     },
     "resolveId": {
       "invokeCount": 0,
@@ -506,8 +495,8 @@
   },
   {
     "transform": {
-      "invokeCount": 383,
-      "totalTime": 23
+      "invokeCount": 226,
+      "totalTime": 6
     },
     "resolveId": {
       "invokeCount": 0,

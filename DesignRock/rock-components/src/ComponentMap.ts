@@ -3,13 +3,13 @@ import { RockComponent } from './RockComponent';
 
 @Bean()
 export default class ComponentMap {
-  private map: Map<RockComponent, WmqComponent<any>>;
+  private map: Map<RockComponent, GrowComponent<any>>;
 
   constructor() {
-    this.map = new Map<RockComponent, WmqComponent<any>>();
+    this.map = new Map<RockComponent, GrowComponent<any>>();
   }
 
-  register(key: string | RockComponent, value: WmqComponent<any>) {
+  register(key: string | RockComponent, value: GrowComponent<any>) {
     this.map.set(key as RockComponent, value);
   }
 
@@ -17,7 +17,7 @@ export default class ComponentMap {
     this.map.delete(key);
   }
 
-  get(key: string | RockComponent): WmqComponent<any> | undefined {
+  get(key: string | RockComponent): GrowComponent<any> | undefined {
     return this.map.get(key as RockComponent);
   }
 
@@ -37,11 +37,11 @@ export default class ComponentMap {
     return this.map.keys();
   }
 
-  get values(): IterableIterator<WmqComponent<any>> {
+  get values(): IterableIterator<GrowComponent<any>> {
     return this.map.values();
   }
 
-  get entries(): IterableIterator<[string | RockComponent, WmqComponent<any>]> {
+  get entries(): IterableIterator<[string | RockComponent, GrowComponent<any>]> {
     return this.map.entries();
   }
 }

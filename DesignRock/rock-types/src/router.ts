@@ -2,7 +2,7 @@ import type { RouteRecordRaw, RouteComponent, RouteMeta } from 'vue-router'
 
 export type Lazy<T> = () => Promise<T>
 
-export type WmqRouteComponent = RouteComponent | Lazy<RouteComponent> ;
+export type GrowRouteComponent = RouteComponent | Lazy<RouteComponent> ;
 
 export type RouteRecordItem = RouteRecordRaw & {
   path: string
@@ -10,5 +10,5 @@ export type RouteRecordItem = RouteRecordRaw & {
   meta: RouteMeta
   icon?: string
   children?: RouteRecordItem[]
-  component?: WmqRouteComponent
+  component?: GrowRouteComponent
 }

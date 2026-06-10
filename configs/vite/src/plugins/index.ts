@@ -28,9 +28,9 @@ import Inspect from 'vite-plugin-inspect'
 import { terser } from 'rollup-plugin-terser';
 
 // 此处引用的是打包后的插件
-// import WmqAutoImport from '@grow-admin-plugins/unplugin-auto-import/vite'
+// import GrowAutoImport from '@grow-admin-plugins/unplugin-auto-import/vite'
 // 需要调试插件类型的可以用下面的引用
-import WmqAutoImport from '@grow-admin-plugins/unplugin-auto-import/src/vite'
+import GrowAutoImport from '@grow-admin-plugins/unplugin-auto-import/src/vite'
 
 export const MonoRepoResolverPlugin = configMonoRepoResolverPlugin
 
@@ -115,7 +115,7 @@ export async function configVitePlugins(
     )
   }
   vitePlugins.push(Inspect())
-  vitePlugins.push(WmqAutoImport())
+  vitePlugins.push(GrowAutoImport())
   vitePlugins.push(
     Components({
       dts: resolve(root, 'src/components.d.ts'),
