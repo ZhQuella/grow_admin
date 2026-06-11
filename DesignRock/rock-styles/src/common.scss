@@ -10,7 +10,8 @@ body {
   overflow: visible !important;
   overflow-x: hidden !important;
 }
-*{
+
+* {
   box-sizing: border-box;
 }
 
@@ -54,17 +55,17 @@ input:-webkit-autofill {
 /* nprogress */
 #nprogress {
   pointer-events: none;
-}
 
-#nprogress .bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 99999;
-  width: 100%;
-  height: 2px;
-  opacity: 0.75;
-  background-color: var(--primary-color);
+  .bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 99999;
+    width: 100%;
+    height: 2px;
+    opacity: 0.75;
+    background-color: var(--primary-color);
+  }
 }
 
 /* app */
@@ -73,10 +74,13 @@ input:-webkit-autofill {
   height: 100%;
 }
 
-body.color-weak {
-  filter: invert(80%);
-}
-body.gray-mode {
-  filter: grayscale(100%);
-  filter: progid:dximagetransform.microsoft.basicimage(grayscale=1);
+body {
+  &.color-weak {
+    filter: invert(80%);
+  }
+
+  &.gray-mode {
+    filter: grayscale(100%);
+    filter: progid:dximagetransform.microsoft.basicimage(grayscale=1);
+  }
 }

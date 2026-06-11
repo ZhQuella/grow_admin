@@ -1,5 +1,5 @@
 import 'reset-css';
-import './common.css';
-import './variables.css';
-import './theme-transition.css';
+import './common.scss';
+import './variables.scss';
+import './theme-transition.scss';
 import 'uno.css';

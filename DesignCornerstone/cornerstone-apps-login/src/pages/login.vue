@@ -25,7 +25,7 @@ function onThemeSwitch(value: boolean) {
       <GrowButton type="primary" @click="settingVisible = true">项目配置</GrowButton>
     </div>
 
-    <div class="w-full max-w-[400px] p-8 surface-panel shadow-card">
+    <div class="box-card w-full max-w-[400px] p-8 surface-panel shadow-card">
       <h1 class="m-0 mb-2 text-2xl font-semibold text-text">登录</h1>
       <p class="m-0 text-sm text-muted">Grow Admin 示例登录页</p>
     </div>
