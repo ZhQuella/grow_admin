@@ -184,7 +184,7 @@ Ant Design Vue 构建时 Less 变量在 `configs/vite/src/presets/antd.ts` 的 `
 | 配置项 | 位置 | 说明 |
 |--------|------|------|
 | 默认模式 | `initAppConfig` → `themeMode: ThemeModeEnum.SYSTEM` | 跟随系统 |
-| 运行时切换 | 顶栏按钮 / 设置抽屉 / 登录页 Switch | 写入 `useAppConfig` |
+| 运行时切换 | 登录页 `LoginThemeSwitch` / 设置抽屉 `SettingTheme` | 写入 `useAppConfig` |
 | 暗色 class | `html.dark` | UnoCSS `dark:` 与 EP 暗色变量均依赖此类 |
 | 切换动画 | `rock-styles/src/theme-transition.css` | 约 0.35s，可在 `variables.css` 调整 `--theme-transition-duration` |
 
@@ -194,6 +194,132 @@ Ant Design Vue 构建时 Less 变量在 `configs/vite/src/presets/antd.ts` 的 `
 2. 在设置抽屉切换色块，确认按钮 hover、主色、UnoCSS `text-primary` 同步变化。
 3. 切换亮/暗模式，确认 `:root.dark` 下布局背景、文字、卡片阴影正常。
 4. 切换 `componentLibrary` 后，主色在三库下表现一致。
+
+## 主题选择与语言选择
+
+主题与语言分为两套 UI：**登录页顶部工具栏**（`cornerstone-apps-login` 内专用组件）与 **项目配置抽屉**（`@grow-admin-rock/layouts`）。二者共用同一套运行时状态，切换会同步。
+
+### 前置条件
+
+宿主应用（`sample/src/plugin/initIoc.ts`）需注册：
+
+```ts
+import { Lib as localeLib } from '@grow-admin-rock/locale'
+import { Lib as stateLib } from '@grow-admin-rock/state'
+import { Lib as componentsLib } from '@grow-admin-rock/components'
+
+app
+  .use(stateLib, appContext)
+  .use(localeLib, appContext)      // 多语言必需
+  .use(componentsLib, appContext) // GrowSwitch / GrowSelect 等
+```
+
+根组件需挂载 `GrowMessageProvider` 等 Provider（参考 `sample/src/App.vue`）。
+
+### 登录页：主题 / 语言
+
+登录页使用本包专用组件，**不要**直接使用项目配置里的 `SwitchLanguage`。
+
+| 组件 | 路径 | 说明 |
+|------|------|------|
+| `LoginThemeSwitch` | `cornerstone-apps-login/src/components/LoginThemeSwitch` | 暗色模式开关（亮色 ↔ 暗色） |
+| `LoginLanguageSwitch` | `cornerstone-apps-login/src/components/LoginLanguageSwitch` | 语言下拉（简体中文 / English） |
+
+```vue
+<script setup lang="ts">
+import { useLocale } from '@grow-admin-rock/locale'
+import LoginThemeSwitch from '#/components/LoginThemeSwitch/index.vue'
+import LoginLanguageSwitch from '#/components/LoginLanguageSwitch/index.vue'
+
+const { getLocale } = useLocale()
+</script>
+
+<template>
+  <div :key="getLocale">
+    <LoginThemeSwitch />
+    <LoginLanguageSwitch />
+  </div>
+</template>
+```
+
+参考：`DesignCornerstone/cornerstone-apps-login/src/pages/login.vue`。
+
+### 项目配置抽屉：主题 / 语言
+
+完整主题（模式 + 主题色）与语言表单项在 `@grow-admin-rock/layouts`：
+
+| 组件 | 导出 | 说明 |
+|------|------|------|
+| `SettingDrawer` | `@grow-admin-rock/layouts` | 项目配置抽屉（默认宽度 400px） |
+| `SettingTheme` | `@grow-admin-rock/layouts` | 主题模式 + 主题色（`GrowForm`） |
+| `SwitchLanguage` | `@grow-admin-rock/layouts` | 语言下拉（`GrowForm`） |
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { SettingDrawer, SettingTheme, SwitchLanguage } from '@grow-admin-rock/layouts'
+
+const settingVisible = ref(false)
+</script>
+
+<template>
+  <GrowButton @click="settingVisible = true">项目配置</GrowButton>
+  <SettingDrawer v-model="settingVisible" />
+
+  <!-- 也可单独拼装 -->
+  <SettingTheme />
+  <SwitchLanguage />
+</template>
+```
+
+`SwitchLanguage` 可选 Props：
+
+| Prop | 默认值 | 说明 |
+|------|--------|------|
+| `showLabel` | `true` | 是否显示表单项标签 |
+| `labelKey` | `layout.setting.language` | i18n 标签 key |
+| `selectClass` | `w-full` | 下拉框 class |
+
+设置抽屉内点击「重置配置」会恢复主题默认值，并将语言重置为 **简体中文**（`zh_CN`）。
+
+### 编程式调用
+
+不渲染组件时，可直接操作状态 API：
+
+```ts
+import { ThemeModeEnum } from '@grow-admin-rock/constants'
+import { LOCALE, useLocale } from '@grow-admin-rock/locale'
+import { useAppConfig } from '@grow-admin-rock/state'
+
+// 主题
+const appConfig = useAppConfig()
+appConfig.setThemeMode(ThemeModeEnum.DARK)   // 暗色
+appConfig.setThemeMode(ThemeModeEnum.LIGHT)  // 亮色
+appConfig.setThemeMode(ThemeModeEnum.SYSTEM) // 跟随系统
+appConfig.setThemeColor('#8b5cf6')
+
+// 语言
+const { changeLocale } = useLocale()
+await changeLocale(LOCALE.zh) // 简体中文（默认）
+await changeLocale(LOCALE.en) // English
+```
+
+| 能力 | 包 | API |
+|------|-----|-----|
+| 主题模式 / 主题色 | `@grow-admin-rock/state` | `useAppConfig()` |
+| 语言切换 / 持久化 | `@grow-admin-rock/locale` | `useLocale().changeLocale()` |
+| 文案 | `@grow-admin-rock/locale` | `useI18n().t('layout.login.*')` / `layout.setting.*` |
+
+语言偏好保存在 `localStorage`（key：`LOCALE__`），登录页与项目配置抽屉共用。
+
+### 文案扩展
+
+在 `DesignRock/rock-locale/src/lang/` 下维护：
+
+- 登录页：`zh-CN/layout/login.ts`、`en/layout/login.ts`
+- 项目配置：`zh-CN/layout/setting.ts`、`en/layout/setting.ts`
+
+新增语言时，同步修改 `rock-locale/src/config.ts` 的 `localeList` 与 `availableLocales`。
 
 ## 组件驱动架构
 
@@ -644,7 +770,8 @@ EPComponentDriver.builder()
 | 包名 | 职责 |
 |------|------|
 | `@grow-admin-rock/components` | `RockComponent` 枚举、`Grow*` 契约组件、`ComponentMap` |
-| `@grow-admin-rock/layouts` | 布局壳：`SettingDrawer`、菜单/标签页（待扩展） |
+| `@grow-admin-rock/layouts` | 布局壳：`SettingDrawer`、`SettingTheme`、`SwitchLanguage` 等 |
+| `@grow-admin-rock/locale` | `useI18n`、`useLocale`、语言包加载与持久化 |
 | `@grow-admin-rock/state` | `useAppConfig`、`useTheme`、配置持久化 |
 | `@grow-admin-rock/styles` | 全局 CSS 变量、UnoCSS 入口、主题过渡 |
 | `@grow-admin-rock/constants` | `APP_THEME_COLOR_LIST` 等设计常量 |
