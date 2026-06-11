@@ -33,6 +33,7 @@
     "@grow-admin-rock/utils": "workspace:*",
     "@grow-admin-rock/layouts": "workspace:*",
     "@grow-admin-rock/middleware-router": "workspace:*",
+    "@grow-admin-rock/mock": "workspace:*",
     "@grow-admin-rock/state": "workspace:*",
     "@grow-admin-rock/styles": "workspace:*",
     "ant-design-vue": "^4.0.7",

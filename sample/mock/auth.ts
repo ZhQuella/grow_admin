@@ -1,0 +1,43 @@
+import type { MockMethod } from '@grow-admin-rock/mock/types';
+import {
+  getRequestToken,
+  resultError,
+  resultSuccess,
+} from '@grow-admin-rock/mock/util';
+
+export function createFakeUserList() {
+  return [
+    {
+      userId: '1',
+      username: 'admin',
+      realname: 'Grow Admin',
+      avatar: '',
+      desc: 'administrator',
+      password: '123456',
+      accessToken: 'grow-admin-fake-token',
+      roles: [{ name: 'Super Admin', value: 'super' }],
+    },
+  ];
+}
+
+const mocks = [
+  {
+    url: '/api/login',
+    timeout: 200,
+    method: 'post',
+    response: ({ body }) => {
+      const { username, password } = body;
+      const user = createFakeUserList().find(
+        (item) => item.username === username && item.password === password,
+      );
+
+      if (!user) {
+        return resultError('账号或密码错误');
+      }
+
+      return resultSuccess(user);
+    },
+  }
+] as MockMethod[];
+
+export default mocks;

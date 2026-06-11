@@ -20,6 +20,8 @@ import {
 
 import { Lib as stateLib } from '@grow-admin-rock/state'
 
+import { Lib as mockLib } from '@grow-admin-rock/mock'
+
 import { Lib as componentsLib } from '@grow-admin-rock/components'
 
 import {
@@ -28,6 +30,8 @@ import {
 } from '@grow-admin-cornerstone/apps-login'
 
 import { bootstrapAppConfig } from '../initAppConfig'
+import { GrowAxiosTransform } from '@/apis/infrastructure'
+import { getGlobalConfig } from '@grow-admin-rock/utils'
 
 // IOC插件配置
 const iocOptions = {
@@ -54,6 +58,8 @@ export const initIoc = async (app: App) => {
     .use(infrastructureLib, appContext)
     // 应用状态与主题配置
     .use(stateLib, appContext)
+    // Mock 注册中心
+    .use(mockLib, appContext)
     // 使用路由
     .use(routeLib, appContext)
     // 使用登录模块
@@ -61,6 +67,15 @@ export const initIoc = async (app: App) => {
     // 使用契约组件库
     .use(componentsLib, appContext);
 
+  appContext.iocModules.push(
+    new AsyncIocModule(async (bind) => {
+      bind(infrastructureLib.types.AxiosTransform).to(GrowAxiosTransform)
+      bind(infrastructureLib.types.InfrastructureOptions).toDynamicValue(() => {
+        const { apiUrl } = getGlobalConfig(import.meta.env)
+        return { apiUrl } as InfrastructureOptions
+      })
+    }),
+  )
 
   // 载入应用
   await appContext.load(app)

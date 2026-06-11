@@ -72,6 +72,12 @@ importers:
       '@grow-admin-rock/constants':
         specifier: workspace:*
         version: link:../../DesignRock/rock-constants
+      '@grow-admin-rock/infrastructure':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-infrastructure
+      '@grow-admin-rock/ioc':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-ioc
       '@grow-admin-rock/layouts':
         specifier: workspace:*
         version: link:../../DesignRock/rock-layouts
@@ -85,9 +91,6 @@ importers:
       '@grow-admin-rock/base-package':
         specifier: workspace:*
         version: link:../../DesignRock/rock-base-package
-      '@grow-admin-rock/ioc':
-        specifier: workspace:*
-        version: link:../../DesignRock/rock-ioc
       '@grow-admin-rock/locale':
         specifier: workspace:*
         version: link:../../DesignRock/rock-locale
@@ -376,6 +379,25 @@ importers:
       '@grow-admin-rock/types':
         specifier: workspace:*
         version: link:../rock-types
+
+  DesignRock/rock-mock:
+    dependencies:
+      '@grow-admin-rock/base-package':
+        specifier: workspace:*
+        version: link:../rock-base-package
+      '@grow-admin-rock/ioc':
+        specifier: workspace:*
+        version: link:../rock-ioc
+      '@grow-admin-rock/types':
+        specifier: workspace:*
+        version: link:../rock-types
+      mockjs:
+        specifier: ^1.1.0
+        version: 1.1.0
+    devDependencies:
+      vite-plugin-mock:
+        specifier: ^2.9.6
+        version: 2.9.8(mockjs@1.1.0)(vite@4.3.9(@types/node@25.9.1)(less@4.6.4)(sass@1.100.0)(terser@5.47.1))
 
   DesignRock/rock-settings:
     dependencies:
@@ -700,6 +722,9 @@ importers:
       '@grow-admin-rock/middleware-router':
         specifier: workspace:*
         version: link:../DesignRock/rock-middleware-router
+      '@grow-admin-rock/mock':
+        specifier: workspace:*
+        version: link:../DesignRock/rock-mock
       '@grow-admin-rock/state':
         specifier: workspace:*
         version: link:../DesignRock/rock-state
