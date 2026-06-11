@@ -22,12 +22,11 @@ import { Lib as stateLib } from '@grow-admin-rock/state'
 
 import { Lib as mockLib } from '@grow-admin-rock/mock'
 
+import { Lib as localeLib } from '@grow-admin-rock/locale'
+
 import { Lib as componentsLib } from '@grow-admin-rock/components'
 
-import {
-  Lib as appsLoginLib,
-  useUserStore,
-} from '@grow-admin-cornerstone/apps-login'
+import { Lib as appsLoginLib } from '@grow-admin-cornerstone/apps-login'
 
 import { bootstrapAppConfig } from '../initAppConfig'
 import { GrowAxiosTransform } from '@/apis/infrastructure'
@@ -58,6 +57,8 @@ export const initIoc = async (app: App) => {
     .use(infrastructureLib, appContext)
     // 应用状态与主题配置
     .use(stateLib, appContext)
+    // 多语言
+    .use(localeLib, appContext)
     // Mock 注册中心
     .use(mockLib, appContext)
     // 使用路由

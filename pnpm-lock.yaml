@@ -81,6 +81,9 @@ importers:
       '@grow-admin-rock/layouts':
         specifier: workspace:*
         version: link:../../DesignRock/rock-layouts
+      '@grow-admin-rock/locale':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-locale
       '@grow-admin-rock/state':
         specifier: workspace:*
         version: link:../../DesignRock/rock-state
@@ -91,9 +94,6 @@ importers:
       '@grow-admin-rock/base-package':
         specifier: workspace:*
         version: link:../../DesignRock/rock-base-package
-      '@grow-admin-rock/locale':
-        specifier: workspace:*
-        version: link:../../DesignRock/rock-locale
       '@grow-admin-rock/middleware-router':
         specifier: workspace:*
         version: link:../../DesignRock/rock-middleware-router
@@ -309,6 +309,9 @@ importers:
       '@grow-admin-rock/constants':
         specifier: workspace:*
         version: link:../rock-constants
+      '@grow-admin-rock/locale':
+        specifier: workspace:*
+        version: link:../rock-locale
       '@grow-admin-rock/state':
         specifier: workspace:*
         version: link:../rock-state
