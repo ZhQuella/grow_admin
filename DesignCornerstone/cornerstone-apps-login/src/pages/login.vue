@@ -50,6 +50,17 @@ async function handleMockLogin() {
     </div>
 
     <div class="box-card w-full max-w-[400px] p-8 surface-panel shadow-card">
+      <!-- UnoCSS screens 测试：sm 0px / md 768px / lg 1024px / xl 1280px -->
+      <div
+        class="mb-4 rounded-lg px-4 py-3 text-center text-sm font-medium text-white
+          bg-red-500 md:bg-blue-500 lg:bg-green-500 xl:bg-purple-500"
+      >
+        <span class="md:hidden">sm · 0px+ · red</span>
+        <span class="hidden md:inline lg:hidden">md · 768px+ · blue</span>
+        <span class="hidden lg:inline xl:hidden">lg · 1024px+ · green</span>
+        <span class="hidden xl:inline">xl · 1280px+ · purple</span>
+      </div>
+
       <h1 class="m-0 mb-2 text-2xl font-semibold text-text">{{ t('layout.login.title') }}</h1>
       <p class="m-0 mb-6 text-sm text-muted">{{ t('layout.login.subtitle') }}</p>
 
