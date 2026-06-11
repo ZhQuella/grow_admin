@@ -5,7 +5,6 @@
  */
 
 import Unocss from 'unocss/vite'
-import Inspect from 'vite-plugin-inspect'
 import { entriesToCss, type Preset, type Preflight, type UserConfig, presetAttributify, presetIcons, presetMini, presetUno, defineConfig } from 'unocss'
 import { presetScrollbar } from 'unocss-preset-scrollbar'
 
@@ -81,10 +80,7 @@ function createEnterPreflight(maxOutput = 20): Preflight {
  * @returns 
  */
 export function configUnocssPlugin() {
-  return [Unocss(configUnocss()), Inspect({
-    build: true,
-    outputDir: '.vite-inspect'
-  })]
+  return Unocss(configUnocss())
 }
 
 /**
