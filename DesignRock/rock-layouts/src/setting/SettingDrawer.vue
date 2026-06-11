@@ -11,7 +11,7 @@ const props = withDefaults(
   }>(),
   {
     modelValue: false,
-    size: 320,
+    size: 400,
   },
 )
 

@@ -8,13 +8,11 @@ const props = withDefaults(
     showLabel?: boolean
     labelKey?: string
     selectClass?: string
-    inline?: boolean
   }>(),
   {
     showLabel: true,
     labelKey: 'layout.setting.language',
-    selectClass: 'w-[140px]',
-    inline: true,
+    selectClass: 'w-full',
   },
 )
 
@@ -28,27 +26,22 @@ const localeOptions = localeList.map((item) => ({
 
 const currentLocale = computed(() => getLocale.value || LOCALE.zh)
 
+const formLabel = computed(() => (props.showLabel ? t(props.labelKey) : ''))
+
 async function onLocaleChange(value: LocaleType) {
   await changeLocale(value)
 }
 </script>
 
 <template>
-  <div
-    class="flex items-center gap-2"
-    :class="inline ? 'min-h-8 justify-between gap-3' : ''"
-  >
-    <span
-      v-if="showLabel"
-      class="text-[13px] text-text-secondary shrink-0 select-none"
-    >
-      {{ t(labelKey) }}
-    </span>
-    <GrowSelect
-      :class="selectClass"
-      :model-value="currentLocale"
-      :options="localeOptions"
-      @update:model-value="onLocaleChange"
-    />
-  </div>
+  <GrowForm label-width="100px" label-position="left" class="mb-5">
+    <GrowFormItem :label="formLabel">
+      <GrowSelect
+        :class="selectClass"
+        :model-value="currentLocale"
+        :options="localeOptions"
+        @update:model-value="onLocaleChange"
+      />
+    </GrowFormItem>
+  </GrowForm>
 </template>

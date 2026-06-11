@@ -1,24 +1,16 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
-import { SettingDrawer, SwitchLanguage } from '@grow-admin-rock/layouts'
-import { ThemeEnum, ThemeModeEnum } from '@grow-admin-rock/constants'
+import { ref } from 'vue'
+import { SettingDrawer } from '@grow-admin-rock/layouts'
+import LoginLanguageSwitch from '#/components/LoginLanguageSwitch/index.vue'
+import LoginThemeSwitch from '#/components/LoginThemeSwitch/index.vue'
 import { useI18n, useLocale } from '@grow-admin-rock/locale'
-import { resolveThemeMode, storeToRefs, useAppConfig } from '@grow-admin-rock/state'
 import { loginMockTest } from '#/api/login'
 
 const { t } = useI18n()
 const { getLocale } = useLocale()
-const appConfig = useAppConfig()
 const settingVisible = ref(false)
 const mockLoading = ref(false)
 const mockResult = ref('')
-const { themeMode } = storeToRefs(appConfig)
-
-const isDark = computed(() => resolveThemeMode(themeMode.value) === ThemeEnum.DARK)
-
-function onThemeSwitch(value: boolean) {
-  appConfig.setThemeMode(value ? ThemeModeEnum.DARK : ThemeModeEnum.LIGHT)
-}
 
 async function handleMockLogin() {
   mockLoading.value = true
@@ -37,13 +29,8 @@ async function handleMockLogin() {
 <template>
   <div class="relative flex-center min-h-screen p-6 bg-layout text-text" :key="getLocale">
     <div class="fixed top-4 right-4 z-10 flex flex-col items-stretch gap-2">
-      <div class="flex items-center gap-2 px-3 py-2 surface-panel shadow-card">
-        <span class="text-[13px] text-muted select-none">{{ t('layout.login.darkMode') }}</span>
-        <GrowSwitch :model-value="isDark" @update:model-value="onThemeSwitch" />
-      </div>
-      <div class="px-3 py-2 surface-panel shadow-card">
-        <SwitchLanguage select-class="w-full" :inline="false" />
-      </div>
+      <LoginThemeSwitch />
+      <LoginLanguageSwitch />
       <GrowButton type="primary" @click="settingVisible = true">
         {{ t('layout.login.projectSetting') }}
       </GrowButton>
