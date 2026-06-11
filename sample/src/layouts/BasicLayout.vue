@@ -38,16 +38,16 @@ function toggleThemeMode() {
 </script>
 
 <template>
-  <GrowLayout class="grow-admin-layout">
+  <GrowLayout class="h-full w-full bg-layout text-text">
     <GrowLayoutHeader
-      class="grow-admin-layout__header"
+      class="flex h-[var(--header-height)] items-center justify-between border-b border-border px-4"
       :style="{
         background: '#151515',
         color: '#fff',
       }"
     >
-      <div class="grow-admin-layout__header-title">Grow Admin Sample</div>
-      <div class="grow-admin-layout__header-actions">
+      <div class="text-base font-semibold">Grow Admin Sample</div>
+      <div class="flex items-center gap-2">
         <GrowButton v-if="showThemeModeToggle" @click="toggleThemeMode">
           {{ themeToggleLabel }}
         </GrowButton>
@@ -59,7 +59,7 @@ function toggleThemeMode() {
 
     <GrowLayout>
       <GrowLayoutSider
-        class="grow-admin-layout__sider"
+        class="border-r border-border"
         :width="210"
         :style="{
           background: '#001529',
@@ -69,7 +69,7 @@ function toggleThemeMode() {
         <div class="p-4 text-sm opacity-80">导航菜单占位</div>
       </GrowLayoutSider>
 
-      <GrowLayoutContent class="grow-admin-layout__content">
+      <GrowLayoutContent class="min-h-[calc(100vh-var(--header-height))] bg-[var(--main-background-color)] p-4">
         <router-view />
       </GrowLayoutContent>
     </GrowLayout>
