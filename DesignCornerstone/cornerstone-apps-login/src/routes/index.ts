@@ -1,7 +1,7 @@
 import { t } from '@grow-admin-rock/locale';
 
 const LOGIN_ROUTE: RouteRecordItem = {
-  path: '/login',
+  path: '/',
   name: 'Login',
   component: () => import('../pages/login.vue'),
   meta: {

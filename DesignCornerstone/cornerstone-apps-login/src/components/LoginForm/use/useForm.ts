@@ -1,27 +1,16 @@
 import { computed, onMounted, reactive, ref } from 'vue'
-import { ACCOUNT_INFO } from '@grow-admin-rock/constants'
 import { driverRef } from '@grow-admin-rock/components'
 import { useI18n } from '@grow-admin-rock/locale'
 import { useMsg } from '@grow-admin-rock/components'
 import { accountLogin } from '#/api/login'
 import { useLoginSuccess } from '#/composables/useLoginSuccess'
-
-const accountStorage = {
-  get(key: string) {
-    return localStorage.getItem(key)
-  },
-  set(key: string, value: string) {
-    localStorage.setItem(key, value)
-  },
-  remove(key: string) {
-    localStorage.removeItem(key)
-  },
-}
+import { useLoginRememberStore } from '@grow-admin-rock/state'
 
 export function useLoginForm() {
   const { t } = useI18n()
   const message = useMsg()
   const { loginSuccess } = useLoginSuccess()
+  const loginRememberStore = useLoginRememberStore()
   const loginFormRef = ref()
   const loading = ref(false)
   const loginFormData = reactive({
@@ -48,27 +37,14 @@ export function useLoginForm() {
   }))
 
   function saveFormInfo() {
-    const { account, password, isRemember } = loginFormData
-    if (!isRemember) {
-      accountStorage.remove(ACCOUNT_INFO)
-      return
-    }
-    accountStorage.set(
-      ACCOUNT_INFO,
-      JSON.stringify({ account, password, isRemember }),
-    )
+    const { account, isRemember } = loginFormData
+    loginRememberStore.saveAccount(account, isRemember)
   }
 
   function resetLoginForm() {
-    try {
-      const cached = JSON.parse(accountStorage.get(ACCOUNT_INFO) || '{}')
-      if (cached.account && cached.password) {
-        loginFormData.account = cached.account
-        loginFormData.password = cached.password
-        loginFormData.isRemember = cached.isRemember
-      }
-    } catch {
-      // ignore invalid cache
+    if (loginRememberStore.account) {
+      loginFormData.account = loginRememberStore.account
+      loginFormData.isRemember = loginRememberStore.isRemember
     }
   }
 
