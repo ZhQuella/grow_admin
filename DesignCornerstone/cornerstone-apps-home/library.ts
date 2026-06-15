@@ -7,9 +7,7 @@ export const Lib: ModuleLibContext<'types', any> = {
   name: pack.name,
   version: pack.version,
   routes: RouteList,
-  onSetup(_app, appContext) {
-    appContext.onIocLoaded(async () => {
-      createAuthGuard();
-    });
+  onSetup() {
+    createAuthGuard();
   },
 };

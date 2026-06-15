@@ -112,11 +112,11 @@ export class AppContext {
       container.bind(APP_CONTEXT).toConstantValue(this);
     }
     if (!isEmpty(this.loadedObservers.preObservers)) {
-      runObsOrdered(app, this.loadedObservers.preObservers)
+      await runObsOrdered(app, this.loadedObservers.preObservers)
     }
     await container.loadAsync(...this.iocModules)
     if (!isEmpty(this.loadedObservers.loadedObservers)) {
-      runObsOrdered(app, this.loadedObservers.loadedObservers)
+      await runObsOrdered(app, this.loadedObservers.loadedObservers)
     }
     await onLoadFinished?.();
   }
