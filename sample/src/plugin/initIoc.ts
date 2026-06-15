@@ -27,6 +27,7 @@ import { Lib as localeLib } from '@grow-admin-rock/locale'
 import { Lib as componentsLib } from '@grow-admin-rock/components'
 
 import { Lib as appsLoginLib } from '@grow-admin-cornerstone/apps-login'
+import { Lib as appsHomeLib } from '@grow-admin-cornerstone/apps-home'
 
 import { bootstrapAppConfig } from '../initAppConfig'
 import { GrowAxiosTransform } from '@/apis/infrastructure'
@@ -65,6 +66,8 @@ export const initIoc = async (app: App) => {
     .use(routeLib, appContext)
     // 使用登录模块
     .use(appsLoginLib, appContext)
+    // 使用首页模块
+    .use(appsHomeLib, appContext)
     // 使用契约组件库
     .use(componentsLib, appContext);
 

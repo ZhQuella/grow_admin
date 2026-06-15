@@ -67,6 +67,37 @@ importers:
         specifier: ^4.2.0
         version: 4.3.2(typescript@5.9.3)(vite@4.3.9(@types/node@25.9.1)(less@4.6.4)(sass@1.100.0)(terser@5.47.1))
 
+  DesignCornerstone/cornerstone-apps-home:
+    dependencies:
+      '@grow-admin-rock/constants':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-constants
+      '@grow-admin-rock/ioc':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-ioc
+      vue:
+        specifier: ~3.3.4
+        version: 3.3.13(typescript@5.9.3)
+      vue-router:
+        specifier: ^4.0.0
+        version: 4.6.4(vue@3.3.13(typescript@5.9.3))
+    devDependencies:
+      '@grow-admin-rock/base-package':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-base-package
+      '@grow-admin-rock/middleware-router':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-middleware-router
+      typescript:
+        specifier: ^5.0.2
+        version: 5.9.3
+      vite:
+        specifier: 4.3.9
+        version: 4.3.9(@types/node@25.9.1)(less@4.6.4)(sass@1.100.0)(terser@5.47.1)
+      vue-tsc:
+        specifier: ^1.0.24
+        version: 1.8.27(typescript@5.9.3)
+
   DesignCornerstone/cornerstone-apps-login:
     dependencies:
       '@grow-admin-rock/components':
@@ -90,6 +121,9 @@ importers:
       '@grow-admin-rock/state':
         specifier: workspace:*
         version: link:../../DesignRock/rock-state
+      '@grow-admin-rock/utils':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-utils
       vue:
         specifier: ~3.3.4
         version: 3.3.13(typescript@5.9.3)
@@ -708,6 +742,9 @@ importers:
 
   sample:
     dependencies:
+      '@grow-admin-cornerstone/apps-home':
+        specifier: workspace:*
+        version: link:../DesignCornerstone/cornerstone-apps-home
       '@grow-admin-cornerstone/apps-login':
         specifier: workspace:*
         version: link:../DesignCornerstone/cornerstone-apps-login

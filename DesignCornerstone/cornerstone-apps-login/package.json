@@ -15,7 +15,8 @@
     "@grow-admin-rock/ioc": "workspace:*",
     "@grow-admin-rock/layouts": "workspace:*",
     "@grow-admin-rock/locale": "workspace:*",
-    "@grow-admin-rock/state": "workspace:*"
+    "@grow-admin-rock/state": "workspace:*",
+    "@grow-admin-rock/utils": "workspace:*"
   },
   "devDependencies": {
     "@grow-admin-rock/middleware-router": "workspace:*",

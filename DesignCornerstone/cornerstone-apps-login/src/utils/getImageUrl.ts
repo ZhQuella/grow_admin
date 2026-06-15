@@ -1,3 +1,5 @@
+import { getImageUrl as resolveImageUrl } from '@grow-admin-rock/utils'
+
 export function getImageUrl(name: string): string {
-  return new URL(`../assets/images/${name}`, import.meta.url).href
+  return resolveImageUrl(name, import.meta.url)
 }

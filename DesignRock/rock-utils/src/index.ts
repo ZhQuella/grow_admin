@@ -1,4 +1,5 @@
 export * from './config'
+export * from './getAssetUrl'
 export * from './is'
 export * from './toDataType'
 export * from './utils'
