@@ -99,10 +99,10 @@ export async function configVitePlugins(
   // MonorepoSupport
   vitePlugins.push(configMonoRepoResolverPlugin())
 
-  vitePlugins.push(terser({ numWorkers: 8 }) as PluginOption)
-
   // The following plugins only work in the production environment
   if (isBuild) {
+    vitePlugins.push(terser({ numWorkers: 8 }) as PluginOption)
+
     // vite-plugin-imagemin
     VITE_USE_IMAGEMIN && vitePlugins.push(configImageminPlugin())
 

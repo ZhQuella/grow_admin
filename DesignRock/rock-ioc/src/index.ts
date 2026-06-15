@@ -168,7 +168,7 @@ export const createIocContainer = (
   options?: interfaces.ContainerOptions
 ): IocContainer => {
   const con = new Container(options || { defaultScope: 'Singleton' });
-  if (import.meta.env.DEV) {
+  if (process.env.NODE_ENV !== 'production') {
     // 开发模式下开启IOC的LOG插件
     con.applyMiddleware(makeLoggerMiddleware());
   }

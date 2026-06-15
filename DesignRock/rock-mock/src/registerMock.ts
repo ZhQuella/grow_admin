@@ -21,5 +21,5 @@ export function getMockModules(): MockMethod[] {
 }
 
 export function isMockEnabled() {
-  return diK(types.MockEnabled) ?? import.meta.env.VITE_USE_MOCK === 'true';
+  return diK(types.MockEnabled) ?? __VITE_USE_MOCK__;
 }

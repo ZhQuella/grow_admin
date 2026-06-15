@@ -18,6 +18,7 @@
     "inlineSources": false,
     "isolatedModules": true,
     "moduleResolution": "node",
+    "target": "esnext",
     "noEmit": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,

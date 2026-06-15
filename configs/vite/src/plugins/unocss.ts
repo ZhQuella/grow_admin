@@ -4,8 +4,8 @@
  * @see https://github.com/action-hong/unocss-preset-scrollbar
  */
 
-import Unocss from 'unocss/vite'
-import { entriesToCss, type Preset, type Preflight, type UserConfig, presetAttributify, presetIcons, presetMini, presetUno, defineConfig } from 'unocss'
+import Unocss from '@unocss/vite'
+import { entriesToCss, type Preset, type Preflight, type UserConfig, presetAttributify, presetIcons, presetUno, defineConfig } from 'unocss'
 import { presetScrollbar } from 'unocss-preset-scrollbar'
 import {
   unocssColorShortcuts,
@@ -85,7 +85,7 @@ function createEnterPreflight(maxOutput = 20): Preflight {
  * @returns 
  */
 export function configUnocssPlugin() {
-  return Unocss(configUnocss())
+  return Unocss()
 }
 
 /**
@@ -95,15 +95,18 @@ export function configUnocssPlugin() {
  */
 export const configUnocss = (
   presets: Preset[] = [
-    presetUno(), 
-    presetIcons(), 
-    presetMini({ dark: 'class' }), 
+    presetUno({ dark: 'class' }),
+    presetIcons(),
     presetAttributify(),
-    presetScrollbar()
+    presetScrollbar(),
   ]
 ) => {
   return {
-    exclude: ['node_modules', '.git', 'dist'],
+    content: {
+      pipeline: {
+        exclude: ['node_modules', '.git', 'dist'],
+      },
+    },
     presets,
     preflights: [createEnterPreflight(30)],
     shortcuts: {

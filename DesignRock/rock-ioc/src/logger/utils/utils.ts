@@ -1,5 +1,4 @@
-// @ts-ignore
-let _global: any = this || {};
+const _global: any = globalThis
 
 function getTimeFactory(_window: any, _process: any, _date: any) {
     return () => {

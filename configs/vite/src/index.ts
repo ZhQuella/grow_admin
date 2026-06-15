@@ -71,10 +71,12 @@ export async function createViteConfig(
       } : undefined,
     },
     esbuild: {
+      target: 'esnext',
       pure: VITE_DROP_CONSOLE ? ['console.log', 'debugger'] : [],
     },
     build: {
       outDir: OUTPUT_DIR,
+      target: 'esnext',
       reportCompressedSize: false,
       chunkSizeWarningLimit: 2048,
       rollupOptions: {
@@ -88,8 +90,13 @@ export async function createViteConfig(
       },
     },
     optimizeDeps: {
-      include: ['dayjs/locale/en', 'dayjs/locale/zh-cn', '@iconify/iconify'],
-      // exclude: ['vue-demi'],
+      esbuildOptions: {
+        target: 'esnext',
+        supported: {
+          'import-meta': true,
+        },
+      },
+      exclude: ['vue-demi'],
     },
     plugins: await configVitePlugins(root, viteEnv, command === 'build', preset),
   };

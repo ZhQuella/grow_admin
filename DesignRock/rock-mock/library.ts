@@ -13,6 +13,6 @@ export const Lib: CommonModuleLibContext<typeof types> = {
   module: new AsyncIocModule(async (bind) => {
     console.debug(`【${pack.name}】 IocModule start load`);
     bind(types.MockRegistry).toConstantValue(globalMockRegistry);
-    bind(types.MockEnabled).toConstantValue(import.meta.env.VITE_USE_MOCK === 'true');
+    bind(types.MockEnabled).toConstantValue(__VITE_USE_MOCK__);
   }),
 };

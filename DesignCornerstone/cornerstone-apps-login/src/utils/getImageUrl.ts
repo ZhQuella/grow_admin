@@ -1,5 +1,8 @@
-import { getImageUrl as resolveImageUrl } from '@grow-admin-rock/utils'
+const images = import.meta.glob('../assets/images/*', {
+  eager: true,
+  import: 'default',
+}) as Record<string, string>
 
 export function getImageUrl(name: string): string {
-  return resolveImageUrl(name, import.meta.url)
+  return images[`../assets/images/${name}`] ?? ''
 }
