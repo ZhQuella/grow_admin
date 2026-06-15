@@ -37,6 +37,8 @@
     "@grow-admin-rock/state": "workspace:*",
     "@grow-admin-rock/styles": "workspace:*",
     "ant-design-vue": "^4.0.7",
+    "@iconify/iconify": "^3.1.1",
+    "@purge-icons/generated": "^0.9.0",
     "dayjs": "^1.11.7",
     "element-plus": "^2.4.4",
     "lodash-es": "^4.17.21",

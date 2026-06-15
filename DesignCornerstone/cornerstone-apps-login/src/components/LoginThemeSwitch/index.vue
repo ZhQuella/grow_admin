@@ -10,16 +10,23 @@ const { themeMode } = storeToRefs(appConfig)
 
 const isDark = computed(() => resolveThemeMode(themeMode.value) === ThemeEnum.DARK)
 
-function onThemeSwitch(value: boolean) {
-  appConfig.setThemeMode(value ? ThemeModeEnum.DARK : ThemeModeEnum.LIGHT)
+const themeIcon = computed(() =>
+  isDark.value ? 'ant-design:sun-outlined' : 'ant-design:moon-outlined',
+)
+
+function toggleTheme() {
+  appConfig.setThemeMode(isDark.value ? ThemeModeEnum.LIGHT : ThemeModeEnum.DARK)
 }
 </script>
 
 <template>
-  <div class="flex items-center gap-2 px-3 py-2 surface-panel shadow-card">
-    <span class="text-[13px] text-muted shrink-0 select-none">
-      {{ t('layout.login.darkMode') }}
-    </span>
-    <GrowSwitch :model-value="isDark" @update:model-value="onThemeSwitch" />
-  </div>
+  <GrowButton
+    circle
+    class="login-interactive-icon !h-9 !w-9 border border-border bg-component text-text-secondary"
+    :aria-label="t('layout.login.darkMode')"
+    :title="t('layout.login.darkMode')"
+    @click="toggleTheme"
+  >
+    <GrowIconify :icon="themeIcon" :size="20" hover-pointer />
+  </GrowButton>
 </template>

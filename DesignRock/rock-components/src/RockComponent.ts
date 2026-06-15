@@ -86,6 +86,7 @@ export enum RockComponent {
   Progress = 'Progress',
   PageHeader = 'PageHeader',
   NumberAnimation = 'NumberAnimation',
+  Iconify = 'Iconify',
 }
 
 export type RockComponentType = keyof typeof RockComponent;

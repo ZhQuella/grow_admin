@@ -100,6 +100,7 @@ declare module 'vue' {
     GrowProgress: import('vue').Component;
     GrowPageHeader: import('vue').Component;
     GrowNumberAnimation: import('vue').Component;
+    GrowIconify: import('vue').Component;
   }
 }
 

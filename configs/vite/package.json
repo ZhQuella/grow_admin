@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@grow-admin-config/tsconfig": "workspace:*",
+    "@grow-admin-rock/styles": "workspace:*",
     "@grow-admin-rock/utils": "workspace:*",
     "@vitejs/plugin-legacy": "^4.0.2",
     "@vitejs/plugin-vue": "^4.0.0",

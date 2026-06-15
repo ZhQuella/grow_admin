@@ -1,0 +1,102 @@
+:root {
+  /* base palette */
+  --primary-color: #8b5cf6;
+  --primary-color-hover: #a78bfa;
+  --primary-color-active: #7c3aed;
+  --primary-color-suppl: #c4b5fd;
+  --primary-color-rgb: 139, 92, 246;
+
+  --accent-indigo-500: #6366f1;
+  --accent-indigo-600: #4f46e5;
+
+  --success-color: #55d187;
+  --error-color: #ed6f6f;
+  --warning-color: #efbd47;
+
+  --text-color: rgba(0, 0, 0, 0.85);
+  --text-color-secondary: rgba(0, 0, 0, 0.45);
+  --border-color: rgb(239, 239, 245);
+
+  --component-background-color: #fff;
+  --card-shadow: 0 2px 8px rgb(0 0 0 / 8%);
+
+  --layout-color: #fff;
+  --layout-container-background-color: #f0f2f5;
+  --layout-border-color: rgb(239, 239, 245);
+
+  /* primary alpha scale */
+  --color-primary-a04: rgba(var(--primary-color-rgb), 0.04);
+  --color-primary-a06: rgba(var(--primary-color-rgb), 0.06);
+  --color-primary-a08: rgba(var(--primary-color-rgb), 0.08);
+  --color-primary-a10: rgba(var(--primary-color-rgb), 0.1);
+  --color-primary-a12: rgba(var(--primary-color-rgb), 0.12);
+  --color-primary-a16: rgba(var(--primary-color-rgb), 0.16);
+  --color-primary-a28: rgba(var(--primary-color-rgb), 0.28);
+  --color-primary-a35: rgba(var(--primary-color-rgb), 0.35);
+
+  /* login brand panel */
+  --login-brand-bg: linear-gradient(
+    145deg,
+    rgba(var(--primary-color-rgb), 0.96) 0%,
+    var(--accent-indigo-500) 52%,
+    var(--accent-indigo-600) 100%
+  );
+  --login-brand-inset-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.08);
+  --login-brand-text: #fff;
+  --login-brand-text-muted: rgba(255, 255, 255, 0.82);
+  --login-brand-text-soft: rgba(255, 255, 255, 0.92);
+  --login-brand-badge-border: rgba(255, 255, 255, 0.25);
+  --login-brand-badge-bg: rgba(255, 255, 255, 0.12);
+  --login-brand-dot: rgba(255, 255, 255, 0.85);
+  --login-brand-dot-glow: rgba(255, 255, 255, 0.45);
+
+  /* login surfaces */
+  --login-card-bg: color-mix(in srgb, var(--component-background-color) 92%, transparent);
+  --login-card-logo-shadow: 0 8px 24px var(--color-primary-a08);
+  --login-illustration-shadow: 0 24px 40px rgba(15, 23, 42, 0.28);
+  --login-ambient-grid: linear-gradient(var(--color-primary-a04) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-primary-a04) 1px, transparent 1px);
+  --login-qr-bg: linear-gradient(135deg, var(--color-primary-a06), transparent),
+    var(--layout-container-background-color);
+
+  /* interactive accents */
+  --login-interactive-hover-border: var(--color-primary-a35);
+  --login-interactive-hover-ring: 0 0 0 3px var(--color-primary-a12);
+  --login-interactive-hover-ring-soft: 0 0 0 3px var(--color-primary-a10);
+}
+
+:root.dark {
+  color-scheme: dark;
+
+  --text-color: rgba(255, 255, 255, 0.85);
+  --text-color-secondary: rgba(255, 255, 255, 0.45);
+  --border-color: rgba(255, 255, 255, 0.09);
+
+  --component-background-color: rgb(24, 24, 28);
+  --card-shadow: 0 2px 16px rgb(0 0 0 / 35%);
+  --layout-color: rgb(16, 16, 20);
+  --layout-container-background-color: rgb(16, 16, 20);
+  --layout-border-color: rgba(255, 255, 255, 0.09);
+
+  --login-card-bg: color-mix(in srgb, var(--component-background-color) 92%, transparent);
+  --login-qr-bg: linear-gradient(135deg, var(--color-primary-a06), transparent),
+    var(--layout-container-background-color);
+  --login-illustration-shadow: 0 24px 40px rgba(0, 0, 0, 0.45);
+
+  /* login brand panel — darker, moodier gradient */
+  --login-brand-bg: linear-gradient(
+    155deg,
+    rgb(10, 8, 22) 0%,
+    rgba(var(--primary-color-rgb), 0.82) 38%,
+    rgba(79, 70, 229, 0.72) 72%,
+    rgb(6, 5, 14) 100%
+  );
+  --login-brand-inset-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.05);
+  --login-brand-text: #fff;
+  --login-brand-text-muted: rgba(255, 255, 255, 0.78);
+  --login-brand-text-soft: rgba(255, 255, 255, 0.9);
+  --login-brand-badge-border: rgba(255, 255, 255, 0.18);
+  --login-brand-badge-bg: rgba(255, 255, 255, 0.08);
+  --login-brand-dot: rgba(255, 255, 255, 0.75);
+  --login-brand-dot-glow: rgba(139, 92, 246, 0.55);
+}

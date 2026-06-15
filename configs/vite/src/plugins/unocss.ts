@@ -7,6 +7,11 @@
 import Unocss from 'unocss/vite'
 import { entriesToCss, type Preset, type Preflight, type UserConfig, presetAttributify, presetIcons, presetMini, presetUno, defineConfig } from 'unocss'
 import { presetScrollbar } from 'unocss-preset-scrollbar'
+import {
+  unocssColorShortcuts,
+  unocssThemeBoxShadow,
+  unocssThemeColors,
+} from '@grow-admin-rock/styles/unocss-theme'
 
 
 function withOpacity(variableName) {
@@ -102,10 +107,7 @@ export const configUnocss = (
     presets,
     preflights: [createEnterPreflight(30)],
     shortcuts: {
-      'flex-center': 'flex justify-center items-center',
-      'grid-center': 'grid place-content-center',
-      'surface-panel': 'bg-component border border-border rounded-lg',
-      'text-muted': 'text-text-secondary',
+      ...unocssColorShortcuts,
     },
     theme: {
       screens: {
@@ -114,17 +116,8 @@ export const configUnocss = (
         lg: "1024px",
         xl: "1280px"
       },
-      colors: {
-        primary: 'var(--primary-color)',
-        layout: 'var(--layout-container-background-color)',
-        component: 'var(--component-background-color)',
-        text: 'var(--text-color)',
-        'text-secondary': 'var(--text-color-secondary)',
-        border: 'var(--layout-border-color)',
-      },
-      boxShadow: {
-        card: 'var(--card-shadow)',
-      },
+      colors: unocssThemeColors,
+      boxShadow: unocssThemeBoxShadow,
       backgroundColor: {},
       transitionProperty: [],
     },

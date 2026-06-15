@@ -1,0 +1,118 @@
+#app-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  background: #f0f2f5;
+  transition:
+    opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html.dark #app-loading {
+  background: rgb(16, 16, 20);
+}
+
+#app-loading.app-loading--hide {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.app-loading__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  padding: 0.5rem;
+  border: 1px solid rgb(239, 239, 245);
+  border-radius: 0.875rem;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.08);
+  animation: app-loading-breathe 2.4s ease-in-out infinite;
+  will-change: transform, box-shadow;
+}
+
+html.dark .app-loading__logo {
+  border-color: rgba(255, 255, 255, 0.09);
+  background: rgb(24, 24, 28);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  animation-name: app-loading-breathe-dark;
+}
+
+.app-loading__logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.app-loading__ring {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 3px solid rgba(139, 92, 246, 0.16);
+  border-top-color: #8b5cf6;
+  border-radius: 50%;
+  animation: app-loading-spin 0.85s linear infinite;
+}
+
+.app-loading__title {
+  margin: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+html.dark .app-loading__title {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+@keyframes app-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes app-loading-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.08);
+  }
+
+  50% {
+    transform: scale(1.06);
+    box-shadow: 0 12px 36px rgba(139, 92, 246, 0.24);
+  }
+}
+
+@keyframes app-loading-breathe-dark {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  50% {
+    transform: scale(1.06);
+    box-shadow: 0 12px 36px rgba(139, 92, 246, 0.32);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-loading__logo {
+    animation: none;
+  }
+}

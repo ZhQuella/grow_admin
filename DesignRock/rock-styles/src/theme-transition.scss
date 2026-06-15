@@ -7,7 +7,7 @@
   html.theme-transition *,
   html.theme-transition *::before,
   html.theme-transition *::after {
-    transition-property: background-color, border-color, color, fill, stroke, box-shadow,
+    transition-property: background-color, background, border-color, color, fill, stroke, box-shadow,
       outline-color !important;
     transition-duration: var(--theme-transition-duration, 0.35s) !important;
     transition-timing-function: var(--transition-bezier, cubic-bezier(0.4, 0, 0.2, 1)) !important;

@@ -2,11 +2,45 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="/app-loading.css" />
+    <link rel="icon" type="image/x-icon" href="/logo.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>sample</title>
+    <title>Grow Admin</title>
+    <script>
+      ;(function () {
+        try {
+          var html = document.documentElement
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+
+          for (var i = 0; i < localStorage.length; i++) {
+            var key = localStorage.key(i)
+            if (!key || key.indexOf('APP_CONFIG') === -1) continue
+
+            var raw = localStorage.getItem(key)
+            if (!raw) continue
+
+            var data = JSON.parse(raw)
+            var mode = data.themeMode
+
+            if (mode === 'dark' || (mode !== 'light' && prefersDark)) {
+              html.classList.add('dark')
+            }
+            return
+          }
+
+          if (prefersDark) html.classList.add('dark')
+        } catch (_) {}
+      })()
+    </script>
   </head>
   <body>
+    <div id="app-loading" aria-live="polite" aria-busy="true" aria-label="Loading">
+      <div class="app-loading__logo">
+        <img src="/logo.png" alt="Grow Admin" />
+      </div>
+      <div class="app-loading__ring" aria-hidden="true"></div>
+      <p class="app-loading__title">Grow Admin</p>
+    </div>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>

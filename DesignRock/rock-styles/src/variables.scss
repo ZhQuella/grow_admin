@@ -1,33 +1,10 @@
 :root {
-  --primary-color: #8b5cf6;
-  --primary-color-hover: #a78bfa;
-  --primary-color-active: #7c3aed;
-  --primary-color-suppl: #c4b5fd;
-  --primary-color-rgb: 139, 92, 246;
-  --success-color: #55d187;
-  --error-color: #ed6f6f;
-  --warning-color: #efbd47;
-
-  --text-color: rgba(0, 0, 0, 0.85);
-  --text-color-secondary: rgba(0, 0, 0, 0.45);
-  --border-color: rgb(239, 239, 245);
-
-  /* component */
-  --component-background-color: #fff;
-  --card-shadow: 0 2px 8px rgb(0 0 0 / 8%);
-
   /* transition */
   --transition-bezier: cubic-bezier(0.4, 0, 0.2, 1);
   --transition-all: all 0.3s var(--transition-bezier);
   --theme-transition-duration: 0.35s;
 
   /* layout start */
-
-  --layout-color: #fff;
-  --layout-container-background-color: #f0f2f5;
-  --layout-border-color: rgb(239, 239, 245);
-
-  /* header */
   --header-height: 48px;
   --header-width: calc(100% - var(--aside-width));
   --header-background-color: #fff;
@@ -35,11 +12,9 @@
   --header-icon-color: var(--header-text-color);
   --header-action-hover-bg-color: #f6f6f6;
 
-  /* tab */
   --tab-bar-height: 36px;
   --tab-bar-width: calc(100% - var(--aside-width));
 
-  /* aside */
   --aside-height: calc(100% - var(--header-height));
   --aside-width: 210px;
   --aside-background-color: #001529;
@@ -49,32 +24,16 @@
   --trigger-background-color: rgb(72, 72, 78);
   --trigger-border-color: rgb(239, 239, 245);
 
-  /* main */
   --main-height: calc(100% - var(--footer-height));
   --main-width: 100%;
   --main-background-color: var(--layout-container-background-color);
 
-  /* footer */
   --footer-height: 60px;
   --footer-width: 100%;
-
   /* layout end */
 }
 
 :root.dark {
-  color-scheme: dark;
-
-  --text-color: rgba(255, 255, 255, 0.85);
-  --text-color-secondary: rgba(255, 255, 255, 0.45);
-  --border-color: rgba(255, 255, 255, 0.09);
-
-  --component-background-color: rgb(24, 24, 28);
-  --card-shadow: 0 2px 16px rgb(0 0 0 / 35%);
-  --layout-color: rgb(16, 16, 20);
-  --layout-container-background-color: rgb(16, 16, 20);
-  --layout-border-color: rgba(255, 255, 255, 0.09);
-  --main-background-color: rgb(16, 16, 20);
-
   --header-background-color: rgb(24, 24, 28);
   --header-text-color: rgba(255, 255, 255, 0.85);
   --header-action-hover-bg-color: rgba(255, 255, 255, 0.08);
