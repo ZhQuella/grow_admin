@@ -121,9 +121,6 @@ importers:
       '@grow-admin-rock/state':
         specifier: workspace:*
         version: link:../../DesignRock/rock-state
-      '@grow-admin-rock/utils':
-        specifier: workspace:*
-        version: link:../../DesignRock/rock-utils
       vue:
         specifier: ~3.3.4
         version: 3.3.13(typescript@5.9.3)
