@@ -2,6 +2,22 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <style>
+      .app-loading__logo {
+        box-sizing: border-box;
+        width: 52px;
+        height: 52px;
+        overflow: hidden;
+      }
+
+      .app-loading__logo img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transform-origin: center center;
+      }
+    </style>
     <link rel="stylesheet" href="/app-loading.css" />
     <link rel="icon" type="image/x-icon" href="/logo.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -36,9 +52,8 @@
   <body>
     <div id="app-loading" aria-live="polite" aria-busy="true" aria-label="Loading">
       <div class="app-loading__logo">
-        <img src="/logo.png" alt="Grow Admin" />
+        <img src="/logo.png" alt="Grow Admin" width="36" height="36" />
       </div>
-      <div class="app-loading__ring" aria-hidden="true"></div>
       <p class="app-loading__title">Grow Admin</p>
     </div>
     <div id="app"></div>

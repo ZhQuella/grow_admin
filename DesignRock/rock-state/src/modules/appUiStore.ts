@@ -10,12 +10,16 @@ export const useAppStore = defineStore({
     settingActive: false,
     searchActive: false,
     isPutAway: false,
+    pageLoading: false,
+    pageLoadingTip: '',
   }),
   getters: {
     getWebFullScreen: (state) => state.webFullScreen,
     getSettingActive: (state) => state.settingActive,
     getSearchActive: (state) => state.searchActive,
     getIsPutAway: (state) => state.isPutAway,
+    getPageLoading: (state) => state.pageLoading,
+    getPageLoadingTip: (state) => state.pageLoadingTip,
   },
   actions: {
     setWebFullScreen(isFullScreen: boolean) {
@@ -29,6 +33,22 @@ export const useAppStore = defineStore({
     },
     setIsPutAway(isPutAway: boolean) {
       this.isPutAway = isPutAway
+    },
+    setPageLoading(loading: boolean) {
+      this.pageLoading = loading
+    },
+    setPageLoadingTip(tip: string) {
+      this.pageLoadingTip = tip
+    },
+    async setPageLoadingAction(loading: boolean) {
+      if (loading) {
+        this.pageLoading = true
+        return
+      }
+      await new Promise<void>((resolve) => {
+        window.setTimeout(resolve, 200)
+      })
+      this.pageLoading = false
     },
   },
 })

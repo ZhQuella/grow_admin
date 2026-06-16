@@ -19,7 +19,7 @@ const { layoutType, isFullScreen, isPutAway, collapsed, onChangeSide } = useLayo
         },
       ]"
     >
-      <div class="box-border h-[50px] border-b border-solid border-border">
+      <div class="box-border flex h-[50px] w-full items-center border-b border-solid border-border">
         <slot name="logo" />
       </div>
       <div class="relative flex-1 transition-all">
@@ -43,14 +43,14 @@ const { layoutType, isFullScreen, isPutAway, collapsed, onChangeSide } = useLayo
         v-if="!isFullScreen"
         class="box-border flex h-[50px] justify-between border-b border-solid border-border bg-component px-[10px]"
       >
-        <div class="-enter-y flex shrink-0">
+        <div class="-enter-y flex h-[50px] shrink-0 items-center">
           <slot v-if="layoutType === 'roof'" name="logo" />
           <slot name="bread" />
         </div>
         <div class="relative -enter-y w-full grow-0 overflow-hidden px-[10px]">
           <slot v-if="layoutType === 'roof'" name="menu" />
         </div>
-        <div class="-enter-y">
+        <div class="-enter-y flex h-full shrink-0 items-center gap-2">
           <slot name="option" />
         </div>
       </div>

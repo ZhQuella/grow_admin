@@ -112,6 +112,8 @@ export interface DefineAppConfigOptions {
   transition: TransitionConfigOptions
   // System layout type (side / roof)
   layoutType: SystemLayoutType
+  // System display name
+  systemName: string
 }
 
 export interface TransitionConfigOptions {

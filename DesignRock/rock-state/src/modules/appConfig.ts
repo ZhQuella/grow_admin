@@ -41,6 +41,7 @@ export const useAppConfig = defineStore({
       basicTransition: RouterTransitionEnum.FADE_SIDE,
     },
     layoutType: SystemLayoutEnum.SIDE,
+    systemName: 'Grow Admin',
   }),
   actions: {
     setThemeMode(value: ThemeModeEnum) {
@@ -88,6 +89,9 @@ export const useAppConfig = defineStore({
     setLayoutType(value: SystemLayoutType) {
       this.layoutType = value
     },
+    setSystemName(value: string) {
+      this.systemName = value
+    },
   },
   persist: {
     paths: [
@@ -108,6 +112,7 @@ export const useAppConfig = defineStore({
       'canEmbedIFramePage',
       'transition',
       'layoutType',
+      'systemName',
     ],
   },
 })
