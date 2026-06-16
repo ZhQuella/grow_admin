@@ -62,3 +62,10 @@ export enum RoleEnum {
   // tester
   TEST = 'test',
 }
+
+export type SystemLayoutType = "side" | "roof"
+
+export enum SystemLayoutEnum {
+  SIDE = "side",
+  ROOF = "roof"
+}

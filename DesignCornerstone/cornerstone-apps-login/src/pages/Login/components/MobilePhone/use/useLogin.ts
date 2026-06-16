@@ -3,7 +3,7 @@ import { driverRef } from '@grow-admin-rock/components'
 import { useI18n } from '@grow-admin-rock/locale'
 import { useMsg } from '@grow-admin-rock/components'
 import { phoneLogin } from '#/api/login'
-import { useLoginSuccess } from '#/composables/useLoginSuccess'
+import { useLoginSuccess } from '#/pages/Login/use/useLoginSuccess'
 
 const PHONE_PATTERN =
   /^(?:(?:\+|00)86)?1(?:(?:3[\d])|(?:4[5-79])|(?:5[0-35-9])|(?:6[5-7])|(?:7[0-8])|(?:8[\d])|(?:9[1589]))\d{8}$/

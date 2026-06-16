@@ -75,6 +75,9 @@ importers:
       '@grow-admin-rock/ioc':
         specifier: workspace:*
         version: link:../../DesignRock/rock-ioc
+      '@grow-admin-rock/layouts':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-layouts
       vue:
         specifier: ~3.3.4
         version: 3.3.13(typescript@5.9.3)

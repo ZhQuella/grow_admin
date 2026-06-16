@@ -15,7 +15,7 @@ function onForgetPass() {
 <template>
   <div>
     <GrowH4 class="mb-4.5 text-lg font-semibold tracking-tight text-text -enter-x">
-      {{ t('layout.login.word.loginText') }}
+      {{ t('layout.login.word.accountLogin') }}
     </GrowH4>
     <GrowForm ref="loginFormRef" size="large" :model="loginFormData" :rules="formRules">
       <GrowFormItem prop="account">

@@ -1,5 +1,4 @@
 export * from './appConfig'
 export * from './authStore'
 export * from './loginRememberStore'
-export * from './siteGeneral'
 export * from './AppStore'

@@ -3,7 +3,7 @@ import { driverRef } from '@grow-admin-rock/components'
 import { useI18n } from '@grow-admin-rock/locale'
 import { useMsg } from '@grow-admin-rock/components'
 import { accountLogin } from '#/api/login'
-import { useLoginSuccess } from '#/composables/useLoginSuccess'
+import { useLoginSuccess } from '#/pages/Login/use/useLoginSuccess'
 import { useLoginRememberStore } from '@grow-admin-rock/state'
 
 export function useLoginForm() {

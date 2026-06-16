@@ -14,6 +14,7 @@ export default {
     accessMsg: '请输入账号',
     passwordMsg: '请输入密码',
     loginText: '登 录',
+    accountLogin: '账号登录',
     numberLogin: '手机登录',
     scanCodeLogin: '二维码登录',
     otherLoginTitle: '其他登录方式',

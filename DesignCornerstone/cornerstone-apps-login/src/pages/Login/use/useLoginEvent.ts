@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import type { LoginFormType } from '#/constant'
+import type { LoginFormType } from '#/pages/Login/constant'
 
 export function useLoginEvent() {
   const router = useRouter()

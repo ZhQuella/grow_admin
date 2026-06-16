@@ -14,6 +14,7 @@ export default {
     accessMsg: 'Please enter the account number',
     passwordMsg: 'Please enter password',
     loginText: 'Log in',
+    accountLogin: 'Account login',
     numberLogin: 'Mobile login',
     scanCodeLogin: 'Qr code login',
     otherLoginTitle: 'Other login methods',

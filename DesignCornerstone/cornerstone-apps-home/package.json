@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "@grow-admin-rock/constants": "workspace:*",
-    "@grow-admin-rock/ioc": "workspace:*"
+    "@grow-admin-rock/ioc": "workspace:*",
+    "@grow-admin-rock/layouts": "workspace:*"
   },
   "devDependencies": {
     "@grow-admin-rock/base-package": "workspace:*",

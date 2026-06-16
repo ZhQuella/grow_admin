@@ -11,6 +11,7 @@ import {
   SessionTimeoutProcessingEnum,
   SettingButtonPositionEnum,
   ThemeModeEnum,
+  SystemLayoutEnum
 } from '@grow-admin-rock/constants'
 
 export type AppConfigStore = ReturnType<typeof useAppConfig>
