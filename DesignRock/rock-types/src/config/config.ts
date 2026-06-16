@@ -6,6 +6,7 @@ import {
   ThemeModeEnum,
   RouterTransitionEnum,
   AuthorizationModeEnum,
+  SystemLayoutType,
 } from '@grow-admin-rock/constants'
 import type { Ref } from 'vue-demi'
 
@@ -109,6 +110,8 @@ export interface DefineAppConfigOptions {
   // Whether to show the lock screen
   useLockPage: boolean
   transition: TransitionConfigOptions
+  // System layout type (side / roof)
+  layoutType: SystemLayoutType
 }
 
 export interface TransitionConfigOptions {

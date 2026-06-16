@@ -1,4 +1,4 @@
-import { MenuModeEnum, RoleEnum } from '@grow-admin-rock/constants'
+import { MenuModeEnum } from '@grow-admin-rock/constants'
 import type { RouteMeta } from 'vue-router'
 
 export interface MenuTag {
@@ -24,8 +24,6 @@ export interface Menu {
   children?: Menu[]
 
   orderNo?: number
-
-  roles?: RoleEnum[]
 
   meta?: Partial<RouteMeta>
 

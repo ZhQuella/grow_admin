@@ -11,7 +11,8 @@ import {
   SessionTimeoutProcessingEnum,
   SettingButtonPositionEnum,
   ThemeModeEnum,
-  SystemLayoutEnum
+  SystemLayoutEnum,
+  SystemLayoutType,
 } from '@grow-admin-rock/constants'
 
 export type AppConfigStore = ReturnType<typeof useAppConfig>
@@ -39,6 +40,7 @@ export const useAppConfig = defineStore({
       enable: true,
       basicTransition: RouterTransitionEnum.FADE_SIDE,
     },
+    layoutType: SystemLayoutEnum.SIDE,
   }),
   actions: {
     setThemeMode(value: ThemeModeEnum) {
@@ -83,6 +85,9 @@ export const useAppConfig = defineStore({
     setTransition(value: Partial<TransitionConfigOptions>) {
       _assign(this.transition, value)
     },
+    setLayoutType(value: SystemLayoutType) {
+      this.layoutType = value
+    },
   },
   persist: {
     paths: [
@@ -102,6 +107,7 @@ export const useAppConfig = defineStore({
       'useLockPage',
       'canEmbedIFramePage',
       'transition',
+      'layoutType',
     ],
   },
 })
