@@ -3,10 +3,7 @@ import type { GlobEnvConfig, GlobConfig } from '@grow-admin-rock/types'
 import { toBool } from './toDataType'
 import { version } from '../package.json'
 
-/**
- * Get the configuration file variable name
- * @param env
- */
+/** 获取全局配置在 window 上的变量名 */
 export function getAppConfigFileName(env: Record<string, any>) {
   return `__PRODUCTION__${env.VITE_GLOB_APP_SHORT_NAME || '__APP'}__CONF__`
     .toUpperCase()
@@ -14,6 +11,7 @@ export function getAppConfigFileName(env: Record<string, any>) {
 }
 
 
+/** 从环境变量中读取并组装全局应用配置 */
 export function getGlobalConfig(
   env: Record<string, any>,
 ): Readonly<GlobConfig> {
@@ -44,16 +42,18 @@ export function getGlobalConfig(
   } as Readonly<GlobConfig>
 }
 
+/** 生成 localStorage 缓存 key 的前缀（应用名 + 环境） */
 function createStorageKeyPrefix(env: Record<string, any>) {
   const { VITE_GLOB_APP_SHORT_NAME } = getAppConfig(env)
   return `${VITE_GLOB_APP_SHORT_NAME}_${env.MODE}`.toUpperCase()
 }
 
-// Generate cache key according to version
+/** 根据应用名、环境和版本号生成完整的缓存 key */
 export function createStorageName(env: Record<string, any>) {
   return `${createStorageKeyPrefix(env)}${`_${version}`}_`.toUpperCase()
 }
 
+/** 获取应用环境配置（开发环境读 env，生产环境读 window 全局变量） */
 export function getAppConfig(env: Record<string, any>) {
   const ENV_NAME = getAppConfigFileName(env)
   const ENV = (env.DEV

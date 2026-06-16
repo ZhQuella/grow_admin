@@ -1,12 +1,11 @@
 import { isObject } from 'lodash-es'
 
+/** 获取值的原始类型名称（如 Object、Array、String） */
 export const getElType = (arg) => {
   return Object.prototype.toString.call(arg).slice(8, -1)
 }
 
-// @ts-ignore
-function NOOP() {}
-
+/** 在新窗口或指定 target 中打开 URL */
 function openWindow(
   url: string,
   opt?: {
@@ -24,16 +23,7 @@ function openWindow(
   window.open(url, target, feature.join(','))
 }
 
-/**
- * Add the object as a parameter to the URL
- * @param baseUrl url
- * @param obj
- * @returns {string}
- * eg:
- *  let obj = {a: '3', b: '4'}
- *  appendUrlParams('www.google.com', obj)
- *  ==>www.google.com?a=3&b=4
- */
+/** 将对象参数拼接到 URL 查询字符串 */
 function appendUrlParams(baseUrl: string, obj: any): string {
   let parameters = ''
   for (const key in obj) {
@@ -45,6 +35,7 @@ function appendUrlParams(baseUrl: string, obj: any): string {
     : baseUrl.replace(/\/?$/, '?') + parameters
 }
 
+/** 深度合并两个对象，target 覆盖 src 中的同名字段 */
 function deepMerge<T = any>(src: any = {}, target: any = {}): T {
   let key: string
   for (key in target) {
@@ -56,29 +47,31 @@ function deepMerge<T = any>(src: any = {}, target: any = {}): T {
   return src
 }
 
+/** 判断字符串是否为合法 URL */
 function isUrl(path: string): boolean {
   const reg =
     /(((^https?:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+(?::\d+)?|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)$/
   return reg.test(path)
 }
 
-/**
- * @description:  Set ui mount node
- */
+/** 获取 UI 组件（如 Popover）的挂载节点 */
 function getPopupContainer(node?: HTMLElement): HTMLElement {
   return (node?.parentNode as HTMLElement) ?? document.body
 }
 
+/** 根据 value 从选项列表中获取对应的 label */
 function getLabelByValue(options, value) {
   const option = options.find((item) => item.value === value)
   return option ? option.label : ''
 }
 
+/** 根据 code 从选项列表中获取对应的 label */
 function getLabelByCode(options, value) {
   const option = options.find((item) => item.code === value)
   return option ? option.label : ''
 }
 
+/** 将点分隔的扁平 key 转换为嵌套对象结构 */
 function formatConversion(target) {
   const output = {}
   for (const quantityKey in target) {
@@ -109,6 +102,7 @@ function formatConversion(target) {
   return output
 }
 
+/** 将查询字符串解析为键值对对象 */
 const parseQueryString = (queryString) => {
   const params = new URLSearchParams(queryString)
   const result = {}
@@ -123,7 +117,6 @@ export {
   deepMerge,
   appendUrlParams,
   openWindow,
-  NOOP,
   getPopupContainer,
   formatConversion,
   parseQueryString,
