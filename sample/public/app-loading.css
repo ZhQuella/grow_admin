@@ -74,6 +74,29 @@ html.dark .app-loading__title {
   color: rgba(255, 255, 255, 0.45);
 }
 
+.app-loading__resource {
+  margin: -8px 0 0;
+  max-width: min(320px, 80vw);
+  overflow: hidden;
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: rgba(0, 0, 0, 0.28);
+  min-height: 1.4em;
+}
+
+html.dark .app-loading__resource {
+  color: rgba(255, 255, 255, 0.28);
+}
+
 @keyframes app-loading-spin {
   to {
     transform: rotate(360deg);

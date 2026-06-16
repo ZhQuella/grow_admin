@@ -55,8 +55,50 @@
         <img src="/logo.png" alt="Grow Admin" width="36" height="36" />
       </div>
       <p class="app-loading__title">Grow Admin</p>
+      <p class="app-loading__resource" id="app-loading-resource" aria-hidden="true"></p>
     </div>
     <div id="app"></div>
+    <script>
+      ;(function () {
+        var el = document.getElementById('app-loading-resource')
+        if (!el) return
+
+        function fileNameFromUrl(url) {
+          try {
+            var pathname = new URL(url, location.origin).pathname
+            var name = pathname.split('/').filter(Boolean).pop()
+            return name || pathname || url
+          } catch (_) {
+            return String(url).split('/').pop().split('?')[0] || url
+          }
+        }
+
+        function setLoadingLabel(url) {
+          var name = fileNameFromUrl(url)
+          if (name) el.textContent = name
+        }
+
+        if ('PerformanceObserver' in window) {
+          try {
+            var observer = new PerformanceObserver(function (list) {
+              list.getEntries().forEach(function (entry) {
+                setLoadingLabel(entry.name)
+              })
+            })
+            observer.observe({ type: 'resource', buffered: true })
+          } catch (_) {}
+        }
+
+        if (window.fetch) {
+          var nativeFetch = window.fetch
+          window.fetch = function (input) {
+            var url = typeof input === 'string' ? input : input && input.url
+            if (url) setLoadingLabel(url)
+            return nativeFetch.apply(this, arguments)
+          }
+        }
+      })()
+    </script>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
