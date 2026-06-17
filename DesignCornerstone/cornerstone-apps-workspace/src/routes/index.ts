@@ -1,39 +1,68 @@
 import {
-  WORKSPACE_ROUTE_CONFIGS,
   flattenWorkspaceRouteConfigs,
+  toWorkspaceRouteConfigs,
   type WorkspaceRouteConfig,
 } from './config'
 
-export type { WorkspaceRouteConfig } from './config'
-export { WORKSPACE_ROUTE_CONFIGS, flattenWorkspaceRouteConfigs } from './config'
+export type {
+  WorkspaceRouteConfig,
+  WorkspaceRouteLeaf,
+  WorkspaceRouteStructure,
+  WorkspaceMenuApiItem,
+} from './config'
+export {
+  WORKSPACE_ROUTE_STRUCTURES,
+  WORKSPACE_ROUTE_CONFIGS,
+  flattenWorkspaceRouteConfigs,
+  resolveWorkspaceRouteFullPath,
+  toWorkspaceRouteConfigs,
+} from './config'
+export { mergeMenuWithStructure } from './mergeMenu'
 
 const WORKSPACE_COMPONENTS: Record<string, GrowRouteComponent> = {
   Workspace: () => import('../pages/workspace.vue'),
   WorkspaceSettings: () => import('../pages/settings.vue'),
+  SharedDemo: () => import('../pages/shared-demo.vue'),
+}
+
+function resolveWorkspaceComponent(config: WorkspaceRouteConfig): GrowRouteComponent {
+  const componentKey = String(config.componentKey ?? config.name)
+  const component = WORKSPACE_COMPONENTS[componentKey]
+  if (!component) {
+    throw new Error(`Unknown workspace component: ${componentKey}`)
+  }
+  return component
 }
 
 export const WORKSPACE_ROUTES: RouteRecordItem[] = flattenWorkspaceRouteConfigs(
-  WORKSPACE_ROUTE_CONFIGS,
-).map((config) => ({
+  toWorkspaceRouteConfigs(),
+).map(({ fullPath, ...config }) => ({
   ...config,
-  component: WORKSPACE_COMPONENTS[String(config.name)],
+  path: fullPath,
+  component: resolveWorkspaceComponent(config),
 }))
 
 export const WORKSPACE_ROUTE = WORKSPACE_ROUTES[0]
 
 export function toWorkspaceRouteConfig(route: RouteRecordItem): WorkspaceRouteConfig {
   const { path, name, meta, icon } = route
-  return { path, name, meta, icon }
+  return {
+    path,
+    name,
+    title: String(meta?.title ?? name),
+    icon,
+  }
 }
 
-export function resolveWorkspaceRoute(config: WorkspaceRouteConfig): RouteRecordItem {
-  const route = WORKSPACE_ROUTES.find((item) => item.name === config.name)
-  if (!route) {
-    throw new Error(`Unknown workspace route: ${String(config.name)}`)
-  }
+export function resolveWorkspaceRoute(
+  config: WorkspaceRouteConfig,
+  fullPath = config.path,
+): RouteRecordItem {
   return {
-    ...route,
-    ...config,
-    meta: { ...route.meta, ...config.meta },
+    path: fullPath,
+    name: config.name,
+    component: resolveWorkspaceComponent(config),
+    meta: { title: config.title },
+    icon: config.icon,
   }
 }

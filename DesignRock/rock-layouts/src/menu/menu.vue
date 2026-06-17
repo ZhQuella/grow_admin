@@ -1,6 +1,5 @@
 <template>
   <GrowMenu
-    :key="activeMenu"
     class="!border-none"
     :collapse="!isPutAway"
     :default-active="activeMenu"

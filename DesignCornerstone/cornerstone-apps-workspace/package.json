@@ -5,7 +5,7 @@
   "module": "index.ts",
   "exports": {
     ".": "./index.ts",
-    "./route-config": "./src/routes/config.ts"
+    "./route-config": "./src/routes/route-config.ts"
   },
   "license": "MIT",
   "description": "GrowAdmin-工作区示例页",

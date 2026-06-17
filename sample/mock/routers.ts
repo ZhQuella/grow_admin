@@ -1,5 +1,9 @@
-import { WORKSPACE_ROUTE_CONFIGS } from '@grow-admin-cornerstone/apps-workspace/route-config';
+import {
+  mergeMenuWithStructure,
+  WORKSPACE_ROUTE_STRUCTURES,
+} from '@grow-admin-cornerstone/apps-workspace/route-config';
 import { resultSuccess } from '@grow-admin-rock/mock/util';
+import { MENU_LIST } from './menuList';
 
 export default [
   {
@@ -7,7 +11,7 @@ export default [
     method: "get",
     response: () => {
       return resultSuccess({
-        menuList: WORKSPACE_ROUTE_CONFIGS,
+        menuList: mergeMenuWithStructure(MENU_LIST, WORKSPACE_ROUTE_STRUCTURES),
       }, {
         message: '获取菜单成功',
       });

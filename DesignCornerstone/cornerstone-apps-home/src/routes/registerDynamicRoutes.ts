@@ -1,8 +1,10 @@
 import { getMenuList } from '#/api/routers'
+import { extendComponent } from '#/utils/extendComponent'
 import { Lib as routeLib } from '@grow-admin-rock/middleware-router'
 import {
   flattenWorkspaceRouteConfigs,
   resolveWorkspaceRoute,
+  resolveWorkspaceRouteFullPath,
   type WorkspaceRouteConfig,
 } from '@grow-admin-cornerstone/apps-workspace'
 import { resolveByKeyOrThrow } from '@grow-admin-rock/ioc'
@@ -12,19 +14,25 @@ import type { Menu } from '@grow-admin-rock/types'
 const HOME_ROUTE_NAME = 'Home'
 const HOME_PATH = '/home'
 
-function toMenuItem(config: WorkspaceRouteConfig): Menu {
+function toMenuItem(
+  config: WorkspaceRouteConfig,
+  parentPath = '',
+  isRootLevel = true,
+): Menu {
   const menu: Menu = {
     name: String(config.name),
-    title: String(config.meta?.title ?? config.name),
+    title: config.title,
     path: config.children?.length
       ? String(config.name)
-      : `${HOME_PATH}/${config.path}`,
+      : `${HOME_PATH}/${resolveWorkspaceRouteFullPath(config, parentPath)}`,
     icon: config.icon,
-    meta: config.meta,
   }
 
   if (config.children?.length) {
-    menu.children = config.children.map(toMenuItem)
+    const nextParentPath = isRootLevel
+      ? ''
+      : resolveWorkspaceRouteFullPath(config, parentPath)
+    menu.children = config.children.map((child) => toMenuItem(child, nextParentPath, false))
   }
 
   return menu
@@ -39,11 +47,21 @@ export async function registerDynamicRoutes() {
   const router = resolveByKeyOrThrow(routeLib.types.RouteTable).router
   const authStore = useAuthStore()
 
-  flattenWorkspaceRouteConfigs(menuList).forEach((config) => {
-    const route = resolveWorkspaceRoute(config)
-    if (!router.hasRoute(route.name)) {
-      router.addRoute(HOME_ROUTE_NAME, route)
+  flattenWorkspaceRouteConfigs(menuList).forEach(({ fullPath, ...config }) => {
+    const route = resolveWorkspaceRoute(config, fullPath)
+    if (router.hasRoute(route.name)) {
+      return
     }
+
+    const componentName = String(route.name)
+    router.addRoute(HOME_ROUTE_NAME, {
+      ...route,
+      component: extendComponent(route.component!, { name: componentName }),
+      meta: {
+        ...route.meta,
+        componentName,
+      },
+    })
   })
 
   authStore.setBackMenuList(toMenuList(menuList))
