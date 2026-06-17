@@ -1,21 +1,16 @@
 {
-  "name": "@grow-admin-cornerstone/apps-home",
+  "name": "@grow-admin-cornerstone/apps-workspace",
   "version": "0.0.0",
   "main": "index.ts",
   "module": "index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./route-config": "./src/routes/config.ts"
+  },
   "license": "MIT",
-  "description": "GrowAdmin-登录后首页",
+  "description": "GrowAdmin-工作区示例页",
   "scripts": {
     "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
-  },
-  "dependencies": {
-    "@grow-admin-rock/constants": "workspace:*",
-    "@grow-admin-rock/ioc": "workspace:*",
-    "@grow-admin-rock/layouts": "workspace:*",
-    "@grow-admin-rock/infrastructure": "workspace:*",
-    "@grow-admin-rock/locale": "workspace:*",
-    "@grow-admin-rock/state": "workspace:*",
-    "@grow-admin-cornerstone/apps-workspace": "workspace:*"
   },
   "devDependencies": {
     "@grow-admin-rock/base-package": "workspace:*",

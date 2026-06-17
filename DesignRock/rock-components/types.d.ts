@@ -25,6 +25,8 @@ declare module 'vue' {
     GrowTag: import('vue').Component;
     GrowCard: import('vue').Component;
     GrowMenu: import('vue').Component;
+    GrowMenuItem: import('vue').Component;
+    GrowSubMenu: import('vue').Component;
     GrowDivider: import('vue').Component;
     GrowSpace: import('vue').Component;
     GrowPopover: import('vue').Component;

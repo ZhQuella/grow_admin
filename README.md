@@ -30,10 +30,257 @@ grow_admin/
 │   ├── rock-ioc/            # 依赖注入
 │   └── ...
 ├── DesignCornerstone/       # 业务模块层
-│   └── cornerstone-apps-login/
+│   ├── cornerstone-apps-login/     # 登录模块
+│   ├── cornerstone-apps-home/      # 登录后首页（布局壳 + 动态路由注册）
+│   └── cornerstone-apps-workspace/ # 工作区业务页（路由配置 + 页面组件）
 ├── configs/                 # 共享构建配置（含 UnoCSS 主题色映射）
 └── sample/                  # 宿主示例应用
 ```
+
+## 路由与菜单
+
+框架采用 **静态基础路由 + 接口驱动动态路由** 的模式。登录后进入 Home 布局，业务页面作为 Home 的**子路由**渲染在 `home.vue` 的 `<router-view />` 中；侧边菜单与路由共用同一份接口数据，但职责分离：**目录节点只负责菜单展示，叶子节点才注册为可访问路由**。
+
+### 架构概览
+
+```
+业务包路由配置（apps-workspace/route-config）
+        ↓  Mock / 真实接口  GET /api/menu/list
+apps-home/registerDynamicRoutes.ts
+        ├─ flatten → router.addRoute('Home', route)   ← 仅叶子节点
+        └─ tree    → authStore.backMenuList            ← 保留树形结构
+        ↓
+rock-layouts/menu（MenuTreeNode 递归渲染）
+        ↓ 点击叶子菜单
+router.push('/home/xxx')  ← 通过 IoC 获取 router 实例
+        ↓
+home.vue <router-view /> 渲染业务页面
+```
+
+| 层级 | 路由路径 | 说明 |
+|------|----------|------|
+| 根 | `/` | Login（静态，`whiteRoute: true`） |
+| 布局 | `/home` | Home 布局壳（静态，`isBasic: true`） |
+| 业务 | `/home/workspace`、`/home/settings` | 动态注册的 Home 子路由 |
+
+### 路由实例的获取方式
+
+**业务代码与布局组件不直接 `import { useRouter } from 'vue-router'`**，统一通过 `@grow-admin-rock/middleware-router` + IoC 获取：
+
+```typescript
+import { Lib as routeLib } from '@grow-admin-rock/middleware-router'
+import { resolveByKeyOrThrow } from '@grow-admin-rock/ioc'
+
+// 获取 router 实例（与 registerDynamicRoutes.ts 用法一致）
+const router = resolveByKeyOrThrow(routeLib.types.RouteTable).router
+
+router.push('/home/workspace')
+router.addRoute('Home', childRoute)
+```
+
+宿主应用在 `sample/src/plugin/initIoc.ts` 末尾挂载路由：
+
+```typescript
+const router = diKT(routeLib.types.RouteTable).router
+app.use(router)
+await router.isReady()
+```
+
+### 静态路由注册
+
+各业务模块通过 `Lib.routes` 在 IOC 加载时注册到 `AppContext`：
+
+```typescript
+// cornerstone-apps-home/src/routes/index.ts
+const HOME_ROUTE: RouteRecordItem = {
+  path: '/home',
+  name: 'Home',
+  component: () => import('../pages/home.vue'),
+  meta: { title: '首页', isBasic: true },
+  // 注意：业务子路由不在此静态声明，由接口动态注入
+}
+
+export const RouteList: RouteRecordItem[] = [HOME_ROUTE]
+```
+
+| `meta` 字段 | 含义 |
+|-------------|------|
+| `isBasic: true` | 基础路由，应用启动时写入 router，重置路由时不会被移除 |
+| `whiteRoute: true` | 白名单路由（如 Login），未登录可访问 |
+
+### 动态路由注册
+
+动态路由在**用户已登录且首次进入受保护页面时**完成，核心逻辑位于 `cornerstone-apps-home/src/routes/registerDynamicRoutes.ts`：
+
+```typescript
+export async function registerDynamicRoutes() {
+  // 1. 请求菜单/路由配置
+  const { menuList } = await getMenuList()
+
+  // 2. 展平树形配置，仅叶子节点注册为 Vue 路由
+  flattenWorkspaceRouteConfigs(menuList).forEach((config) => {
+    const route = resolveWorkspaceRoute(config)  // 合并 API 配置与本地 component 映射
+    router.addRoute('Home', route)               // 挂到 Home 下
+  })
+
+  // 3. 完整树形结构写入 state，供侧边菜单渲染
+  authStore.setBackMenuList(toMenuList(menuList))
+}
+```
+
+**路由守卫**（`cornerstone-apps-home/src/routes/guard.ts`）保证注册时机正确——必须在导航完成前注册，否则直接访问 `/home/workspace` 会因路由不存在而无法匹配：
+
+```typescript
+if (!authStore.getIsDynamicAddedRoute) {
+  await registerDynamicRoutes()
+  authStore.setDynamicAddedRoute(true)
+  next({ path: to.fullPath, query: to.query, hash: to.hash, replace: true })
+  return
+}
+```
+
+> 不可仅在 `home.vue` 的 `onMounted` 中注册路由：若用户直接访问子路由 URL，Home 组件尚未挂载，动态路由永远不会被添加。
+
+### 业务包路由配置（apps-workspace）
+
+业务模块维护**两份配置**，职责分离：
+
+| 文件 | 职责 | 是否含 `.vue` 组件 |
+|------|------|-------------------|
+| `src/routes/config.ts` | 可序列化的树形菜单/路由元数据，供 Mock 与接口返回 | ❌ |
+| `src/routes/index.ts` | 本地 `component` 映射 + `resolveWorkspaceRoute()` | ✅ |
+
+**树形配置示例**（`config.ts`）：
+
+```typescript
+export const WORKSPACE_ROUTE_CONFIGS: WorkspaceRouteConfig[] = [
+  {
+    path: 'workspace-catalog',       // 目录标识，不注册为路由
+    name: 'WorkspaceCatalog',
+    icon: 'ant-design:folder-outlined',
+    meta: { title: '工作区' },        // 父级：菜单目录
+    children: [
+      {
+        path: 'workspace',
+        name: 'Workspace',
+        icon: 'ant-design:appstore-outlined',
+        meta: { title: '工作台' },    // 叶子：可访问页面
+      },
+      {
+        path: 'settings',
+        name: 'WorkspaceSettings',
+        meta: { title: '设置中心' },
+      },
+    ],
+  },
+]
+```
+
+**组件映射**（`routes/index.ts`）——API 只返回元数据，组件在客户端解析：
+
+```typescript
+const WORKSPACE_COMPONENTS: Record<string, GrowRouteComponent> = {
+  Workspace: () => import('../pages/workspace.vue'),
+  WorkspaceSettings: () => import('../pages/settings.vue'),
+}
+```
+
+Mock 通过子路径导出引用纯配置，避免 vite-plugin-mock 打包 `.vue` 文件：
+
+```typescript
+// sample/mock/routers.ts
+import { WORKSPACE_ROUTE_CONFIGS } from '@grow-admin-cornerstone/apps-workspace/route-config'
+
+// GET /api/menu/list → { menuList: WORKSPACE_ROUTE_CONFIGS }
+```
+
+### 路由与菜单的关系
+
+同一份接口数据，`registerDynamicRoutes` 处理后产生两种结构：
+
+| 用途 | 数据结构 | 处理方式 |
+|------|----------|----------|
+| Vue Router | 扁平叶子路由 | `flattenWorkspaceRouteConfigs()` → `addRoute('Home', route)` |
+| 侧边菜单 | 树形 `Menu[]` | `toMenuList()` → `authStore.backMenuList` |
+
+**字段映射规则**（`toMenuItem`）：
+
+| 节点类型 | `Menu.path` | 是否注册路由 | 点击行为 |
+|----------|-------------|-------------|----------|
+| 目录（有 `children`） | `name` 字符串（如 `WorkspaceCatalog`） | ❌ | 展开/收起，不跳转 |
+| 叶子（无 `children`） | 完整路径（如 `/home/workspace`） | ✅ | `router.push(path)` |
+
+菜单状态存储在 `@grow-admin-rock/state` 的 `authStore.backMenuList`，侧边栏从该字段读取并渲染。
+
+### 菜单渲染（rock-layouts）
+
+`@grow-admin-rock/layouts` 的 `Menu` 组件从 `authStore.backMenuList` 读取数据，通过 `MenuTreeNode` **递归组件**渲染树形菜单：
+
+```
+Menu（menu.vue）
+  └─ MenuTreeNode（递归）
+       ├─ 有 children → GrowSubMenu（目录）
+       └─ 无 children → GrowMenuItem（可点击菜单项）
+```
+
+Element Plus 的 `ElMenu` 要求 `SubMenu` / `MenuItem` 作为**直接子节点**，因此不可使用 `<template v-for>` 包裹，必须通过递归组件保证每个节点只有一个根元素。
+
+菜单点击跳转同样通过 IoC 获取 router（**不依赖 vue-router 作为 layouts 的直接依赖**）：
+
+```typescript
+// rock-layouts/src/menu/menu.vue
+function handleMenuSelect(path: string) {
+  if (!path.startsWith('/')) return  // 目录节点 path 不以 / 开头，忽略
+  resolveByKeyOrThrow(routeLib.types.RouteTable).router.push(path)
+}
+```
+
+Home 页面通过 Teleport 将 Menu 挂载到布局插槽：
+
+```vue
+<!-- cornerstone-apps-home/src/pages/home.vue -->
+<template #view>
+  <router-view />   <!-- 子路由页面渲染位置 -->
+</template>
+
+<Teleport to="#grow-menu">
+  <Menu />          <!-- 侧边菜单 -->
+</Teleport>
+```
+
+### 新增业务页面流程
+
+以在 `apps-workspace` 中新增页面为例：
+
+1. **新建页面组件** — `src/pages/xxx.vue`
+2. **更新树形配置** — 在 `src/routes/config.ts` 的 `children` 中追加节点（或新增目录）
+3. **注册组件映射** — 在 `src/routes/index.ts` 的 `WORKSPACE_COMPONENTS` 中添加 `name → import()` 对应关系
+4. **Mock 自动生效** — `sample/mock/routers.ts` 引用 `route-config`，无需额外修改
+5. **重启/刷新** — 重新登录或清除 `isDynamicAddedRoute` 状态后验证
+
+### 关键文件索引
+
+| 文件 | 职责 |
+|------|------|
+| `DesignCornerstone/cornerstone-apps-workspace/src/routes/config.ts` | 树形路由/菜单元数据（Mock 安全导出） |
+| `DesignCornerstone/cornerstone-apps-workspace/src/routes/index.ts` | 组件映射、`resolveWorkspaceRoute()` |
+| `DesignCornerstone/cornerstone-apps-home/src/routes/index.ts` | Home 静态路由 |
+| `DesignCornerstone/cornerstone-apps-home/src/routes/guard.ts` | 登录守卫 + 动态路由注册触发 |
+| `DesignCornerstone/cornerstone-apps-home/src/routes/registerDynamicRoutes.ts` | 拉取菜单、注册路由、写入 state |
+| `DesignCornerstone/cornerstone-apps-home/src/api/routers.ts` | `getMenuList()` 接口定义 |
+| `sample/mock/routers.ts` | 开发环境 Mock 菜单接口 |
+| `DesignRock/rock-layouts/src/menu/menu.vue` | 侧边菜单容器 |
+| `DesignRock/rock-layouts/src/menu/MenuTreeNode.vue` | 菜单树递归节点 |
+| `DesignRock/rock-state/src/modules/authStore.ts` | `backMenuList` 菜单状态 |
+| `DesignRock/rock-middleware-router/` | 路由表 IoC 注册、`RouteOperator` |
+
+### 开发自检清单
+
+1. 登录后直接访问 `/home/workspace`，页面正常渲染（非空白、非跳转 Login）。
+2. 侧边栏显示树形目录，目录节点点击不跳转，叶子节点点击切换路由。
+3. 当前路由对应的菜单项高亮。
+4. Mock 接口 `/api/menu/list` 返回的数据结构与 `config.ts` 一致。
+5. 新增页面后，`WORKSPACE_COMPONENTS` 中存在对应 `name` 映射，否则 `resolveWorkspaceRoute` 会抛错。
 
 ## 主题与颜色
 
@@ -772,7 +1019,8 @@ EPComponentDriver.builder()
 | `@grow-admin-rock/components` | `RockComponent` 枚举、`Grow*` 契约组件、`ComponentMap` |
 | `@grow-admin-rock/layouts` | 布局壳：`SettingDrawer`、`SettingTheme`、`SwitchLanguage` 等 |
 | `@grow-admin-rock/locale` | `useI18n`、`useLocale`、语言包加载与持久化 |
-| `@grow-admin-rock/state` | `useAppConfig`、`useTheme`、配置持久化 |
+| `@grow-admin-rock/state` | `useAppConfig`、`useTheme`、`useAuthStore`（含 `backMenuList`）、配置持久化 |
+| `@grow-admin-rock/middleware-router` | 路由表 IoC 注册、`RouteTable`、`RouteOperator` |
 | `@grow-admin-rock/styles` | 全局 CSS 变量、UnoCSS 入口、主题过渡 |
 | `@grow-admin-rock/constants` | `APP_THEME_COLOR_LIST` 等设计常量 |
 | `@grow-admin-rock/component-driver` | 抽象驱动、`ComponentDriverProvider`、Builder API |

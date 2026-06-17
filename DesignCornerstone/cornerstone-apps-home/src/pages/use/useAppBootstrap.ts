@@ -1,5 +1,6 @@
 import { onMounted, onUnmounted } from 'vue'
 import { useAppStore, useAuthStore } from '@grow-admin-rock/state'
+import { registerDynamicRoutes } from '#/routes/registerDynamicRoutes'
 
 export const PAGE_LOADING_TIP_KEY = 'layout.common.pageLoading'
 
@@ -15,8 +16,12 @@ async function fetchUserInfo() {
 }
 
 async function fetchMenus() {
-  await delay(1000)
-  // TODO: 替换为真实菜单接口
+  const authStore = useAuthStore()
+  if (authStore.getIsDynamicAddedRoute) {
+    return
+  }
+  await registerDynamicRoutes()
+  authStore.setDynamicAddedRoute(true)
 }
 
 async function initRoutes() {

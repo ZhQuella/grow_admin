@@ -11,6 +11,8 @@ export enum RockComponent {
   Tag = 'Tag',
   Card = 'Card',
   Menu = 'Menu',
+  MenuItem = 'MenuItem',
+  SubMenu = 'SubMenu',
   Divider = 'Divider',
   Space = 'Space',
   Popover = 'Popover',

@@ -18,15 +18,32 @@
             <GrowIconify icon="ant-design:setting-outlined" :size="18" hover-pointer />
           </GrowButton>
         </template>
+
+        <template #menu>
+          <div id="grow-menu"></div>
+        </template>
+
+        <template #bread>
+          <div id="grow-bread"></div>
+        </template>
+
+        <template #view>
+          <router-view />
+        </template>
+
       </Layout>
       <SettingDrawer v-if="showSettingDrawer" v-model="settingActive" />
     </div>
   </div>
+
+  <Teleport to="#grow-menu">
+    <Menu />
+  </Teleport>
 </template>
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { Layout, LayoutLogo, SettingDrawer } from '@grow-admin-rock/layouts'
+import { Layout, LayoutLogo, SettingDrawer, Menu } from '@grow-admin-rock/layouts'
 import { SettingButtonPositionEnum } from '@grow-admin-rock/constants'
 import { useI18n } from '@grow-admin-rock/locale'
 import { storeToRefs, useAppConfig, useAppStore } from '@grow-admin-rock/state'

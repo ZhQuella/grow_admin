@@ -20,6 +20,7 @@
   "dependencies": {
     "@grow-admin-cornerstone/apps-home": "workspace:*",
     "@grow-admin-cornerstone/apps-login": "workspace:*",
+    "@grow-admin-cornerstone/apps-workspace": "workspace:*",
     "@grow-admin-rock/base-package": "workspace:*",
     "@grow-admin-rock/component-driver": "workspace:*",
     "@grow-admin-rock/component-driver-antdv": "workspace:*",

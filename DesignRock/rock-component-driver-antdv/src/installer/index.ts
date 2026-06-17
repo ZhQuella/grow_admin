@@ -130,6 +130,8 @@ const allComponents: Partial<Record<RockComponent, any>> = {
   [RockComponent.List]: List,
   [RockComponent.ListItem]: ListItem,
   [RockComponent.Menu]: Menu,
+  [RockComponent.MenuItem]: Menu.Item,
+  [RockComponent.SubMenu]: Menu.SubMenu,
   [RockComponent.MessageProvider]: MessageProvider,
   [RockComponent.Modal]: Modal,
   [RockComponent.NotificationProvider]: NotificationProvider,

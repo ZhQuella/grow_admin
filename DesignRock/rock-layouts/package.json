@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@grow-admin-rock/constants": "workspace:*",
+    "@grow-admin-rock/ioc": "workspace:*",
     "@grow-admin-rock/locale": "workspace:*",
+    "@grow-admin-rock/middleware-router": "workspace:*",
     "@grow-admin-rock/state": "workspace:*"
   },
   "peerDependencies": {
