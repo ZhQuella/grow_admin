@@ -6,6 +6,14 @@
           <LayoutLogo />
         </template>
 
+        <template #menu>
+          <Menu :key="layoutType" />
+        </template>
+
+        <template #bread>
+          <Breadcrumb />
+        </template>
+
         <template #option>
           <GrowButton
             v-if="showHeaderSettingButton"
@@ -20,38 +28,17 @@
           <LayoutUserInfo :user-info="userInfo" @logout="handleLogout" />
         </template>
 
-        <template #menu>
-          <div id="grow-menu"></div>
-        </template>
-
-        <template #bread>
-          <div id="grow-bread"></div>
+        <template #tab>
+          <Tabs />
         </template>
 
         <template #view>
           <ContentView />
         </template>
-
-        <template #tab>
-          <div id="grow-tab"></div>
-        </template>
-
       </Layout>
       <SettingDrawer v-if="showSettingDrawer" v-model="settingActive" />
     </div>
   </div>
-
-  <Teleport to="#grow-menu">
-    <Menu />
-  </Teleport>
-
-  <Teleport to="#grow-bread">
-    <Breadcrumb />
-  </Teleport>
-
-  <Teleport to="#grow-tab">
-    <Tabs />
-  </Teleport>
 </template>
 
 <script lang="ts" setup>
@@ -59,16 +46,19 @@ import { computed } from 'vue'
 import { Layout, LayoutLogo, SettingDrawer, Menu, Breadcrumb, ContentView, Tabs, LayoutUserInfo } from '@grow-admin-rock/layouts'
 import { SettingButtonPositionEnum } from '@grow-admin-rock/constants'
 import { useI18n } from '@grow-admin-rock/locale'
-import { storeToRefs, useAppConfig, useAppStore, useUserStore } from '@grow-admin-rock/state'
+import { storeToRefs, useAppConfig, useAppStore, useUserStore, useLayout } from '@grow-admin-rock/state'
 import { useAppBootstrap } from './use/useAppBootstrap'
+import { useHomeLayout } from './use/useHomeLayout'
 import { useUserLogout } from './use/useUserLogout'
 
 useAppBootstrap()
+useHomeLayout()
 
 const { t } = useI18n()
 const appConfig = useAppConfig()
 const appStore = useAppStore()
 const userStore = useUserStore()
+const { layoutType } = useLayout()
 const { showSettingButton, showSettingDrawer, settingButtonPosition } = storeToRefs(appConfig)
 const { settingActive } = storeToRefs(appStore)
 const { userInfo } = storeToRefs(userStore)

@@ -9,6 +9,9 @@ export default {
   transitionEnable: 'Page Transition',
   transitionType: 'Transition Type',
   language: 'Language',
+  layout: 'Layout',
+  layoutRoof: 'Top Menu',
+  layoutSide: 'Side Menu',
   reset: 'Reset',
   close: 'Close',
   transition: {

@@ -19,7 +19,10 @@ const showSystemName = computed(() => isRoofLayout.value || !collapsed.value)
 </script>
 
 <template>
-  <div class="box-border flex h-full w-full min-w-0 items-center justify-center overflow-hidden px-3">
+  <div
+    class="box-border flex h-full min-w-0 items-center overflow-hidden px-3"
+    :class="isRoofLayout ? 'w-auto shrink-0 justify-start' : 'w-full justify-center'"
+  >
     <div class="flex min-w-0 max-w-full items-center gap-2">
       <img
         class="block h-8 w-8 shrink-0 object-contain"

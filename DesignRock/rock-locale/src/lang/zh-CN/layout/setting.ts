@@ -9,6 +9,9 @@ export default {
   transitionEnable: '切换动画',
   transitionType: '动画类型',
   language: '语言',
+  layout: '布局',
+  layoutRoof: '顶部菜单',
+  layoutSide: '侧边菜单',
   reset: '重置配置',
   close: '关闭',
   transition: {

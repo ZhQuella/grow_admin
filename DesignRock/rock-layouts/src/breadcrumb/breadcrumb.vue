@@ -1,5 +1,5 @@
 <template>
-  <GrowBreadcrumb v-if="breadcrumbTrail.length" class="grow-breadcrumb">
+  <GrowBreadcrumb v-if="breadcrumbTrail.length" class="grow-breadcrumb shrink-0 whitespace-nowrap">
     <GrowBreadcrumbItem
       v-for="(item, index) in breadcrumbTrail"
       :key="`${item.name}-${index}`"

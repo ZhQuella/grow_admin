@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { useLayout } from '@grow-admin-rock/state'
 
-
 const { layoutType, isFullScreen, isPutAway, collapsed, onChangeSide } = useLayout()
-
-
 </script>
 
 <template>
@@ -24,7 +21,7 @@ const { layoutType, isFullScreen, isPutAway, collapsed, onChangeSide } = useLayo
       </div>
       <div class="relative flex-1 transition-all">
         <GrowScrollbar>
-          <slot name="menu" />
+          <slot v-if="layoutType === 'side'" name="menu" />
         </GrowScrollbar>
         <div
           class="side-show-btn max"
@@ -41,29 +38,39 @@ const { layoutType, isFullScreen, isPutAway, collapsed, onChangeSide } = useLayo
     <div class="flex h-full w-[1px] flex-1 flex-col">
       <div
         v-if="!isFullScreen"
-        class="box-border flex h-[50px] justify-between border-b border-solid border-border bg-component px-[10px]"
+        class="relative z-10 box-border flex h-[50px] shrink-0 items-center overflow-hidden border-b border-solid border-border bg-component px-[10px]"
+        :class="layoutType === 'roof' ? 'justify-between gap-2' : 'justify-between'"
       >
-        <div class="-enter-y flex h-[50px] shrink-0 items-center">
-          <slot v-if="layoutType === 'roof'" name="logo" />
-          <slot name="bread" />
-        </div>
-        <div class="relative -enter-y w-full grow-0 overflow-hidden px-[10px]">
-          <slot v-if="layoutType === 'roof'" name="menu" />
-        </div>
-        <div class="-enter-y flex h-full shrink-0 items-center gap-2">
-          <slot name="option" />
-        </div>
+        <template v-if="layoutType === 'roof'">
+          <div class="-enter-y flex h-full min-w-0 flex-1 items-center overflow-hidden">
+            <slot name="logo" />
+            <div class="flex h-full shrink-0 items-center">
+              <slot name="bread" />
+            </div>
+            <div class="h-full min-w-0 flex-1 overflow-hidden">
+              <slot name="menu" />
+            </div>
+          </div>
+          <div class="-enter-y flex h-full shrink-0 items-center gap-2">
+            <slot name="option" />
+          </div>
+        </template>
+        <template v-else>
+          <div class="-enter-y flex h-full shrink-0 items-center">
+            <slot name="bread" />
+          </div>
+          <div class="-enter-y flex h-full shrink-0 items-center gap-2">
+            <slot name="option" />
+          </div>
+        </template>
       </div>
       <div
-        class="box-border h-[40px] border-b border-solid border-border bg-component px-[10px] -enter-y"
+        class="box-border h-[40px] shrink-0 border-b border-solid border-border bg-component px-[10px] -enter-y"
       >
         <slot name="tab" />
       </div>
       <div
-        class="relative flex-1 overflow-hidden bg-layout enter-y"
-        :style="{
-          height: `calc(100% - ${!isFullScreen ? 90 : 40}px)`,
-        }"
+        class="relative min-h-0 flex-1 overflow-hidden bg-layout enter-y"
       >
         <slot name="view" />
       </div>

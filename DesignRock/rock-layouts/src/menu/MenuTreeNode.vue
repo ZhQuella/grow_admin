@@ -16,7 +16,7 @@
     <i v-if="item.icon" class="el-icon">
       <GrowIconify :icon="item.icon" :size="18" hover-pointer />
     </i>
-    <template #title>{{ item.title }}</template>
+    <span>{{ item.title }}</span>
   </GrowMenuItem>
 </template>
 

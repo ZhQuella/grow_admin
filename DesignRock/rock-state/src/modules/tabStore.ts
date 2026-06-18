@@ -45,6 +45,25 @@ function toTabItem(menu: Menu): TabItem {
   }
 }
 
+function collectAffixMenus(menus: Menu[]): Menu[] {
+  const result: Menu[] = []
+
+  for (const menu of menus) {
+    if (menu.children?.length) {
+      result.push(...collectAffixMenus(menu.children))
+    }
+    if (
+      menu.menuType === MenuTypeEnum.MENU
+      && menu.affix
+      && menu.path.startsWith('/')
+    ) {
+      result.push(menu)
+    }
+  }
+
+  return result
+}
+
 export const useTabStore = defineStore({
   id: 'TAB',
   state: (): TabStoreState => ({
@@ -100,6 +119,26 @@ export const useTabStore = defineStore({
           tab.isKeepAlive = menu.isKeepAlive ?? true
         }
       })
+    },
+
+    /** 首次无 tab 时，打开所有 affix 菜单并返回首选路由 */
+    initAffixTabs(menus: Menu[]): string | null {
+      if (this.tabList.length > 0) {
+        return null
+      }
+
+      const affixMenus = collectAffixMenus(menus)
+      if (!affixMenus.length) {
+        return null
+      }
+
+      affixMenus.forEach((menu) => {
+        this.openTab(menu)
+      })
+
+      const firstPath = normalizePath(affixMenus[0].path)
+      this.activeTab = firstPath
+      return firstPath
     },
 
     openTab(menu: Menu): TabItem {
