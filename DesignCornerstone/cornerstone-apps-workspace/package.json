@@ -14,6 +14,8 @@
   },
   "devDependencies": {
     "@grow-admin-rock/base-package": "workspace:*",
+    "@grow-admin-rock/constants": "workspace:*",
+    "@grow-admin-rock/hooks": "workspace:*",
     "@grow-admin-rock/middleware-router": "workspace:*",
     "typescript": "^5.0.2",
     "vite": "4.3.9",

@@ -13,8 +13,8 @@ declare module 'vue-router' {
     affix?: boolean;
     // Whether the route has been dynamically added
     hideBreadcrumb?: boolean;
-    // Never show in menu
-    hideMenu?: boolean;
+    // Whether to show in menu
+    isVisible?: boolean;
     //隐藏子菜单
     hideChildrenInMenu?: boolean;
     //菜单排序

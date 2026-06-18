@@ -19,6 +19,8 @@ export function mergeMenuWithStructure(
       name: structure.name,
       title: menuItem.title,
       icon: menuItem.icon,
+      menuType: menuItem.menuType,
+      isVisible: menuItem.isVisible,
       componentKey: structure.componentKey,
     }
 

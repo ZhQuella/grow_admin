@@ -6,7 +6,7 @@
     @select="handleMenuSelect"
   >
     <MenuTreeNode
-      v-for="item in menuList"
+      v-for="item in visibleMenuList"
       :key="item.path"
       :item="item"
     />
@@ -19,12 +19,14 @@ import { Lib as routeLib } from '@grow-admin-rock/middleware-router'
 import { resolveByKeyOrThrow } from '@grow-admin-rock/ioc'
 import { storeToRefs, useAuthStore, useLayout } from '@grow-admin-rock/state'
 import MenuTreeNode from './MenuTreeNode.vue'
+import { shouldRenderMenuItem } from './menuUtils'
 
 const useRouter = () => resolveByKeyOrThrow(routeLib.types.RouteTable).router
 
 const { isPutAway } = useLayout()
 const authStore = useAuthStore()
 const { backMenuList: menuList } = storeToRefs(authStore)
+const visibleMenuList = computed(() => menuList.value.filter((item) => shouldRenderMenuItem(item)))
 const activeMenu = computed(() => useRouter().currentRoute.value.path)
 
 function handleMenuSelect(path: string) {

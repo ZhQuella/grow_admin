@@ -1,3 +1,4 @@
+import { MenuTypeEnum } from '@grow-admin-rock/constants'
 import {
   flattenWorkspaceRouteConfigs,
   toWorkspaceRouteConfigs,
@@ -23,6 +24,8 @@ const WORKSPACE_COMPONENTS: Record<string, GrowRouteComponent> = {
   Workspace: () => import('../pages/workspace.vue'),
   WorkspaceSettings: () => import('../pages/settings.vue'),
   SharedDemo: () => import('../pages/shared-demo.vue'),
+  MenuChildTest: () => import('../pages/menu-child-test.vue'),
+  MenuChildTestSub: () => import('../pages/menu-child-test-sub.vue'),
 }
 
 function resolveWorkspaceComponent(config: WorkspaceRouteConfig): GrowRouteComponent {
@@ -51,6 +54,8 @@ export function toWorkspaceRouteConfig(route: RouteRecordItem): WorkspaceRouteCo
     name,
     title: String(meta?.title ?? name),
     icon,
+    menuType: MenuTypeEnum.MENU,
+    isVisible: true,
   }
 }
 

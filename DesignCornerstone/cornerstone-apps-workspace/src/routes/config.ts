@@ -1,3 +1,5 @@
+import { MenuTypeEnum } from '@grow-admin-rock/constants'
+
 /** 客户端路由结构：path、组件映射，不含展示信息 */
 export type WorkspaceRouteStructure = {
   path: string
@@ -11,6 +13,8 @@ export type WorkspaceMenuApiItem = {
   name: string
   title: string
   icon?: string
+  menuType: MenuTypeEnum
+  isVisible: boolean
   children?: WorkspaceMenuApiItem[]
 }
 
@@ -18,6 +22,8 @@ export type WorkspaceMenuApiItem = {
 export type WorkspaceRouteConfig = WorkspaceRouteStructure & {
   title: string
   icon?: string
+  menuType: MenuTypeEnum
+  isVisible: boolean
 }
 
 export const WORKSPACE_ROUTE_STRUCTURES: WorkspaceRouteStructure[] = [
@@ -46,6 +52,24 @@ export const WORKSPACE_ROUTE_STRUCTURES: WorkspaceRouteStructure[] = [
             path: 'shared-demo-b',
             name: 'SharedDemoB',
             componentKey: 'SharedDemo',
+          },
+        ],
+      },
+      {
+        path: 'menu-subset-test',
+        name: 'MenuSubsetTest',
+        children: [
+          {
+            path: 'menu-child-test',
+            name: 'MenuChildTest',
+            componentKey: 'MenuChildTest',
+            children: [
+              {
+                path: 'menu-child-test-sub',
+                name: 'MenuChildTestSub',
+                componentKey: 'MenuChildTestSub',
+              },
+            ],
           },
         ],
       },
@@ -92,7 +116,14 @@ export function flattenWorkspaceRouteConfigs(
   return configs.flatMap((config) => {
     if (config.children?.length) {
       const nextParentPath = buildChildParentPath(config, parentPath, isRootLevel)
-      return flattenWorkspaceRouteConfigs(config.children, nextParentPath, false)
+      const childRoutes = flattenWorkspaceRouteConfigs(config.children, nextParentPath, false)
+      const selfRoute = config.componentKey != null
+        ? [{
+            ...config,
+            fullPath: resolveWorkspaceRouteFullPath(config, parentPath),
+          }]
+        : []
+      return [...selfRoute, ...childRoutes]
     }
 
     return [{
@@ -106,6 +137,8 @@ function withDefaultTitle(structure: WorkspaceRouteStructure): WorkspaceRouteCon
   return {
     ...structure,
     title: structure.name,
+    menuType: structure.children?.length ? MenuTypeEnum.DIRECTORY : MenuTypeEnum.MENU,
+    isVisible: true,
     children: structure.children?.map(withDefaultTitle),
   }
 }

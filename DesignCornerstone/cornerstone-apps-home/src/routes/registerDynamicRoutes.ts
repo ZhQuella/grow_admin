@@ -1,3 +1,4 @@
+import { MenuTypeEnum } from '@grow-admin-rock/constants'
 import { getMenuList } from '#/api/routers'
 import { extendComponent } from '#/utils/extendComponent'
 import { Lib as routeLib } from '@grow-admin-rock/middleware-router'
@@ -19,13 +20,14 @@ function toMenuItem(
   parentPath = '',
   isRootLevel = true,
 ): Menu {
+  const routePath = `${HOME_PATH}/${resolveWorkspaceRouteFullPath(config, parentPath)}`
   const menu: Menu = {
     name: String(config.name),
     title: config.title,
-    path: config.children?.length
-      ? String(config.name)
-      : `${HOME_PATH}/${resolveWorkspaceRouteFullPath(config, parentPath)}`,
+    path: config.menuType === MenuTypeEnum.DIRECTORY ? String(config.name) : routePath,
     icon: config.icon,
+    menuType: config.menuType,
+    isVisible: config.isVisible,
   }
 
   if (config.children?.length) {
@@ -33,6 +35,9 @@ function toMenuItem(
       ? ''
       : resolveWorkspaceRouteFullPath(config, parentPath)
     menu.children = config.children.map((child) => toMenuItem(child, nextParentPath, false))
+    if (config.menuType === MenuTypeEnum.MENU) {
+      menu.path = routePath
+    }
   }
 
   return menu

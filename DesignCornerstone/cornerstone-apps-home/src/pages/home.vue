@@ -39,11 +39,15 @@
   <Teleport to="#grow-menu">
     <Menu />
   </Teleport>
+
+  <Teleport to="#grow-bread">
+    <Breadcrumb />
+  </Teleport>
 </template>
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { Layout, LayoutLogo, SettingDrawer, Menu } from '@grow-admin-rock/layouts'
+import { Layout, LayoutLogo, SettingDrawer, Menu, Breadcrumb } from '@grow-admin-rock/layouts'
 import { SettingButtonPositionEnum } from '@grow-admin-rock/constants'
 import { useI18n } from '@grow-admin-rock/locale'
 import { storeToRefs, useAppConfig, useAppStore } from '@grow-admin-rock/state'

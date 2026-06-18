@@ -171,6 +171,12 @@ importers:
       '@grow-admin-rock/base-package':
         specifier: workspace:*
         version: link:../../DesignRock/rock-base-package
+      '@grow-admin-rock/constants':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-constants
+      '@grow-admin-rock/hooks':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-hooks
       '@grow-admin-rock/middleware-router':
         specifier: workspace:*
         version: link:../../DesignRock/rock-middleware-router

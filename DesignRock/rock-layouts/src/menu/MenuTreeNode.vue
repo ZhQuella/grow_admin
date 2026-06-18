@@ -1,5 +1,5 @@
 <template>
-  <GrowSubMenu v-if="item.children?.length" :index="item.path">
+  <GrowSubMenu v-if="shouldRender && displayAsSubMenu" :index="item.name">
     <template #title>
       <i v-if="item.icon" class="el-icon">
         <GrowIconify :icon="item.icon" :size="18" hover-pointer />
@@ -12,7 +12,7 @@
       :item="child"
     />
   </GrowSubMenu>
-  <GrowMenuItem v-else :index="item.path">
+  <GrowMenuItem v-else-if="shouldRender" :index="item.path">
     <i v-if="item.icon" class="el-icon">
       <GrowIconify :icon="item.icon" :size="18" hover-pointer />
     </i>
@@ -21,13 +21,18 @@
 </template>
 
 <script lang="ts" setup>
+import { computed } from 'vue'
 import type { Menu } from '@grow-admin-rock/types'
+import { shouldDisplayAsSubMenu, shouldRenderMenuItem } from './menuUtils'
 
 defineOptions({
   name: 'MenuTreeNode',
 })
 
-defineProps<{
+const props = defineProps<{
   item: Menu
 }>()
+
+const displayAsSubMenu = computed(() => shouldDisplayAsSubMenu(props.item))
+const shouldRender = computed(() => shouldRenderMenuItem(props.item))
 </script>
