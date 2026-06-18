@@ -1,10 +1,14 @@
 import type { LocaleType } from '@grow-admin-rock/types'
 import { computed } from 'vue'
 import { LOCALE_KEY } from '@grow-admin-rock/constants'
-import { useLocalStorage } from '@grow-admin-rock/utils'
+import { createStorageName, useLocalStorage } from '@grow-admin-rock/utils'
 import { LOCALE, localeSetting } from './config'
 
-const store = useLocalStorage(LOCALE_KEY, localeSetting, { mergeDefaults: true })
+export function createLocaleStorageKey(env: Record<string, any> = import.meta.env) {
+  return `${createStorageName(env)}${LOCALE_KEY}`
+}
+
+const store = useLocalStorage(createLocaleStorageKey(), localeSetting, { mergeDefaults: true })
 
 function resolveLocale(locale?: LocaleType): LocaleType {
   if (locale && localeSetting.availableLocales.includes(locale)) {

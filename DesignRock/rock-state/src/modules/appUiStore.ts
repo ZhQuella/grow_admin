@@ -9,7 +9,7 @@ export const useAppStore = defineStore({
     webFullScreen: false,
     settingActive: false,
     searchActive: false,
-    isPutAway: false,
+    isPutAway: true,
     pageLoading: false,
     pageLoadingTip: '',
   }),
@@ -50,5 +50,8 @@ export const useAppStore = defineStore({
       })
       this.pageLoading = false
     },
+  },
+  persist: {
+    paths: ['isPutAway'],
   },
 })

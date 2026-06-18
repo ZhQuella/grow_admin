@@ -34,5 +34,9 @@ export interface PersistStrategy {
 }
 
 export interface PersistOptions {
+  storage?: Storage;
+  paths?: string[];
+  pick?: string[];
   strategies?: PersistStrategy[];
+  afterRestore?: (ctx: PiniaPluginContext) => void;
 }

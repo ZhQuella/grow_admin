@@ -1,10 +1,16 @@
 import { onMounted, onUnmounted } from 'vue'
+import {
+  screenMap,
+  ScreenSizeEnum,
+  SystemLayoutEnum,
+} from '@grow-admin-rock/constants'
 import { useLayout } from './useLayout'
 
 const RESIZE_DEBOUNCE_MS = 200
+const SIDE_LAYOUT_BREAKPOINT = screenMap.get(ScreenSizeEnum.LG) ?? 992
 
 export function useLayoutResponsive() {
-  const { syncLayoutByViewport } = useLayout()
+  const { layoutType, syncLayoutByViewport } = useLayout()
   let resizeTimer: ReturnType<typeof setTimeout> | undefined
 
   function handleResize() {
@@ -17,7 +23,12 @@ export function useLayoutResponsive() {
   }
 
   onMounted(() => {
-    syncLayoutByViewport()
+    if (
+      layoutType.value === SystemLayoutEnum.SIDE
+      && window.innerWidth < SIDE_LAYOUT_BREAKPOINT
+    ) {
+      syncLayoutByViewport()
+    }
     window.addEventListener('resize', handleResize)
   })
 

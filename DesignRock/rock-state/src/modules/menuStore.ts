@@ -6,7 +6,7 @@ export type MenuStore = ReturnType<typeof useMenuStore>
 export const useMenuStore = defineStore({
   id: 'MENU',
   state: (): MenuStoreState => ({
-    collapsed: true,
+    collapsed: false,
     showMenu: true,
   }),
   getters: {
@@ -19,5 +19,8 @@ export const useMenuStore = defineStore({
     setShowMenu(show: boolean) {
       this.showMenu = show
     },
+  },
+  persist: {
+    paths: ['collapsed'],
   },
 })
