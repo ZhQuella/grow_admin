@@ -16,6 +16,7 @@ export const MENU_LIST: WorkspaceMenuApiItem[] = [
         icon: 'ant-design:appstore-outlined',
         menuType: MenuTypeEnum.MENU,
         isVisible: true,
+        affix: true,
       },
       {
         name: 'WorkspaceSettings',
@@ -23,6 +24,7 @@ export const MENU_LIST: WorkspaceMenuApiItem[] = [
         icon: 'ant-design:setting-outlined',
         menuType: MenuTypeEnum.MENU,
         isVisible: true,
+        isKeepAlive: false,
       },
       {
         name: 'SharedDemo',

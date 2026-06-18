@@ -59,6 +59,8 @@ export enum RockComponent {
   LayoutSider = 'LayoutSider',
   LayoutContent = 'LayoutContent',
   Dropdown = 'Dropdown',
+  DropdownMenu = 'DropdownMenu',
+  DropdownItem = 'DropdownItem',
   TreeSelect = 'TreeSelect',
   Badge = 'Badge',
   ListItem = 'ListItem',

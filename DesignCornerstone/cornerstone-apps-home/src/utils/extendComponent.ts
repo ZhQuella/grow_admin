@@ -17,8 +17,14 @@ export function extendComponent<T extends Record<string, unknown>>(
   const loader = component as () => Promise<LazyComponentModule>
 
   return () =>
-    loader().then((mod) => ({
-      ...mod.default,
-      ...options,
-    }))
+    loader().then((mod) => {
+      const component = mod.default as Record<string, unknown>
+      const name = String(options.name ?? component.name ?? '')
+      return {
+        ...component,
+        ...options,
+        name,
+        __name: name,
+      }
+    })
 }

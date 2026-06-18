@@ -2,13 +2,18 @@
   <div class="settings-page">
     <h1 class="settings-page__title">设置中心</h1>
     <p class="settings-page__desc">这是工作区模块的第二个示例页面，可通过侧边菜单切换访问。</p>
+    <p>{{ num }}</p>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { ref } from 'vue'
 defineOptions({
   name: 'WorkspaceSettingsPage',
 })
+
+const num = ref(Math.random())
+
 </script>
 
 <style scoped>

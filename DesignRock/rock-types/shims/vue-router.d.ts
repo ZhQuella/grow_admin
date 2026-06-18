@@ -28,5 +28,7 @@ declare module 'vue-router' {
     }
     // keep-alive 缓存标识，与路由 name 解耦时可动态生成
     componentName?: string;
+    // 是否缓存页面
+    isKeepAlive?: boolean;
   }
 }

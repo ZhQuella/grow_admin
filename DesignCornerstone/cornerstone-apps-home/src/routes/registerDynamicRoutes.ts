@@ -28,6 +28,8 @@ function toMenuItem(
     icon: config.icon,
     menuType: config.menuType,
     isVisible: config.isVisible,
+    isKeepAlive: config.isKeepAlive,
+    affix: config.affix,
   }
 
   if (config.children?.length) {
@@ -65,6 +67,8 @@ export async function registerDynamicRoutes() {
       meta: {
         ...route.meta,
         componentName,
+        isKeepAlive: config.isKeepAlive ?? true,
+        affix: config.affix ?? false,
       },
     })
   })

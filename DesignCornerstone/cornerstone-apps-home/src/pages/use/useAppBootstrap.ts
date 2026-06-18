@@ -1,5 +1,6 @@
 import { onMounted, onUnmounted } from 'vue'
-import { useAppStore, useAuthStore } from '@grow-admin-rock/state'
+import { getUserInfo } from '#/api/user'
+import { useAppStore, useAuthStore, useUserStore } from '@grow-admin-rock/state'
 import { registerDynamicRoutes } from '#/routes/registerDynamicRoutes'
 
 export const PAGE_LOADING_TIP_KEY = 'layout.common.pageLoading'
@@ -11,8 +12,9 @@ function delay(ms: number) {
 }
 
 async function fetchUserInfo() {
-  await delay(800)
-  // TODO: 替换为真实用户信息接口
+  const userStore = useUserStore()
+  const userInfo = await getUserInfo()
+  userStore.setUserInfo(userInfo)
 }
 
 async function fetchMenus() {

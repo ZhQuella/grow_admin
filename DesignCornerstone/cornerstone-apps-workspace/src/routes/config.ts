@@ -15,6 +15,8 @@ export type WorkspaceMenuApiItem = {
   icon?: string
   menuType: MenuTypeEnum
   isVisible: boolean
+  isKeepAlive?: boolean
+  affix?: boolean
   children?: WorkspaceMenuApiItem[]
 }
 
@@ -24,6 +26,8 @@ export type WorkspaceRouteConfig = WorkspaceRouteStructure & {
   icon?: string
   menuType: MenuTypeEnum
   isVisible: boolean
+  isKeepAlive?: boolean
+  affix?: boolean
 }
 
 export const WORKSPACE_ROUTE_STRUCTURES: WorkspaceRouteStructure[] = [

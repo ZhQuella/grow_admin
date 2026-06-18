@@ -102,6 +102,8 @@ const allComponents: Partial<Record<RockComponent, any>> = {
   [RockComponent.Drawer]: Drawer,
   [RockComponent.DrawerContent]: DrawerContent,
   [RockComponent.Dropdown]: Dropdown,
+  [RockComponent.DropdownMenu]: Menu,
+  [RockComponent.DropdownItem]: Menu.Item,
   [RockComponent.DynamicInput]: DynamicInput,
   [RockComponent.DynamicTags]: DynamicTags,
   [RockComponent.Ellipsis]: Ellipsis,

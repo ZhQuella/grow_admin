@@ -5,6 +5,8 @@ export * from './router';
 export * from './global';
 export * from './setting';
 export * from './menu';
+export * from './tab';
+export * from './user';
 export * from './layout';
 export * from './button';
 export * from './http';

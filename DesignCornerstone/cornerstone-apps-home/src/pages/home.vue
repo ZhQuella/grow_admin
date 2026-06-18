@@ -17,6 +17,7 @@
           >
             <GrowIconify icon="ant-design:setting-outlined" :size="18" hover-pointer />
           </GrowButton>
+          <LayoutUserInfo :user-info="userInfo" @logout="handleLogout" />
         </template>
 
         <template #menu>
@@ -28,7 +29,11 @@
         </template>
 
         <template #view>
-          <router-view />
+          <ContentView />
+        </template>
+
+        <template #tab>
+          <div id="grow-tab"></div>
         </template>
 
       </Layout>
@@ -43,23 +48,31 @@
   <Teleport to="#grow-bread">
     <Breadcrumb />
   </Teleport>
+
+  <Teleport to="#grow-tab">
+    <Tabs />
+  </Teleport>
 </template>
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { Layout, LayoutLogo, SettingDrawer, Menu, Breadcrumb } from '@grow-admin-rock/layouts'
+import { Layout, LayoutLogo, SettingDrawer, Menu, Breadcrumb, ContentView, Tabs, LayoutUserInfo } from '@grow-admin-rock/layouts'
 import { SettingButtonPositionEnum } from '@grow-admin-rock/constants'
 import { useI18n } from '@grow-admin-rock/locale'
-import { storeToRefs, useAppConfig, useAppStore } from '@grow-admin-rock/state'
+import { storeToRefs, useAppConfig, useAppStore, useUserStore } from '@grow-admin-rock/state'
 import { useAppBootstrap } from './use/useAppBootstrap'
+import { useUserLogout } from './use/useUserLogout'
 
 useAppBootstrap()
 
 const { t } = useI18n()
 const appConfig = useAppConfig()
 const appStore = useAppStore()
+const userStore = useUserStore()
 const { showSettingButton, showSettingDrawer, settingButtonPosition } = storeToRefs(appConfig)
 const { settingActive } = storeToRefs(appStore)
+const { userInfo } = storeToRefs(userStore)
+const { handleLogout } = useUserLogout()
 
 const showHeaderSettingButton = computed(() => {
   if (!showSettingButton.value || !showSettingDrawer.value) return false

@@ -1,4 +1,5 @@
 import type { RequestOptions } from '@grow-admin-rock/types'
+import { AUTHORITY_TOKEN } from '@grow-admin-rock/constants'
 import { Autowired, Bean, diKT } from '@grow-admin-rock/ioc'
 import { isString } from '@grow-admin-rock/utils'
 import {
@@ -23,6 +24,23 @@ export class GrowAxiosTransform extends AxiosTransform {
       if (!config.baseURL && apiUrl) {
         config.baseURL = isString(apiUrl) ? apiUrl : ''
       }
+      return config
+    }
+
+    this.requestInterceptors = (config: GrowRequestConfig) => {
+      const requestOptions = config.requestOptions
+      if (requestOptions?.withToken === false) {
+        return config
+      }
+
+      const token = sessionStorage.getItem(AUTHORITY_TOKEN)
+      if (!token) {
+        return config
+      }
+
+      const scheme = requestOptions?.authenticationScheme || 'Bearer'
+      config.headers = config.headers || {}
+      config.headers.Authorization = `${scheme} ${token}`
       return config
     }
 

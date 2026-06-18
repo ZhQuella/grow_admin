@@ -2,13 +2,18 @@
   <div class="workspace-page">
     <h1 class="workspace-page__title">工作区</h1>
     <p class="workspace-page__desc">这是一个空白示例页面，可作为 Home 的子路由承载业务内容。</p>
+    <p>{{ num }}</p>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { ref } from 'vue'
 defineOptions({
   name: 'WorkspacePage',
 })
+
+const num = ref(Math.random())
+
 </script>
 
 <style scoped>

@@ -33,6 +33,12 @@ export interface Menu {
 
   isVisible: boolean
 
+  /** 是否缓存页面，默认 true */
+  isKeepAlive?: boolean
+
+  /** 是否固定标签，不可关闭 */
+  affix?: boolean
+
   label?: Node | JSX.Element | string
 
   key?: string | number | Symbol
