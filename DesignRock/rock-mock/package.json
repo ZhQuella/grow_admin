@@ -7,7 +7,8 @@
   "exports": {
     ".": "./index.ts",
     "./util": "./src/mockUtil.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./constants": "./src/constants.ts"
   },
   "scripts": {
     "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"

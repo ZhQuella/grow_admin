@@ -48,6 +48,7 @@ export async function createViteConfig(
     base: VITE_PUBLIC_PATH,
     resolve: {
       alias: [
+        { find: '@/mock', replacement: `${resolve(root, 'mock')}` },
         { find: '@', replacement: `${resolve(root, 'src')}` },
         { find: 'vue-i18n', replacement: 'vue-i18n/dist/vue-i18n.cjs.js' },
         { find: 'vue', replacement: 'vue/dist/vue.esm-bundler.js' },

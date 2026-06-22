@@ -1,3 +1,4 @@
+import { mockUrl } from '@grow-admin-rock/mock/constants';
 import {
   mergeMenuWithStructure,
   WORKSPACE_ROUTE_STRUCTURES,
@@ -7,7 +8,7 @@ import { MENU_LIST } from './menuList';
 
 export default [
   {
-    url: "/api/menu/list",
+    url: mockUrl('/menu/list'),
     method: "get",
     response: () => {
       return resultSuccess({

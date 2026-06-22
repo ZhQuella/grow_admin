@@ -1,6 +1,6 @@
-import { createProdMockServer } from 'vite-plugin-mock/es/createProdMockServer';
 import { getMockModules } from '#/registerMock';
 import { loadMockModules } from '#/loadMockModules';
+import { installProdMockInterceptor } from '#/prodMockInterceptor';
 import type { MockMethod } from '#/types';
 
 export function createAppMockServer(modules: Record<string, unknown>) {
@@ -9,5 +9,5 @@ export function createAppMockServer(modules: Record<string, unknown>) {
     ...getMockModules(),
   ];
 
-  return createProdMockServer(mocks);
+  installProdMockInterceptor(mocks);
 }

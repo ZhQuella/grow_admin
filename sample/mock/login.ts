@@ -1,4 +1,5 @@
 import type { MockMethod } from '@grow-admin-rock/mock/types';
+import { mockUrl } from '@grow-admin-rock/mock/constants';
 import { resultError, resultSuccess } from '@grow-admin-rock/mock/util';
 
 function randomToken(length = 50) {
@@ -13,7 +14,7 @@ const identifying = randomToken(20);
 
 const mocks = [
   {
-    url: '/api/verification/code',
+    url: mockUrl('/verification/code'),
     method: 'post',
     timeout: 200,
     response: ({ body }) => {
@@ -25,7 +26,7 @@ const mocks = [
     },
   },
   {
-    url: '/api/test/verification/code',
+    url: mockUrl('/test/verification/code'),
     method: 'post',
     timeout: 200,
     response: ({ body }) => {
@@ -37,7 +38,7 @@ const mocks = [
     },
   },
   {
-    url: '/api/modify/account/password',
+    url: mockUrl('/modify/account/password'),
     method: 'post',
     timeout: 200,
     response: ({ body }) => {
@@ -49,7 +50,7 @@ const mocks = [
     },
   },
   {
-    url: '/api/modify/phone/login',
+    url: mockUrl('/modify/phone/login'),
     method: 'post',
     timeout: 200,
     response: ({ body }) => {

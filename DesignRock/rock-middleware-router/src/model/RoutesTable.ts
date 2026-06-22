@@ -1,4 +1,4 @@
-import { Router, createRouter, createWebHistory } from 'vue-router';
+import { Router, createRouter, createWebHashHistory } from 'vue-router';
 
 class RouteTableRecord {
   routes: RouteRecordItem[] = [];
@@ -43,7 +43,7 @@ export class RoutesTable {
     this.basicRouteTable = new RouteTableRecord();
     this.appRouteTable = new RouteTableRecord();
     this.router = createRouter({
-      history: createWebHistory(path),
+      history: createWebHashHistory(path),
       routes: basicRoutes,
       strict: true,
       scrollBehavior: () => ({ left: 0, top: 0 }),

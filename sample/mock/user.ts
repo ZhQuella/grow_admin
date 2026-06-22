@@ -1,4 +1,5 @@
 import type { MockMethod } from '@grow-admin-rock/mock/types';
+import { mockUrl } from '@grow-admin-rock/mock/constants';
 import {
   getRequestToken,
   resultError,
@@ -15,7 +16,7 @@ function toUserInfo() {
 
 const mocks = [
   {
-    url: '/api/user/info',
+    url: mockUrl('/user/info'),
     method: 'get',
     timeout: 200,
     response: (req) => {
@@ -27,7 +28,7 @@ const mocks = [
     },
   },
   {
-    url: '/api/logout',
+    url: mockUrl('/logout'),
     method: 'post',
     timeout: 200,
     response: (req) => {

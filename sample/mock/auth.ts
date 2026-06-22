@@ -1,4 +1,5 @@
 import type { MockMethod } from '@grow-admin-rock/mock/types';
+import { mockUrl } from '@grow-admin-rock/mock/constants';
 import {
   getRequestToken,
   resultError,
@@ -23,7 +24,7 @@ export function createFakeUserList() {
 
 const mocks = [
   {
-    url: '/api/login',
+    url: mockUrl('/login'),
     timeout: 200,
     method: 'post',
     response: ({ body }) => {
