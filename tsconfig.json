@@ -1,19 +1,12 @@
 {
+  "extends": "@grow-admin-config/tsconfig/base.json",
   "compilerOptions": {
-    "rootDir": ".",
-    "sourceMap": false,
     "target": "esnext",
     "module": "esnext",
-    "jsx": "preserve",
-    "moduleResolution": "node",
-    "strictNullChecks": true,
-    "noUnusedLocals": false,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
-    "lib": ["esnext", "dom"],
-    "types": ["jest", "node"]
-  }
+    "lib": ["dom", "esnext"],
+    "types": ["vite/client", "vitest/globals"]
+  },
+  "exclude": ["**/node_modules/**", "**/dist/**"],
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]
 }

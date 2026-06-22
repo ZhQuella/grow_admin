@@ -1,6 +1,7 @@
 packages:
-  - "GrowRock/*"
-  - "GrowCornerstone/*"
-  - "services/*"
-  - "libs/*"
-  - "sample"
+  - 'configs/*'
+  - 'DesignRock/*'
+  - 'DesignCornerstone/*'
+  - 'sample'
+  - 'scripts'
+  - 'docs'

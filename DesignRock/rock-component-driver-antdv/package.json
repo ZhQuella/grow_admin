@@ -1,0 +1,20 @@
+{
+  "name": "@grow-admin-rock/component-driver-antdv",
+  "version": "0.0.0",
+  "main": "index.ts",
+  "module": "index.ts",
+  "license": "MIT",
+  "scripts": {
+    "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
+  },
+  "dependencies": {
+    "@grow-admin-rock/component-driver": "workspace:*",
+    "@grow-admin-rock/components": "workspace:*",
+    "@grow-admin-rock/state": "workspace:*",
+    "ant-design-vue": "^4.0.7",
+    "lodash-es": "^4.17.21"
+  },
+  "peerDependencies": {
+    "vue": "~3.3.4"
+  }
+}

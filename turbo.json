@@ -1,14 +1,22 @@
 {
-  "$schema": "https://turbo.build/schema.json",
-  "extends": [],
-  "tasks": {
+  "$schema": "https://turborepo.org/schema.json",
+  "pipeline": {
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**"],
+      "dependsOn": ["^build"]
+    },
+    "clean": {
+      "dependsOn": ["^clean"]
+    },
+    "test": {
+      "dependsOn": ["^test"],
+      "outputs": []
     },
     "dev": {
-      "cache": false,
-      "persistent": true
+      "cache": false
+    },
+    "preview": {
+      "cache": false
     }
   }
 }

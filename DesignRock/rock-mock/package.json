@@ -1,0 +1,28 @@
+{
+  "name": "@grow-admin-rock/mock",
+  "version": "0.0.0",
+  "main": "index.ts",
+  "module": "index.ts",
+  "license": "MIT",
+  "exports": {
+    ".": "./index.ts",
+    "./util": "./src/mockUtil.ts",
+    "./types": "./src/types.ts",
+    "./constants": "./src/constants.ts"
+  },
+  "scripts": {
+    "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
+  },
+  "dependencies": {
+    "@grow-admin-rock/base-package": "workspace:*",
+    "@grow-admin-rock/ioc": "workspace:*",
+    "@grow-admin-rock/types": "workspace:*",
+    "mockjs": "^1.1.0"
+  },
+  "devDependencies": {
+    "vite-plugin-mock": "^2.9.6"
+  },
+  "peerDependencies": {
+    "vite-plugin-mock": "^2.9.6"
+  }
+}

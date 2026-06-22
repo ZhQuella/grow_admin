@@ -1,0 +1,5 @@
+export { useI18n, t, $t } from './src/use-i18n'
+export { useLocale } from './src/use-locale'
+export * as localeHelper from './src/helper'
+export * from './src/config'
+export * from './library'

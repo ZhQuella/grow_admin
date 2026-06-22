@@ -30,50 +30,44 @@ jobs:
     steps:
       # 检出代码
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # 设置 pnpm
+      # 设置 pnpm（版本与根 package.json packageManager 一致）
       - name: Set up pnpm
-        uses: pnpm/action-setup@v2.1.0
+        uses: pnpm/action-setup@v4
         with:
-          version: 8.6.2
+          version: 10.32.1
 
-      # 缓存 pnpm 的 node_modules，提升构建速度
-      - name: Cache pnpm modules
-        uses: actions/cache@v3
+      # 设置 Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+          node-version: 20
+          cache: pnpm
 
-      # 安装依赖
+      # 安装依赖（postinstall 会自动执行 stub 预构建）
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
-      # 构建项目
+      # 全量 monorepo 构建（与根目录 pnpm run build 一致）
       - name: Build project
         run: pnpm run build
+        env:
+          NODE_ENV: production
 
-      # 检查目录存在性
+      # 检查构建产物目录
       - name: List build directory
         run: ls -R ${{ github.workspace }}/sample/dist
-
-      # 输出调试信息到环境变量
-      - name: Set debug output
-        run: echo "UPLOAD_PATH=${{ github.workspace }}/sample/dist" >> $GITHUB_ENV
 
       # 设置 Pages
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      # 上传构建产物
+      # 上传构建产物（VITE_PUBLIC_PATH=/，部署到 Pages 根路径）
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ${{ github.workspace }}/sample/dist
-          artifact_name: dist
-        continue-on-error: true
 
       # 部署到 GitHub Pages
       - name: Deploy to GitHub Pages

@@ -1,0 +1,17 @@
+{
+  "name": "@grow-admin-plugins/css-preprocess",
+  "version": "0.0.1",
+  "private": true,
+  "files": [
+    "postcss.js",
+    "tailwind.js",
+    "uno.config.ts"
+  ],
+  "scripts": {
+    "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
+  },
+  "dependencies": {
+    "postcss": "^8.4.21",
+    "postcss-preset-env": "^8.0.1"
+  }
+}

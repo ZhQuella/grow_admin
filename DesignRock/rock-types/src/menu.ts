@@ -1,0 +1,53 @@
+import { MenuModeEnum, MenuTypeEnum } from '@grow-admin-rock/constants'
+import type { RouteMeta } from 'vue-router'
+
+export interface MenuTag {
+  type?: 'primary' | 'error' | 'warn' | 'success'
+  content?: string
+  dot?: boolean
+}
+
+export interface Menu {
+  name: string
+  // 菜单展示名 || i8n
+  title: string
+
+  icon?: string
+
+  path: string
+
+  // path contains param, auto assignment.
+  paramPath?: string
+
+  disabled?: boolean
+
+  children?: Menu[]
+
+  orderNo?: number
+
+  meta?: Partial<RouteMeta>
+
+  tag?: MenuTag
+
+  menuType: MenuTypeEnum
+
+  isVisible: boolean
+
+  /** 是否缓存页面，默认 true */
+  isKeepAlive?: boolean
+
+  /** 是否固定标签，不可关闭 */
+  affix?: boolean
+
+  /** 是否默认在视图区域展示（首次无 tab 时自动打开并跳转） */
+  defaultShow?: boolean
+
+  label?: Node | JSX.Element | string
+
+  key?: string | number | Symbol
+}
+
+export interface MenuModule {
+  orderNo?: number
+  menu: Menu
+}

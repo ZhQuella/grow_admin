@@ -1,0 +1,6 @@
+export { default as SettingDrawer } from './SettingDrawer.vue'
+export { default as SettingPanel } from './SettingPanel.vue'
+export { default as SettingTheme } from './SettingTheme.vue'
+export { default as SettingAnimation } from './SettingAnimation.vue'
+export { default as SwitchLanguage } from './SwitchLanguage.vue'
+export { default as LayoutSelect } from './LayoutSelect.vue'

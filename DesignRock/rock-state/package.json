@@ -1,0 +1,27 @@
+{
+  "name": "@grow-admin-rock/state",
+  "version": "0.0.0",
+  "main": "index.ts",
+  "module": "index.ts",
+  "license": "MIT",
+  "scripts": {
+    "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
+  },
+  "dependencies": {
+    "@grow-admin-rock/constants": "workspace:*",
+    "@grow-admin-rock/locale": "workspace:*",
+    "@grow-admin-rock/utils": "workspace:*",
+    "@grow-admin-rock/types": "workspace:*",
+    "@grow-admin-rock/base-package": "workspace:*",
+    "@grow-admin-rock/ioc": "workspace:*",
+    "mitt": "^3.0.0",
+    "pinia-plugin-persistedstate": "^3.1.0"
+  },
+  "devDependencies": {
+    "@grow-admin-rock/types": "workspace:*"
+  },
+  "peerDependencies": {
+    "pinia": "~2.0.34",
+    "vue": "~3.3.4"
+  }
+}

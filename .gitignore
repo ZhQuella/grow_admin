@@ -10,7 +10,10 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+.cursor
 .turbo
+.vite-inspect
+.vscode
 *.local
 stats.html
 pnpm-lock.yaml

@@ -1,0 +1,25 @@
+{
+  "name": "@grow-admin-rock/utils",
+  "version": "1.0.0",
+  "main": "./index.ts",
+  "module": "./index.ts",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
+  },
+  "dependencies": {
+    "@vueuse/core": "^10.4.1",
+    "@vueuse/shared": "^10.4.1",
+    "@grow-admin-rock/constants": "workspace:*",
+    "@grow-admin-rock/ioc": "workspace:*",
+    "dayjs": "^1.11.7"
+  },
+  "devDependencies": {
+    "@grow-admin-rock/types": "workspace:*"
+  },
+  "peerDependencies": {
+    "vue": "~3.3.4",
+    "vue-router": "^4.1.6"
+  }
+}

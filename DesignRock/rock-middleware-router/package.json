@@ -1,0 +1,27 @@
+{
+  "name": "@grow-admin-rock/middleware-router",
+  "version": "0.0.0",
+  "main": "index.ts",
+  "module": "index.ts",
+  "license": "MIT",
+  "scripts": {
+    "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
+  },
+  "dependencies": {
+    "@grow-admin-rock/constants": "workspace:*",
+    "@grow-admin-rock/locale": "workspace:*",
+    "@grow-admin-rock/utils": "workspace:*",
+    "@grow-admin-rock/base-package": "workspace:*",
+    "@grow-admin-rock/ioc": "workspace:*",
+    "@grow-admin-rock/state": "workspace:*",
+    "nprogress": "^0.2.0",
+    "path-to-regexp": "^6.2.1"
+  },
+  "devDependencies": {
+    "@grow-admin-rock/types": "workspace:*"
+  },
+  "peerDependencies": {
+    "vue": "~3.3.4",
+    "vue-router": "^4.1.6"
+  }
+}

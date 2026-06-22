@@ -1,0 +1,21 @@
+{
+  "name": "@grow-admin-rock/component-driver-element-plus",
+  "version": "0.0.0",
+  "main": "index.ts",
+  "module": "index.ts",
+  "license": "MIT",
+  "scripts": {
+    "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
+  },
+  "dependencies": {
+    "@grow-admin-rock/component-driver": "workspace:*",
+    "@grow-admin-rock/components": "workspace:*",
+    "@grow-admin-rock/state": "workspace:*",
+    "@element-plus/icons-vue": "^2.3.1",
+    "element-plus": "^2.4.4",
+    "lodash-es": "^4.17.21"
+  },
+  "peerDependencies": {
+    "vue": "~3.3.4"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "extends": "@grow-admin-config/tsconfig/base.json",
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "baseUrl": ".",
+    "paths": {
+      "#/*": ["src/*"]
+    },
+  },
+  "include": ["index.ts", "beankeys.ts", "src", "shims", "shims.d.ts"]
+}

@@ -1,0 +1,10 @@
+{
+  "extends": "@grow-admin-config/tsconfig/base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "#/*": ["./*"]
+    }
+  },
+  "include": ["**/*.ts"]
+}

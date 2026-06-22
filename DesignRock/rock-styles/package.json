@@ -1,0 +1,16 @@
+{
+  "name": "@grow-admin-rock/styles",
+  "version": "3.0.0-bata.1",
+  "license": "MIT",
+  "main": "./index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./unocss-theme": "./src/unocss-theme.ts"
+  },
+  "scripts": {
+    "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
+  },
+  "devDependencies": {
+    "reset-css": "^5.0.2"
+  }
+}

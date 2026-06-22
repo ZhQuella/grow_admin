@@ -1,0 +1,24 @@
+{
+  "name": "@grow-admin-rock/components",
+  "version": "0.0.0",
+  "main": "./index.ts",
+  "license": "MIT",
+  "scripts": {
+    "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
+  },
+  "dependencies": {
+    "@grow-admin-rock/base-package": "workspace:*",
+    "@grow-admin-rock/ioc": "workspace:*",
+    "@grow-admin-rock/types": "workspace:*",
+    "@iconify/iconify": "^3.1.1",
+    "@purge-icons/generated": "^0.9.0",
+    "lodash-es": "^4.17.21",
+    "vue-types": "^5.0.2"
+  },
+  "devDependencies": {
+    "@iconify/json": "^2.2.116"
+  },
+  "peerDependencies": {
+    "vue": "~3.3.4"
+  }
+}

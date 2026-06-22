@@ -1,0 +1,148 @@
+#app-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: #f0f2f5;
+  transition:
+    opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html.dark #app-loading {
+  background: rgb(16, 16, 20);
+}
+
+#app-loading.app-loading--hide {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.app-loading__logo {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  padding: 8px;
+  overflow: hidden;
+  border: 1px solid rgb(239, 239, 245);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.12);
+  animation: app-loading-breathe 2s ease-in-out infinite;
+  will-change: box-shadow, border-color;
+}
+
+html.dark .app-loading__logo {
+  border-color: rgba(255, 255, 255, 0.09);
+  background: rgb(24, 24, 28);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  animation-name: app-loading-breathe-dark;
+}
+
+.app-loading__logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  animation: app-loading-logo-breathe 2s ease-in-out infinite;
+  will-change: transform;
+}
+
+.app-loading__title {
+  margin: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+html.dark .app-loading__title {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.app-loading__resource {
+  margin: -8px 0 0;
+  max-width: min(320px, 80vw);
+  overflow: hidden;
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: rgba(0, 0, 0, 0.28);
+  min-height: 1.4em;
+}
+
+html.dark .app-loading__resource {
+  color: rgba(255, 255, 255, 0.28);
+}
+
+@keyframes app-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes app-loading-breathe {
+  0%,
+  100% {
+    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.12), 0 0 0 0 rgba(139, 92, 246, 0);
+    border-color: rgb(239, 239, 245);
+  }
+
+  50% {
+    box-shadow: 0 10px 40px rgba(139, 92, 246, 0.4), 0 0 28px rgba(139, 92, 246, 0.28);
+    border-color: rgba(139, 92, 246, 0.5);
+  }
+}
+
+@keyframes app-loading-breathe-dark {
+  0%,
+  100% {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 0 0 rgba(139, 92, 246, 0);
+    border-color: rgba(255, 255, 255, 0.09);
+  }
+
+  50% {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.55), 0 0 32px rgba(139, 92, 246, 0.45);
+    border-color: rgba(139, 92, 246, 0.55);
+  }
+}
+
+@keyframes app-loading-logo-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-loading__logo,
+  .app-loading__logo img {
+    animation: none;
+  }
+}
