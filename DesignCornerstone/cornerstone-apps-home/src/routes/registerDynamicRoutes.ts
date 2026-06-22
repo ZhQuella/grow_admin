@@ -30,6 +30,7 @@ function toMenuItem(
     isVisible: config.isVisible,
     isKeepAlive: config.isKeepAlive,
     affix: config.affix,
+    defaultShow: config.defaultShow,
   }
 
   if (config.children?.length) {
@@ -69,6 +70,7 @@ export async function registerDynamicRoutes() {
         componentName,
         isKeepAlive: config.isKeepAlive ?? true,
         affix: config.affix ?? false,
+        defaultShow: config.defaultShow ?? false,
       },
     })
   })

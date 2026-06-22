@@ -11,6 +11,8 @@ declare module 'vue-router' {
     allowRoles?: string[];
     // is it fixed on tab
     affix?: boolean;
+    // Whether to show in view area by default
+    defaultShow?: boolean;
     // Whether the route has been dynamically added
     hideBreadcrumb?: boolean;
     // Whether to show in menu

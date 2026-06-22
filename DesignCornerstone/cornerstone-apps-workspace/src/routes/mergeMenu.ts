@@ -23,6 +23,7 @@ export function mergeMenuWithStructure(
       isVisible: menuItem.isVisible,
       isKeepAlive: menuItem.isKeepAlive,
       affix: menuItem.affix,
+      defaultShow: menuItem.defaultShow,
       componentKey: structure.componentKey,
     }
 

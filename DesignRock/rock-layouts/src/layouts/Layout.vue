@@ -19,8 +19,8 @@ const { layoutType, isFullScreen, isPutAway, collapsed, onChangeSide } = useLayo
       <div class="box-border flex h-[50px] w-full items-center border-b border-solid border-border">
         <slot name="logo" />
       </div>
-      <div class="relative flex-1 transition-all">
-        <GrowScrollbar>
+      <div class="relative min-h-0 flex-1 transition-all">
+        <GrowScrollbar class="h-full">
           <slot v-if="layoutType === 'side'" name="menu" />
         </GrowScrollbar>
         <div

@@ -20,19 +20,19 @@ export function useTabRouteSync() {
     tabStore.openTab(menu)
   }
 
-  function bootstrapAffixTabs(): boolean {
+  function bootstrapDefaultTabs(): boolean {
     if (!backMenuList.value.length) {
       return false
     }
 
-    const affixPath = tabStore.initAffixTabs(backMenuList.value)
-    if (!affixPath) {
+    const defaultPath = tabStore.initDefaultTabs(backMenuList.value)
+    if (!defaultPath) {
       return false
     }
 
     const currentMenu = findNavigableMenuByPath(backMenuList.value, route.path)
-    if (!currentMenu && normalizePath(route.path) !== affixPath) {
-      router.replace(affixPath)
+    if (!currentMenu && normalizePath(route.path) !== defaultPath) {
+      router.replace(defaultPath)
       return true
     }
 
@@ -43,7 +43,7 @@ export function useTabRouteSync() {
   watch(
     () => route.path,
     (path) => {
-      if (bootstrapAffixTabs()) {
+      if (bootstrapDefaultTabs()) {
         return
       }
       syncTabWithRoute(path)
@@ -56,7 +56,7 @@ export function useTabRouteSync() {
     () => {
       tabStore.syncTabTitlesFromMenus(backMenuList.value)
       tabStore.rebuildCacheList()
-      if (bootstrapAffixTabs()) {
+      if (bootstrapDefaultTabs()) {
         return
       }
       syncTabWithRoute(route.path)

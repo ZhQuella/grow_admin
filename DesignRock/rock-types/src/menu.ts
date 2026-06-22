@@ -39,6 +39,9 @@ export interface Menu {
   /** 是否固定标签，不可关闭 */
   affix?: boolean
 
+  /** 是否默认在视图区域展示（首次无 tab 时自动打开并跳转） */
+  defaultShow?: boolean
+
   label?: Node | JSX.Element | string
 
   key?: string | number | Symbol

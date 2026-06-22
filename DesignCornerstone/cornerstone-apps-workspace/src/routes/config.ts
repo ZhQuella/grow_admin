@@ -17,6 +17,7 @@ export type WorkspaceMenuApiItem = {
   isVisible: boolean
   isKeepAlive?: boolean
   affix?: boolean
+  defaultShow?: boolean
   children?: WorkspaceMenuApiItem[]
 }
 
@@ -28,6 +29,7 @@ export type WorkspaceRouteConfig = WorkspaceRouteStructure & {
   isVisible: boolean
   isKeepAlive?: boolean
   affix?: boolean
+  defaultShow?: boolean
 }
 
 export const WORKSPACE_ROUTE_STRUCTURES: WorkspaceRouteStructure[] = [

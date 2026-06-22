@@ -16,6 +16,7 @@ export const MENU_LIST: WorkspaceMenuApiItem[] = [
         icon: 'ant-design:appstore-outlined',
         menuType: MenuTypeEnum.MENU,
         isVisible: true,
+        defaultShow: true,
         affix: true,
       },
       {

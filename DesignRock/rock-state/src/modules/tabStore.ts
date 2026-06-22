@@ -45,16 +45,16 @@ function toTabItem(menu: Menu): TabItem {
   }
 }
 
-function collectAffixMenus(menus: Menu[]): Menu[] {
+function collectDefaultShowMenus(menus: Menu[]): Menu[] {
   const result: Menu[] = []
 
   for (const menu of menus) {
     if (menu.children?.length) {
-      result.push(...collectAffixMenus(menu.children))
+      result.push(...collectDefaultShowMenus(menu.children))
     }
     if (
       menu.menuType === MenuTypeEnum.MENU
-      && menu.affix
+      && menu.defaultShow
       && menu.path.startsWith('/')
     ) {
       result.push(menu)
@@ -121,22 +121,22 @@ export const useTabStore = defineStore({
       })
     },
 
-    /** 首次无 tab 时，打开所有 affix 菜单并返回首选路由 */
-    initAffixTabs(menus: Menu[]): string | null {
+    /** 首次无 tab 时，打开 defaultShow 菜单并返回首选路由 */
+    initDefaultTabs(menus: Menu[]): string | null {
       if (this.tabList.length > 0) {
         return null
       }
 
-      const affixMenus = collectAffixMenus(menus)
-      if (!affixMenus.length) {
+      const defaultMenus = collectDefaultShowMenus(menus)
+      if (!defaultMenus.length) {
         return null
       }
 
-      affixMenus.forEach((menu) => {
+      defaultMenus.forEach((menu) => {
         this.openTab(menu)
       })
 
-      const firstPath = normalizePath(affixMenus[0].path)
+      const firstPath = normalizePath(defaultMenus[0].path)
       this.activeTab = firstPath
       return firstPath
     },
@@ -322,6 +322,7 @@ export const useTabStore = defineStore({
     },
   },
   persist: {
+    storage: sessionStorage,
     paths: ['tabList', 'activeTab'],
     afterRestore: (ctx) => {
       ctx.store.rebuildCacheList()
