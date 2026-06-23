@@ -18,6 +18,31 @@ export const FEAT_MENU_LIST: FeatMenuApiItem[] = [
         isVisible: true,
         isKeepAlive: true,
       },
+      {
+        name: 'MenuSubsetTest',
+        title: '菜单子集测试',
+        icon: 'ant-design:experiment-outlined',
+        menuType: MenuTypeEnum.DIRECTORY,
+        isVisible: true,
+        children: [
+          {
+            name: 'MenuChildTest',
+            title: '菜单子集测试页',
+            icon: 'ant-design:file-outlined',
+            menuType: MenuTypeEnum.MENU,
+            isVisible: true,
+            children: [
+              {
+                name: 'MenuChildTestSub',
+                title: '菜单子集测试子页',
+                icon: 'ant-design:file-text-outlined',
+                menuType: MenuTypeEnum.MENU,
+                isVisible: false,
+              },
+            ],
+          },
+        ],
+      },
     ],
   },
 ]

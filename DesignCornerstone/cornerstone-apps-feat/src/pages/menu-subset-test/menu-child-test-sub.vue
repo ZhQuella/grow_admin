@@ -12,7 +12,7 @@
 
 <script lang="ts" setup>
 import { useRouteNavigate } from '@grow-admin-rock/hooks'
-import { useRoute } from 'vue-router'
+import { useRoute } from '@grow-admin-rock/middleware-router'
 
 defineOptions({
   name: 'MenuChildTestSubPage',

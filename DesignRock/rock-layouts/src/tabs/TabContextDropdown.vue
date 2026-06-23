@@ -80,6 +80,7 @@
             v-for="subPage in subPages"
             :key="subPage.fullPath"
             class="tab-subpage-dropdown-item"
+            :class="{ 'is-active': isActiveSubPage(subPage.fullPath) }"
           >
             <div class="tab-subpage-item">
               <span
@@ -114,6 +115,7 @@
             v-for="subPage in subPages"
             :key="subPage.fullPath"
             class="tab-subpage-dropdown-item"
+            :class="{ 'is-active': isActiveSubPage(subPage.fullPath) }"
           >
             <div class="tab-subpage-item">
               <span
@@ -223,6 +225,10 @@ function handleSubPageRefresh(subPageFullPath: string) {
 function handleSubPageClose(subPageFullPath: string) {
   emit('closeSubPage', props.tab, subPageFullPath)
 }
+
+function isActiveSubPage(subPageFullPath: string) {
+  return normalizePath(subPageFullPath) === currentFullPath.value
+}
 </script>
 
 <style>
@@ -287,6 +293,17 @@ function handleSubPageClose(subPageFullPath: string) {
   color: inherit;
 }
 
+.tab-subpage-dropdown-menu .el-dropdown-menu__item.tab-subpage-dropdown-item.is-active,
+.tab-subpage-dropdown-menu .el-dropdown-menu__item.tab-subpage-dropdown-item.is-active:hover {
+  background-color: var(--color-primary-a12);
+  color: var(--primary-color);
+}
+
+.tab-subpage-dropdown-menu .el-dropdown-menu__item.tab-subpage-dropdown-item.is-active .tab-subpage-item__title {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
 .tab-context-dropdown-menu.ant-menu {
   width: max-content;
   padding: 4px 0;
@@ -321,6 +338,17 @@ function handleSubPageClose(subPageFullPath: string) {
   cursor: default;
 }
 
+.tab-subpage-dropdown-menu .ant-menu-item.tab-subpage-dropdown-item.is-active,
+.tab-subpage-dropdown-menu .ant-menu-item.tab-subpage-dropdown-item.is-active:hover {
+  background-color: var(--color-primary-a12);
+  color: var(--primary-color);
+}
+
+.tab-subpage-dropdown-menu .ant-menu-item.tab-subpage-dropdown-item.is-active .tab-subpage-item__title {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
 .tab-subpage-item {
   display: inline-flex;
   align-items: center;
@@ -334,6 +362,11 @@ function handleSubPageClose(subPageFullPath: string) {
 }
 
 .tab-subpage-item__title:hover {
+  color: var(--primary-color);
+}
+
+.tab-subpage-dropdown-menu .el-dropdown-menu__item.is-active .tab-subpage-item__title:hover,
+.tab-subpage-dropdown-menu .ant-menu-item.is-active .tab-subpage-item__title:hover {
   color: var(--primary-color);
 }
 
