@@ -49,20 +49,14 @@ export const FEAT_ROUTE_STRUCTURES: FeatRouteStructure[] = [
         componentKey: 'OpenSubpage',
       },
       {
-        path: 'menu-subset-test',
-        name: 'MenuSubsetTest',
+        path: 'menu-child-test',
+        name: 'MenuChildTest',
+        componentKey: 'MenuChildTest',
         children: [
           {
-            path: 'menu-child-test',
-            name: 'MenuChildTest',
-            componentKey: 'MenuChildTest',
-            children: [
-              {
-                path: 'menu-child-test-sub',
-                name: 'MenuChildTestSub',
-                componentKey: 'MenuChildTestSub',
-              },
-            ],
+            path: 'menu-child-test-sub',
+            name: 'MenuChildTestSub',
+            componentKey: 'MenuChildTestSub',
           },
         ],
       },

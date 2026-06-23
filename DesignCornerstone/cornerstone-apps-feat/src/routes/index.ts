@@ -23,8 +23,8 @@ export { mergeFeatMenuWithStructure } from './mergeMenu'
 
 const FEAT_COMPONENTS: Record<string, GrowRouteComponent> = {
   OpenSubpage: () => import('../pages/open-subpage/open-subpage.vue'),
-  MenuChildTest: () => import('../pages/menu-subset-test/menu-child-test.vue'),
-  MenuChildTestSub: () => import('../pages/menu-subset-test/menu-child-test-sub.vue'),
+  MenuChildTest: () => import('../pages/menu-child-test/menu-child-test.vue'),
+  MenuChildTestSub: () => import('../pages/menu-child-test/menu-child-test-sub.vue'),
 }
 
 function resolveFeatComponent(config: FeatRouteConfig): GrowRouteComponent {

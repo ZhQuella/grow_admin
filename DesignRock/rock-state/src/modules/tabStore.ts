@@ -353,7 +353,7 @@ export const useTabStore = defineStore({
       }
 
       this.activeTab = nextTab.fullPath
-      return nextTab.lastSubPagePath ?? nextTab.fullPath
+      return nextTab.fullPath
     },
 
     closeSubPage(parentFullPath: string, subPageFullPath: string): string {
@@ -400,8 +400,7 @@ export const useTabStore = defineStore({
       }
 
       this.activeTab = normalizedPath
-      const activeTabItem = this.tabList.find((tab) => tab.fullPath === normalizedPath)
-      return activeTabItem?.lastSubPagePath ?? normalizedPath
+      return normalizedPath
     },
 
     closeLeftTabs(fullPath: string): string | null {
@@ -422,8 +421,7 @@ export const useTabStore = defineStore({
       }
 
       this.activeTab = normalizedPath
-      const activeTabItem = this.tabList.find((tab) => tab.fullPath === normalizedPath)
-      return activeTabItem?.lastSubPagePath ?? normalizedPath
+      return normalizedPath
     },
 
     closeOtherTabs(fullPath: string): string | null {
@@ -438,8 +436,7 @@ export const useTabStore = defineStore({
         (tab) => tab.fullPath === normalizedPath || tab.affix,
       )
       this.activeTab = normalizedPath
-      const activeTabItem = this.tabList.find((tab) => tab.fullPath === normalizedPath)
-      return activeTabItem?.lastSubPagePath ?? normalizedPath
+      return normalizedPath
     },
 
     closeAllTabs(): string | null {
@@ -461,7 +458,7 @@ export const useTabStore = defineStore({
       }
 
       this.activeTab = nextTab.fullPath
-      return nextTab.lastSubPagePath ?? nextTab.fullPath
+      return nextTab.fullPath
     },
 
     refreshTab(fullPath: string) {

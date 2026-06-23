@@ -86,8 +86,11 @@ function navigateIfNeeded(path: string | null) {
   }
 }
 
-function resolveTabNavigationPath(tab: TabItem): string {
-  return tab.lastSubPagePath ?? tab.fullPath
+function handleTabChange(fullPath: string | number) {
+  const path = String(fullPath)
+  setOpenTabPath(null)
+  tabStore.setActiveTab(path)
+  navigateIfNeeded(path)
 }
 
 function handleTabClose(tab: TabItem) {
@@ -128,15 +131,6 @@ function handleTabContextMenuCapture(event: MouseEvent) {
   }
 }
 
-function handleTabChange(fullPath: string | number) {
-  const path = String(fullPath)
-  setOpenTabPath(null)
-  tabStore.setActiveTab(path)
-
-  const tab = tabList.value.find((item) => item.fullPath === path)
-  navigateIfNeeded(tab ? resolveTabNavigationPath(tab) : path)
-}
-
 function handleMenuSelect(action: TabContextAction, tab: TabItem) {
   const viewingSubPage = tabStore.isViewingSubPage(currentFullPath.value)
 
@@ -148,7 +142,7 @@ function handleMenuSelect(action: TabContextAction, tab: TabItem) {
       }
       if (tabStore.activeTab !== tab.fullPath) {
         tabStore.setActiveTab(tab.fullPath)
-        useRouter().push(resolveTabNavigationPath(tab)).then(() => {
+        useRouter().push(tab.fullPath).then(() => {
           tabStore.refreshTab(tab.fullPath)
         })
       } else {
