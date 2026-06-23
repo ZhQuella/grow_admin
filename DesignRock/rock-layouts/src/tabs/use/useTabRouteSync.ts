@@ -27,8 +27,14 @@ export function useTabRouteSync() {
   }
 
   function syncTabWithRoute(currentRoute: RouteLocationNormalizedLoaded) {
-    const path = currentRoute.path
-    const menu = findNavigableMenuByPath(backMenuList.value, path)
+    const normalizedFullPath = normalizePath(currentRoute.fullPath)
+
+    if (tabStore.findParentTabBySubPage(normalizedFullPath)) {
+      tabStore.syncStackSubPage(normalizedFullPath)
+      return
+    }
+
+    const menu = findNavigableMenuByPath(backMenuList.value, currentRoute.path)
     if (menu) {
       tabStore.openTab(menu)
       return

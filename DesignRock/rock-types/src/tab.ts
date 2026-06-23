@@ -1,5 +1,19 @@
 import { PageOpenModeEnum } from '@grow-admin-rock/constants'
 
+export type TabNavigateMode = 'newTab' | 'stack'
+
+export interface GoTabOptions {
+  tabMode?: TabNavigateMode
+  parentName?: string
+}
+
+export interface TabSubPage {
+  fullPath: string
+  title: string
+  name: string
+  isKeepAlive?: boolean
+}
+
 export interface TabItem {
   fullPath: string
   title: string
@@ -13,4 +27,8 @@ export interface TabItem {
   openMode?: PageOpenModeEnum
   /** 外部页面链接 */
   link?: string
+  /** stack 模式下已打开的子页面 */
+  subPages?: TabSubPage[]
+  /** 上次访问的子页面，切换 tab 后恢复用 */
+  lastSubPagePath?: string
 }

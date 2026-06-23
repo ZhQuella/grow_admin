@@ -10,6 +10,10 @@ export type TabContextMenuItem = {
   divided: boolean
 }
 
+export type TabContextMenuOptions = {
+  isViewingSubPage?: boolean
+}
+
 const TAB_CONTEXT_MENU_META: Record<TabContextAction, { label: string; icon: string }> = {
   reload: { label: '重新加载', icon: 'ant-design:reload-outlined' },
   close: { label: '关闭标签', icon: 'ant-design:close-outlined' },
@@ -35,6 +39,7 @@ function isActionDisabled(
   tab: TabItem,
   tabList: TabItem[],
   currentIndex: number,
+  options: TabContextMenuOptions,
 ): boolean {
   switch (action) {
     case 'reload':
@@ -42,8 +47,14 @@ function isActionDisabled(
     case 'close':
       return tab.affix ?? false
     case 'closeLeft':
+      if (options.isViewingSubPage) {
+        return true
+      }
       return !tabList.slice(0, currentIndex).some((item) => !item.affix)
     case 'closeRight':
+      if (options.isViewingSubPage) {
+        return true
+      }
       return !tabList.slice(currentIndex + 1).some((item) => !item.affix)
     case 'closeOther':
       return !tabList.some((item) => item.fullPath !== tab.fullPath && !item.affix)
@@ -55,6 +66,7 @@ function isActionDisabled(
 export function buildTabContextMenuItems(
   tab: TabItem,
   tabList: TabItem[],
+  options: TabContextMenuOptions = {},
 ): TabContextMenuItem[] {
   const currentIndex = tabList.findIndex((item) => item.fullPath === tab.fullPath)
 
@@ -64,7 +76,7 @@ export function buildTabContextMenuItems(
       action,
       label: meta.label,
       icon: meta.icon,
-      disabled: isActionDisabled(action, tab, tabList, currentIndex),
+      disabled: isActionDisabled(action, tab, tabList, currentIndex, options),
       divided: DIVIDED_ACTIONS.has(action),
     }
   })

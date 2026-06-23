@@ -28,8 +28,9 @@
           </div>
         </template>
         <div>
-          <el-button @click="onOpenPage(1)">打开子页面1</el-button>
-          <el-button @click="onOpenPage(2)">打开子页面2</el-button>
+          <el-button @click="onOpenPageStack(1)">Stack 打开子页面1</el-button>
+          <el-button @click="onOpenPageStack(2)">Stack 打开子页面2</el-button>
+          <el-button @click="onOpenPageNewTab(1)">NewTab 打开子页面1</el-button>
         </div>
       </el-card>
     </div>
@@ -46,9 +47,19 @@ defineOptions({
 const { go } = useRouteNavigate()
 const { closeAll, closeLeft, closeRight, closeOther, closeCurrent, reloadCurrent } = useTabs()
 
-function onOpenPage(id: number) {
+function onOpenPageStack(id: number) {
   go({
     name: 'Child',
+    params: { id: String(id) },
+  }, {
+    tabMode: 'stack',
+    parentName: 'OpenSubpage',
+  })
+}
+
+function onOpenPageNewTab(id: number) {
+  go({
+    name: 'WorkspaceSettings',
     params: { id: String(id) },
   })
 }

@@ -34,8 +34,9 @@ const breadcrumbTrail = computed(() => {
   const parentRouteName = route.meta?.breadcrumbParentName
   if (route.meta?.dynamicTab && parentRouteName) {
     const fullPath = normalizePath(route.fullPath)
+    const subPageTitle = tabStore.getSubPageTitle(fullPath)
     const tab = tabList.value.find((item) => item.fullPath === fullPath)
-    const lastLayerTitle = tab?.title ?? String(route.meta.title ?? route.name)
+    const lastLayerTitle = subPageTitle ?? tab?.title ?? String(route.meta.title ?? route.name)
     return resolveDynamicSubPageBreadcrumbTrail(
       backMenuList.value,
       route.fullPath,

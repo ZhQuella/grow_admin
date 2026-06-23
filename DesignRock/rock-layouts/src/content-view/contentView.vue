@@ -30,7 +30,7 @@ const { cacheIncludeList, pageReloadKeys } = storeToRefs(tabStore)
 const { canEmbedIFramePage } = storeToRefs(appConfig)
 
 function getComponentKey(route: RouteLocationNormalizedLoaded) {
-  const fullPath = route.path.replace(/\/+$/, '') || '/'
+  const fullPath = route.fullPath.replace(/\/+$/, '') || '/'
   const reloadKey = pageReloadKeys.value[fullPath] ?? 0
   const componentName = String(route.meta?.componentName ?? route.name ?? fullPath)
   return `${componentName}__${fullPath}__${reloadKey}`

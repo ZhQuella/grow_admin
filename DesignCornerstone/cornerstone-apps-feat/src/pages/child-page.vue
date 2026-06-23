@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from '@grow-admin-rock/middleware-router'
 import { useTabs } from '@grow-admin-rock/hooks'
 
@@ -23,9 +23,15 @@ const { setTab } = useTabs()
 
 const id = computed(() => route.params.id)
 
-if (id.value != null && id.value !== '') {
-  setTab(`详情页-${id.value}`)
-}
+watch(
+  () => [route.fullPath, id.value] as const,
+  ([, nextId]) => {
+    if (nextId != null && nextId !== '') {
+      setTab(`详情页-${nextId}`)
+    }
+  },
+  { immediate: true },
+)
 
 function onBtnClick() {
   visible.value = !visible.value
