@@ -171,6 +171,11 @@ watch(
   cursor: grabbing;
 }
 
+.grow-tabs-bar :deep(.el-tabs__item .tab-close-btn),
+.grow-tabs-bar :deep(.el-tabs__item:active .tab-close-btn) {
+  cursor: pointer;
+}
+
 .grow-tabs-bar :deep(.el-tabs__item .el-dropdown) {
   height: 100%;
   border: 1px solid var(--layout-border-color);

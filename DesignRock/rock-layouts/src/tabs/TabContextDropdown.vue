@@ -14,7 +14,7 @@
       <span class="whitespace-nowrap text-inherit">{{ tab.title }}</span>
       <span
         v-if="!tab.affix"
-        class="ml-2 inline-flex shrink-0 items-center justify-center text-inherit opacity-70 hover:opacity-100"
+        class="tab-close-btn ml-2 inline-flex shrink-0 cursor-pointer items-center justify-center text-inherit opacity-70 hover:opacity-100"
         @click.stop="handleClose"
       >
         <GrowIconify icon="ant-design:close-outlined" :size="12" hover-pointer />
