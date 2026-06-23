@@ -62,8 +62,8 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import type { TabItem } from '@grow-admin-rock/types'
-import { buildTabContextMenuItems, type TabContextAction } from './tabContextMenu'
-import { useTabContextMenu } from './tabContextMenuState'
+import { buildTabContextMenuItems, type TabContextAction } from './use/tabContextMenu'
+import { useTabContextMenu } from './use/tabContextMenuState'
 
 const props = defineProps<{
   tab: TabItem

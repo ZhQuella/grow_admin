@@ -20,7 +20,7 @@ import { PageOpenModeEnum } from '@grow-admin-rock/constants'
 import { RenderIframe } from '@grow-admin-rock/components/embed-page'
 import { storeToRefs, useAppConfig, useTabStore } from '@grow-admin-rock/state'
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
-import { useTabRouteSync } from '../tabs/useTabRouteSync'
+import { useTabRouteSync } from '../tabs/use/useTabRouteSync'
 
 useTabRouteSync()
 

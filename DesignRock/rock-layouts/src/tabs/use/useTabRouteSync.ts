@@ -3,7 +3,7 @@ import { Lib as routeLib, useRoute } from '@grow-admin-rock/middleware-router'
 import { resolveByKeyOrThrow } from '@grow-admin-rock/ioc'
 import { storeToRefs, useAuthStore, useTabStore } from '@grow-admin-rock/state'
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
-import { findNavigableMenuByPath, normalizePath } from './tabUtils'
+import { findNavigableMenuByPath, normalizePath } from '../utils/tabUtils'
 
 /** 在 ContentView 中同步 tab 与 keep-alive 缓存，确保路由切换前 cacheIncludeList 已就绪 */
 export function useTabRouteSync() {

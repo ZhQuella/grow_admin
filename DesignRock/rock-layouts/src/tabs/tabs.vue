@@ -35,11 +35,11 @@ import { resolveByKeyOrThrow } from '@grow-admin-rock/ioc'
 import { storeToRefs, useTabStore } from '@grow-admin-rock/state'
 import { useRoute } from '@grow-admin-rock/middleware-router'
 import type { TabItem } from '@grow-admin-rock/types'
-import { normalizePath } from './tabUtils'
+import { normalizePath } from './utils/tabUtils'
 import TabContextDropdown from './TabContextDropdown.vue'
-import type { TabContextAction } from './tabContextMenu'
-import { provideTabContextMenu } from './tabContextMenuState'
-import { useSortTabs } from './useSortTabs'
+import type { TabContextAction } from './use/tabContextMenu'
+import { provideTabContextMenu } from './use/tabContextMenuState'
+import { useSortTabs } from './use/useSortTabs'
 
 const useRouter = () => resolveByKeyOrThrow(routeLib.types.RouteTable).router
 
@@ -137,100 +137,104 @@ watch(
 )
 </script>
 
-<style scoped>
-.grow-tabs-bar :deep(.el-tabs__header) {
-  margin-bottom: 0;
-  border-bottom: none;
-}
+<style lang="scss" scoped>
+.grow-tabs-bar {
+  :deep(.el-tabs__header) {
+    margin-bottom: 0;
+    border-bottom: none;
+  }
 
-.grow-tabs-bar :deep(.el-tabs__nav-wrap::after) {
-  display: none;
-}
+  :deep(.el-tabs__nav-wrap::after) {
+    display: none;
+  }
 
-.grow-tabs-bar :deep(.el-tabs__active-bar) {
-  display: none;
-}
+  :deep(.el-tabs__active-bar) {
+    display: none;
+  }
 
-.grow-tabs-bar :deep(.el-tabs__nav) {
-  gap: 4px;
-  border: none !important;
-}
+  :deep(.el-tabs__nav) {
+    gap: 4px;
+    border: none !important;
+  }
 
-.grow-tabs-bar :deep(.el-tabs__item) {
-  height: 32px;
-  margin: 0;
-  padding: 0 !important;
-  border: none;
-  background-color: transparent;
-  color: var(--text-color);
-  transition: color 0.2s;
-  cursor: grab;
-}
+  :deep(.el-tabs__item) {
+    height: 32px;
+    margin: 0;
+    padding: 0 !important;
+    border: none;
+    background-color: transparent;
+    color: var(--text-color);
+    transition: color 0.2s;
+    cursor: grab;
 
-.grow-tabs-bar :deep(.el-tabs__item:active) {
-  cursor: grabbing;
-}
+    &:active {
+      cursor: grabbing;
+    }
 
-.grow-tabs-bar :deep(.el-tabs__item .tab-close-btn),
-.grow-tabs-bar :deep(.el-tabs__item:active .tab-close-btn) {
-  cursor: pointer;
-}
+    .tab-close-btn,
+    &:active .tab-close-btn {
+      cursor: pointer;
+    }
 
-.grow-tabs-bar :deep(.el-tabs__item .el-dropdown) {
-  height: 100%;
-  border: 1px solid var(--layout-border-color);
-  border-radius: 4px;
-  background-color: var(--component-background-color);
-  color: inherit;
-  font-size: inherit;
-  line-height: inherit;
-  transition: color 0.2s, background-color 0.2s, border-color 0.2s;
-}
+    .el-dropdown {
+      height: 100%;
+      border: 1px solid var(--layout-border-color);
+      border-radius: 4px;
+      background-color: var(--component-background-color);
+      color: inherit;
+      font-size: inherit;
+      line-height: inherit;
+      transition: color 0.2s, background-color 0.2s, border-color 0.2s;
+    }
 
-.grow-tabs-bar :deep(.el-tabs__item:hover:not(.is-active) .el-dropdown) {
-  background-color: var(--color-primary-a06);
-  border-color: var(--layout-border-color);
-  color: var(--primary-color);
-}
+    &:hover:not(.is-active) .el-dropdown {
+      background-color: var(--color-primary-a06);
+      border-color: var(--layout-border-color);
+      color: var(--primary-color);
+    }
 
-.grow-tabs-bar :deep(.el-tabs__item.is-active) {
-  color: #fff;
-}
+    &.is-active {
+      color: #fff;
 
-.grow-tabs-bar :deep(.el-tabs__item.is-active .el-dropdown) {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
-  color: #fff;
-}
+      .el-dropdown {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: #fff;
+      }
+    }
+  }
 
-.grow-tabs-bar :deep(.el-tabs__content),
-.grow-tabs-bar :deep(.ant-tabs-content) {
-  display: none;
-}
+  :deep(.el-tabs__content),
+  :deep(.ant-tabs-content) {
+    display: none;
+  }
 
-.grow-tabs-bar :deep(.ant-tabs-nav) {
-  margin-bottom: 0;
+  :deep(.ant-tabs-nav) {
+    margin-bottom: 0;
+  }
 }
 </style>
 
-<style>
+<style lang="scss">
 /* grow-tabs-bar 与 el-tabs--card 在同一节点，不能用后代选择器 */
-.grow-tabs-bar.el-tabs--card > .el-tabs__header {
-  border-bottom: none;
-}
+.grow-tabs-bar.el-tabs--card {
+  > .el-tabs__header {
+    border-bottom: none;
 
-.grow-tabs-bar.el-tabs--card > .el-tabs__header .el-tabs__nav {
-  border: none;
-}
+    .el-tabs__nav {
+      border: none;
+    }
 
-.grow-tabs-bar.el-tabs--card > .el-tabs__header .el-tabs__item,
-.grow-tabs-bar.el-tabs--card > .el-tabs__header .el-tabs__item.is-active,
-.grow-tabs-bar.el-tabs--card > .el-tabs__header .el-tabs__item:first-child {
-  border: none !important;
-  border-top: none !important;
-  border-right: none !important;
-  border-bottom: none !important;
-  border-left: none !important;
-  margin-top: 0;
+    .el-tabs__item,
+    .el-tabs__item.is-active,
+    .el-tabs__item:first-child {
+      border: none !important;
+      border-top: none !important;
+      border-right: none !important;
+      border-bottom: none !important;
+      border-left: none !important;
+      margin-top: 0;
+    }
+  }
 }
 </style>
