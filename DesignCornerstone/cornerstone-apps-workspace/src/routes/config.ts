@@ -51,22 +51,6 @@ export const WORKSPACE_ROUTE_STRUCTURES: WorkspaceRouteStructure[] = [
         path: 'settings',
         name: 'WorkspaceSettings',
       },
-      {
-        path: 'shared-demo',
-        name: 'SharedDemo',
-        children: [
-          {
-            path: 'shared-demo-a',
-            name: 'SharedDemoA',
-            componentKey: 'SharedDemo',
-          },
-          {
-            path: 'shared-demo-b',
-            name: 'SharedDemoB',
-            componentKey: 'SharedDemo',
-          },
-        ],
-      },
     ],
   },
 ]

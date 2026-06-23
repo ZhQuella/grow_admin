@@ -1,12 +1,12 @@
 <template>
-  <div class="open-subpage">
-    <div class="open-subpage__header">
+  <div>
+    <div class="mb-2.5 bg-layout px-5 py-[50px] text-[17px] text-text">
       标签页操作示例
     </div>
-    <div class="open-subpage__section">
+    <div class="mx-2.5 mb-2.5 last:mb-0">
       <el-card>
         <template #header>
-          <div class="open-subpage__card-header">
+          <div class="font-semibold">
             <span>标签操作</span>
           </div>
         </template>
@@ -20,10 +20,10 @@
         </div>
       </el-card>
     </div>
-    <div class="open-subpage__section">
+    <div class="mx-2.5 mb-2.5 last:mb-0">
       <el-card>
         <template #header>
-          <div class="open-subpage__card-header">
+          <div class="font-semibold">
             <span>打开子页面</span>
           </div>
         </template>
@@ -64,25 +64,3 @@ function onOpenPageNewTab(id: number) {
   })
 }
 </script>
-
-<style scoped>
-.open-subpage__header {
-  margin-bottom: 10px;
-  padding: 50px 20px;
-  font-size: 17px;
-  color: var(--text-color);
-  background: var(--layout-container-background-color);
-}
-
-.open-subpage__section {
-  margin: 0 10px 10px;
-}
-
-.open-subpage__section:last-child {
-  margin-bottom: 0;
-}
-
-.open-subpage__card-header {
-  font-weight: 600;
-}
-</style>

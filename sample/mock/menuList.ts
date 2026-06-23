@@ -27,29 +27,6 @@ export const MENU_LIST: WorkspaceMenuApiItem[] = [
         isVisible: true,
         isKeepAlive: false,
       },
-      {
-        name: 'SharedDemo',
-        title: '共享页面',
-        icon: 'ant-design:copy-outlined',
-        menuType: MenuTypeEnum.DIRECTORY,
-        isVisible: true,
-        children: [
-          {
-            name: 'SharedDemoA',
-            title: '共享页面 A',
-            icon: 'ant-design:copy-outlined',
-            menuType: MenuTypeEnum.MENU,
-            isVisible: true,
-          },
-          {
-            name: 'SharedDemoB',
-            title: '共享页面 B',
-            icon: 'ant-design:copy-outlined',
-            menuType: MenuTypeEnum.MENU,
-            isVisible: false,
-          },
-        ],
-      },
     ],
   },
 ]
