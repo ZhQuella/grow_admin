@@ -39,5 +39,9 @@ declare module 'vue-router' {
     openMode?: PageOpenModeEnum;
     // 外部页面链接
     link?: string;
+    // 是否为无菜单的动态标签页（如带 params 的隐藏子路由）
+    dynamicTab?: boolean;
+    /** 动态子页面对应的父级菜单路由 name，用于面包屑保留上级链路 */
+    breadcrumbParentName?: string;
   }
 }

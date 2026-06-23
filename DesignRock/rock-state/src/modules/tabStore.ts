@@ -8,6 +8,8 @@ export interface TabStoreState {
   activeTab: string
   cacheIncludeList: string[]
   pageReloadKeys: Record<string, number>
+  /** setTab 早于 tab 创建时的待应用标题 */
+  pendingTabTitles: Record<string, string>
 }
 
 export type TabStore = ReturnType<typeof useTabStore>
@@ -75,6 +77,7 @@ export const useTabStore = defineStore({
     activeTab: '',
     cacheIncludeList: [],
     pageReloadKeys: {},
+    pendingTabTitles: {},
   }),
   getters: {
     getTabList: (state) => state.tabList,
@@ -306,6 +309,50 @@ export const useTabStore = defineStore({
       }
     },
 
+    openDynamicTab(tab: Pick<TabItem, 'fullPath' | 'name' | 'title' | 'isKeepAlive'>): TabItem {
+      const fullPath = normalizePath(tab.fullPath)
+      const pendingTitle = this.pendingTabTitles[fullPath]
+      const existing = this.tabList.find((item) => item.fullPath === fullPath)
+      if (existing) {
+        if (pendingTitle) {
+          existing.title = pendingTitle
+          delete this.pendingTabTitles[fullPath]
+        }
+        this.activeTab = fullPath
+        return existing
+      }
+
+      const newTab: TabItem = {
+        fullPath,
+        title: pendingTitle ?? tab.title,
+        name: tab.name,
+        isKeepAlive: tab.isKeepAlive ?? true,
+      }
+      if (pendingTitle) {
+        delete this.pendingTabTitles[fullPath]
+      }
+      this.tabList.push(newTab)
+      if (newTab.isKeepAlive !== false) {
+        this.addCache(newTab.name)
+      }
+      this.activeTab = fullPath
+      return newTab
+    },
+
+    setTabTitle(fullPath: string, title: string) {
+      if (!title || title.includes('undefined')) {
+        return
+      }
+      const normalizedPath = normalizePath(fullPath)
+      const tab = this.tabList.find((item) => item.fullPath === normalizedPath)
+      if (tab) {
+        tab.title = title
+        delete this.pendingTabTitles[normalizedPath]
+        return
+      }
+      this.pendingTabTitles[normalizedPath] = title
+    },
+
     sortTabs(oldIndex: number, newIndex: number) {
       if (oldIndex === newIndex) {
         return
@@ -329,6 +376,7 @@ export const useTabStore = defineStore({
       this.activeTab = ''
       this.cacheIncludeList = []
       this.pageReloadKeys = {}
+      this.pendingTabTitles = {}
     },
   },
   persist: {

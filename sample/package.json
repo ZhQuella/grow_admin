@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@grow-admin-cornerstone/apps-external": "workspace:*",
+    "@grow-admin-cornerstone/apps-feat": "workspace:*",
     "@grow-admin-cornerstone/apps-home": "workspace:*",
     "@grow-admin-cornerstone/apps-login": "workspace:*",
     "@grow-admin-cornerstone/apps-workspace": "workspace:*",

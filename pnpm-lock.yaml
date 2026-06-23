@@ -98,11 +98,48 @@ importers:
         specifier: ^1.0.24
         version: 1.8.27(typescript@5.9.3)
 
+  DesignCornerstone/cornerstone-apps-feat:
+    dependencies:
+      element-plus:
+        specifier: ^2.4.4
+        version: 2.14.1(vue@3.3.13(typescript@5.9.3))
+      vue:
+        specifier: ~3.3.4
+        version: 3.3.13(typescript@5.9.3)
+      vue-router:
+        specifier: ^4.0.0
+        version: 4.6.4(vue@3.3.13(typescript@5.9.3))
+    devDependencies:
+      '@grow-admin-rock/base-package':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-base-package
+      '@grow-admin-rock/constants':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-constants
+      '@grow-admin-rock/hooks':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-hooks
+      '@grow-admin-rock/middleware-router':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-middleware-router
+      typescript:
+        specifier: ^5.0.2
+        version: 5.9.3
+      vite:
+        specifier: 4.3.9
+        version: 4.3.9(@types/node@25.9.1)(less@4.6.4)(sass@1.100.0)(terser@5.47.1)
+      vue-tsc:
+        specifier: ^1.0.24
+        version: 1.8.27(typescript@5.9.3)
+
   DesignCornerstone/cornerstone-apps-home:
     dependencies:
       '@grow-admin-cornerstone/apps-external':
         specifier: workspace:*
         version: link:../cornerstone-apps-external
+      '@grow-admin-cornerstone/apps-feat':
+        specifier: workspace:*
+        version: link:../cornerstone-apps-feat
       '@grow-admin-cornerstone/apps-workspace':
         specifier: workspace:*
         version: link:../cornerstone-apps-workspace
@@ -846,6 +883,9 @@ importers:
       '@grow-admin-cornerstone/apps-external':
         specifier: workspace:*
         version: link:../DesignCornerstone/cornerstone-apps-external
+      '@grow-admin-cornerstone/apps-feat':
+        specifier: workspace:*
+        version: link:../DesignCornerstone/cornerstone-apps-feat
       '@grow-admin-cornerstone/apps-home':
         specifier: workspace:*
         version: link:../DesignCornerstone/cornerstone-apps-home

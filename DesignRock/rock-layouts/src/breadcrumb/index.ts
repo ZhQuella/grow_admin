@@ -1,3 +1,3 @@
 export { default as Breadcrumb } from './breadcrumb.vue'
-export { resolveMenuBreadcrumbTrail } from './breadcrumbUtils'
+export { resolveMenuBreadcrumbTrail, resolveDynamicSubPageBreadcrumbTrail } from './breadcrumbUtils'
 export type { BreadcrumbItem } from './breadcrumbUtils'

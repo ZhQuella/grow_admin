@@ -4,6 +4,11 @@ import { extendComponent } from '#/utils/extendComponent'
 import { Lib as routeLib } from '@grow-admin-rock/middleware-router'
 import { resolveExternalRoute } from '@grow-admin-cornerstone/apps-external'
 import {
+  FEAT_HIDDEN_ROUTES,
+  isFeatRouteConfig,
+  resolveFeatRoute,
+} from '@grow-admin-cornerstone/apps-feat'
+import {
   flattenWorkspaceRouteConfigs,
   resolveWorkspaceRoute,
   resolveWorkspaceRouteFullPath,
@@ -16,8 +21,10 @@ import type { Menu } from '@grow-admin-rock/types'
 const HOME_ROUTE_NAME = 'Home'
 const HOME_PATH = '/home'
 
+type DynamicRouteConfig = WorkspaceRouteConfig
+
 function toMenuItem(
-  config: WorkspaceRouteConfig,
+  config: DynamicRouteConfig,
   parentPath = '',
   isRootLevel = true,
 ): Menu {
@@ -54,11 +61,11 @@ function toMenuItem(
   return menu
 }
 
-function toMenuList(configs: WorkspaceRouteConfig[]): Menu[] {
+function toMenuList(configs: DynamicRouteConfig[]): Menu[] {
   return configs.map(toMenuItem)
 }
 
-function shouldRegisterRoute(config: WorkspaceRouteConfig): boolean {
+function shouldRegisterRoute(config: DynamicRouteConfig): boolean {
   if (config.openMode === PageOpenModeEnum.BROWSER) {
     return false
   }
@@ -68,17 +75,43 @@ function shouldRegisterRoute(config: WorkspaceRouteConfig): boolean {
   return config.menuType === MenuTypeEnum.MENU
 }
 
-function resolveDynamicRoute(config: WorkspaceRouteConfig, fullPath: string) {
+function resolveDynamicRoute(config: DynamicRouteConfig, fullPath: string) {
   if (config.componentKey === 'EmbedPage' || config.openMode === PageOpenModeEnum.IFRAME) {
     return resolveExternalRoute(config, fullPath)
+  }
+  if (isFeatRouteConfig(config)) {
+    return resolveFeatRoute(config, fullPath)
   }
   return resolveWorkspaceRoute(config, fullPath)
 }
 
+function registerHiddenRoutes() {
+  const router = resolveByKeyOrThrow(routeLib.types.RouteTable).router
+
+  FEAT_HIDDEN_ROUTES.forEach((route) => {
+    if (router.hasRoute(route.name)) {
+      return
+    }
+
+    const componentName = String(route.meta?.componentName ?? route.name)
+    router.addRoute(HOME_ROUTE_NAME, {
+      ...route,
+      component: extendComponent(route.component!, { name: componentName }),
+      meta: {
+        ...route.meta,
+        componentName,
+        isKeepAlive: route.meta?.isKeepAlive ?? true,
+      },
+    })
+  })
+}
+
 export async function registerDynamicRoutes() {
-  const { menuList } = await getMenuList() as { menuList: WorkspaceRouteConfig[] }
+  const { menuList } = await getMenuList() as { menuList: DynamicRouteConfig[] }
   const router = resolveByKeyOrThrow(routeLib.types.RouteTable).router
   const authStore = useAuthStore()
+
+  registerHiddenRoutes()
 
   flattenWorkspaceRouteConfigs(menuList).forEach(({ fullPath, ...config }) => {
     if (!shouldRegisterRoute(config)) {

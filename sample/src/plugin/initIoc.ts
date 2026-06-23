@@ -29,6 +29,7 @@ import { Lib as componentsLib } from '@grow-admin-rock/components'
 import { Lib as appsLoginLib } from '@grow-admin-cornerstone/apps-login'
 import { Lib as appsHomeLib } from '@grow-admin-cornerstone/apps-home'
 import { Lib as appsExternalLib } from '@grow-admin-cornerstone/apps-external'
+import { Lib as appsFeatLib } from '@grow-admin-cornerstone/apps-feat'
 import { Lib as appsWorkspaceLib } from '@grow-admin-cornerstone/apps-workspace'
 
 import { bootstrapAppConfig } from '../initAppConfig'
@@ -74,6 +75,8 @@ export const initIoc = async (app: App) => {
     .use(appsWorkspaceLib, appContext)
     // 使用外部页面演示模块
     .use(appsExternalLib, appContext)
+    // 使用功能示例模块
+    .use(appsFeatLib, appContext)
     // 使用契约组件库
     .use(componentsLib, appContext);
 
