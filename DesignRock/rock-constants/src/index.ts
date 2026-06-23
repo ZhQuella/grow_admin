@@ -1,4 +1,5 @@
 export * from './menuEnum'
+export * from './pageEnum'
 export * from './router'
 export * from './breakpoint'
 export * from './sidebar'

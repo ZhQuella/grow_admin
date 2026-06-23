@@ -67,8 +67,42 @@ importers:
         specifier: ^4.2.0
         version: 4.3.2(typescript@5.9.3)(vite@4.3.9(@types/node@25.9.1)(less@4.6.4)(sass@1.100.0)(terser@5.47.1))
 
+  DesignCornerstone/cornerstone-apps-external:
+    dependencies:
+      '@grow-admin-rock/components':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-components
+      '@grow-admin-rock/constants':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-constants
+      vue:
+        specifier: ~3.3.4
+        version: 3.3.13(typescript@5.9.3)
+      vue-router:
+        specifier: ^4.0.0
+        version: 4.6.4(vue@3.3.13(typescript@5.9.3))
+    devDependencies:
+      '@grow-admin-rock/base-package':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-base-package
+      '@grow-admin-rock/middleware-router':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-middleware-router
+      typescript:
+        specifier: ^5.0.2
+        version: 5.9.3
+      vite:
+        specifier: 4.3.9
+        version: 4.3.9(@types/node@25.9.1)(less@4.6.4)(sass@1.100.0)(terser@5.47.1)
+      vue-tsc:
+        specifier: ^1.0.24
+        version: 1.8.27(typescript@5.9.3)
+
   DesignCornerstone/cornerstone-apps-home:
     dependencies:
+      '@grow-admin-cornerstone/apps-external':
+        specifier: workspace:*
+        version: link:../cornerstone-apps-external
       '@grow-admin-cornerstone/apps-workspace':
         specifier: workspace:*
         version: link:../cornerstone-apps-workspace
@@ -291,9 +325,18 @@ importers:
       '@grow-admin-rock/base-package':
         specifier: workspace:*
         version: link:../rock-base-package
+      '@grow-admin-rock/constants':
+        specifier: workspace:*
+        version: link:../rock-constants
       '@grow-admin-rock/ioc':
         specifier: workspace:*
         version: link:../rock-ioc
+      '@grow-admin-rock/middleware-router':
+        specifier: workspace:*
+        version: link:../rock-middleware-router
+      '@grow-admin-rock/state':
+        specifier: workspace:*
+        version: link:../rock-state
       '@grow-admin-rock/types':
         specifier: workspace:*
         version: link:../rock-types
@@ -306,6 +349,9 @@ importers:
       lodash-es:
         specifier: ^4.17.21
         version: 4.18.1
+      pinia:
+        specifier: ~2.0.34
+        version: 2.0.36(typescript@5.9.3)(vue@3.3.13(typescript@5.9.3))
       vue:
         specifier: ~3.3.4
         version: 3.3.13(typescript@5.9.3)
@@ -402,6 +448,9 @@ importers:
 
   DesignRock/rock-layouts:
     dependencies:
+      '@grow-admin-rock/components':
+        specifier: workspace:*
+        version: link:../rock-components
       '@grow-admin-rock/constants':
         specifier: workspace:*
         version: link:../rock-constants
@@ -794,6 +843,9 @@ importers:
 
   sample:
     dependencies:
+      '@grow-admin-cornerstone/apps-external':
+        specifier: workspace:*
+        version: link:../DesignCornerstone/cornerstone-apps-external
       '@grow-admin-cornerstone/apps-home':
         specifier: workspace:*
         version: link:../DesignCornerstone/cornerstone-apps-home

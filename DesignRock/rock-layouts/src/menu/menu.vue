@@ -16,6 +16,7 @@
         v-for="item in visibleMenuList"
         :key="item.path"
         :item="item"
+        :can-embed-i-frame-page="canEmbedIFramePage"
       />
     </GrowMenu>
   </div>
@@ -23,28 +24,61 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
+import { PageOpenModeEnum } from '@grow-admin-rock/constants'
 import { Lib as routeLib } from '@grow-admin-rock/middleware-router'
 import { resolveByKeyOrThrow } from '@grow-admin-rock/ioc'
-import { storeToRefs, useAuthStore, useLayout } from '@grow-admin-rock/state'
+import { storeToRefs, useAppConfig, useAuthStore, useLayout } from '@grow-admin-rock/state'
+import type { Menu } from '@grow-admin-rock/types'
 import MenuTreeNode from './MenuTreeNode.vue'
 import { shouldRenderMenuItem } from './menuUtils'
 
 const useRouter = () => resolveByKeyOrThrow(routeLib.types.RouteTable).router
 
 const { isPutAway, isRoofLayout, isSideLayout } = useLayout()
+const appConfig = useAppConfig()
 const authStore = useAuthStore()
 const { backMenuList: menuList } = storeToRefs(authStore)
-const visibleMenuList = computed(() => menuList.value.filter((item) => shouldRenderMenuItem(item)))
+const { canEmbedIFramePage } = storeToRefs(appConfig)
+const visibleMenuList = computed(() => {
+  return menuList.value.filter((item) => shouldRenderMenuItem(item, canEmbedIFramePage.value))
+})
 const activeMenu = computed(() => useRouter().currentRoute.value.path)
 
 const menuMode = computed(() => (isRoofLayout.value ? 'horizontal' : 'vertical'))
 const menuCollapse = computed(() => isSideLayout.value && !isPutAway.value)
 
-function handleMenuSelect(path: string) {
-  if (!path.startsWith('/')) {
+function findMenuByIndex(menus: Menu[], index: string): Menu | null {
+  for (const menu of menus) {
+    if (getMenuIndex(menu) === index) {
+      return menu
+    }
+    if (menu.children?.length) {
+      const matched = findMenuByIndex(menu.children, index)
+      if (matched) {
+        return matched
+      }
+    }
+  }
+  return null
+}
+
+function getMenuIndex(item: Menu): string {
+  if (item.openMode === PageOpenModeEnum.BROWSER) {
+    return item.name
+  }
+  return item.path
+}
+
+function handleMenuSelect(index: string) {
+  const menu = findMenuByIndex(menuList.value, index)
+  if (menu?.openMode === PageOpenModeEnum.BROWSER && menu.link) {
+    window.open(menu.link, '_blank')
     return
   }
-  useRouter().push(path)
+  if (!index.startsWith('/')) {
+    return
+  }
+  useRouter().push(index)
 }
 </script>
 

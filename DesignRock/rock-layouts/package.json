@@ -9,6 +9,7 @@
     "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
   },
   "dependencies": {
+    "@grow-admin-rock/components": "workspace:*",
     "@grow-admin-rock/constants": "workspace:*",
     "@grow-admin-rock/ioc": "workspace:*",
     "@grow-admin-rock/locale": "workspace:*",

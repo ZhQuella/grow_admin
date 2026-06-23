@@ -1,20 +1,20 @@
 import type {
-  WorkspaceMenuApiItem,
-  WorkspaceRouteConfig,
-  WorkspaceRouteStructure,
+  ExternalMenuApiItem,
+  ExternalRouteConfig,
+  ExternalRouteStructure,
 } from './config'
 
-export function mergeMenuWithStructure(
-  menuItems: WorkspaceMenuApiItem[],
-  structures: WorkspaceRouteStructure[],
-): WorkspaceRouteConfig[] {
+export function mergeExternalMenuWithStructure(
+  menuItems: ExternalMenuApiItem[],
+  structures: ExternalRouteStructure[],
+): ExternalRouteConfig[] {
   return menuItems.map((menuItem) => {
     const structure = structures.find((item) => item.name === menuItem.name)
     if (!structure) {
-      throw new Error(`Unknown menu item: ${menuItem.name}`)
+      throw new Error(`Unknown external menu item: ${menuItem.name}`)
     }
 
-    const config: WorkspaceRouteConfig = {
+    const config: ExternalRouteConfig = {
       path: structure.path,
       name: structure.name,
       title: menuItem.title,
@@ -31,7 +31,7 @@ export function mergeMenuWithStructure(
     }
 
     if (menuItem.children?.length) {
-      config.children = mergeMenuWithStructure(
+      config.children = mergeExternalMenuWithStructure(
         menuItem.children,
         structure.children ?? [],
       )

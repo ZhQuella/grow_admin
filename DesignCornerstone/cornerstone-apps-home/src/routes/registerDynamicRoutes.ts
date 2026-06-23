@@ -1,7 +1,8 @@
-import { MenuTypeEnum } from '@grow-admin-rock/constants'
+import { MenuTypeEnum, PageOpenModeEnum } from '@grow-admin-rock/constants'
 import { getMenuList } from '#/api/routers'
 import { extendComponent } from '#/utils/extendComponent'
 import { Lib as routeLib } from '@grow-admin-rock/middleware-router'
+import { resolveExternalRoute } from '@grow-admin-cornerstone/apps-external'
 import {
   flattenWorkspaceRouteConfigs,
   resolveWorkspaceRoute,
@@ -31,6 +32,9 @@ function toMenuItem(
     isKeepAlive: config.isKeepAlive,
     affix: config.affix,
     defaultShow: config.defaultShow,
+    isExternalPage: config.isExternalPage,
+    openMode: config.openMode,
+    link: config.link,
   }
 
   if (config.children?.length) {
@@ -43,11 +47,32 @@ function toMenuItem(
     }
   }
 
+  if (config.openMode === PageOpenModeEnum.BROWSER) {
+    menu.path = config.name
+  }
+
   return menu
 }
 
 function toMenuList(configs: WorkspaceRouteConfig[]): Menu[] {
   return configs.map(toMenuItem)
+}
+
+function shouldRegisterRoute(config: WorkspaceRouteConfig): boolean {
+  if (config.openMode === PageOpenModeEnum.BROWSER) {
+    return false
+  }
+  if (config.children?.length) {
+    return Boolean(config.componentKey)
+  }
+  return config.menuType === MenuTypeEnum.MENU
+}
+
+function resolveDynamicRoute(config: WorkspaceRouteConfig, fullPath: string) {
+  if (config.componentKey === 'EmbedPage' || config.openMode === PageOpenModeEnum.IFRAME) {
+    return resolveExternalRoute(config, fullPath)
+  }
+  return resolveWorkspaceRoute(config, fullPath)
 }
 
 export async function registerDynamicRoutes() {
@@ -56,7 +81,11 @@ export async function registerDynamicRoutes() {
   const authStore = useAuthStore()
 
   flattenWorkspaceRouteConfigs(menuList).forEach(({ fullPath, ...config }) => {
-    const route = resolveWorkspaceRoute(config, fullPath)
+    if (!shouldRegisterRoute(config)) {
+      return
+    }
+
+    const route = resolveDynamicRoute(config, fullPath)
     if (router.hasRoute(route.name)) {
       return
     }
@@ -71,6 +100,9 @@ export async function registerDynamicRoutes() {
         isKeepAlive: config.isKeepAlive ?? true,
         affix: config.affix ?? false,
         defaultShow: config.defaultShow ?? false,
+        isExternalPage: config.isExternalPage,
+        openMode: config.openMode ?? PageOpenModeEnum.ROUTE,
+        link: config.link,
       },
     })
   })

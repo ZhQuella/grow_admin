@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { nextTick } from 'vue'
-import { MenuTypeEnum } from '@grow-admin-rock/constants'
+import { MenuTypeEnum, PageOpenModeEnum } from '@grow-admin-rock/constants'
 import type { Menu, TabItem } from '@grow-admin-rock/types'
 
 export interface TabStoreState {
@@ -42,6 +42,9 @@ function toTabItem(menu: Menu): TabItem {
     icon: menu.icon,
     affix: menu.affix ?? false,
     isKeepAlive: menu.isKeepAlive ?? true,
+    isExternalPage: menu.isExternalPage,
+    openMode: menu.openMode,
+    link: menu.link,
   }
 }
 
@@ -56,6 +59,7 @@ function collectDefaultShowMenus(menus: Menu[]): Menu[] {
       menu.menuType === MenuTypeEnum.MENU
       && menu.defaultShow
       && menu.path.startsWith('/')
+      && menu.openMode !== PageOpenModeEnum.BROWSER
     ) {
       result.push(menu)
     }
@@ -117,6 +121,9 @@ export const useTabStore = defineStore({
           tab.icon = menu.icon
           tab.affix = menu.affix ?? false
           tab.isKeepAlive = menu.isKeepAlive ?? true
+          tab.isExternalPage = menu.isExternalPage
+          tab.openMode = menu.openMode
+          tab.link = menu.link
         }
       })
     },
@@ -153,6 +160,9 @@ export const useTabStore = defineStore({
         existing.icon = menu.icon
         existing.affix = menu.affix ?? false
         existing.isKeepAlive = menu.isKeepAlive ?? true
+        existing.isExternalPage = menu.isExternalPage
+        existing.openMode = menu.openMode
+        existing.link = menu.link
         this.activeTab = fullPath
         return existing
       }
