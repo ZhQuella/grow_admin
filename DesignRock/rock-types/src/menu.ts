@@ -1,4 +1,4 @@
-import { MenuModeEnum, MenuTypeEnum } from '@grow-admin-rock/constants'
+import { MenuModeEnum, MenuTypeEnum, PageOpenModeEnum } from '@grow-admin-rock/constants'
 import type { RouteMeta } from 'vue-router'
 
 export interface MenuTag {
@@ -41,6 +41,15 @@ export interface Menu {
 
   /** 是否默认在视图区域展示（首次无 tab 时自动打开并跳转） */
   defaultShow?: boolean
+
+  /** 是否外部页面 */
+  isExternalPage?: boolean
+
+  /** 页面打开方式 */
+  openMode?: PageOpenModeEnum
+
+  /** 外部页面链接（iframe 内嵌与浏览器打开共用） */
+  link?: string
 
   label?: Node | JSX.Element | string
 

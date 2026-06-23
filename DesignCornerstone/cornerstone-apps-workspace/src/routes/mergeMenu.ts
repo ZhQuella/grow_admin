@@ -25,6 +25,9 @@ export function mergeMenuWithStructure(
       affix: menuItem.affix,
       defaultShow: menuItem.defaultShow,
       componentKey: structure.componentKey,
+      isExternalPage: menuItem.isExternalPage,
+      openMode: menuItem.openMode,
+      link: menuItem.link,
     }
 
     if (menuItem.children?.length) {

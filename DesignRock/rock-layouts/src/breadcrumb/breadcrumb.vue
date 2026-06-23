@@ -13,15 +13,39 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import { useRoute } from '@grow-admin-rock/middleware-router'
-import { storeToRefs, useAuthStore } from '@grow-admin-rock/state'
+import { storeToRefs, useAuthStore, useTabStore } from '@grow-admin-rock/state'
 import type { BreadcrumbItem } from './breadcrumbUtils'
-import { resolveMenuBreadcrumbTrail } from './breadcrumbUtils'
+import {
+  resolveDynamicSubPageBreadcrumbTrail,
+  resolveMenuBreadcrumbTrail,
+} from './breadcrumbUtils'
+
+function normalizePath(path: string): string {
+  return path.replace(/\/+$/, '') || '/'
+}
 
 const route = useRoute()
 const authStore = useAuthStore()
+const tabStore = useTabStore()
 const { backMenuList } = storeToRefs(authStore)
+const { tabList } = storeToRefs(tabStore)
 
 const breadcrumbTrail = computed(() => {
+  const parentRouteName = route.meta?.breadcrumbParentName
+  if (route.meta?.dynamicTab && parentRouteName) {
+    const fullPath = normalizePath(route.fullPath)
+    const subPageTitle = tabStore.getSubPageTitle(fullPath)
+    const tab = tabList.value.find((item) => item.fullPath === fullPath)
+    const lastLayerTitle = subPageTitle ?? tab?.title ?? String(route.meta.title ?? route.name)
+    return resolveDynamicSubPageBreadcrumbTrail(
+      backMenuList.value,
+      route.fullPath,
+      String(parentRouteName),
+      lastLayerTitle,
+      route.name,
+    )
+  }
+
   return resolveMenuBreadcrumbTrail(
     backMenuList.value,
     route.path,

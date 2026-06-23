@@ -15,3 +15,4 @@ export { useComponent, useDriverComponent } from './src';
 export { driverRef } from '#/utils/refSupport';
 export { Lib } from './library';
 export { default as Beans, AppContextParamDef as ContextParamDef } from './beankeys';
+export * from './src/embed-page';

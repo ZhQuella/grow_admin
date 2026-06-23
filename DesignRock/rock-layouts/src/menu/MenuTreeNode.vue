@@ -10,9 +10,10 @@
       v-for="child in item.children"
       :key="child.path"
       :item="child"
+      :can-embed-i-frame-page="canEmbedIFramePage"
     />
   </GrowSubMenu>
-  <GrowMenuItem v-else-if="shouldRender" :index="item.path">
+  <GrowMenuItem v-else-if="shouldRender" :index="menuIndex">
     <i v-if="item.icon" class="el-icon">
       <GrowIconify :icon="item.icon" :size="18" hover-pointer />
     </i>
@@ -22,6 +23,7 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
+import { PageOpenModeEnum } from '@grow-admin-rock/constants'
 import type { Menu } from '@grow-admin-rock/types'
 import { shouldDisplayAsSubMenu, shouldRenderMenuItem } from './menuUtils'
 
@@ -31,8 +33,15 @@ defineOptions({
 
 const props = defineProps<{
   item: Menu
+  canEmbedIFramePage?: boolean
 }>()
 
-const displayAsSubMenu = computed(() => shouldDisplayAsSubMenu(props.item))
-const shouldRender = computed(() => shouldRenderMenuItem(props.item))
+const displayAsSubMenu = computed(() => shouldDisplayAsSubMenu(props.item, props.canEmbedIFramePage ?? true))
+const shouldRender = computed(() => shouldRenderMenuItem(props.item, props.canEmbedIFramePage ?? true))
+const menuIndex = computed(() => {
+  if (props.item.openMode === PageOpenModeEnum.BROWSER) {
+    return props.item.name
+  }
+  return props.item.path
+})
 </script>

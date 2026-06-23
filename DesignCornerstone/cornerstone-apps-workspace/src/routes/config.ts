@@ -1,4 +1,4 @@
-import { MenuTypeEnum } from '@grow-admin-rock/constants'
+import { MenuTypeEnum, PageOpenModeEnum } from '@grow-admin-rock/constants'
 
 /** 客户端路由结构：path、组件映射，不含展示信息 */
 export type WorkspaceRouteStructure = {
@@ -18,6 +18,9 @@ export type WorkspaceMenuApiItem = {
   isKeepAlive?: boolean
   affix?: boolean
   defaultShow?: boolean
+  isExternalPage?: boolean
+  openMode?: PageOpenModeEnum
+  link?: string
   children?: WorkspaceMenuApiItem[]
 }
 
@@ -30,6 +33,9 @@ export type WorkspaceRouteConfig = WorkspaceRouteStructure & {
   isKeepAlive?: boolean
   affix?: boolean
   defaultShow?: boolean
+  isExternalPage?: boolean
+  openMode?: PageOpenModeEnum
+  link?: string
 }
 
 export const WORKSPACE_ROUTE_STRUCTURES: WorkspaceRouteStructure[] = [

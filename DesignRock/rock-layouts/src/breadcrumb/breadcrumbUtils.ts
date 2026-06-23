@@ -65,3 +65,27 @@ export function resolveMenuBreadcrumbTrail(
 ): BreadcrumbItem[] {
   return findMenuBreadcrumbTrail(menus, currentPath, currentName ?? null) ?? []
 }
+
+/**
+ * 动态子页面面包屑：保留父级菜单链路，最后一层使用 tab 自定义标题。
+ */
+export function resolveDynamicSubPageBreadcrumbTrail(
+  menus: Menu[],
+  currentFullPath: string,
+  parentRouteName: string,
+  lastLayerTitle: string,
+  currentRouteName?: RouteRecordName | null,
+): BreadcrumbItem[] {
+  const parentTrail = resolveMenuBreadcrumbTrail(menus, '', parentRouteName)
+  const lastItem: BreadcrumbItem = {
+    title: lastLayerTitle,
+    path: normalizePath(currentFullPath),
+    name: String(currentRouteName ?? parentRouteName),
+  }
+
+  if (!parentTrail.length) {
+    return [lastItem]
+  }
+
+  return [...parentTrail, lastItem]
+}

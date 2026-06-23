@@ -15,6 +15,8 @@
     "@grow-admin-rock/infrastructure": "workspace:*",
     "@grow-admin-rock/locale": "workspace:*",
     "@grow-admin-rock/state": "workspace:*",
+    "@grow-admin-cornerstone/apps-external": "workspace:*",
+    "@grow-admin-cornerstone/apps-feat": "workspace:*",
     "@grow-admin-cornerstone/apps-workspace": "workspace:*"
   },
   "devDependencies": {
