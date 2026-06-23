@@ -60,6 +60,22 @@ export const FEAT_ROUTE_STRUCTURES: FeatRouteStructure[] = [
           },
         ],
       },
+      {
+        path: 'shared-demo',
+        name: 'SharedDemo',
+        children: [
+          {
+            path: 'shared-demo-a',
+            name: 'SharedDemoA',
+            componentKey: 'SharedDemo',
+          },
+          {
+            path: 'shared-demo-b',
+            name: 'SharedDemoB',
+            componentKey: 'SharedDemo',
+          },
+        ],
+      },
     ],
   },
 ]
@@ -128,7 +144,19 @@ export function toFeatRouteConfigs(
   return structures.map(withDefaultTitle)
 }
 
-export const FEAT_COMPONENT_KEYS = new Set(['OpenSubpage', 'MenuChildTest', 'MenuChildTestSub'])
+export const FEAT_COMPONENT_KEYS = new Set(['OpenSubpage', 'MenuChildTest', 'MenuChildTestSub', 'SharedDemo'])
+
+/** componentKey 对应的页面组件 name（与 .vue 中 defineOptions.name 一致） */
+export const FEAT_COMPONENT_PAGE_NAMES: Record<string, string> = {
+  OpenSubpage: 'OpenSubpagePage',
+  MenuChildTest: 'MenuChildTestPage',
+  MenuChildTestSub: 'MenuChildTestSubPage',
+  SharedDemo: 'SharedDemoPage',
+}
+
+export function resolveFeatPageComponentName(componentKey: string): string {
+  return FEAT_COMPONENT_PAGE_NAMES[componentKey] ?? componentKey
+}
 
 export function isFeatRouteConfig(config: { componentKey?: string, name: string | symbol }): boolean {
   const key = String(config.componentKey ?? config.name)

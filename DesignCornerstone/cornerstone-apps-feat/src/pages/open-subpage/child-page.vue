@@ -1,9 +1,9 @@
 <template>
-  <div class="child-page">
-    <p class="child-page__title">Child{{ id }}</p>
+  <div class="p-6">
+    <p class="mb-4 m-0 text-lg font-semibold text-text">Child{{ id }}</p>
     <el-input v-model="value" placeholder="输入内容测试 keep-alive" />
-    <el-button class="child-page__btn" @click="onBtnClick">click Me</el-button>
-    <div v-if="visible" class="child-page__hint">显示么？</div>
+    <el-button class="mt-3" @click="onBtnClick">click Me</el-button>
+    <div v-if="visible" class="mt-3 text-text-secondary">显示么？</div>
   </div>
 </template>
 
@@ -37,25 +37,3 @@ function onBtnClick() {
   visible.value = !visible.value
 }
 </script>
-
-<style scoped>
-.child-page {
-  padding: 24px;
-}
-
-.child-page__title {
-  margin: 0 0 16px;
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-color);
-}
-
-.child-page__btn {
-  margin-top: 12px;
-}
-
-.child-page__hint {
-  margin-top: 12px;
-  color: var(--text-color-secondary);
-}
-</style>

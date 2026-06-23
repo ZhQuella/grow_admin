@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { nextTick } from 'vue'
 import { MenuTypeEnum, PageOpenModeEnum } from '@grow-admin-rock/constants'
 import type { Menu, TabItem, TabSubPage } from '@grow-admin-rock/types'
+import { resolveTabCacheName } from '../tabCacheUtils'
 
 export interface TabStoreState {
   tabList: TabItem[]
@@ -53,11 +54,26 @@ function findMenuByName(menus: Menu[], name: string): Menu | null {
   return null
 }
 
+function getBaseComponentName(cacheName: string): string {
+  const separatorIndex = cacheName.indexOf('__')
+  return separatorIndex === -1 ? cacheName : cacheName.slice(0, separatorIndex)
+}
+
+function migrateTabCacheNames(tabList: TabItem[]) {
+  tabList.forEach((tab) => {
+    tab.name = resolveTabCacheName(tab.fullPath, getBaseComponentName(tab.name))
+    tab.subPages?.forEach((subPage) => {
+      subPage.name = resolveTabCacheName(subPage.fullPath, getBaseComponentName(subPage.name))
+    })
+  })
+}
+
 function toTabItem(menu: Menu): TabItem {
+  const fullPath = normalizePath(menu.path)
   return {
-    fullPath: normalizePath(menu.path),
+    fullPath,
     title: menu.title,
-    name: menu.name,
+    name: resolveTabCacheName(fullPath, menu.name),
     icon: menu.icon,
     affix: menu.affix ?? false,
     isKeepAlive: menu.isKeepAlive ?? true,
@@ -295,12 +311,13 @@ export const useTabStore = defineStore({
           ...params.subPage,
           fullPath: subPageFullPath,
           title: pendingTitle ?? params.subPage.title,
+          name: resolveTabCacheName(subPageFullPath, params.subPage.name),
         })
         if (pendingTitle) {
           delete this.pendingSubPageTitles[subPageFullPath]
         }
         if (params.subPage.isKeepAlive !== false) {
-          this.addCache(params.subPage.name)
+          this.addCache(resolveTabCacheName(subPageFullPath, params.subPage.name))
         }
       }
 
@@ -498,6 +515,7 @@ export const useTabStore = defineStore({
 
     openDynamicTab(tab: Pick<TabItem, 'fullPath' | 'name' | 'title' | 'isKeepAlive'>): TabItem {
       const fullPath = normalizePath(tab.fullPath)
+      const cacheName = resolveTabCacheName(fullPath, tab.name)
       const pendingTitle = this.pendingTabTitles[fullPath]
       const existing = this.tabList.find((item) => item.fullPath === fullPath)
       if (existing) {
@@ -512,7 +530,7 @@ export const useTabStore = defineStore({
       const newTab: TabItem = {
         fullPath,
         title: pendingTitle ?? tab.title,
-        name: tab.name,
+        name: cacheName,
         isKeepAlive: tab.isKeepAlive ?? true,
         subPages: [],
       }
@@ -592,6 +610,7 @@ export const useTabStore = defineStore({
           tab.subPages = []
         }
       })
+      migrateTabCacheNames(ctx.store.tabList)
       ctx.store.rebuildCacheList()
     },
   },

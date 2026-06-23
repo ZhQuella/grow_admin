@@ -6,6 +6,7 @@ import { resolveExternalRoute } from '@grow-admin-cornerstone/apps-external'
 import {
   FEAT_HIDDEN_ROUTES,
   isFeatRouteConfig,
+  resolveFeatPageComponentName,
   resolveFeatRoute,
 } from '@grow-admin-cornerstone/apps-feat'
 import {
@@ -15,6 +16,7 @@ import {
   type WorkspaceRouteConfig,
 } from '@grow-admin-cornerstone/apps-workspace'
 import { resolveByKeyOrThrow } from '@grow-admin-rock/ioc'
+import { resolveTabCacheName } from '@grow-admin-rock/state'
 import { useAuthStore } from '@grow-admin-rock/state'
 import type { Menu } from '@grow-admin-rock/types'
 
@@ -75,6 +77,19 @@ function shouldRegisterRoute(config: DynamicRouteConfig): boolean {
   return config.menuType === MenuTypeEnum.MENU
 }
 
+function resolveMetaComponentName(config: DynamicRouteConfig, routeName: string): string {
+  if (config.componentKey && config.componentKey !== routeName) {
+    if (isFeatRouteConfig(config)) {
+      return resolveFeatPageComponentName(config.componentKey)
+    }
+  }
+  return routeName
+}
+
+function resolveDynamicCacheName(fullPath: string, routeName: string): string {
+  return resolveTabCacheName(`${HOME_PATH}/${fullPath}`, routeName)
+}
+
 function resolveDynamicRoute(config: DynamicRouteConfig, fullPath: string) {
   if (config.componentKey === 'EmbedPage' || config.openMode === PageOpenModeEnum.IFRAME) {
     return resolveExternalRoute(config, fullPath)
@@ -123,13 +138,15 @@ export async function registerDynamicRoutes() {
       return
     }
 
-    const componentName = String(route.name)
+    const routeName = String(route.name)
+    const metaComponentName = resolveMetaComponentName(config, routeName)
+    const cacheName = resolveDynamicCacheName(fullPath, routeName)
     router.addRoute(HOME_ROUTE_NAME, {
       ...route,
-      component: extendComponent(route.component!, { name: componentName }),
+      component: extendComponent(route.component!, { name: cacheName }),
       meta: {
         ...route.meta,
-        componentName,
+        componentName: metaComponentName,
         isKeepAlive: config.isKeepAlive ?? true,
         affix: config.affix ?? false,
         defaultShow: config.defaultShow ?? false,

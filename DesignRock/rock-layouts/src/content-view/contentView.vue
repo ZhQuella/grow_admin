@@ -3,7 +3,7 @@
     <router-view v-slot="{ Component, route }">
       <keep-alive :include="cacheIncludeList">
         <component
-          :is="Component"
+          :is="getKeepAliveComponent(Component, route)"
           v-if="Component"
           v-show="!isIframeRoute(route)"
           :key="getComponentKey(route)"
@@ -18,9 +18,11 @@
 <script lang="ts" setup>
 import { PageOpenModeEnum } from '@grow-admin-rock/constants'
 import { RenderIframe } from '@grow-admin-rock/components/embed-page'
-import { storeToRefs, useAppConfig, useTabStore } from '@grow-admin-rock/state'
+import { resolveTabCacheName, storeToRefs, useAppConfig, useTabStore } from '@grow-admin-rock/state'
+import type { Component } from 'vue'
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
 import { useTabRouteSync } from '../tabs/use/useTabRouteSync'
+import { wrapKeepAliveComponent } from './wrapKeepAliveComponent'
 
 useTabRouteSync()
 
@@ -29,11 +31,32 @@ const appConfig = useAppConfig()
 const { cacheIncludeList, pageReloadKeys } = storeToRefs(tabStore)
 const { canEmbedIFramePage } = storeToRefs(appConfig)
 
+function resolveRouteCacheBaseName(route: RouteLocationNormalizedLoaded) {
+  if (route.meta?.dynamicTab) {
+    return String(route.meta.componentName ?? route.name)
+  }
+  return String(route.name)
+}
+
+function resolveRouteCacheName(route: RouteLocationNormalizedLoaded) {
+  const fullPath = route.fullPath.replace(/\/+$/, '') || '/'
+  return resolveTabCacheName(fullPath, resolveRouteCacheBaseName(route))
+}
+
+function getKeepAliveComponent(
+  component: Component | null,
+  route: RouteLocationNormalizedLoaded,
+) {
+  if (!component) {
+    return component
+  }
+  return wrapKeepAliveComponent(component, resolveRouteCacheName(route))
+}
+
 function getComponentKey(route: RouteLocationNormalizedLoaded) {
   const fullPath = route.fullPath.replace(/\/+$/, '') || '/'
   const reloadKey = pageReloadKeys.value[fullPath] ?? 0
-  const componentName = String(route.meta?.componentName ?? route.name ?? fullPath)
-  return `${componentName}__${fullPath}__${reloadKey}`
+  return `${resolveRouteCacheName(route)}__${reloadKey}`
 }
 
 function isIframeRoute(route: RouteLocationNormalizedLoaded) {
