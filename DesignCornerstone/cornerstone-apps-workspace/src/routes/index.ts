@@ -24,8 +24,6 @@ const WORKSPACE_COMPONENTS: Record<string, GrowRouteComponent> = {
   Workspace: () => import('../pages/workspace.vue'),
   WorkspaceSettings: () => import('../pages/settings.vue'),
   SharedDemo: () => import('../pages/shared-demo.vue'),
-  MenuChildTest: () => import('../pages/menu-child-test.vue'),
-  MenuChildTestSub: () => import('../pages/menu-child-test-sub.vue'),
 }
 
 function resolveWorkspaceComponent(config: WorkspaceRouteConfig): GrowRouteComponent {

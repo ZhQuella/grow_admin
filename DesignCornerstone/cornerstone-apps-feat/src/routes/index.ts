@@ -22,7 +22,9 @@ export {
 export { mergeFeatMenuWithStructure } from './mergeMenu'
 
 const FEAT_COMPONENTS: Record<string, GrowRouteComponent> = {
-  OpenSubpage: () => import('../pages/open-subpage.vue'),
+  OpenSubpage: () => import('../pages/open-subpage/open-subpage.vue'),
+  MenuChildTest: () => import('../pages/menu-subset-test/menu-child-test.vue'),
+  MenuChildTestSub: () => import('../pages/menu-subset-test/menu-child-test-sub.vue'),
 }
 
 function resolveFeatComponent(config: FeatRouteConfig): GrowRouteComponent {
@@ -47,7 +49,7 @@ export const FEAT_HIDDEN_ROUTES: RouteRecordItem[] = [
   {
     path: 'child/:id',
     name: 'Child',
-    component: () => import('../pages/child-page.vue'),
+    component: () => import('../pages/open-subpage/child-page.vue'),
     meta: {
       title: '子页面',
       componentName: 'ChildPage',

@@ -48,6 +48,24 @@ export const FEAT_ROUTE_STRUCTURES: FeatRouteStructure[] = [
         name: 'OpenSubpage',
         componentKey: 'OpenSubpage',
       },
+      {
+        path: 'menu-subset-test',
+        name: 'MenuSubsetTest',
+        children: [
+          {
+            path: 'menu-child-test',
+            name: 'MenuChildTest',
+            componentKey: 'MenuChildTest',
+            children: [
+              {
+                path: 'menu-child-test-sub',
+                name: 'MenuChildTestSub',
+                componentKey: 'MenuChildTestSub',
+              },
+            ],
+          },
+        ],
+      },
     ],
   },
 ]
@@ -116,7 +134,7 @@ export function toFeatRouteConfigs(
   return structures.map(withDefaultTitle)
 }
 
-export const FEAT_COMPONENT_KEYS = new Set(['OpenSubpage'])
+export const FEAT_COMPONENT_KEYS = new Set(['OpenSubpage', 'MenuChildTest', 'MenuChildTestSub'])
 
 export function isFeatRouteConfig(config: { componentKey?: string, name: string | symbol }): boolean {
   const key = String(config.componentKey ?? config.name)

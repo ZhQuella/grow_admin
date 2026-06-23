@@ -67,24 +67,6 @@ export const WORKSPACE_ROUTE_STRUCTURES: WorkspaceRouteStructure[] = [
           },
         ],
       },
-      {
-        path: 'menu-subset-test',
-        name: 'MenuSubsetTest',
-        children: [
-          {
-            path: 'menu-child-test',
-            name: 'MenuChildTest',
-            componentKey: 'MenuChildTest',
-            children: [
-              {
-                path: 'menu-child-test-sub',
-                name: 'MenuChildTestSub',
-                componentKey: 'MenuChildTestSub',
-              },
-            ],
-          },
-        ],
-      },
     ],
   },
 ]
