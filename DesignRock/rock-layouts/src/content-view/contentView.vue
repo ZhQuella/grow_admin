@@ -31,6 +31,7 @@ import type { Component } from 'vue'
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
 import { useTabRouteSync } from '../tabs/use/useTabRouteSync'
 import { wrapKeepAliveComponent } from './wrapKeepAliveComponent'
+import { wrapKeepAliveComponent } from './wrapKeepAliveComponent'
 
 useTabRouteSync()
 
@@ -67,6 +68,7 @@ function getKeepAliveComponent(
 function getComponentKey(route: RouteLocationNormalizedLoaded) {
   const fullPath = route.fullPath.replace(/\/+$/, '') || '/'
   const reloadKey = pageReloadKeys.value[fullPath] ?? 0
+  return `${resolveRouteCacheName(route)}__${reloadKey}`
   return `${resolveRouteCacheName(route)}__${reloadKey}`
 }
 
