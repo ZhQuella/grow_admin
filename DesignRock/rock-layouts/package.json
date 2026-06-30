@@ -21,6 +21,7 @@
     "@grow-admin-rock/middleware-router": "workspace:*",
     "@grow-admin-rock/state": "workspace:*",
     "@grow-admin-rock/types": "workspace:*",
+    "@grow-admin-rock/utils": "workspace:*",
     "sortablejs": "^1.15.0"
   },
   "peerDependencies": {

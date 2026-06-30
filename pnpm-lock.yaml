@@ -515,6 +515,9 @@ importers:
       '@grow-admin-rock/types':
         specifier: workspace:*
         version: link:../rock-types
+      '@grow-admin-rock/utils':
+        specifier: workspace:*
+        version: link:../rock-utils
       pinia:
         specifier: ~2.0.34
         version: 2.0.36(typescript@5.9.3)(vue@3.3.13(typescript@5.9.3))

@@ -1,8 +1,10 @@
 <template>
+  <LayoutSearch />
   <GrowButton
     v-if="isFullscreenSupported"
     circle
     text
+    class="!ml-[0px]"
     :aria-label="isScreenFullscreen ? t('layout.common.exitFullScreen') : t('layout.common.fullScreen')"
     :title="isScreenFullscreen ? t('layout.common.exitFullScreen') : t('layout.common.fullScreen')"
     @click="toggleScreenFullscreen"
@@ -35,6 +37,7 @@ import { useI18n } from '@grow-admin-rock/locale'
 import { storeToRefs, useAppConfig } from '@grow-admin-rock/state'
 import type { UserInfo } from '@grow-admin-rock/types'
 import LayoutUserInfo from '../user-info/LayoutUserInfo.vue'
+import LayoutSearch from '../search/LayoutSearch.vue'
 
 defineProps<{
   userInfo?: UserInfo | null
