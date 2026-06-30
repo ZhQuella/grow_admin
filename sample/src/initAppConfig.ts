@@ -34,6 +34,17 @@ export function mapProjectSettingToAppConfig(
 
 export function bootstrapAppConfig() {
   const storageKey = `${createStorageName(import.meta.env)}__APP_CONFIG`
-  if (localStorage.getItem(storageKey)) return
-  useAppConfig().$patch(mapProjectSettingToAppConfig(projectSetting))
+  const appConfig = useAppConfig()
+  const mappedConfig = mapProjectSettingToAppConfig(projectSetting)
+
+  if (!localStorage.getItem(storageKey)) {
+    appConfig.$patch(mappedConfig)
+    return
+  }
+
+  // 非持久化、由 projectSetting 决定的项目级开关，每次启动都需同步
+  appConfig.$patch({
+    lockTime: mappedConfig.lockTime,
+    useLockPage: mappedConfig.useLockPage,
+  })
 }

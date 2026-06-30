@@ -22,6 +22,8 @@ function onForgetPass() {
         <GrowInput
           v-model="loginFormData.account"
           :placeholder="t('layout.login.word.accessMsg')"
+          autocomplete="username"
+          name="username"
           clearable
         />
       </GrowFormItem>
@@ -30,6 +32,8 @@ function onForgetPass() {
           v-model="loginFormData.password"
           :placeholder="t('layout.login.word.passwordMsg')"
           type="password"
+          autocomplete="current-password"
+          name="password"
           clearable
           show-password
         />
