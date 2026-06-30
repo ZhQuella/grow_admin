@@ -59,6 +59,14 @@ export const FEAT_MENU_LIST: FeatMenuApiItem[] = [
           },
         ],
       },
+      {
+        name: 'SplitPane',
+        title: '分屏组件',
+        icon: 'ant-design:column-width-outlined',
+        menuType: MenuTypeEnum.MENU,
+        isVisible: true,
+        isKeepAlive: true,
+      },
     ],
   },
 ]

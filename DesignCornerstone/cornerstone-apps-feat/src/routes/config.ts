@@ -76,6 +76,11 @@ export const FEAT_ROUTE_STRUCTURES: FeatRouteStructure[] = [
           },
         ],
       },
+      {
+        path: 'split-pane',
+        name: 'SplitPane',
+        componentKey: 'SplitPane',
+      },
     ],
   },
 ]
@@ -144,7 +149,7 @@ export function toFeatRouteConfigs(
   return structures.map(withDefaultTitle)
 }
 
-export const FEAT_COMPONENT_KEYS = new Set(['OpenSubpage', 'MenuChildTest', 'MenuChildTestSub', 'SharedDemo'])
+export const FEAT_COMPONENT_KEYS = new Set(['OpenSubpage', 'MenuChildTest', 'MenuChildTestSub', 'SharedDemo', 'SplitPane'])
 
 /** componentKey 对应的页面组件 name（与 .vue 中 defineOptions.name 一致） */
 export const FEAT_COMPONENT_PAGE_NAMES: Record<string, string> = {
@@ -152,6 +157,7 @@ export const FEAT_COMPONENT_PAGE_NAMES: Record<string, string> = {
   MenuChildTest: 'MenuChildTestPage',
   MenuChildTestSub: 'MenuChildTestSubPage',
   SharedDemo: 'SharedDemoPage',
+  SplitPane: 'SplitPanePage',
 }
 
 export function resolveFeatPageComponentName(componentKey: string): string {

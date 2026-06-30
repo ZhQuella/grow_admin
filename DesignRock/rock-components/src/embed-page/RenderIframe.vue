@@ -1,10 +1,10 @@
 <template>
-  <div v-if="isShowFrame" class="h-full w-full">
+  <div v-if="isShowFrame" class="pointer-events-none h-full w-full">
     <div
       v-for="frame in framePages"
       :key="frame.key"
       v-show="showIframe(frame)"
-      class="h-full w-full"
+      class="pointer-events-auto h-full w-full"
     >
       <FramePage :src="frame.link" class="h-full w-full" />
     </div>

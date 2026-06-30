@@ -16,3 +16,4 @@ export { driverRef } from '#/utils/refSupport';
 export { Lib } from './library';
 export { default as Beans, AppContextParamDef as ContextParamDef } from './beankeys';
 export * from './src/embed-page';
+export * from './src/split-pane';
