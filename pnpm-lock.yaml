@@ -158,6 +158,9 @@ importers:
       '@grow-admin-rock/locale':
         specifier: workspace:*
         version: link:../../DesignRock/rock-locale
+      '@grow-admin-rock/settings':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-settings
       '@grow-admin-rock/state':
         specifier: workspace:*
         version: link:../../DesignRock/rock-state
@@ -604,6 +607,9 @@ importers:
       '@grow-admin-rock/ioc':
         specifier: workspace:*
         version: link:../rock-ioc
+      '@grow-admin-rock/layouts':
+        specifier: workspace:*
+        version: link:../rock-layouts
       '@grow-admin-rock/locale':
         specifier: workspace:*
         version: link:../rock-locale

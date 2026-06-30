@@ -1,4 +1,6 @@
 export { default as Tabs } from './tabs.vue'
 export { default as TabContextDropdown } from './TabContextDropdown.vue'
-export { findNavigableMenuByPath } from './utils/tabUtils'
+export { findNavigableMenuByPath, normalizePath } from './utils/tabUtils'
+export { buildTabContextMenuItems } from './use/tabContextMenu'
+export { useTabContextActions } from './use/useTabContextActions'
 export type { TabContextAction } from './use/tabContextMenu'

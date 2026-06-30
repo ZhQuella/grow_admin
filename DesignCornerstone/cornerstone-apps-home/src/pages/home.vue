@@ -29,7 +29,12 @@
         </template>
 
         <template #tab>
-          <Tabs />
+          <div class="flex items-center justify-between">
+            <div class="flex-1 w-[1px]">
+              <Tabs />
+            </div>
+            <TabToolbar />
+          </div>
         </template>
 
         <template #view>
@@ -43,7 +48,7 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { Layout, LayoutLogo, SettingDrawer, Menu, Breadcrumb, ContentView, Tabs, LayoutUserInfo } from '@grow-admin-rock/layouts'
+import { Layout, LayoutLogo, SettingDrawer, Menu, Breadcrumb, ContentView, Tabs, TabToolbar, LayoutUserInfo } from '@grow-admin-rock/layouts'
 import { SettingButtonPositionEnum } from '@grow-admin-rock/constants'
 import { useI18n } from '@grow-admin-rock/locale'
 import { storeToRefs, useAppConfig, useAppStore, useUserStore, useLayout } from '@grow-admin-rock/state'
