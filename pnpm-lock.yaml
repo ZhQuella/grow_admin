@@ -69,12 +69,12 @@ importers:
 
   DesignCornerstone/cornerstone-apps-external:
     dependencies:
-      '@grow-admin-rock/components':
-        specifier: workspace:*
-        version: link:../../DesignRock/rock-components
       '@grow-admin-rock/constants':
         specifier: workspace:*
         version: link:../../DesignRock/rock-constants
+      '@grow-admin-rock/layouts':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-layouts
       vue:
         specifier: ~3.3.4
         version: 3.3.13(typescript@5.9.3)
@@ -497,6 +497,9 @@ importers:
       '@grow-admin-rock/constants':
         specifier: workspace:*
         version: link:../rock-constants
+      '@grow-admin-rock/hooks':
+        specifier: workspace:*
+        version: link:../rock-hooks
       '@grow-admin-rock/ioc':
         specifier: workspace:*
         version: link:../rock-ioc
@@ -509,6 +512,9 @@ importers:
       '@grow-admin-rock/state':
         specifier: workspace:*
         version: link:../rock-state
+      '@grow-admin-rock/types':
+        specifier: workspace:*
+        version: link:../rock-types
       pinia:
         specifier: ~2.0.34
         version: 2.0.36(typescript@5.9.3)(vue@3.3.13(typescript@5.9.3))

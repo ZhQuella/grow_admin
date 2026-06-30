@@ -4,7 +4,6 @@
   "main": "./index.ts",
   "exports": {
     ".": "./index.ts",
-    "./embed-page": "./src/embed-page/index.ts",
     "./split-pane": "./src/split-pane/index.ts"
   },
   "license": "MIT",

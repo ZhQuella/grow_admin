@@ -1,6 +1,6 @@
 <template>
   <div class="grid h-full grid-rows-[auto_minmax(0,1fr)] overflow-hidden">
-    <div class="bg-[var(--component-background-color)] mb-2.5 shrink-0 px-5 py-[50px] text-[17px] text-text">
+    <div class="mb-2.5 shrink-0 px-5 py-[50px] text-[17px] text-text">
       分屏组件
     </div>
     <div class="mx-2.5 min-h-0 overflow-hidden">
