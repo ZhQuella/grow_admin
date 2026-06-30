@@ -2,6 +2,8 @@ import type { Component, Ref } from 'vue';
 import type { DataDictionary } from '@grow-admin-rock/types';
 import type { RockComponent } from './src/RockComponent';
 
+declare module 'splitpanes';
+
 declare global {
   type GrowComponent<T extends Component> = Component & {
     customOptions?: {
@@ -105,6 +107,7 @@ declare module 'vue' {
     GrowPageHeader: import('vue').Component;
     GrowNumberAnimation: import('vue').Component;
     GrowIconify: import('vue').Component;
+    GrowSplitPane: import('vue').Component;
   }
 }
 

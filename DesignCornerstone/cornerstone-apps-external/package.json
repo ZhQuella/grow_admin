@@ -13,8 +13,8 @@
     "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
   },
   "dependencies": {
-    "@grow-admin-rock/components": "workspace:*",
-    "@grow-admin-rock/constants": "workspace:*"
+    "@grow-admin-rock/constants": "workspace:*",
+    "@grow-admin-rock/layouts": "workspace:*"
   },
   "devDependencies": {
     "@grow-admin-rock/base-package": "workspace:*",

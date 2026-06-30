@@ -105,7 +105,7 @@ export class AppStatusContext implements AppStatus {
     @Autowired(Beans.RootSetting) rootSetting: RootSetting
   ) {
     const settings = rootSetting;
-    const prefixCls: Ref<string> = ref('vben');
+    const prefixCls: Ref<string> = ref('grow');
     const mobileStatus: Ref<boolean> = ref(false);
     const isSetState: Ref<boolean> = ref(false);
     // 方法定义

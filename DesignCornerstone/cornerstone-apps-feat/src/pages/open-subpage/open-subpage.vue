@@ -28,9 +28,9 @@
           </div>
         </template>
         <div>
-          <el-button @click="onOpenPageStack(1)">Stack 打开子页面1</el-button>
-          <el-button @click="onOpenPageStack(2)">Stack 打开子页面2</el-button>
-          <el-button @click="onOpenPageNewTab(1)">NewTab 打开子页面1</el-button>
+          <el-button @click="onOpenPageStack(1)">堆栈打开 子页面1</el-button>
+          <el-button @click="onOpenPageStack(2)">堆栈打开 子页面2</el-button>
+          <el-button @click="onOpenPageNewTab(1)">新标签打开 设置中心</el-button>
         </div>
       </el-card>
     </div>

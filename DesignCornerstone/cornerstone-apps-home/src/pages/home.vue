@@ -15,21 +15,20 @@
         </template>
 
         <template #option>
-          <GrowButton
-            v-if="showHeaderSettingButton"
-            circle
-            text
-            :aria-label="t('layout.setting.title')"
-            :title="t('layout.setting.title')"
-            @click="openSetting"
-          >
-            <GrowIconify icon="ant-design:setting-outlined" :size="18" hover-pointer />
-          </GrowButton>
-          <LayoutUserInfo :user-info="userInfo" @logout="handleLogout" />
+          <LayoutHeaderOption
+            :user-info="userInfo"
+            @open-setting="openSetting"
+            @logout="handleLogout"
+          />
         </template>
 
         <template #tab>
-          <Tabs />
+          <div class="flex items-center justify-between">
+            <div class="flex-1 w-[1px]">
+              <Tabs />
+            </div>
+            <TabToolbar />
+          </div>
         </template>
 
         <template #view>
@@ -42,10 +41,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
-import { Layout, LayoutLogo, SettingDrawer, Menu, Breadcrumb, ContentView, Tabs, LayoutUserInfo } from '@grow-admin-rock/layouts'
-import { SettingButtonPositionEnum } from '@grow-admin-rock/constants'
-import { useI18n } from '@grow-admin-rock/locale'
+import { Layout, LayoutLogo, SettingDrawer, Menu, Breadcrumb, ContentView, Tabs, TabToolbar, LayoutHeaderOption } from '@grow-admin-rock/layouts'
 import { storeToRefs, useAppConfig, useAppStore, useUserStore, useLayout } from '@grow-admin-rock/state'
 import { useAppBootstrap } from './use/useAppBootstrap'
 import { useHomeLayout } from './use/useHomeLayout'
@@ -54,24 +50,14 @@ import { useUserLogout } from './use/useUserLogout'
 useAppBootstrap()
 useHomeLayout()
 
-const { t } = useI18n()
 const appConfig = useAppConfig()
 const appStore = useAppStore()
 const userStore = useUserStore()
 const { layoutType } = useLayout()
-const { showSettingButton, showSettingDrawer, settingButtonPosition } = storeToRefs(appConfig)
+const { showSettingDrawer } = storeToRefs(appConfig)
 const { settingActive } = storeToRefs(appStore)
 const { userInfo } = storeToRefs(userStore)
 const { handleLogout } = useUserLogout()
-
-const showHeaderSettingButton = computed(() => {
-  if (!showSettingButton.value || !showSettingDrawer.value) return false
-  const position = settingButtonPosition.value
-  return (
-    position === SettingButtonPositionEnum.HEADER ||
-    position === SettingButtonPositionEnum.AUTO
-  )
-})
 
 function openSetting() {
   appStore.setSettingActive(true)

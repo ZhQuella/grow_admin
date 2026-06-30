@@ -15,8 +15,10 @@ export {
   FEAT_ROUTE_STRUCTURES,
   FEAT_COMPONENT_KEYS,
   FEAT_COMPONENT_PAGE_NAMES,
+  FEAT_COMPONENT_PAGE_NAMES,
   flattenFeatRouteConfigs,
   isFeatRouteConfig,
+  resolveFeatPageComponentName,
   resolveFeatPageComponentName,
   resolveFeatRouteFullPath,
   toFeatRouteConfigs,
@@ -28,6 +30,7 @@ const FEAT_COMPONENTS: Record<string, GrowRouteComponent> = {
   MenuChildTest: () => import('../pages/menu-child-test/menu-child-test.vue'),
   MenuChildTestSub: () => import('../pages/menu-child-test/menu-child-test-sub.vue'),
   SharedDemo: () => import('../pages/shared-demo/shared-demo.vue'),
+  SplitPane: () => import('../pages/split-pane/split-pane.vue'),
 }
 
 function resolveFeatComponent(config: FeatRouteConfig): GrowRouteComponent {

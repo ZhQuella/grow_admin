@@ -6,13 +6,18 @@
       v-show="showIframe(frame)"
       class="h-full w-full"
     >
-      <FramePage :src="frame.link" class="h-full w-full" />
+      <FramePage
+        v-if="isFrameLoaded(frame)"
+        :key="getFrameKey(frame)"
+        :src="frame.link"
+        class="h-full w-full"
+      />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, reactive, watch } from 'vue'
 import { PageOpenModeEnum } from '@grow-admin-rock/constants'
 import { Lib as routeLib, useRoute } from '@grow-admin-rock/middleware-router'
 import { resolveByKeyOrThrow } from '@grow-admin-rock/ioc'
@@ -31,7 +36,7 @@ const route = useRoute()
 const tabStore = useTabStore()
 const appConfig = useAppConfig()
 const router = resolveByKeyOrThrow(routeLib.types.RouteTable).router
-const { tabList } = storeToRefs(tabStore)
+const { tabList, pageReloadKeys } = storeToRefs(tabStore)
 const { canEmbedIFramePage } = storeToRefs(appConfig)
 
 function resolveIframeFrame(tab: TabItem): IframeFrame | null {
@@ -86,6 +91,40 @@ const framePages = computed(() => {
   }
 
   return Array.from(frameMap.values())
+})
+
+const loadedFrameKeys = reactive<Record<string, true>>({})
+
+function markFrameLoaded(key: string) {
+  loadedFrameKeys[key] = true
+}
+
+function isFrameLoaded(frame: IframeFrame) {
+  return Boolean(loadedFrameKeys[frame.key])
+}
+
+function getFrameKey(frame: IframeFrame) {
+  const reloadKey = pageReloadKeys.value[frame.fullPath] ?? 0
+  return `${frame.key}__${reloadKey}`
+}
+
+function syncLoadedFrameForRoute() {
+  const currentPath = normalizePath(route.path)
+  const frame = framePages.value.find((item) => item.fullPath === currentPath)
+  if (frame) {
+    markFrameLoaded(frame.key)
+  }
+}
+
+watch(() => route.path, syncLoadedFrameForRoute, { immediate: true })
+
+watch(framePages, (frames) => {
+  const activeKeys = new Set(frames.map((frame) => frame.key))
+  for (const key of Object.keys(loadedFrameKeys)) {
+    if (!activeKeys.has(key)) {
+      delete loadedFrameKeys[key]
+    }
+  }
 })
 
 function showIframe(frame: IframeFrame) {

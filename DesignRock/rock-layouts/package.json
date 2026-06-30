@@ -3,6 +3,10 @@
   "version": "0.0.0",
   "main": "index.ts",
   "module": "index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./embed-page": "./src/embed-page/index.ts"
+  },
   "license": "MIT",
   "description": "Grow Admin 布局壳组件：主题设置、菜单、标签页等",
   "scripts": {
@@ -11,10 +15,13 @@
   "dependencies": {
     "@grow-admin-rock/components": "workspace:*",
     "@grow-admin-rock/constants": "workspace:*",
+    "@grow-admin-rock/hooks": "workspace:*",
     "@grow-admin-rock/ioc": "workspace:*",
     "@grow-admin-rock/locale": "workspace:*",
     "@grow-admin-rock/middleware-router": "workspace:*",
     "@grow-admin-rock/state": "workspace:*",
+    "@grow-admin-rock/types": "workspace:*",
+    "@grow-admin-rock/utils": "workspace:*",
     "sortablejs": "^1.15.0"
   },
   "peerDependencies": {

@@ -91,6 +91,7 @@ export enum RockComponent {
   PageHeader = 'PageHeader',
   NumberAnimation = 'NumberAnimation',
   Iconify = 'Iconify',
+  SplitPane = 'SplitPane',
 }
 
 export type RockComponentType = keyof typeof RockComponent;

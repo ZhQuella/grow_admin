@@ -34,28 +34,23 @@
 
 <script lang="ts" setup>
 import { computed, watch } from 'vue'
-import { Lib as routeLib } from '@grow-admin-rock/middleware-router'
-import { resolveByKeyOrThrow } from '@grow-admin-rock/ioc'
 import { storeToRefs, useTabStore } from '@grow-admin-rock/state'
 import { useRoute } from '@grow-admin-rock/middleware-router'
 import type { TabItem } from '@grow-admin-rock/types'
 import { normalizePath } from './utils/tabUtils'
 import TabContextDropdown from './TabContextDropdown.vue'
-import type { TabContextAction } from './use/tabContextMenu'
 import { provideTabContextMenu } from './use/tabContextMenuState'
 import { useSortTabs } from './use/useSortTabs'
-
-const useRouter = () => resolveByKeyOrThrow(routeLib.types.RouteTable).router
+import { useTabContextActions } from './use/useTabContextActions'
 
 const { setOpenTabPath } = provideTabContextMenu()
 
 const tabStore = useTabStore()
 const route = useRoute()
 const { tabList, activeTab } = storeToRefs(tabStore)
+const { currentFullPath, handleMenuSelect, navigateIfNeeded } = useTabContextActions()
 
 useSortTabs(() => tabList.value.length)
-
-const currentFullPath = computed(() => normalizePath(route.fullPath))
 
 const tabsModelValue = computed({
   get() {
@@ -74,17 +69,6 @@ const tabsModelValue = computed({
     tabStore.setActiveTab(String(value))
   },
 })
-
-function navigateIfNeeded(path: string | null) {
-  if (!path) {
-    return
-  }
-  const router = useRouter()
-  const normalizedPath = normalizePath(path)
-  if (normalizePath(router.currentRoute.value.fullPath) !== normalizedPath) {
-    router.push(path)
-  }
-}
 
 function handleTabChange(fullPath: string | number) {
   const path = String(fullPath)
@@ -128,50 +112,6 @@ function handleTabContextMenuCapture(event: MouseEvent) {
   const target = event.target as HTMLElement | null
   if (target?.closest('.el-tabs__item, .ant-tabs-tab')) {
     event.preventDefault()
-  }
-}
-
-function handleMenuSelect(action: TabContextAction, tab: TabItem) {
-  const viewingSubPage = tabStore.isViewingSubPage(currentFullPath.value)
-
-  switch (action) {
-    case 'reload':
-      if (viewingSubPage) {
-        tabStore.refreshSubPage(currentFullPath.value)
-        break
-      }
-      if (tabStore.activeTab !== tab.fullPath) {
-        tabStore.setActiveTab(tab.fullPath)
-        useRouter().push(tab.fullPath).then(() => {
-          tabStore.refreshTab(tab.fullPath)
-        })
-      } else {
-        tabStore.refreshTab(tab.fullPath)
-      }
-      break
-    case 'close':
-      if (viewingSubPage) {
-        const parentTab = tabStore.findParentTabBySubPage(currentFullPath.value)
-        if (parentTab) {
-          tabStore.closeSubPage(parentTab.fullPath, currentFullPath.value)
-          navigateIfNeeded(parentTab.fullPath)
-        }
-        break
-      }
-      navigateIfNeeded(tabStore.closeTab(tab.fullPath))
-      break
-    case 'closeLeft':
-      navigateIfNeeded(tabStore.closeLeftTabs(tab.fullPath))
-      break
-    case 'closeRight':
-      navigateIfNeeded(tabStore.closeRightTabs(tab.fullPath))
-      break
-    case 'closeOther':
-      navigateIfNeeded(tabStore.closeOtherTabs(tab.fullPath))
-      break
-    case 'closeAll':
-      navigateIfNeeded(tabStore.closeAllTabs())
-      break
   }
 }
 
@@ -278,6 +218,9 @@ watch(
 
   :deep(.ant-tabs-nav) {
     margin-bottom: 0;
+  }
+  :deep(.el-tabs__nav-next), :deep(.el-tabs__nav-prev) {
+    line-height: 34px;
   }
 }
 </style>

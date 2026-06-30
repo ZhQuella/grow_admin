@@ -1,4 +1,4 @@
-import { EmbedPage } from '@grow-admin-rock/components/embed-page'
+import { EmbedPage } from '@grow-admin-rock/layouts/embed-page'
 import type { ExternalRouteConfig } from './config'
 
 const EXTERNAL_COMPONENTS: Record<string, GrowRouteComponent> = {
