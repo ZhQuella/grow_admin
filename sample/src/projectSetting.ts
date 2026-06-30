@@ -13,7 +13,7 @@ import {
  */
 export const projectSetting: ProjectSetting = {
   componentLibrary: ComponentLibraryType.ElementPlus,
-  lockTime: 0,
+  lockTime: 15,
   useLockPage: true,
   useOpenBackTop: true,
   canEmbedIFramePage: true,

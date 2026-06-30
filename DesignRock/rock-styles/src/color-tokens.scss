@@ -63,6 +63,10 @@
   --login-interactive-hover-border: var(--color-primary-a35);
   --login-interactive-hover-ring: 0 0 0 3px var(--color-primary-a12);
   --login-interactive-hover-ring-soft: 0 0 0 3px var(--color-primary-a10);
+
+  /* lock screen */
+  --lock-screen-overlay-color: color-mix(in srgb, var(--layout-container-background-color) 72%, transparent);
+  --lock-screen-panel-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.18);
 }
 
 :root.dark {
@@ -99,4 +103,7 @@
   --login-brand-badge-bg: rgba(255, 255, 255, 0.08);
   --login-brand-dot: rgba(255, 255, 255, 0.75);
   --login-brand-dot-glow: rgba(139, 92, 246, 0.55);
+
+  --lock-screen-overlay-color: color-mix(in srgb, var(--layout-container-background-color) 82%, transparent);
+  --lock-screen-panel-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
 }

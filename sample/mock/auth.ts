@@ -15,7 +15,7 @@ export function createFakeUserList() {
       avatar: '',
       deptName: '技术部',
       desc: 'administrator',
-      password: '123456',
+      password: '1237894560',
       accessToken: 'grow-admin-fake-token',
       roles: [{ name: 'Super Admin', value: 'super' }],
     },

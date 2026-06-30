@@ -34,7 +34,7 @@ export const useAppConfig = defineStore({
     permissionMode: PermissionModeEnum.ROUTE_MAPPING,
     sessionTimeoutProcessing: SessionTimeoutProcessingEnum.ROUTE_JUMP,
     lockTime: 0,
-    useLockPage: false,
+    useLockPage: true,
     canEmbedIFramePage: true,
     transition: {
       enable: true,
