@@ -39,6 +39,19 @@ function findMenuByPath(menus: Menu[], fullPath: string): Menu | null {
   return null
 }
 
+function isNavigableMenu(menus: Menu[], fullPath: string): boolean {
+  const menu = findMenuByPath(menus, fullPath)
+  return menu != null
+    && menu.menuType === MenuTypeEnum.MENU
+    && menu.path.startsWith('/')
+    && menu.openMode !== PageOpenModeEnum.BROWSER
+}
+
+function findFirstNavigableMenuPath(menus: Menu[]): string | null {
+  const menu = findFirstNavigableMenu(menus)
+  return menu ? normalizePath(menu.path) : null
+}
+
 function findMenuByName(menus: Menu[], name: string): Menu | null {
   for (const menu of menus) {
     if (menu.name === name) {
@@ -272,18 +285,137 @@ export const useTabStore = defineStore({
     },
 
     syncTabTitlesFromMenus(menus: Menu[]) {
-      this.tabList.forEach((tab) => {
-        const menu = findMenuByPath(menus, tab.fullPath)
-        if (menu) {
-          tab.title = menu.title
-          tab.icon = menu.icon
-          tab.affix = menu.affix ?? false
-          tab.isKeepAlive = menu.isKeepAlive ?? true
-          tab.isExternalPage = menu.isExternalPage
-          tab.openMode = menu.openMode
-          tab.link = menu.link
+      this.syncTabsWithMenus(menus)
+    },
+
+    /**
+     * 菜单变更后同步 tab：更新元数据、移除失效 tab/子页，并在必要时补回 defaultShow。
+     * @returns 需要跳转的路径（当前路由或 activeTab 已失效时）
+     */
+    syncTabsWithMenus(
+      menus: Menu[],
+      isRouteAvailable?: (fullPath: string) => boolean,
+    ): string | null {
+      const canVisit = (fullPath: string) => {
+        if (isNavigableMenu(menus, fullPath)) {
+          return true
         }
+        return isRouteAvailable?.(fullPath) ?? false
+      }
+
+      const syncMenuMeta = (tab: TabItem) => {
+        const menu = findMenuByPath(menus, tab.fullPath)
+        if (!menu) {
+          return
+        }
+        tab.title = menu.title
+        tab.icon = menu.icon
+        tab.affix = menu.affix ?? false
+        tab.isKeepAlive = menu.isKeepAlive ?? true
+        tab.isExternalPage = menu.isExternalPage
+        tab.openMode = menu.openMode
+        tab.link = menu.link
+      }
+
+      this.tabList = this.tabList.filter((tab) => {
+        syncMenuMeta(tab)
+
+        if (tab.subPages?.length) {
+          tab.subPages = tab.subPages.filter((subPage) => {
+            const valid = canVisit(subPage.fullPath)
+            if (!valid) {
+              this.removeCacheForSubPage(subPage)
+              delete this.pageReloadKeys[subPage.fullPath]
+              delete this.pendingSubPageTitles[subPage.fullPath]
+            }
+            return valid
+          })
+          if (
+            tab.lastSubPagePath
+            && !tab.subPages.some((subPage) => subPage.fullPath === tab.lastSubPagePath)
+          ) {
+            tab.lastSubPagePath = tab.subPages[tab.subPages.length - 1]?.fullPath
+          }
+        }
+
+        if (canVisit(tab.fullPath)) {
+          return true
+        }
+
+        this.clearTabResources(tab)
+        delete this.pendingTabTitles[tab.fullPath]
+        return false
       })
+
+      this.rebuildCacheList()
+    },
+
+    resolveFallbackTabPath(menus: Menu[]): string | null {
+      const affixTab = this.tabList.find((tab) => tab.affix)
+      if (affixTab) {
+        return this.resolveTabNavigatePath(affixTab.fullPath)
+      }
+      const firstTab = this.tabList[0]
+      if (firstTab) {
+        return this.resolveTabNavigatePath(firstTab.fullPath)
+      }
+      const defaultMenus = collectDefaultShowMenus(menus)
+      if (defaultMenus[0]) {
+        return normalizePath(defaultMenus[0].path)
+      }
+      return findFirstNavigableMenuPath(menus)
+    },
+
+    resolveInvalidNavigationPath(
+      currentFullPath: string,
+      menus: Menu[],
+      isRouteAvailable?: (fullPath: string) => boolean,
+    ): string | null {
+      const canVisit = (fullPath: string) => {
+        if (isNavigableMenu(menus, fullPath)) {
+          return true
+        }
+        return isRouteAvailable?.(fullPath) ?? false
+      }
+
+      const normalizedCurrent = normalizePath(currentFullPath)
+      if (canVisit(normalizedCurrent)) {
+        const parentTab = this.findParentTabBySubPage(normalizedCurrent)
+        if (parentTab) {
+          this.activeTab = parentTab.fullPath
+        }
+        else if (this.tabList.some((tab) => tab.fullPath === normalizedCurrent)) {
+          this.activeTab = normalizedCurrent
+        }
+        return null
+      }
+
+      const fallbackPath = this.resolveFallbackTabPath(menus)
+      if (fallbackPath) {
+        const parentTab = this.findParentTabBySubPage(fallbackPath)
+        if (parentTab) {
+          this.activeTab = parentTab.fullPath
+        }
+        else {
+          const owningTab = this.tabList.find((tab) => tab.fullPath === normalizePath(fallbackPath))
+          this.activeTab = owningTab?.fullPath ?? normalizePath(fallbackPath)
+        }
+        return fallbackPath
+      }
+
+      this.activeTab = ''
+      return null
+    },
+
+    isPathAvailable(
+      fullPath: string,
+      menus: Menu[],
+      isRouteAvailable?: (fullPath: string) => boolean,
+    ): boolean {
+      if (isNavigableMenu(menus, fullPath)) {
+        return true
+      }
+      return isRouteAvailable?.(fullPath) ?? false
     },
 
     /** 首次无 tab 时，打开 defaultShow 菜单并返回首选路由 */
