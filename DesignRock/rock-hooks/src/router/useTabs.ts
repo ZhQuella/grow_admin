@@ -76,7 +76,7 @@ export function useTabs() {
 
   function navigateAfterClose(nextPath: string | null) {
     if (nextPath) {
-      go(nextPath)
+      go(tabStore.resolveTabNavigatePath(nextPath))
     }
   }
 

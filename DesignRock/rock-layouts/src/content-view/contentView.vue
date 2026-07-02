@@ -1,13 +1,13 @@
 <template>
   <div class="grid h-full min-h-0 w-full grid-cols-1 grid-rows-1 overflow-hidden">
     <div class="col-start-1 row-start-1 min-h-0 min-w-0 overflow-hidden">
-      <router-view v-slot="{ Component, route }">
+      <router-view v-slot="{ Component, route: viewRoute }">
         <keep-alive :include="cacheIncludeList">
           <component
-            :is="getKeepAliveComponent(Component, route)"
+            :is="resolveViewComponent(Component, viewRoute)"
             v-if="Component"
-            v-show="!isIframeRoute(route)"
-            :key="getComponentKey(route)"
+            v-show="!isIframeRoute(viewRoute)"
+            :key="getComponentKey(viewRoute)"
             class="h-full"
           />
         </keep-alive>
@@ -26,7 +26,7 @@ import { computed } from 'vue'
 import { PageOpenModeEnum } from '@grow-admin-rock/constants'
 import { useRoute } from '@grow-admin-rock/middleware-router'
 import { RenderIframe } from '../embed-page'
-import { resolveTabCacheName, storeToRefs, useAppConfig, useTabStore } from '@grow-admin-rock/state'
+import { resolveTabCacheName, normalizeTabPath, storeToRefs, useAppConfig, useTabStore } from '@grow-admin-rock/state'
 import type { Component } from 'vue'
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
 import { useTabRouteSync } from '../tabs/use/useTabRouteSync'
@@ -50,23 +50,27 @@ function resolveRouteCacheBaseName(route: RouteLocationNormalizedLoaded) {
 }
 
 function resolveRouteCacheName(route: RouteLocationNormalizedLoaded) {
-  const fullPath = route.fullPath.replace(/\/+$/, '') || '/'
-  return resolveTabCacheName(fullPath, resolveRouteCacheBaseName(route))
+  const normalizedPath = normalizeTabPath(route.fullPath)
+  const cacheNameFromStore = tabStore.getTabCacheName(normalizedPath)
+  if (cacheNameFromStore) {
+    return cacheNameFromStore
+  }
+  return resolveTabCacheName(normalizedPath, resolveRouteCacheBaseName(route))
 }
 
-function getKeepAliveComponent(
+function resolveViewComponent(
   component: Component | null,
-  route: RouteLocationNormalizedLoaded,
+  viewRoute: RouteLocationNormalizedLoaded,
 ) {
   if (!component) {
-    return component
+    return null
   }
-  return wrapKeepAliveComponent(component, resolveRouteCacheName(route))
+  return wrapKeepAliveComponent(component, resolveRouteCacheName(viewRoute))
 }
 
 function getComponentKey(route: RouteLocationNormalizedLoaded) {
-  const fullPath = route.fullPath.replace(/\/+$/, '') || '/'
-  const reloadKey = pageReloadKeys.value[fullPath] ?? 0
+  const normalizedPath = normalizeTabPath(route.fullPath)
+  const reloadKey = pageReloadKeys.value[normalizedPath] ?? 0
   return `${resolveRouteCacheName(route)}__${reloadKey}`
 }
 

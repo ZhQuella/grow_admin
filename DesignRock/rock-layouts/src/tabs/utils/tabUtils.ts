@@ -1,8 +1,10 @@
 import { MenuTypeEnum } from '@grow-admin-rock/constants'
 import type { Menu } from '@grow-admin-rock/types'
 
+import { normalizeTabPath } from '@grow-admin-rock/state'
+
 function normalizePath(path: string): string {
-  return path.replace(/\/+$/, '') || '/'
+  return normalizeTabPath(path)
 }
 
 export { normalizePath }

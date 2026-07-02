@@ -16,12 +16,13 @@ import {
   type WorkspaceRouteConfig,
 } from '@grow-admin-cornerstone/apps-workspace'
 import { resolveByKeyOrThrow } from '@grow-admin-rock/ioc'
-import { resolveTabCacheName } from '@grow-admin-rock/state'
+import { resolveTabCacheName, resolveDefaultMenuRedirect } from '@grow-admin-rock/state'
 import { useAuthStore } from '@grow-admin-rock/state'
 import type { Menu } from '@grow-admin-rock/types'
 
 const HOME_ROUTE_NAME = 'Home'
 const HOME_PATH = '/home'
+const HOME_INDEX_REDIRECT_NAME = 'HomeIndexRedirect'
 
 type DynamicRouteConfig = WorkspaceRouteConfig
 
@@ -100,6 +101,20 @@ function resolveDynamicRoute(config: DynamicRouteConfig, fullPath: string) {
   return resolveWorkspaceRoute(config, fullPath)
 }
 
+function registerHomeIndexRedirect(menus: Menu[]) {
+  const router = resolveByKeyOrThrow(routeLib.types.RouteTable).router
+  const redirect = resolveDefaultMenuRedirect(menus)
+  if (!redirect || router.hasRoute(HOME_INDEX_REDIRECT_NAME)) {
+    return
+  }
+
+  router.addRoute(HOME_ROUTE_NAME, {
+    name: HOME_INDEX_REDIRECT_NAME,
+    path: '',
+    redirect,
+  })
+}
+
 function registerHiddenRoutes() {
   const router = resolveByKeyOrThrow(routeLib.types.RouteTable).router
 
@@ -111,7 +126,8 @@ function registerHiddenRoutes() {
     const componentName = String(route.meta?.componentName ?? route.name)
     router.addRoute(HOME_ROUTE_NAME, {
       ...route,
-      component: extendComponent(route.component!, { name: componentName }),
+      // 隐藏路由由 ContentView.wrapKeepAliveComponent 按路径动态命名，避免静态 name 与 cacheIncludeList 不一致
+      component: route.component!,
       meta: {
         ...route.meta,
         componentName,
@@ -157,6 +173,8 @@ export async function registerDynamicRoutes() {
     })
   })
 
-  authStore.setBackMenuList(toMenuList(menuList))
+  const menus = toMenuList(menuList)
+  authStore.setBackMenuList(menus)
   authStore.setLastBuildMenuTime()
+  registerHomeIndexRedirect(menus)
 }

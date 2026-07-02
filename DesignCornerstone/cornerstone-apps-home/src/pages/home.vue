@@ -37,7 +37,7 @@
       </Layout>
       <SettingDrawer v-if="showSettingDrawer" v-model="settingActive" />
       <template v-if="useLockPage">
-          <LayoutLockScreen
+        <LayoutLockScreen
           :user-info="userInfo"
           :verify-password="verifyPassword"
           @logout="handleLogout"

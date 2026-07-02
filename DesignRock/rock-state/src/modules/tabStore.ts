@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { nextTick } from 'vue'
 import { MenuTypeEnum, PageOpenModeEnum } from '@grow-admin-rock/constants'
 import type { Menu, TabItem, TabSubPage } from '@grow-admin-rock/types'
-import { resolveTabCacheName } from '../tabCacheUtils'
+import { normalizeTabPath, resolveTabCacheName } from '../tabCacheUtils'
 
 export interface TabStoreState {
   tabList: TabItem[]
@@ -18,7 +18,7 @@ export interface TabStoreState {
 export type TabStore = ReturnType<typeof useTabStore>
 
 function normalizePath(path: string): string {
-  return path.replace(/\/+$/, '') || '/'
+  return normalizeTabPath(path)
 }
 
 function findMenuByPath(menus: Menu[], fullPath: string): Menu | null {
@@ -104,6 +104,36 @@ function collectDefaultShowMenus(menus: Menu[]): Menu[] {
   return result
 }
 
+function findFirstNavigableMenu(menus: Menu[]): Menu | null {
+  for (const menu of menus) {
+    if (
+      menu.menuType === MenuTypeEnum.MENU
+      && menu.isVisible !== false
+      && menu.path.startsWith('/')
+      && menu.openMode !== PageOpenModeEnum.BROWSER
+    ) {
+      return menu
+    }
+    if (menu.children?.length) {
+      const matched = findFirstNavigableMenu(menu.children)
+      if (matched) {
+        return matched
+      }
+    }
+  }
+  return null
+}
+
+/** 首页空路径 redirect 目标：优先 defaultShow，否则第一个可导航菜单 */
+export function resolveDefaultMenuRedirect(menus: Menu[]): { name: string } | null {
+  const defaultMenus = collectDefaultShowMenus(menus)
+  if (defaultMenus.length) {
+    return { name: String(defaultMenus[0].name) }
+  }
+  const firstMenu = findFirstNavigableMenu(menus)
+  return firstMenu ? { name: String(firstMenu.name) } : null
+}
+
 export const useTabStore = defineStore({
   id: 'TAB',
   state: (): TabStoreState => ({
@@ -119,10 +149,36 @@ export const useTabStore = defineStore({
     getActiveTab: (state) => state.activeTab,
     getCacheIncludeList: (state) => state.cacheIncludeList,
     getPageReloadKey: (state) => (fullPath: string) => state.pageReloadKeys[fullPath] ?? 0,
+    /** 从 tabList / subPages 读取 keep-alive 缓存名，与 cacheIncludeList 保持一致 */
+    getTabCacheName: (state) => (fullPath: string): string | null => {
+      const normalizedPath = normalizeTabPath(fullPath)
+      for (const tab of state.tabList) {
+        const subPage = tab.subPages?.find((item) => item.fullPath === normalizedPath)
+        if (subPage) {
+          return subPage.name
+        }
+      }
+      const tab = state.tabList.find((item) => item.fullPath === normalizedPath)
+      return tab?.name ?? null
+    },
   },
   actions: {
     setActiveTab(fullPath: string) {
       this.activeTab = normalizePath(fullPath)
+    },
+
+    /** 切换 tab 时的目标路由：优先恢复 stack 子页面 */
+    resolveTabNavigatePath(fullPath: string): string {
+      const normalizedPath = normalizePath(fullPath)
+      const tab = this.tabList.find((item) => item.fullPath === normalizedPath)
+      const lastSubPagePath = tab?.lastSubPagePath
+      if (
+        lastSubPagePath
+        && tab?.subPages?.some((subPage) => subPage.fullPath === lastSubPagePath)
+      ) {
+        return lastSubPagePath
+      }
+      return normalizedPath
     },
 
     addCache(name: string) {
@@ -306,6 +362,9 @@ export const useTabStore = defineStore({
         } else if (params.subPage.title) {
           existingSubPage.title = params.subPage.title
         }
+        if (existingSubPage.isKeepAlive !== false) {
+          this.addCache(existingSubPage.name)
+        }
       } else {
         parentTab.subPages.push({
           ...params.subPage,
@@ -338,6 +397,9 @@ export const useTabStore = defineStore({
       if (subPage && pendingTitle) {
         subPage.title = pendingTitle
         delete this.pendingSubPageTitles[normalizedPath]
+      }
+      if (subPage && subPage.isKeepAlive !== false) {
+        this.addCache(subPage.name)
       }
 
       parentTab.lastSubPagePath = normalizedPath
@@ -515,6 +577,12 @@ export const useTabStore = defineStore({
 
     openDynamicTab(tab: Pick<TabItem, 'fullPath' | 'name' | 'title' | 'isKeepAlive'>): TabItem {
       const fullPath = normalizePath(tab.fullPath)
+      const stackParentTab = this.findParentTabBySubPage(fullPath)
+      if (stackParentTab) {
+        this.syncStackSubPage(fullPath)
+        return stackParentTab
+      }
+
       const cacheName = resolveTabCacheName(fullPath, tab.name)
       const pendingTitle = this.pendingTabTitles[fullPath]
       const existing = this.tabList.find((item) => item.fullPath === fullPath)
