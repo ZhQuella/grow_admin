@@ -21,8 +21,8 @@ export {
 export { mergeMenuWithStructure } from './mergeMenu'
 
 const WORKSPACE_COMPONENTS: Record<string, GrowRouteComponent> = {
-  Workspace: () => import('../pages/workspace.vue'),
-  WorkspaceSettings: () => import('../pages/settings.vue'),
+  DataReport: () => import('../pages/data-report/data-report.vue'),
+  Analysis: () => import('../pages/analysis/analysis.vue'),
 }
 
 function resolveWorkspaceComponent(config: WorkspaceRouteConfig): GrowRouteComponent {

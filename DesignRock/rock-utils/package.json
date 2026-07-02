@@ -14,7 +14,8 @@
     "@grow-admin-rock/constants": "workspace:*",
     "@grow-admin-rock/ioc": "workspace:*",
     "dayjs": "^1.11.7",
-    "exceljs": "^4.3.0"
+    "exceljs": "^4.3.0",
+    "resize-observer-polyfill": "^1.5.1"
   },
   "devDependencies": {
     "@grow-admin-rock/types": "workspace:*"
