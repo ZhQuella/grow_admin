@@ -81,6 +81,11 @@ export const FEAT_ROUTE_STRUCTURES: FeatRouteStructure[] = [
         name: 'SplitPane',
         componentKey: 'SplitPane',
       },
+      {
+        path: 'down-excel',
+        name: 'DownExcel',
+        componentKey: 'DownExcel',
+      },
     ],
   },
 ]
@@ -149,7 +154,7 @@ export function toFeatRouteConfigs(
   return structures.map(withDefaultTitle)
 }
 
-export const FEAT_COMPONENT_KEYS = new Set(['OpenSubpage', 'MenuChildTest', 'MenuChildTestSub', 'SharedDemo', 'SplitPane'])
+export const FEAT_COMPONENT_KEYS = new Set(['OpenSubpage', 'MenuChildTest', 'MenuChildTestSub', 'SharedDemo', 'SplitPane', 'DownExcel'])
 
 /** componentKey 对应的页面组件 name（与 .vue 中 defineOptions.name 一致） */
 export const FEAT_COMPONENT_PAGE_NAMES: Record<string, string> = {
@@ -158,6 +163,7 @@ export const FEAT_COMPONENT_PAGE_NAMES: Record<string, string> = {
   MenuChildTestSub: 'MenuChildTestSubPage',
   SharedDemo: 'SharedDemoPage',
   SplitPane: 'SplitPanePage',
+  DownExcel: 'DownExcelPage',
 }
 
 export function resolveFeatPageComponentName(componentKey: string): string {

@@ -29,6 +29,7 @@ const FEAT_COMPONENTS: Record<string, GrowRouteComponent> = {
   MenuChildTestSub: () => import('../pages/menu-child-test/menu-child-test-sub.vue'),
   SharedDemo: () => import('../pages/shared-demo/shared-demo.vue'),
   SplitPane: () => import('../pages/split-pane/split-pane.vue'),
+  DownExcel: () => import('../pages/down-excel/down-excel.vue'),
 }
 
 function resolveFeatComponent(config: FeatRouteConfig): GrowRouteComponent {
