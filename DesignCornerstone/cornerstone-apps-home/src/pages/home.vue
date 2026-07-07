@@ -50,12 +50,10 @@
 
 <script lang="ts" setup>
 import { Layout, LayoutLogo, SettingDrawer, Menu, Breadcrumb, ContentView, Tabs, TabToolbar, LayoutHeaderOption, LayoutLockScreen, LayoutAutoLocker } from '@grow-admin-rock/layouts'
-import { Layout, LayoutLogo, SettingDrawer, Menu, Breadcrumb, ContentView, Tabs, TabToolbar, LayoutHeaderOption, LayoutLockScreen, LayoutAutoLocker } from '@grow-admin-rock/layouts'
 import { storeToRefs, useAppConfig, useAppStore, useUserStore, useLayout } from '@grow-admin-rock/state'
 import { useAppBootstrap } from './use/useAppBootstrap'
 import { useHomeLayout } from './use/useHomeLayout'
 import { useUserLogout } from './use/useUserLogout'
-import { useScreenUnlock } from './use/useScreenUnlock'
 import { useScreenUnlock } from './use/useScreenUnlock'
 
 useAppBootstrap()
@@ -66,11 +64,9 @@ const appStore = useAppStore()
 const userStore = useUserStore()
 const { layoutType } = useLayout()
 const { showSettingDrawer, useLockPage } = storeToRefs(appConfig)
-const { showSettingDrawer, useLockPage } = storeToRefs(appConfig)
 const { settingActive } = storeToRefs(appStore)
 const { userInfo } = storeToRefs(userStore)
 const { handleLogout } = useUserLogout()
-const { verifyPassword } = useScreenUnlock()
 const { verifyPassword } = useScreenUnlock()
 
 function openSetting() {
