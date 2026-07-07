@@ -30,7 +30,7 @@
         <div>
           <el-button @click="onOpenPageStack(1)">堆栈打开 子页面1</el-button>
           <el-button @click="onOpenPageStack(2)">堆栈打开 子页面2</el-button>
-          <el-button @click="onOpenPageNewTab(1)">新标签打开 设置中心</el-button>
+          <el-button @click="onOpenPageNewTab(1)">新标签打开 分析页面</el-button>
         </div>
       </el-card>
     </div>
@@ -59,7 +59,7 @@ function onOpenPageStack(id: number) {
 
 function onOpenPageNewTab(id: number) {
   go({
-    name: 'WorkspaceSettings',
+    name: 'Analysis',
     params: { id: String(id) },
   })
 }

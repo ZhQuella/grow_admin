@@ -67,6 +67,14 @@ export const FEAT_MENU_LIST: FeatMenuApiItem[] = [
         isVisible: true,
         isKeepAlive: true,
       },
+      {
+        name: 'DownExcel',
+        title: '本地导出 Excel',
+        icon: 'ant-design:file-excel-outlined',
+        menuType: MenuTypeEnum.MENU,
+        isVisible: true,
+        isKeepAlive: true,
+      },
     ],
   },
 ]

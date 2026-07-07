@@ -48,7 +48,7 @@ const { setOpenTabPath } = provideTabContextMenu()
 const tabStore = useTabStore()
 const route = useRoute()
 const { tabList, activeTab } = storeToRefs(tabStore)
-const { currentFullPath, handleMenuSelect, navigateIfNeeded } = useTabContextActions()
+const { currentFullPath, handleMenuSelect, navigateIfNeeded, navigateToTab } = useTabContextActions()
 
 useSortTabs(() => tabList.value.length)
 
@@ -74,18 +74,17 @@ function handleTabChange(fullPath: string | number) {
   const path = String(fullPath)
   setOpenTabPath(null)
   tabStore.setActiveTab(path)
-  navigateIfNeeded(path)
+  navigateToTab(path)
 }
 
 function handleTabClose(tab: TabItem) {
   if (tabStore.isSubPageOfTab(tab, currentFullPath.value)) {
     const parentPath = tabStore.closeSubPage(tab.fullPath, currentFullPath.value)
-    navigateIfNeeded(parentPath)
+    navigateToTab(parentPath)
     return
   }
 
-  const nextPath = tabStore.closeTab(tab.fullPath)
-  navigateIfNeeded(nextPath)
+  navigateToTab(tabStore.closeTab(tab.fullPath))
 }
 
 function handleTabBack(tab: TabItem) {

@@ -1,14 +1,12 @@
 <script lang="ts" setup>
-import { ThemeEnum, ThemeModeEnum } from '@grow-admin-rock/constants'
+import { ThemeModeEnum } from '@grow-admin-rock/constants'
 import { useI18n } from '@grow-admin-rock/locale'
-import { resolveThemeMode, storeToRefs, useAppConfig } from '@grow-admin-rock/state'
+import { useAppConfig, useTheme } from '@grow-admin-rock/state'
 import { computed } from 'vue'
 
 const { t } = useI18n()
 const appConfig = useAppConfig()
-const { themeMode } = storeToRefs(appConfig)
-
-const isDark = computed(() => resolveThemeMode(themeMode.value) === ThemeEnum.DARK)
+const { isDark } = useTheme()
 
 const themeIcon = computed(() =>
   isDark.value ? 'ant-design:sun-outlined' : 'ant-design:moon-outlined',

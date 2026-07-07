@@ -40,6 +40,10 @@ export function useTabContextActions() {
     }
   }
 
+  function navigateToTab(path: string | null) {
+    navigateIfNeeded(path ? tabStore.resolveTabNavigatePath(path) : null)
+  }
+
   function handleMenuSelect(action: TabContextAction, tab: TabItem) {
     const viewingSubPage = tabStore.isViewingSubPage(currentFullPath.value)
 
@@ -51,7 +55,7 @@ export function useTabContextActions() {
         }
         if (tabStore.activeTab !== tab.fullPath) {
           tabStore.setActiveTab(tab.fullPath)
-          useRouter().push(tab.fullPath).then(() => {
+          useRouter().push(tabStore.resolveTabNavigatePath(tab.fullPath)).then(() => {
             tabStore.refreshTab(tab.fullPath)
           })
         } else {
@@ -63,23 +67,23 @@ export function useTabContextActions() {
           const parentTab = tabStore.findParentTabBySubPage(currentFullPath.value)
           if (parentTab) {
             tabStore.closeSubPage(parentTab.fullPath, currentFullPath.value)
-            navigateIfNeeded(parentTab.fullPath)
+            navigateToTab(parentTab.fullPath)
           }
           break
         }
-        navigateIfNeeded(tabStore.closeTab(tab.fullPath))
+        navigateToTab(tabStore.closeTab(tab.fullPath))
         break
       case 'closeLeft':
-        navigateIfNeeded(tabStore.closeLeftTabs(tab.fullPath))
+        navigateToTab(tabStore.closeLeftTabs(tab.fullPath))
         break
       case 'closeRight':
-        navigateIfNeeded(tabStore.closeRightTabs(tab.fullPath))
+        navigateToTab(tabStore.closeRightTabs(tab.fullPath))
         break
       case 'closeOther':
-        navigateIfNeeded(tabStore.closeOtherTabs(tab.fullPath))
+        navigateToTab(tabStore.closeOtherTabs(tab.fullPath))
         break
       case 'closeAll':
-        navigateIfNeeded(tabStore.closeAllTabs())
+        navigateToTab(tabStore.closeAllTabs())
         break
     }
   }
@@ -98,6 +102,7 @@ export function useTabContextActions() {
     currentFullPath,
     handleMenuSelect,
     refreshCurrentTab,
+    navigateToTab,
     navigateIfNeeded,
   }
 }

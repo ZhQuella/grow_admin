@@ -80,3 +80,12 @@ export function createBreakpointListen(
     realWidthRef: globalRealWidthRef,
   }
 }
+
+export function useBreakpoint() {
+  return {
+    screenRef: globalScreenRef,
+    screenEnum: ScreenValueEnum,
+    widthRef: globalWidthRef,
+    realWidthRef: globalRealWidthRef,
+  }
+}

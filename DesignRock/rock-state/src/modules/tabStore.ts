@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { nextTick } from 'vue'
 import { MenuTypeEnum, PageOpenModeEnum } from '@grow-admin-rock/constants'
 import type { Menu, TabItem, TabSubPage } from '@grow-admin-rock/types'
-import { resolveTabCacheName } from '../tabCacheUtils'
+import { normalizeTabPath, resolveTabCacheName } from '../tabCacheUtils'
 
 export interface TabStoreState {
   tabList: TabItem[]
@@ -18,7 +18,7 @@ export interface TabStoreState {
 export type TabStore = ReturnType<typeof useTabStore>
 
 function normalizePath(path: string): string {
-  return path.replace(/\/+$/, '') || '/'
+  return normalizeTabPath(path)
 }
 
 function findMenuByPath(menus: Menu[], fullPath: string): Menu | null {
@@ -37,6 +37,19 @@ function findMenuByPath(menus: Menu[], fullPath: string): Menu | null {
   }
 
   return null
+}
+
+function isNavigableMenu(menus: Menu[], fullPath: string): boolean {
+  const menu = findMenuByPath(menus, fullPath)
+  return menu != null
+    && menu.menuType === MenuTypeEnum.MENU
+    && menu.path.startsWith('/')
+    && menu.openMode !== PageOpenModeEnum.BROWSER
+}
+
+function findFirstNavigableMenuPath(menus: Menu[]): string | null {
+  const menu = findFirstNavigableMenu(menus)
+  return menu ? normalizePath(menu.path) : null
 }
 
 function findMenuByName(menus: Menu[], name: string): Menu | null {
@@ -104,6 +117,36 @@ function collectDefaultShowMenus(menus: Menu[]): Menu[] {
   return result
 }
 
+function findFirstNavigableMenu(menus: Menu[]): Menu | null {
+  for (const menu of menus) {
+    if (
+      menu.menuType === MenuTypeEnum.MENU
+      && menu.isVisible !== false
+      && menu.path.startsWith('/')
+      && menu.openMode !== PageOpenModeEnum.BROWSER
+    ) {
+      return menu
+    }
+    if (menu.children?.length) {
+      const matched = findFirstNavigableMenu(menu.children)
+      if (matched) {
+        return matched
+      }
+    }
+  }
+  return null
+}
+
+/** 首页空路径 redirect 目标：优先 defaultShow，否则第一个可导航菜单 */
+export function resolveDefaultMenuRedirect(menus: Menu[]): { name: string } | null {
+  const defaultMenus = collectDefaultShowMenus(menus)
+  if (defaultMenus.length) {
+    return { name: String(defaultMenus[0].name) }
+  }
+  const firstMenu = findFirstNavigableMenu(menus)
+  return firstMenu ? { name: String(firstMenu.name) } : null
+}
+
 export const useTabStore = defineStore({
   id: 'TAB',
   state: (): TabStoreState => ({
@@ -119,10 +162,36 @@ export const useTabStore = defineStore({
     getActiveTab: (state) => state.activeTab,
     getCacheIncludeList: (state) => state.cacheIncludeList,
     getPageReloadKey: (state) => (fullPath: string) => state.pageReloadKeys[fullPath] ?? 0,
+    /** 从 tabList / subPages 读取 keep-alive 缓存名，与 cacheIncludeList 保持一致 */
+    getTabCacheName: (state) => (fullPath: string): string | null => {
+      const normalizedPath = normalizeTabPath(fullPath)
+      for (const tab of state.tabList) {
+        const subPage = tab.subPages?.find((item) => item.fullPath === normalizedPath)
+        if (subPage) {
+          return subPage.name
+        }
+      }
+      const tab = state.tabList.find((item) => item.fullPath === normalizedPath)
+      return tab?.name ?? null
+    },
   },
   actions: {
     setActiveTab(fullPath: string) {
       this.activeTab = normalizePath(fullPath)
+    },
+
+    /** 切换 tab 时的目标路由：优先恢复 stack 子页面 */
+    resolveTabNavigatePath(fullPath: string): string {
+      const normalizedPath = normalizePath(fullPath)
+      const tab = this.tabList.find((item) => item.fullPath === normalizedPath)
+      const lastSubPagePath = tab?.lastSubPagePath
+      if (
+        lastSubPagePath
+        && tab?.subPages?.some((subPage) => subPage.fullPath === lastSubPagePath)
+      ) {
+        return lastSubPagePath
+      }
+      return normalizedPath
     },
 
     addCache(name: string) {
@@ -216,18 +285,137 @@ export const useTabStore = defineStore({
     },
 
     syncTabTitlesFromMenus(menus: Menu[]) {
-      this.tabList.forEach((tab) => {
-        const menu = findMenuByPath(menus, tab.fullPath)
-        if (menu) {
-          tab.title = menu.title
-          tab.icon = menu.icon
-          tab.affix = menu.affix ?? false
-          tab.isKeepAlive = menu.isKeepAlive ?? true
-          tab.isExternalPage = menu.isExternalPage
-          tab.openMode = menu.openMode
-          tab.link = menu.link
+      this.syncTabsWithMenus(menus)
+    },
+
+    /**
+     * 菜单变更后同步 tab：更新元数据、移除失效 tab/子页，并在必要时补回 defaultShow。
+     * @returns 需要跳转的路径（当前路由或 activeTab 已失效时）
+     */
+    syncTabsWithMenus(
+      menus: Menu[],
+      isRouteAvailable?: (fullPath: string) => boolean,
+    ): string | null {
+      const canVisit = (fullPath: string) => {
+        if (isNavigableMenu(menus, fullPath)) {
+          return true
         }
+        return isRouteAvailable?.(fullPath) ?? false
+      }
+
+      const syncMenuMeta = (tab: TabItem) => {
+        const menu = findMenuByPath(menus, tab.fullPath)
+        if (!menu) {
+          return
+        }
+        tab.title = menu.title
+        tab.icon = menu.icon
+        tab.affix = menu.affix ?? false
+        tab.isKeepAlive = menu.isKeepAlive ?? true
+        tab.isExternalPage = menu.isExternalPage
+        tab.openMode = menu.openMode
+        tab.link = menu.link
+      }
+
+      this.tabList = this.tabList.filter((tab) => {
+        syncMenuMeta(tab)
+
+        if (tab.subPages?.length) {
+          tab.subPages = tab.subPages.filter((subPage) => {
+            const valid = canVisit(subPage.fullPath)
+            if (!valid) {
+              this.removeCacheForSubPage(subPage)
+              delete this.pageReloadKeys[subPage.fullPath]
+              delete this.pendingSubPageTitles[subPage.fullPath]
+            }
+            return valid
+          })
+          if (
+            tab.lastSubPagePath
+            && !tab.subPages.some((subPage) => subPage.fullPath === tab.lastSubPagePath)
+          ) {
+            tab.lastSubPagePath = tab.subPages[tab.subPages.length - 1]?.fullPath
+          }
+        }
+
+        if (canVisit(tab.fullPath)) {
+          return true
+        }
+
+        this.clearTabResources(tab)
+        delete this.pendingTabTitles[tab.fullPath]
+        return false
       })
+
+      this.rebuildCacheList()
+    },
+
+    resolveFallbackTabPath(menus: Menu[]): string | null {
+      const affixTab = this.tabList.find((tab) => tab.affix)
+      if (affixTab) {
+        return this.resolveTabNavigatePath(affixTab.fullPath)
+      }
+      const firstTab = this.tabList[0]
+      if (firstTab) {
+        return this.resolveTabNavigatePath(firstTab.fullPath)
+      }
+      const defaultMenus = collectDefaultShowMenus(menus)
+      if (defaultMenus[0]) {
+        return normalizePath(defaultMenus[0].path)
+      }
+      return findFirstNavigableMenuPath(menus)
+    },
+
+    resolveInvalidNavigationPath(
+      currentFullPath: string,
+      menus: Menu[],
+      isRouteAvailable?: (fullPath: string) => boolean,
+    ): string | null {
+      const canVisit = (fullPath: string) => {
+        if (isNavigableMenu(menus, fullPath)) {
+          return true
+        }
+        return isRouteAvailable?.(fullPath) ?? false
+      }
+
+      const normalizedCurrent = normalizePath(currentFullPath)
+      if (canVisit(normalizedCurrent)) {
+        const parentTab = this.findParentTabBySubPage(normalizedCurrent)
+        if (parentTab) {
+          this.activeTab = parentTab.fullPath
+        }
+        else if (this.tabList.some((tab) => tab.fullPath === normalizedCurrent)) {
+          this.activeTab = normalizedCurrent
+        }
+        return null
+      }
+
+      const fallbackPath = this.resolveFallbackTabPath(menus)
+      if (fallbackPath) {
+        const parentTab = this.findParentTabBySubPage(fallbackPath)
+        if (parentTab) {
+          this.activeTab = parentTab.fullPath
+        }
+        else {
+          const owningTab = this.tabList.find((tab) => tab.fullPath === normalizePath(fallbackPath))
+          this.activeTab = owningTab?.fullPath ?? normalizePath(fallbackPath)
+        }
+        return fallbackPath
+      }
+
+      this.activeTab = ''
+      return null
+    },
+
+    isPathAvailable(
+      fullPath: string,
+      menus: Menu[],
+      isRouteAvailable?: (fullPath: string) => boolean,
+    ): boolean {
+      if (isNavigableMenu(menus, fullPath)) {
+        return true
+      }
+      return isRouteAvailable?.(fullPath) ?? false
     },
 
     /** 首次无 tab 时，打开 defaultShow 菜单并返回首选路由 */
@@ -306,6 +494,9 @@ export const useTabStore = defineStore({
         } else if (params.subPage.title) {
           existingSubPage.title = params.subPage.title
         }
+        if (existingSubPage.isKeepAlive !== false) {
+          this.addCache(existingSubPage.name)
+        }
       } else {
         parentTab.subPages.push({
           ...params.subPage,
@@ -338,6 +529,9 @@ export const useTabStore = defineStore({
       if (subPage && pendingTitle) {
         subPage.title = pendingTitle
         delete this.pendingSubPageTitles[normalizedPath]
+      }
+      if (subPage && subPage.isKeepAlive !== false) {
+        this.addCache(subPage.name)
       }
 
       parentTab.lastSubPagePath = normalizedPath
@@ -515,6 +709,12 @@ export const useTabStore = defineStore({
 
     openDynamicTab(tab: Pick<TabItem, 'fullPath' | 'name' | 'title' | 'isKeepAlive'>): TabItem {
       const fullPath = normalizePath(tab.fullPath)
+      const stackParentTab = this.findParentTabBySubPage(fullPath)
+      if (stackParentTab) {
+        this.syncStackSubPage(fullPath)
+        return stackParentTab
+      }
+
       const cacheName = resolveTabCacheName(fullPath, tab.name)
       const pendingTitle = this.pendingTabTitles[fullPath]
       const existing = this.tabList.find((item) => item.fullPath === fullPath)

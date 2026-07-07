@@ -40,16 +40,16 @@ export type WorkspaceRouteConfig = WorkspaceRouteStructure & {
 
 export const WORKSPACE_ROUTE_STRUCTURES: WorkspaceRouteStructure[] = [
   {
-    path: 'workspace-catalog',
-    name: 'WorkspaceCatalog',
+    path: 'dashboard-catalog',
+    name: 'DashboardCatalog',
     children: [
       {
-        path: 'workspace',
-        name: 'Workspace',
+        path: 'data-report',
+        name: 'DataReport',
       },
       {
-        path: 'settings',
-        name: 'WorkspaceSettings',
+        path: 'analysis',
+        name: 'Analysis',
       },
     ],
   },
@@ -65,7 +65,7 @@ export type WorkspaceRouteLeaf = WorkspaceRouteConfig & {
 
 /**
  * 计算目录节点向下传递的 path 前缀。
- * 顶层目录（如 WorkspaceCatalog）不参与 URL，子级从空前缀开始。
+ * 顶层目录（如 DashboardCatalog）不参与 URL，子级从空前缀开始。
  */
 function buildChildParentPath(
   config: WorkspaceRouteStructure,

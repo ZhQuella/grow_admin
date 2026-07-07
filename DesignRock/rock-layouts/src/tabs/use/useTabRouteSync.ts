@@ -13,6 +13,15 @@ export function useTabRouteSync() {
   const { backMenuList } = storeToRefs(authStore)
   const router = resolveByKeyOrThrow(routeLib.types.RouteTable).router
 
+  function isRouteAvailable(fullPath: string): boolean {
+    const { matched } = router.resolve(fullPath)
+    if (!matched.length) {
+      return false
+    }
+    const lastMatched = matched[matched.length - 1]
+    return lastMatched?.name !== 'Home' && lastMatched?.name !== 'HomeIndexRedirect'
+  }
+
   function syncDynamicTab(currentRoute: RouteLocationNormalizedLoaded) {
     if (!currentRoute.meta?.dynamicTab) {
       return
@@ -43,19 +52,39 @@ export function useTabRouteSync() {
     syncDynamicTab(currentRoute)
   }
 
+  function redirectIfNeeded(redirectPath: string | null): boolean {
+    if (!redirectPath) {
+      return false
+    }
+    if (normalizePath(route.fullPath) === normalizePath(redirectPath)) {
+      return false
+    }
+    router.replace(redirectPath)
+    return true
+  }
+
   function bootstrapDefaultTabs(): boolean {
     if (!backMenuList.value.length) {
       return false
     }
 
+    tabStore.syncTabsWithMenus(backMenuList.value, isRouteAvailable)
+
     const defaultPath = tabStore.initDefaultTabs(backMenuList.value)
-    if (!defaultPath) {
-      return false
+    if (defaultPath) {
+      const currentMenu = findNavigableMenuByPath(backMenuList.value, route.path)
+      if (!currentMenu && normalizePath(route.path) !== defaultPath) {
+        router.replace(defaultPath)
+        return true
+      }
     }
 
-    const currentMenu = findNavigableMenuByPath(backMenuList.value, route.path)
-    if (!currentMenu && normalizePath(route.path) !== defaultPath) {
-      router.replace(defaultPath)
+    const redirectPath = tabStore.resolveInvalidNavigationPath(
+      route.fullPath,
+      backMenuList.value,
+      isRouteAvailable,
+    )
+    if (redirectIfNeeded(redirectPath)) {
       return true
     }
 
@@ -77,8 +106,6 @@ export function useTabRouteSync() {
   watch(
     backMenuList,
     () => {
-      tabStore.syncTabTitlesFromMenus(backMenuList.value)
-      tabStore.rebuildCacheList()
       if (bootstrapDefaultTabs()) {
         return
       }

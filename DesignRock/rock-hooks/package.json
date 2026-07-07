@@ -8,6 +8,8 @@
     "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
   },
   "dependencies": {
+    "@vueuse/core": "^10.4.1",
+    "echarts": "^5.4.2",
     "@grow-admin-rock/utils": "workspace:*",
     "@grow-admin-rock/base-package": "workspace:*",
     "@grow-admin-rock/constants": "workspace:*",

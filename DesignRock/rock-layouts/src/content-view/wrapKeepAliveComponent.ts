@@ -1,15 +1,15 @@
-import type { Component } from 'vue'
+import { defineComponent, h, shallowRef, type Component, type VNode } from 'vue'
 
 type LazyComponentModule = {
-  default: Record<string, unknown>
+  default: Component
 }
 
-/** 按 cacheName 缓存，保证 keep-alive 识别稳定的组件类型 */
+/** 按 cacheName 缓存 wrapper，保证 keep-alive 识别稳定的组件类型 */
 const resolvedComponents = new Map<string, Component>()
 
 /**
- * 运行时覆盖组件 name，与 tabStore 的 resolveTabCacheName 对齐。
- * 采用 extendComponent 同款策略，避免 defineComponent 包装导致 keep-alive deactivate 报错。
+ * 以固定 name 的同步组件包装路由页面，供 keep-alive include 匹配。
+ * 异步页面作为子节点渲染；wrapper 实例被 keep-alive 缓存时，子页面状态一并保留。
  */
 export function wrapKeepAliveComponent(
   component: Component,
@@ -20,23 +20,29 @@ export function wrapKeepAliveComponent(
     return cached
   }
 
-  let wrapped: Component
+  const wrapped = defineComponent({
+    name: cacheName,
+    setup(props) {
+      const innerComponent = shallowRef<Component | null>(null)
 
-  if (typeof component === 'function') {
-    const loader = component as () => Promise<LazyComponentModule>
-    wrapped = () =>
-      loader().then((mod) => ({
-        ...mod.default,
-        name: cacheName,
-        __name: cacheName,
-      }))
-  } else {
-    wrapped = {
-      ...(component as Record<string, unknown>),
-      name: cacheName,
-      __name: cacheName,
-    } as Component
-  }
+      if (typeof component === 'function') {
+        const loader = component as () => Promise<LazyComponentModule>
+        void loader().then((mod) => {
+          innerComponent.value = mod.default
+        })
+      }
+      else {
+        innerComponent.value = component
+      }
+
+      return (): VNode | null => {
+        if (!innerComponent.value) {
+          return null
+        }
+        return h(innerComponent.value, props)
+      }
+    },
+  })
 
   resolvedComponents.set(cacheName, wrapped)
   return wrapped
