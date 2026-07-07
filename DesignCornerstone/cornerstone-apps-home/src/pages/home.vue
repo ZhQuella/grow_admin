@@ -44,14 +44,6 @@
         />
         <LayoutAutoLocker/>
       </template>
-      <template v-if="useLockPage">
-          <LayoutLockScreen
-          :user-info="userInfo"
-          :verify-password="verifyPassword"
-          @logout="handleLogout"
-        />
-        <LayoutAutoLocker/>
-      </template>
     </div>
   </div>
 </template>
