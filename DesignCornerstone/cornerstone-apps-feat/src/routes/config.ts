@@ -48,6 +48,22 @@ export const FEAT_ROUTE_STRUCTURES: FeatRouteStructure[] = [
     name: 'FeatCatalog',
     children: [
       {
+        path: 'shared-demo',
+        name: 'SharedDemo',
+        children: [
+          {
+            path: 'shared-demo-a',
+            name: 'SharedDemoA',
+            componentKey: 'SharedDemo',
+          },
+          {
+            path: 'shared-demo-b',
+            name: 'SharedDemoB',
+            componentKey: 'SharedDemo',
+          },
+        ],
+      },
+      {
         path: 'open-subpage',
         name: 'OpenSubpage',
         componentKey: 'OpenSubpage',
@@ -61,22 +77,6 @@ export const FEAT_ROUTE_STRUCTURES: FeatRouteStructure[] = [
             path: 'menu-child-test-sub',
             name: 'MenuChildTestSub',
             componentKey: 'MenuChildTestSub',
-          },
-        ],
-      },
-      {
-        path: 'shared-demo',
-        name: 'SharedDemo',
-        children: [
-          {
-            path: 'shared-demo-a',
-            name: 'SharedDemoA',
-            componentKey: 'SharedDemo',
-          },
-          {
-            path: 'shared-demo-b',
-            name: 'SharedDemoB',
-            componentKey: 'SharedDemo',
           },
         ],
       },
