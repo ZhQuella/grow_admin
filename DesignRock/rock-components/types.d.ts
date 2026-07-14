@@ -85,6 +85,8 @@ declare module 'vue' {
     GrowDatePicker: import('vue').Component;
     GrowFormItemGi: import('vue').Component;
     GrowTree: import('vue').Component;
+    GrowTable: import('vue').Component;
+    GrowTableColumn: import('vue').Component;
     GrowH1: import('vue').Component;
     GrowH2: import('vue').Component;
     GrowH3: import('vue').Component;
@@ -108,6 +110,9 @@ declare module 'vue' {
     GrowNumberAnimation: import('vue').Component;
     GrowIconify: import('vue').Component;
     GrowSplitPane: import('vue').Component;
+    GrowAbstractEle: import('vue').Component;
+    GrowSearchBar: import('vue').Component;
+    GrowColumnBar: import('vue').Component;
   }
 }
 

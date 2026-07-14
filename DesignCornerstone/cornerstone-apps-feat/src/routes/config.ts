@@ -90,6 +90,16 @@ export const FEAT_ROUTE_STRUCTURES: FeatRouteStructure[] = [
         name: 'DownExcel',
         componentKey: 'DownExcel',
       },
+      {
+        path: 'search-bar',
+        name: 'SearchBar',
+        componentKey: 'SearchBar',
+      },
+      {
+        path: 'column-bar',
+        name: 'ColumnBar',
+        componentKey: 'ColumnBar',
+      },
     ],
   },
 ]
@@ -164,6 +174,8 @@ export const FEAT_COMPONENT_KEYS = new Set([
   'SharedDemo',
   'SplitPane',
   'DownExcel',
+  'SearchBar',
+  'ColumnBar',
   'MixtureFrontDemo',
 ])
 
@@ -175,6 +187,8 @@ export const FEAT_COMPONENT_PAGE_NAMES: Record<string, string> = {
   SharedDemo: 'SharedDemoPage',
   SplitPane: 'SplitPanePage',
   DownExcel: 'DownExcelPage',
+  SearchBar: 'SearchBarPage',
+  ColumnBar: 'ColumnBarPage',
   MixtureFrontDemo: 'MixtureFrontDemoPage',
 }
 
