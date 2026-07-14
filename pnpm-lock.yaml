@@ -380,6 +380,9 @@ importers:
       '@grow-admin-rock/ioc':
         specifier: workspace:*
         version: link:../rock-ioc
+      '@grow-admin-rock/locale':
+        specifier: workspace:*
+        version: link:../rock-locale
       '@grow-admin-rock/middleware-router':
         specifier: workspace:*
         version: link:../rock-middleware-router
@@ -389,6 +392,9 @@ importers:
       '@grow-admin-rock/types':
         specifier: workspace:*
         version: link:../rock-types
+      '@grow-admin-rock/utils':
+        specifier: workspace:*
+        version: link:../rock-utils
       '@iconify/iconify':
         specifier: ^3.1.1
         version: 3.1.1

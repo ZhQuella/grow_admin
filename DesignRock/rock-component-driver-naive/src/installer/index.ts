@@ -68,6 +68,7 @@ import {
   NMention,
   NFormItemGi,
   NTree,
+  NDataTable,
   NH1,
   NH2,
   NH3,
@@ -172,6 +173,9 @@ const allComponents = {
   [RockComponent.DatePicker]: NDatePicker,
   [RockComponent.FormItemGi]: NFormItemGi,
   [RockComponent.Tree]: NTree,
+  [RockComponent.Table]: NDataTable,
+  // Naive DataTable 使用 columns 配置，无独立 Column 子组件
+  [RockComponent.TableColumn]: null,
   [RockComponent.H1]: NH1,
   [RockComponent.H2]: NH2,
   [RockComponent.H3]: NH3,

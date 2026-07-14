@@ -41,6 +41,7 @@ import {
   Tooltip,
   Tree,
   TreeSelect,
+  Table,
   Typography,
   Upload,
 } from 'ant-design-vue';
@@ -167,6 +168,8 @@ const allComponents: Partial<Record<RockComponent, any>> = {
   [RockComponent.Tooltip]: Tooltip,
   [RockComponent.Tree]: Tree,
   [RockComponent.TreeSelect]: TreeSelect,
+  [RockComponent.Table]: Table,
+  [RockComponent.TableColumn]: Table.Column,
   [RockComponent.Upload]: Upload,
   [RockComponent.UploadDragger]: UploadDragger,
 };

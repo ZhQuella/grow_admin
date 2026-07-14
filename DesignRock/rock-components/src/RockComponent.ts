@@ -69,6 +69,8 @@ export enum RockComponent {
   DatePicker = 'DatePicker',
   FormItemGi = 'FormItemGi',
   Tree = 'Tree',
+  Table = 'Table',
+  TableColumn = 'TableColumn',
   H1 = 'H1',
   H2 = 'H2',
   H3 = 'H3',
@@ -92,6 +94,9 @@ export enum RockComponent {
   NumberAnimation = 'NumberAnimation',
   Iconify = 'Iconify',
   SplitPane = 'SplitPane',
+  AbstractEle = 'AbstractEle',
+  SearchBar = 'SearchBar',
+  ColumnBar = 'ColumnBar',
 }
 
 export type RockComponentType = keyof typeof RockComponent;

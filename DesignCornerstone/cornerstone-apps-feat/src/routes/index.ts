@@ -37,6 +37,8 @@ const FEAT_COMPONENTS: Record<string, GrowRouteComponent> = {
   SharedDemo: () => import('../pages/shared-demo/shared-demo.vue'),
   SplitPane: () => import('../pages/split-pane/split-pane.vue'),
   DownExcel: () => import('../pages/down-excel/down-excel.vue'),
+  SearchBar: () => import('../pages/search-bar/search-bar.vue'),
+  ColumnBar: () => import('../pages/column-bar/column-bar.vue'),
   MixtureFrontDemo: () => import('../pages/mixture-front-demo/mixture-front-demo.vue'),
 }
 

@@ -12,6 +12,8 @@ export const FEAT_ROUTE_AUTHORITY: Record<string, string[]> = {
   SharedDemoB: ['super', 'minor'],
   SplitPane: ['super'],
   DownExcel: ['super'],
+  SearchBar: ['super'],
+  ColumnBar: ['super'],
   MixtureDemoCatalog: ['super', 'minor'],
   MixtureFrontDemo: ['super', 'minor'],
   /** 隐藏子路由，跟随 OpenSubpage */
