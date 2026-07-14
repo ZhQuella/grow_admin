@@ -9,6 +9,7 @@ export const EXTERNAL_MENU_LIST: ExternalMenuApiItem[] = [
     icon: 'ant-design:global-outlined',
     menuType: MenuTypeEnum.DIRECTORY,
     isVisible: true,
+    sort: 40,
     children: [
       {
         name: 'ElementPlusDoc',
@@ -19,6 +20,7 @@ export const EXTERNAL_MENU_LIST: ExternalMenuApiItem[] = [
         isExternalPage: true,
         openMode: PageOpenModeEnum.IFRAME,
         link: 'https://element-plus.org/zh-CN/',
+        sort: 10,
       },
       {
         name: 'GrowAdminDoc',
@@ -29,6 +31,7 @@ export const EXTERNAL_MENU_LIST: ExternalMenuApiItem[] = [
         isExternalPage: true,
         openMode: PageOpenModeEnum.IFRAME,
         link: 'https://gadmin.top',
+        sort: 20,
       },
       {
         name: 'ComponentDocument',
@@ -39,6 +42,7 @@ export const EXTERNAL_MENU_LIST: ExternalMenuApiItem[] = [
         isExternalPage: true,
         openMode: PageOpenModeEnum.BROWSER,
         link: 'https://element-plus.org/zh-CN/',
+        sort: 30,
       },
     ],
   },

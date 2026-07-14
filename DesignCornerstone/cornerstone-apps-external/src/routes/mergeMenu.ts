@@ -24,6 +24,7 @@ export function mergeExternalMenuWithStructure(
       isKeepAlive: menuItem.isKeepAlive,
       affix: menuItem.affix,
       defaultShow: menuItem.defaultShow,
+      sort: menuItem.sort,
       componentKey: structure.componentKey,
       isExternalPage: menuItem.isExternalPage,
       openMode: menuItem.openMode,

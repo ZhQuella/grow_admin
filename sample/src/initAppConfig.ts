@@ -3,7 +3,11 @@ import {
   ThemeModeEnum,
 } from '@grow-admin-rock/constants'
 import { createStorageName } from '@grow-admin-rock/utils'
-import { useAppConfig } from '@grow-admin-rock/state'
+import {
+  clearPermissionRelatedCaches,
+  isPermissionModeCacheStale,
+  useAppConfig,
+} from '@grow-admin-rock/state'
 import { projectSetting } from './projectSetting'
 
 export function mapProjectSettingToAppConfig(
@@ -36,15 +40,22 @@ export function bootstrapAppConfig() {
   const storageKey = `${createStorageName(import.meta.env)}__APP_CONFIG`
   const appConfig = useAppConfig()
   const mappedConfig = mapProjectSettingToAppConfig(projectSetting)
+  const configuredMode = mappedConfig.permissionMode!
+
+  // 与本地缓存不一致时清 tab/菜单状态（缓存写入延后到路由注册完成）
+  if (isPermissionModeCacheStale(configuredMode)) {
+    clearPermissionRelatedCaches()
+  }
 
   if (!localStorage.getItem(storageKey)) {
     appConfig.$patch(mappedConfig)
     return
   }
 
-  // 非持久化、由 projectSetting 决定的项目级开关，每次启动都需同步
+  // 非持久化或由 projectSetting 决定的项目级开关，每次启动都需同步
   appConfig.$patch({
     lockTime: mappedConfig.lockTime,
     useLockPage: mappedConfig.useLockPage,
+    permissionMode: configuredMode,
   })
 }

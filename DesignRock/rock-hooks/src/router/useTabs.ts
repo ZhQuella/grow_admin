@@ -3,7 +3,7 @@ import { type ServiceIdentifier, diKT, resolveByKeyOrThrow } from '@grow-admin-r
 import { useRoute, Lib as routeLib } from '@grow-admin-rock/middleware-router'
 import type { RouteOperator } from '@grow-admin-rock/middleware-router'
 import type { RouteLocationRaw } from 'vue-router'
-import { storeToRefs, useAuthStore, useTabStore } from '@grow-admin-rock/state'
+import { useAuthMenuList, useTabStore } from '@grow-admin-rock/state'
 import type { GoTabOptions } from '@grow-admin-rock/types'
 
 function normalizePath(path: string): string {
@@ -15,8 +15,7 @@ function createRouteNavigate() {
     routeLib.types.RouteOperator as ServiceIdentifier<RouteOperator>,
   )
   const tabStore = useTabStore()
-  const authStore = useAuthStore()
-  const { backMenuList } = storeToRefs(authStore)
+  const menuList = useAuthMenuList()
 
   const go = (to: RouteLocationRaw, options?: boolean | GoTabOptions) => {
     let replace = false
@@ -46,7 +45,7 @@ function createRouteNavigate() {
           title: String(resolved.meta?.title ?? resolved.name),
           isKeepAlive: resolved.meta?.isKeepAlive !== false,
         },
-        menus: backMenuList.value,
+        menus: menuList.value,
       })
     }
 

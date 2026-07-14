@@ -31,7 +31,7 @@ export const useAppConfig = defineStore({
     removeAllHttpPending: true,
     permissionCacheType: CacheTypeEnum.LOCAL,
     settingButtonPosition: SettingButtonPositionEnum.AUTO,
-    permissionMode: PermissionModeEnum.ROUTE_MAPPING,
+    permissionMode: PermissionModeEnum.MIXTURE,
     sessionTimeoutProcessing: SessionTimeoutProcessingEnum.ROUTE_JUMP,
     lockTime: 0,
     useLockPage: true,
@@ -100,6 +100,7 @@ export const useAppConfig = defineStore({
       'themeColor',
       'layoutType',
       'transition',
+      'permissionMode',
     ],
   },
 })

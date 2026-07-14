@@ -10,7 +10,7 @@ import {
 } from '@grow-admin-rock/constants'
 import type { Ref } from 'vue-demi'
 
-export type LocaleType = 'zh_CN' | 'en' | 'ru' | 'ja' | 'ko'
+export type LocaleType = 'zh_CN' | 'en' 
 
 export interface LocaleConfig {
   // Current language

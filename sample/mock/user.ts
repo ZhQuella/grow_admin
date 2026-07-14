@@ -10,7 +10,7 @@ import { createFakeUserList } from './auth';
 const fakeUser = createFakeUserList()[0];
 
 function toUserInfo() {
-  const { password, accessToken, roles, desc, ...userInfo } = fakeUser;
+  const { password, accessToken, desc, ...userInfo } = fakeUser;
   return userInfo;
 }
 

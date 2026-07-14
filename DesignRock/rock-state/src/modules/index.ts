@@ -1,5 +1,6 @@
 export * from './appConfig'
 export * from './authStore'
+export * from './permissionModeCache'
 export * from './loginRememberStore'
 export * from './AppStore'
 export * from './menuStore'

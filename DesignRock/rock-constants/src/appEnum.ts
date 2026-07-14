@@ -30,18 +30,15 @@ export enum SessionTimeoutProcessingEnum {
 }
 
 /**
- * 权限模式
+ * 权限模式（登录人角色唯一标识见 UserInfo.roles）
  */
 export enum PermissionModeEnum {
-  // role
-  // 角色权限
-  ROLE = 'ROLE',
-  // black
-  // 后端
+  // 后端菜单
   BACK = 'BACK',
-  // route mapping
-  // 路由映射
-  ROUTE_MAPPING = 'ROUTE_MAPPING',
+  // 前端路由表
+  FRONT = 'FRONT',
+  // 前后端合集（同名优先后端）
+  MIXTURE = 'MIXTURE',
 }
 
 // Route switching animation

@@ -42,6 +42,9 @@ export interface Menu {
   /** 是否默认在视图区域展示（首次无 tab 时自动打开并跳转） */
   defaultShow?: boolean
 
+  /** 菜单排序，值越小越靠前 */
+  sort?: number
+
   /** 是否外部页面 */
   isExternalPage?: boolean
 

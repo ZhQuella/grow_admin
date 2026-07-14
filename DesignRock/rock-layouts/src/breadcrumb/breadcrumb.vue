@@ -13,7 +13,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import { useRoute } from '@grow-admin-rock/middleware-router'
-import { storeToRefs, useAuthStore, useTabStore } from '@grow-admin-rock/state'
+import { storeToRefs, useAuthMenuList, useTabStore } from '@grow-admin-rock/state'
 import type { BreadcrumbItem } from './breadcrumbUtils'
 import {
   resolveDynamicSubPageBreadcrumbTrail,
@@ -25,9 +25,8 @@ function normalizePath(path: string): string {
 }
 
 const route = useRoute()
-const authStore = useAuthStore()
 const tabStore = useTabStore()
-const { backMenuList } = storeToRefs(authStore)
+const menuList = useAuthMenuList()
 const { tabList } = storeToRefs(tabStore)
 
 const breadcrumbTrail = computed(() => {
@@ -38,7 +37,7 @@ const breadcrumbTrail = computed(() => {
     const tab = tabList.value.find((item) => item.fullPath === fullPath)
     const lastLayerTitle = subPageTitle ?? tab?.title ?? String(route.meta.title ?? route.name)
     return resolveDynamicSubPageBreadcrumbTrail(
-      backMenuList.value,
+      menuList.value,
       route.fullPath,
       String(parentRouteName),
       lastLayerTitle,
@@ -47,7 +46,7 @@ const breadcrumbTrail = computed(() => {
   }
 
   return resolveMenuBreadcrumbTrail(
-    backMenuList.value,
+    menuList.value,
     route.path,
     route.name,
   )

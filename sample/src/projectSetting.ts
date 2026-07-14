@@ -24,7 +24,7 @@ export const projectSetting: ProjectSetting = {
   showDarkModeToggle: true,
   settingButtonPosition: SettingButtonPositionEnum.AUTO,
   showSettingDrawer: true,
-  permissionMode: PermissionModeEnum.ROUTE_MAPPING,
+  permissionMode: PermissionModeEnum.MIXTURE,
   sessionTimeoutProcessing: SessionTimeoutProcessingEnum.ROUTE_JUMP,
   themeColor: '#8b5cf6',
   transitionSetting: {

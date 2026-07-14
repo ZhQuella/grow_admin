@@ -18,6 +18,8 @@ export type ExternalMenuApiItem = {
   isKeepAlive?: boolean
   affix?: boolean
   defaultShow?: boolean
+  /** 菜单排序，值越小越靠前 */
+  sort?: number
   isExternalPage?: boolean
   openMode?: PageOpenModeEnum
   link?: string
@@ -33,6 +35,8 @@ export type ExternalRouteConfig = ExternalRouteStructure & {
   isKeepAlive?: boolean
   affix?: boolean
   defaultShow?: boolean
+  /** 菜单排序，值越小越靠前 */
+  sort?: number
   isExternalPage?: boolean
   openMode?: PageOpenModeEnum
   link?: string
