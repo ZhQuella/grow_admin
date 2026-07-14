@@ -2,7 +2,7 @@ import { nextTick, ref, unref, watch, type Ref } from 'vue'
 import { PageOpenModeEnum } from '@grow-admin-rock/constants'
 import { useRouteNavigate } from '@grow-admin-rock/hooks'
 import { cloneDeep, onKeyStroke, useDebounceFn } from '@grow-admin-rock/utils'
-import { storeToRefs, useAuthStore } from '@grow-admin-rock/state'
+import { useAuthMenuList } from '@grow-admin-rock/state'
 import type { Menu } from '@grow-admin-rock/types'
 import {
   collectMenuSearchResults,
@@ -17,8 +17,7 @@ interface UseMenuSearchOptions {
 }
 
 export function useMenuSearch({ visible, onClose }: UseMenuSearchOptions) {
-  const authStore = useAuthStore()
-  const { backMenuList } = storeToRefs(authStore)
+  const authMenuList = useAuthMenuList()
   const { go } = useRouteNavigate()
 
   const keyword = ref('')
@@ -56,7 +55,7 @@ export function useMenuSearch({ visible, onClose }: UseMenuSearchOptions) {
   }
 
   function loadMenus() {
-    menuList = cloneDeep(backMenuList.value)
+    menuList = cloneDeep(authMenuList.value)
   }
 
   function runSearch(value: string) {

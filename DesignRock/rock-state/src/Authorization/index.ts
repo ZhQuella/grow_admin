@@ -20,6 +20,7 @@ export namespace Auth {
     getFrontMenuList: Menu[];
     getLastBuildMenuTime: number;
     getIsDynamicAddedRoute: boolean;
+    getMenuList: Menu[];
   }
 
   export interface AuthActions {

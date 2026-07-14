@@ -1,7 +1,10 @@
-import type {
-  FeatMenuApiItem,
-  FeatRouteConfig,
-  FeatRouteStructure,
+import { FEAT_FRONT_ONLY_MENU_LIST, FEAT_MENU_LIST } from './menuList'
+import {
+  FEAT_FRONT_ONLY_STRUCTURES,
+  FEAT_ROUTE_STRUCTURES,
+  type FeatMenuApiItem,
+  type FeatRouteConfig,
+  type FeatRouteStructure,
 } from './config'
 
 export function mergeFeatMenuWithStructure(
@@ -24,6 +27,7 @@ export function mergeFeatMenuWithStructure(
       isKeepAlive: menuItem.isKeepAlive,
       affix: menuItem.affix,
       defaultShow: menuItem.defaultShow,
+      sort: menuItem.sort,
       componentKey: structure.componentKey,
       isExternalPage: menuItem.isExternalPage,
       openMode: menuItem.openMode,
@@ -39,4 +43,12 @@ export function mergeFeatMenuWithStructure(
 
     return config
   })
+}
+
+/** 前端完整路由配置 = 公共 feat + 仅前端演示 */
+export function toFeatRouteConfigs(
+  menuItems: FeatMenuApiItem[] = [...FEAT_MENU_LIST, ...FEAT_FRONT_ONLY_MENU_LIST],
+  structures: FeatRouteStructure[] = [...FEAT_ROUTE_STRUCTURES, ...FEAT_FRONT_ONLY_STRUCTURES],
+): FeatRouteConfig[] {
+  return mergeFeatMenuWithStructure(menuItems, structures)
 }

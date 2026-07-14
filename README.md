@@ -48,7 +48,7 @@ grow_admin/
         ↓  Mock / 真实接口  GET /api/menu/list
 apps-home/registerDynamicRoutes.ts
         ├─ flatten → router.addRoute('Home', route)   ← 仅叶子节点
-        └─ tree    → authStore.backMenuList            ← 保留树形结构
+        └─ tree    → authStore（按 permissionMode 写入） ← 保留树形结构
         ↓
 rock-layouts/menu（MenuTreeNode 递归渲染）
         ↓ 点击叶子菜单
@@ -201,7 +201,7 @@ import { WORKSPACE_ROUTE_CONFIGS } from '@grow-admin-cornerstone/apps-workspace/
 | 用途 | 数据结构 | 处理方式 |
 |------|----------|----------|
 | Vue Router | 扁平叶子路由 | `flattenWorkspaceRouteConfigs()` → `addRoute('Home', route)` |
-| 侧边菜单 | 树形 `Menu[]` | `toMenuList()` → `authStore.backMenuList` |
+| 侧边菜单 | 树形 `Menu[]` | `toMenuList()` → `backMenuList` / `frontMenuList`（按模式） |
 
 **字段映射规则**（`toMenuItem`）：
 
@@ -210,11 +210,11 @@ import { WORKSPACE_ROUTE_CONFIGS } from '@grow-admin-cornerstone/apps-workspace/
 | 目录（有 `children`） | `name` 字符串（如 `WorkspaceCatalog`） | ❌ | 展开/收起，不跳转 |
 | 叶子（无 `children`） | 完整路径（如 `/home/workspace`） | ✅ | `router.push(path)` |
 
-菜单状态存储在 `@grow-admin-rock/state` 的 `authStore.backMenuList`，侧边栏从该字段读取并渲染。
+菜单状态按 `permissionMode` 写入 `authStore.backMenuList` / `frontMenuList`，侧边栏通过 `useAuthMenuList()` / `getMenuList` 取**当前模式生效**的菜单树（详见下方「权限模式」）。
 
 ### 菜单渲染（rock-layouts）
 
-`@grow-admin-rock/layouts` 的 `Menu` 组件从 `authStore.backMenuList` 读取数据，通过 `MenuTreeNode` **递归组件**渲染树形菜单：
+`@grow-admin-rock/layouts` 的 `Menu` 组件从 `useAuthMenuList()` 读取数据，通过 `MenuTreeNode` **递归组件**渲染树形菜单：
 
 ```
 Menu（menu.vue）
@@ -271,8 +271,8 @@ Home 页面通过 Teleport 将 Menu 挂载到布局插槽：
 | `sample/mock/routers.ts` | 开发环境 Mock 菜单接口 |
 | `DesignRock/rock-layouts/src/menu/menu.vue` | 侧边菜单容器 |
 | `DesignRock/rock-layouts/src/menu/MenuTreeNode.vue` | 菜单树递归节点 |
-| `DesignRock/rock-state/src/modules/authStore.ts` | `backMenuList` 菜单状态 |
-| `DesignRock/rock-middleware-router/` | 路由表 IoC 注册、`RouteOperator` |
+| `DesignRock/rock-state/src/modules/authStore.ts` | `backMenuList` / `frontMenuList` / `getMenuList` |
+| `DesignRock/rock-middleware-router/` | 路由表 IoC 注册、`RouteOperator`、`MenuState` |
 
 ### 开发自检清单
 
@@ -281,6 +281,165 @@ Home 页面通过 Teleport 将 Menu 挂载到布局插槽：
 3. 当前路由对应的菜单项高亮。
 4. Mock 接口 `/api/menu/list` 返回的数据结构与 `config.ts` 一致。
 5. 新增页面后，`WORKSPACE_COMPONENTS` 中存在对应 `name` 映射，否则 `resolveWorkspaceRoute` 会抛错。
+
+## 权限模式
+
+框架通过 `projectSetting.permissionMode` 控制动态菜单与路由的来源。角色信息只存在于 `UserInfo.roles`（`role.value`），**没有**单独的 ROLE 权限模式。
+
+### 三种模式
+
+| 枚举 | 值 | 菜单 / 路由来源 |
+|------|-----|----------------|
+| `PermissionModeEnum.BACK` | `BACK` | 仅接口 `GET /api/menu/list` → 写入 `backMenuList` |
+| `PermissionModeEnum.FRONT` | `FRONT` | 仅前端 `toFeatRouteConfigs()`，再按角色过滤 → 写入 `frontMenuList` |
+| `PermissionModeEnum.MIXTURE` | `MIXTURE` | 前端（先角色过滤）与后端按 `name` **合集**；同名节点整条采用后端，`children` 递归合集 |
+
+当前 sample 默认：
+
+```typescript
+// sample/src/projectSetting.ts
+import { PermissionModeEnum } from '@grow-admin-rock/constants'
+
+export const projectSetting: ProjectSetting = {
+  permissionMode: PermissionModeEnum.MIXTURE,
+  // ...
+}
+```
+
+`initAppConfig.ts` 每次启动都会把 `permissionMode` 从 `projectSetting` 同步进 `useAppConfig()`（即改配置文件即可切换模式，不必依赖设置抽屉）。
+
+### 模式行为详解
+
+```
+BACK     → getMenuList() ──────────────────────────→ backMenuList + 注册路由
+FRONT    → toFeatRouteConfigs → filterByRoles ─────→ frontMenuList + 注册路由
+MIXTURE  → front(过滤) ∪ back → mergeTreesByName ─→ 合集注册路由
+           （同时仍分别写入 frontMenuList / backMenuList，侧栏取合集）
+```
+
+**MIXTURE 合并规则**（`mergeTreesByName`）：
+
+1. 先铺前端树，再叠后端树
+2. 同名节点：整条元数据用后端；`children` 再按 `name` 递归合集
+3. 合并结果按 `sort` 升序排序（缺省视为 `0`）
+
+侧栏实际渲染：
+
+```typescript
+// useAuthMenuList() / authStore.getMenuList
+BACK     → sortTreesBySort(backMenuList)
+FRONT    → sortTreesBySort(frontMenuList)
+MIXTURE  → mergeTreesByName(frontMenuList, backMenuList)
+```
+
+### 配置与切换
+
+| 步骤 | 说明 |
+|------|------|
+| 1. 改 `permissionMode` | `sample/src/projectSetting.ts` |
+| 2. 刷新 / 重启 | `bootstrapAppConfig` 同步模式；若与本地 `LAST_PERMISSION_MODE` 不一致会清菜单/标签缓存 |
+| 3. 重新登录或刷新受保护页 | 守卫触发 `registerDynamicRoutes()`，按新模式拉取并注册 |
+
+本地缓存 key（前缀来自 `createStorageName`）：
+
+| Key | 作用 |
+|-----|------|
+| `__LAST_PERMISSION_MODE` | 上次成功应用的模式；与配置不一致时清缓存并 `resetRouter` |
+| `__TAB` | 标签页持久化；模式变更时清除，避免旧 URL 白屏 |
+| `__APP_CONFIG` | 应用配置；`permissionMode` 每次启动仍以 `projectSetting` 为准覆盖 |
+
+守卫在模式变更、或目标 path 在新菜单下不可达时，会 `next({ name: 'Home' })`，由默认菜单 redirect，避免继续访问失效 URL 导致白屏。
+
+### FRONT / MIXTURE：角色过滤
+
+1. 登录后 `/user/info`（或已有 `userStore.userInfo`）提供 `roles: [{ name, value }]`
+2. Mock 示例：`admin` → `roles: [{ value: 'super' }]`（`sample/mock/auth.ts`）
+3. 白名单：`apps-feat/src/routes/authority.ts` 的 `FEAT_ROUTE_AUTHORITY`（`route name → 允许的 role.value[]`）
+4. **未配置的 name 视为无权限**；有 `children` 时先过滤子级，子非空则保留父级
+
+```typescript
+// DesignCornerstone/cornerstone-apps-feat/src/routes/authority.ts
+export const FEAT_ROUTE_AUTHORITY: Record<string, string[]> = {
+  FeatCatalog: ['super', 'minor'],
+  OpenSubpage: ['super'],
+  MixtureFrontDemo: ['super', 'minor'],
+  // ...
+}
+```
+
+> BACK 模式不按该表过滤接口菜单；隐藏路由 `FEAT_HIDDEN_ROUTES` 在 FRONT/MIXTURE 下也会按角色过滤。
+
+### FRONT 菜单数据从哪来
+
+前端完整配置 = 展示信息 + 结构，经 `toFeatRouteConfigs()` 合并：
+
+| 文件 | 职责 |
+|------|------|
+| `apps-feat/.../menuList.ts` | `FEAT_MENU_LIST`：title / icon / sort 等（可与 BACK Mock 共用） |
+| `apps-feat/.../menuList.ts` | `FEAT_FRONT_ONLY_MENU_LIST`：**仅前端**项（勿放进 `/menu/list` Mock） |
+| `apps-feat/.../config.ts` | `FEAT_ROUTE_STRUCTURES` / `FEAT_FRONT_ONLY_STRUCTURES`：path、componentKey |
+| `apps-feat/.../mergeMenu.ts` | `toFeatRouteConfigs()` |
+| `apps-feat/.../index.ts` | 组件映射 `resolveFeatRoute` |
+
+### 如何新增带权限的页面
+
+**仅 FRONT / MIXTURE 前端侧：**
+
+1. 页面组件 → `apps-feat/src/pages/...`
+2. `config.ts` 增加 structure（`name` / `path` / `componentKey`）
+3. `menuList.ts` 增加 title、icon、`sort`；若只要前端有，放 `FEAT_FRONT_ONLY_*`
+4. `index.ts` 注册组件映射
+5. `authority.ts` 配置该 `name` 允许的角色
+6. 切换到 `FRONT` 或 `MIXTURE` 验证
+
+**仅 BACK / MIXTURE 后端侧：**
+
+1. 业务包 `config` + 组件映射（如 `apps-workspace`）
+2. Mock / 真实接口 `/menu/list` 返回对应节点
+3. MIXTURE 下与前端同名时，整条展示以后端为准
+
+**MIXTURE 演示约定（sample）：**
+
+| name | 来源 | 说明 |
+|------|------|------|
+| `MixtureDemoCatalog` | 两端均可有 | 目录「权限演示」 |
+| `MixtureFrontDemo` | 仅前端（`FEAT_FRONT_ONLY_*`） | 合集后出现 |
+| `MixtureBackDemo` | 仅后端（workspace + mock） | 合集后出现 |
+
+建议 `sort`：Dashboard `10`、功能示例 `20`、权限演示 `30`、外部页 `40`。
+
+### 默认首页
+
+注册完成后写入 `HomeIndexRedirect`：
+
+1. 优先 `defaultShow: true` 的可导航菜单
+2. 否则取第一个**目录**下第一个可导航叶子
+3. 再否则整树回退第一个可导航菜单
+
+实现：`resolveDefaultMenuRedirect`（`rock-state/tabStore.ts`）。
+
+### 关键文件索引
+
+| 文件 | 职责 |
+|------|------|
+| `rock-constants/.../appEnum.ts` | `PermissionModeEnum` |
+| `sample/src/projectSetting.ts` | 配置 `permissionMode` |
+| `sample/src/initAppConfig.ts` | 启动同步模式、模式变更清缓存 |
+| `apps-home/.../registerDynamicRoutes.ts` | 按模式注册路由与菜单 |
+| `apps-home/.../guard.ts` | 触发注册；模式变更 / 不可达时回 Home |
+| `apps-feat/.../authority.ts` | 前端角色白名单 |
+| `rock-state/.../authStore.ts` | 菜单状态与 `useAuthMenuList` |
+| `rock-state/.../mergeTreesByName.ts` | 合集与 `sort` |
+| `rock-state/.../permissionModeCache.ts` | `LAST_PERMISSION_MODE` 与清缓存 |
+| `rock-middleware-router/.../MenuState.ts` | `isBackMode` / `isFrontMode` / `isMixtureMode` |
+
+### 开发自检清单
+
+1. 改 `permissionMode` 后刷新，侧栏与可访问路由符合该模式预期。
+2. FRONT：无权限角色看不到对应菜单；未在 `authority` 配置的 name 不可见。
+3. MIXTURE：前端独有 / 后端独有 / 同名以后端为准，三项都能验证。
+4. 模式切换后旧书签 URL 不应白屏，应回到默认首页。
+5. `/user/info`（或登录信息）必须带回 `roles[].value`，否则 FRONT/MIXTURE 前端树会被滤空。
 
 ## 主题与颜色
 
@@ -1019,7 +1178,7 @@ EPComponentDriver.builder()
 | `@grow-admin-rock/components` | `RockComponent` 枚举、`Grow*` 契约组件、`ComponentMap` |
 | `@grow-admin-rock/layouts` | 布局壳：`SettingDrawer`、`SettingTheme`、`SwitchLanguage` 等 |
 | `@grow-admin-rock/locale` | `useI18n`、`useLocale`、语言包加载与持久化 |
-| `@grow-admin-rock/state` | `useAppConfig`、`useTheme`、`useAuthStore`（含 `backMenuList`）、配置持久化 |
+| `@grow-admin-rock/state` | `useAppConfig`、`useTheme`、`useAuthStore` / `useAuthMenuList`（按权限模式取菜单）、配置持久化 |
 | `@grow-admin-rock/middleware-router` | 路由表 IoC 注册、`RouteTable`、`RouteOperator` |
 | `@grow-admin-rock/styles` | 全局 CSS 变量、UnoCSS 入口、主题过渡 |
 | `@grow-admin-rock/constants` | `APP_THEME_COLOR_LIST` 等设计常量 |

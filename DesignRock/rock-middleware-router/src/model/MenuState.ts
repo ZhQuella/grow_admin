@@ -36,17 +36,17 @@ export class MenuState {
     return this.getPermissionMode() === PermissionModeEnum.BACK;
   };
   /**
-   * 是否是路由表模式
+   * 是否是前端路由表模式
    * @returns
    */
-  isRouteMappingMode = () => {
-    return this.getPermissionMode() === PermissionModeEnum.ROUTE_MAPPING;
+  isFrontMode = () => {
+    return this.getPermissionMode() === PermissionModeEnum.FRONT;
   };
   /**
-   * 是否是角色路由模式
+   * 是否是前后端混合模式
    * @returns
    */
-  isRoleMode = () => {
-    return this.getPermissionMode() === PermissionModeEnum.ROLE;
+  isMixtureMode = () => {
+    return this.getPermissionMode() === PermissionModeEnum.MIXTURE;
   };
 }

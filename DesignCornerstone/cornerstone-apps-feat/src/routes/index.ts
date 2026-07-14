@@ -1,9 +1,9 @@
 import { MenuTypeEnum } from '@grow-admin-rock/constants'
 import {
   flattenFeatRouteConfigs,
-  toFeatRouteConfigs,
   type FeatRouteConfig,
 } from './config'
+import { toFeatRouteConfigs } from './mergeMenu'
 
 export type {
   FeatRouteConfig,
@@ -13,15 +13,22 @@ export type {
 } from './config'
 export {
   FEAT_ROUTE_STRUCTURES,
+  FEAT_FRONT_ONLY_STRUCTURES,
   FEAT_COMPONENT_KEYS,
   FEAT_COMPONENT_PAGE_NAMES,
   flattenFeatRouteConfigs,
   isFeatRouteConfig,
   resolveFeatPageComponentName,
   resolveFeatRouteFullPath,
-  toFeatRouteConfigs,
 } from './config'
-export { mergeFeatMenuWithStructure } from './mergeMenu'
+export { FEAT_MENU_LIST, FEAT_FRONT_ONLY_MENU_LIST } from './menuList'
+export {
+  FEAT_ROUTE_AUTHORITY,
+  canAccessRouteByRoles,
+  filterConfigsByRoles,
+  hasCommonElement,
+} from './authority'
+export { mergeFeatMenuWithStructure, toFeatRouteConfigs } from './mergeMenu'
 
 const FEAT_COMPONENTS: Record<string, GrowRouteComponent> = {
   OpenSubpage: () => import('../pages/open-subpage/open-subpage.vue'),
@@ -30,6 +37,7 @@ const FEAT_COMPONENTS: Record<string, GrowRouteComponent> = {
   SharedDemo: () => import('../pages/shared-demo/shared-demo.vue'),
   SplitPane: () => import('../pages/split-pane/split-pane.vue'),
   DownExcel: () => import('../pages/down-excel/down-excel.vue'),
+  MixtureFrontDemo: () => import('../pages/mixture-front-demo/mixture-front-demo.vue'),
 }
 
 function resolveFeatComponent(config: FeatRouteConfig): GrowRouteComponent {

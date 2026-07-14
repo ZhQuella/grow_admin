@@ -1,7 +1,7 @@
 import { watch } from 'vue'
 import { Lib as routeLib, useRoute } from '@grow-admin-rock/middleware-router'
 import { resolveByKeyOrThrow } from '@grow-admin-rock/ioc'
-import { storeToRefs, useAuthStore, useTabStore } from '@grow-admin-rock/state'
+import { useAuthMenuList, useTabStore } from '@grow-admin-rock/state'
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
 import { findNavigableMenuByPath, normalizePath } from '../utils/tabUtils'
 
@@ -9,8 +9,7 @@ import { findNavigableMenuByPath, normalizePath } from '../utils/tabUtils'
 export function useTabRouteSync() {
   const route = useRoute()
   const tabStore = useTabStore()
-  const authStore = useAuthStore()
-  const { backMenuList } = storeToRefs(authStore)
+  const menuList = useAuthMenuList()
   const router = resolveByKeyOrThrow(routeLib.types.RouteTable).router
 
   function isRouteAvailable(fullPath: string): boolean {
@@ -43,7 +42,7 @@ export function useTabRouteSync() {
       return
     }
 
-    const menu = findNavigableMenuByPath(backMenuList.value, currentRoute.path)
+    const menu = findNavigableMenuByPath(menuList.value, currentRoute.path)
     if (menu) {
       tabStore.openTab(menu)
       return
@@ -64,15 +63,15 @@ export function useTabRouteSync() {
   }
 
   function bootstrapDefaultTabs(): boolean {
-    if (!backMenuList.value.length) {
+    if (!menuList.value.length) {
       return false
     }
 
-    tabStore.syncTabsWithMenus(backMenuList.value, isRouteAvailable)
+    tabStore.syncTabsWithMenus(menuList.value, isRouteAvailable)
 
-    const defaultPath = tabStore.initDefaultTabs(backMenuList.value)
+    const defaultPath = tabStore.initDefaultTabs(menuList.value)
     if (defaultPath) {
-      const currentMenu = findNavigableMenuByPath(backMenuList.value, route.path)
+      const currentMenu = findNavigableMenuByPath(menuList.value, route.path)
       if (!currentMenu && normalizePath(route.path) !== defaultPath) {
         router.replace(defaultPath)
         return true
@@ -81,7 +80,7 @@ export function useTabRouteSync() {
 
     const redirectPath = tabStore.resolveInvalidNavigationPath(
       route.fullPath,
-      backMenuList.value,
+      menuList.value,
       isRouteAvailable,
     )
     if (redirectIfNeeded(redirectPath)) {
@@ -104,7 +103,7 @@ export function useTabRouteSync() {
   )
 
   watch(
-    backMenuList,
+    menuList,
     () => {
       if (bootstrapDefaultTabs()) {
         return

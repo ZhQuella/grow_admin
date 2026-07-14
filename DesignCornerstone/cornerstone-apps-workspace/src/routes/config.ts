@@ -18,6 +18,8 @@ export type WorkspaceMenuApiItem = {
   isKeepAlive?: boolean
   affix?: boolean
   defaultShow?: boolean
+  /** 菜单排序，值越小越靠前 */
+  sort?: number
   isExternalPage?: boolean
   openMode?: PageOpenModeEnum
   link?: string
@@ -33,6 +35,8 @@ export type WorkspaceRouteConfig = WorkspaceRouteStructure & {
   isKeepAlive?: boolean
   affix?: boolean
   defaultShow?: boolean
+  /** 菜单排序，值越小越靠前 */
+  sort?: number
   isExternalPage?: boolean
   openMode?: PageOpenModeEnum
   link?: string
@@ -50,6 +54,16 @@ export const WORKSPACE_ROUTE_STRUCTURES: WorkspaceRouteStructure[] = [
       {
         path: 'analysis',
         name: 'Analysis',
+      },
+    ],
+  },
+  {
+    path: 'mixture-demo-catalog',
+    name: 'MixtureDemoCatalog',
+    children: [
+      {
+        path: 'mixture-back-demo',
+        name: 'MixtureBackDemo',
       },
     ],
   },

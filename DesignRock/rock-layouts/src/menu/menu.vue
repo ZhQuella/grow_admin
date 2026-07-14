@@ -27,7 +27,7 @@ import { computed } from 'vue'
 import { PageOpenModeEnum } from '@grow-admin-rock/constants'
 import { Lib as routeLib } from '@grow-admin-rock/middleware-router'
 import { resolveByKeyOrThrow } from '@grow-admin-rock/ioc'
-import { storeToRefs, useAppConfig, useAuthStore, useLayout } from '@grow-admin-rock/state'
+import { storeToRefs, useAppConfig, useAuthMenuList, useLayout } from '@grow-admin-rock/state'
 import type { Menu } from '@grow-admin-rock/types'
 import MenuTreeNode from './MenuTreeNode.vue'
 import { shouldRenderMenuItem } from './menuUtils'
@@ -36,8 +36,7 @@ const useRouter = () => resolveByKeyOrThrow(routeLib.types.RouteTable).router
 
 const { isPutAway, isRoofLayout, isSideLayout } = useLayout()
 const appConfig = useAppConfig()
-const authStore = useAuthStore()
-const { backMenuList: menuList } = storeToRefs(authStore)
+const menuList = useAuthMenuList()
 const { canEmbedIFramePage } = storeToRefs(appConfig)
 const visibleMenuList = computed(() => {
   return menuList.value.filter((item) => shouldRenderMenuItem(item, canEmbedIFramePage.value))

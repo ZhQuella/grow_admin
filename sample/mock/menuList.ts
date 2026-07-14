@@ -9,6 +9,7 @@ export const MENU_LIST: WorkspaceMenuApiItem[] = [
     icon: 'ant-design:dashboard-outlined',
     menuType: MenuTypeEnum.DIRECTORY,
     isVisible: true,
+    sort: 10,
     children: [
       {
         name: 'DataReport',
@@ -19,6 +20,7 @@ export const MENU_LIST: WorkspaceMenuApiItem[] = [
         isKeepAlive: true,
         defaultShow: true,
         affix: true,
+        sort: 10,
       },
       {
         name: 'Analysis',
@@ -27,6 +29,26 @@ export const MENU_LIST: WorkspaceMenuApiItem[] = [
         menuType: MenuTypeEnum.MENU,
         isVisible: true,
         isKeepAlive: true,
+        sort: 20,
+      },
+    ],
+  },
+  {
+    name: 'MixtureDemoCatalog',
+    title: '权限演示',
+    icon: 'ant-design:safety-certificate-outlined',
+    menuType: MenuTypeEnum.DIRECTORY,
+    isVisible: true,
+    sort: 30,
+    children: [
+      {
+        name: 'MixtureBackDemo',
+        title: '后端独有页面',
+        icon: 'ant-design:database-outlined',
+        menuType: MenuTypeEnum.MENU,
+        isVisible: true,
+        isKeepAlive: true,
+        sort: 20,
       },
     ],
   },

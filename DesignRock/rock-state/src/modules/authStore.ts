@@ -1,6 +1,26 @@
-import { defineStore } from 'pinia'
+import { computed } from 'vue'
+import { defineStore, storeToRefs } from 'pinia'
+import { PermissionModeEnum } from '@grow-admin-rock/constants'
 import type { Menu } from '@grow-admin-rock/types'
 import type { Auth } from '../Authorization'
+import { useAppConfig } from './appConfig'
+import { mergeTreesByName, sortTreesBySort } from './mergeTreesByName'
+
+export { mergeTreesByName, sortTreesBySort } from './mergeTreesByName'
+
+function resolveActiveMenuList(
+  permissionMode: PermissionModeEnum,
+  backMenuList: Menu[],
+  frontMenuList: Menu[],
+): Menu[] {
+  if (permissionMode === PermissionModeEnum.BACK) {
+    return sortTreesBySort(backMenuList)
+  }
+  if (permissionMode === PermissionModeEnum.MIXTURE) {
+    return mergeTreesByName(frontMenuList, backMenuList)
+  }
+  return sortTreesBySort(frontMenuList)
+}
 
 export const useAuthStore = defineStore({
   id: 'AUTH',
@@ -17,6 +37,11 @@ export const useAuthStore = defineStore({
     getFrontMenuList: (state) => state.frontMenuList,
     getLastBuildMenuTime: (state) => state.lastBuildMenuTime,
     getIsDynamicAddedRoute: (state) => state.isDynamicAddedRoute,
+    /** 按 permissionMode：BACK / FRONT / MIXTURE(合集，同名后端优先) */
+    getMenuList(state): Menu[] {
+      const { permissionMode } = useAppConfig()
+      return resolveActiveMenuList(permissionMode, state.backMenuList, state.frontMenuList)
+    },
   },
   actions: {
     setPermCodeList(codeList: string[]) {
@@ -49,3 +74,15 @@ export const useAuthStore = defineStore({
 })
 
 export type AuthStore = ReturnType<typeof useAuthStore>
+
+/** 响应式取当前 permissionMode 下生效的菜单列表 */
+export function useAuthMenuList() {
+  const authStore = useAuthStore()
+  const appConfig = useAppConfig()
+  const { backMenuList, frontMenuList } = storeToRefs(authStore)
+  const { permissionMode } = storeToRefs(appConfig)
+
+  return computed(() =>
+    resolveActiveMenuList(permissionMode.value, backMenuList.value, frontMenuList.value),
+  )
+}

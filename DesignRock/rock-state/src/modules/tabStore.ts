@@ -117,27 +117,58 @@ function collectDefaultShowMenus(menus: Menu[]): Menu[] {
   return result
 }
 
-function findFirstNavigableMenu(menus: Menu[]): Menu | null {
+function isNavigableLeafMenu(menu: Menu): boolean {
+  return (
+    menu.menuType === MenuTypeEnum.MENU
+    && menu.isVisible !== false
+    && menu.path.startsWith('/')
+    && menu.openMode !== PageOpenModeEnum.BROWSER
+  )
+}
+
+/** 在分支中向下找第一个可导航菜单；遇到目录则继续深入 */
+function findFirstMenuInBranch(menus: Menu[]): Menu | null {
   for (const menu of menus) {
-    if (
-      menu.menuType === MenuTypeEnum.MENU
-      && menu.isVisible !== false
-      && menu.path.startsWith('/')
-      && menu.openMode !== PageOpenModeEnum.BROWSER
-    ) {
-      return menu
+    if (menu.isVisible === false) {
+      continue
     }
-    if (menu.children?.length) {
-      const matched = findFirstNavigableMenu(menu.children)
-      if (matched) {
-        return matched
+    if (menu.menuType === MenuTypeEnum.DIRECTORY) {
+      if (menu.children?.length) {
+        const found = findFirstMenuInBranch(menu.children)
+        if (found) {
+          return found
+        }
       }
+      continue
+    }
+    if (isNavigableLeafMenu(menu)) {
+      return menu
     }
   }
   return null
 }
 
-/** 首页空路径 redirect 目标：优先 defaultShow，否则第一个可导航菜单 */
+/**
+ * 无 defaultShow 时：取第一个目录下的第一个菜单；
+ * 若该节点仍是目录则继续向下，直到找到可导航菜单。
+ */
+function findFirstNavigableMenu(menus: Menu[]): Menu | null {
+  for (const menu of menus) {
+    if (menu.isVisible === false) {
+      continue
+    }
+    if (menu.menuType === MenuTypeEnum.DIRECTORY && menu.children?.length) {
+      const found = findFirstMenuInBranch(menu.children)
+      if (found) {
+        return found
+      }
+    }
+  }
+  // 没有可用目录时，回退整棵树中的第一个可导航菜单
+  return findFirstMenuInBranch(menus)
+}
+
+/** 首页空路径 redirect：优先 defaultShow，否则第一个目录下第一个菜单 */
 export function resolveDefaultMenuRedirect(menus: Menu[]): { name: string } | null {
   const defaultMenus = collectDefaultShowMenus(menus)
   if (defaultMenus.length) {
@@ -418,15 +449,19 @@ export const useTabStore = defineStore({
       return isRouteAvailable?.(fullPath) ?? false
     },
 
-    /** 首次无 tab 时，打开 defaultShow 菜单并返回首选路由 */
+    /** 首次无 tab 时，打开 defaultShow（否则第一个目录下第一个菜单）并返回首选路由 */
     initDefaultTabs(menus: Menu[]): string | null {
       if (this.tabList.length > 0) {
         return null
       }
 
-      const defaultMenus = collectDefaultShowMenus(menus)
+      let defaultMenus = collectDefaultShowMenus(menus)
       if (!defaultMenus.length) {
-        return null
+        const firstMenu = findFirstNavigableMenu(menus)
+        if (!firstMenu) {
+          return null
+        }
+        defaultMenus = [firstMenu]
       }
 
       defaultMenus.forEach((menu) => {

@@ -18,6 +18,8 @@ export type FeatMenuApiItem = {
   isKeepAlive?: boolean
   affix?: boolean
   defaultShow?: boolean
+  /** 菜单排序，值越小越靠前 */
+  sort?: number
   isExternalPage?: boolean
   openMode?: PageOpenModeEnum
   link?: string
@@ -33,6 +35,8 @@ export type FeatRouteConfig = FeatRouteStructure & {
   isKeepAlive?: boolean
   affix?: boolean
   defaultShow?: boolean
+  /** 菜单排序，值越小越靠前 */
+  sort?: number
   isExternalPage?: boolean
   openMode?: PageOpenModeEnum
   link?: string
@@ -90,6 +94,21 @@ export const FEAT_ROUTE_STRUCTURES: FeatRouteStructure[] = [
   },
 ]
 
+/** 仅前端注册的演示结构（不进入 /menu/list mock；与后端共用 MixtureDemoCatalog） */
+export const FEAT_FRONT_ONLY_STRUCTURES: FeatRouteStructure[] = [
+  {
+    path: 'mixture-demo-catalog',
+    name: 'MixtureDemoCatalog',
+    children: [
+      {
+        path: 'mixture-front-demo',
+        name: 'MixtureFrontDemo',
+        componentKey: 'MixtureFrontDemo',
+      },
+    ],
+  },
+]
+
 /** 展平后的叶子路由，fullPath 为相对 Home 的完整 path 段 */
 export type FeatRouteLeaf = FeatRouteConfig & {
   fullPath: string
@@ -138,23 +157,15 @@ export function flattenFeatRouteConfigs(
   })
 }
 
-function withDefaultTitle(structure: FeatRouteStructure): FeatRouteConfig {
-  return {
-    ...structure,
-    title: structure.name,
-    menuType: structure.children?.length ? MenuTypeEnum.DIRECTORY : MenuTypeEnum.MENU,
-    isVisible: true,
-    children: structure.children?.map(withDefaultTitle),
-  }
-}
-
-export function toFeatRouteConfigs(
-  structures: FeatRouteStructure[] = FEAT_ROUTE_STRUCTURES,
-): FeatRouteConfig[] {
-  return structures.map(withDefaultTitle)
-}
-
-export const FEAT_COMPONENT_KEYS = new Set(['OpenSubpage', 'MenuChildTest', 'MenuChildTestSub', 'SharedDemo', 'SplitPane', 'DownExcel'])
+export const FEAT_COMPONENT_KEYS = new Set([
+  'OpenSubpage',
+  'MenuChildTest',
+  'MenuChildTestSub',
+  'SharedDemo',
+  'SplitPane',
+  'DownExcel',
+  'MixtureFrontDemo',
+])
 
 /** componentKey 对应的页面组件 name（与 .vue 中 defineOptions.name 一致） */
 export const FEAT_COMPONENT_PAGE_NAMES: Record<string, string> = {
@@ -164,6 +175,7 @@ export const FEAT_COMPONENT_PAGE_NAMES: Record<string, string> = {
   SharedDemo: 'SharedDemoPage',
   SplitPane: 'SplitPanePage',
   DownExcel: 'DownExcelPage',
+  MixtureFrontDemo: 'MixtureFrontDemoPage',
 }
 
 export function resolveFeatPageComponentName(componentKey: string): string {
