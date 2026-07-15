@@ -1,5 +1,5 @@
 <template>
-  <div class="h-[90vh]">
+  <div class="h-[88vh]">
     <GrowCodeSandbox
       v-model="editorCode"
       :expose="sandboxExpose"
@@ -31,7 +31,7 @@ defineOptions({
 
 const editorCode = ref(
   composeVueSfc({
-    template: `  <div class="list-demo">
+    template: `<div class="list-demo">
     <GrowRow justify="space-between" class="list-demo__toolbar">
       <GrowCol :span="14">
         <GrowButton type="primary" @click="onAdd">新增</GrowButton>
@@ -45,7 +45,7 @@ const editorCode = ref(
     </GrowRow>
 
     <div class="list-demo__table">
-      <GrowTable :data="pagedData" height="76vh" border>
+      <GrowTable :data="pagedData" height="73vh" border>
         <GrowTableColumn
           v-for="col in leafColumns"
           :key="String(col.field)"

@@ -3,7 +3,7 @@
     <GrowWatchBox class="min-h-0 flex-1 overflow-hidden">
       <template #default="{ height }">
         <GrowScrollbar v-if="height > 0" :height="`${height}px`">
-          <div class="box-border min-h-full p-2">
+          <div class="h-full">
             <slot name="preview">
               <div v-if="compileError" class="rounded bg-layout p-3 text-sm" style="color: #d03050">
                 {{ compileError }}
