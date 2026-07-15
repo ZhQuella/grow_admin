@@ -50,6 +50,16 @@ export const SANDBOX_ROUTE_STRUCTURES: SandboxRouteStructure[] = [
         name: 'SandboxOverview',
         componentKey: 'SandboxOverview',
       },
+      {
+        path: 'code-sandbox-demo',
+        name: 'CodeSandboxDemo',
+        componentKey: 'CodeSandboxDemo',
+      },
+      {
+        path: 'code-editor-demo',
+        name: 'CodeEditorDemo',
+        componentKey: 'CodeEditorDemo',
+      },
     ],
   },
 ]
@@ -119,10 +129,14 @@ export function toSandboxRouteConfigs(
 
 export const SANDBOX_COMPONENT_KEYS = new Set([
   'SandboxOverview',
+  'CodeSandboxDemo',
+  'CodeEditorDemo',
 ])
 
 export const SANDBOX_COMPONENT_PAGE_NAMES: Record<string, string> = {
   SandboxOverview: 'SandboxOverviewPage',
+  CodeSandboxDemo: 'CodeSandboxDemoPage',
+  CodeEditorDemo: 'CodeEditorDemoPage',
 }
 
 export function resolveSandboxPageComponentName(componentKey: string): string {

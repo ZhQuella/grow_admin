@@ -42,7 +42,7 @@ function upsertStyle(id: string, css: string) {
 function clearSandboxStyles(prefix: string) {
   if (typeof document === 'undefined') return
   styleElMap.forEach((el, id) => {
-    if (id.startsWith(prefix)) {
+    if (id === prefix || id.startsWith(`${prefix}-`)) {
       el.remove()
       styleElMap.delete(id)
     }
@@ -200,13 +200,14 @@ export function createPreviewComponent(
 
     compileStyles(descriptor, id)
 
+    const hasScopedStyle = descriptor.styles.some((item) => item.scoped)
     const compiled = compileScript(descriptor, {
       id,
       inlineTemplate: true,
       templateOptions: {
-        scoped: descriptor.styles.some((item) => item.scoped),
+        scoped: hasScopedStyle,
         compilerOptions: {
-          scopeId: descriptor.styles.some((item) => item.scoped) ? id : undefined,
+          scopeId: hasScopedStyle ? id : undefined,
         },
       },
     })
@@ -219,6 +220,11 @@ export function createPreviewComponent(
     const hostComponents = Object.fromEntries(
       Object.entries(expose.components ?? {}).filter(([, comp]) => Boolean(comp)),
     )
+
+    // compileScript 内联模板不会自动写入 __scopeId，需手动挂上，scoped CSS 才能命中根节点
+    if (hasScopedStyle) {
+      rawComponent.__scopeId = id
+    }
 
     const originalSetup = rawComponent.setup
     rawComponent.components = {

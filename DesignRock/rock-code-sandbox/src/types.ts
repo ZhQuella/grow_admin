@@ -1,13 +1,45 @@
 import type { Component } from 'vue'
 
-/** 沙箱支持的语言 */
-export type CodeLanguage =
+/**
+ * GrowCodeEditor 内置语言（不含 typescript）。
+ */
+export type CodeEditorLanguage =
   | 'javascript'
-  | 'typescript'
-  | 'vue'
   | 'html'
   | 'css'
   | 'json'
+  | 'vue'
+  | 'sql'
+
+/** @deprecated 请使用 CodeEditorLanguage；沙箱场景可继续用扩展语言 */
+export type CodeLanguage = CodeEditorLanguage | 'typescript'
+
+/** 编辑器语言选项（供 Select 展示） */
+export interface CodeEditorLanguageOption {
+  label: string
+  value: CodeEditorLanguage
+}
+
+export const CODE_EDITOR_LANGUAGE_OPTIONS: CodeEditorLanguageOption[] = [
+  { label: 'JavaScript', value: 'javascript' },
+  { label: 'HTML', value: 'html' },
+  { label: 'CSS', value: 'css' },
+  { label: 'JSON', value: 'json' },
+  { label: 'Vue 3', value: 'vue' },
+  { label: 'SQL', value: 'sql' },
+]
+
+/** 语言切换事件载荷 */
+export interface CodeEditorLanguageChangePayload {
+  from: CodeEditorLanguage
+  to: CodeEditorLanguage
+}
+
+/** before 事件可调用 preventDefault 取消切换 */
+export interface CodeEditorBeforeLanguageChangePayload
+  extends CodeEditorLanguageChangePayload {
+  preventDefault: () => void
+}
 
 /** 依赖来源：npm 包，或宿主注入的能力（组件库 / 请求等） */
 export type CodeDependencySource = 'npm' | 'host'
@@ -58,7 +90,6 @@ export interface SandboxExpose {
 
 /** 编辑器配置 */
 export interface CodeEditorOptions {
-  language?: CodeLanguage
   readonly?: boolean
   theme?: 'light' | 'dark' | 'auto'
   /** 是否展示行号 */
@@ -70,7 +101,6 @@ export interface CodeEditorOptions {
 /** 沙箱运行态 */
 export interface CodeSandboxState {
   code: string
-  language: CodeLanguage
   dependencies?: CodeDependency[]
   error?: string | null
 }

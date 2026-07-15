@@ -6,7 +6,8 @@
           <div class="mb-2 shrink-0 text-sm font-medium text-text">代码编辑器</div>
           <GrowCodeEditor
             v-model="editorCode"
-            language="vue"
+            default-language="vue"
+            :language-switchable="false"
             class="min-h-0 flex-1 overflow-hidden rounded border border-solid border-border bg-component"
             :options="{ theme: 'auto' }"
           />
@@ -29,7 +30,6 @@
           <div class="mb-2 shrink-0 text-sm font-medium text-text">代码沙箱</div>
           <GrowCodeSandbox
             v-model="editorCode"
-            language="vue"
             class="min-h-0 flex-1 rounded border border-solid border-border bg-component"
             :expose="sandboxExpose"
             :dependencies="dependencies"
