@@ -1,5 +1,5 @@
 <template>
-  <div class="h-[88vh]">
+  <div class="h-[90vh] overflow-hidden">
     <GrowCodeSandbox
       v-model="editorCode"
       :expose="sandboxExpose"
@@ -45,7 +45,7 @@ const editorCode = ref(
     </GrowRow>
 
     <div class="list-demo__table">
-      <GrowTable :data="pagedData" height="73vh" border>
+      <GrowTable :data="pagedData" height="76vh" border>
         <GrowTableColumn
           v-for="col in leafColumns"
           :key="String(col.field)"
@@ -187,6 +187,7 @@ function onAdd() {
 }
 `,
     style: `.list-demo {
+  padding: 10px;
   display: flex;
   flex-direction: column;
   min-height: 100%;
