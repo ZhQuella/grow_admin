@@ -123,6 +123,12 @@ const editorCode = ref(
       <p class="sandbox-demo__tip">useRouteNavigate().go 跳转到当前页（不经过 Redirect）</p>
       <GrowButton size="small" @click="goCurrent">跳转至数据报表</GrowButton>
     </section>
+
+    <section class="sandbox-demo__section">
+      <h3>npm 动态注入 · nanoid（CDN，无需安装）</h3>
+      <p class="sandbox-demo__tip">id：{{ randomId || '点击生成' }}</p>
+      <GrowButton size="small" @click="genId">nanoid()</GrowButton>
+    </section>
   </div>`,
     script: `import { computed, ref } from 'vue'
 import { useRoute } from '@grow-admin-rock/middleware-router'
@@ -137,6 +143,7 @@ const { go } = useRouteNavigate()
 const loading = ref(false)
 const result = ref(null)
 const error = ref('')
+const randomId = ref('')
 
 const routeName = computed(() => String(route.name ?? ''))
 const displayName = computed(() => userStore.getDisplayName)
@@ -167,6 +174,11 @@ function clearResult() {
 
 function goCurrent() {
   go({ name: 'DataReport' })
+}
+
+/** CDN 动态注入的 nanoid，可直接方法调用 */
+function genId() {
+  randomId.value = nanoid()
 }`,
     style: `.sandbox-demo {
   padding: 12px;
@@ -234,10 +246,17 @@ const sandboxExpose = computed<SandboxExpose>(() => ({
   },
 }))
 
-/** 默认锁定依赖 + 可额外勾选的组件等 */
+/** 默认锁定依赖 + 组件 + CDN npm（nanoid，不安装到本仓库） */
 const dependencies = ref<CodeDependency[]>(
   mergeDependencies(DEFAULT_SANDBOX_DEPENDENCIES, [
-    
+    {
+      name: 'nanoid',
+      version: '5.1.5',
+      source: 'npm',
+      kind: 'api',
+      enabled: true,
+      injectAs: ['nanoid'],
+    },
   ]),
 )
 </script>

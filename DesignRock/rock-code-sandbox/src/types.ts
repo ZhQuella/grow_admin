@@ -30,6 +30,12 @@ export interface CodeDependency {
    * 如 useRequest、@grow-admin-rock/state 等。
    */
   locked?: boolean
+  /**
+   * npm 包动态加载后，要作为可直接调用方法挂到 script 的导出名。
+   * 如 nanoid → injectAs: ['nanoid']，脚本内写 nanoid()。
+   * 未填时默认尝试与包短名同名的导出。
+   */
+  injectAs?: string[]
   /** 宿主侧实际暴露的模块 / 组件（预留） */
   value?: unknown
 }

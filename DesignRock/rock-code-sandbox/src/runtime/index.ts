@@ -6,3 +6,9 @@ export {
   mergeDependencies,
   normalizeDependencies,
 } from './defaultDependencies'
+export {
+  loadNpmModule,
+  resolveNpmDependencies,
+  pickCallableApis,
+} from './loadNpmModule'
+export type { ResolvedNpmExpose } from './loadNpmModule'

@@ -8,6 +8,7 @@
               <div v-if="compileError" class="rounded bg-layout p-3 text-sm" style="color: #d03050">
                 {{ compileError }}
               </div>
+              <p v-else-if="loadingNpm" class="m-0 text-sm text-text-secondary">正在加载 npm 依赖…</p>
               <component :is="previewComponent" v-else-if="previewComponent" />
               <p v-else class="m-0 text-sm text-text-secondary">请在左侧编辑 Vue SFC 以预览</p>
             </slot>
@@ -22,7 +23,11 @@
 import { computed, getCurrentInstance, ref, watch } from 'vue'
 import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
 import { RockScrollbar as GrowScrollbar } from '@grow-admin-rock/components/scrollbar'
-import { createPreviewComponent, resolveActiveExpose } from '#/runtime'
+import {
+  createPreviewComponent,
+  resolveActiveExpose,
+  resolveNpmDependencies,
+} from '#/runtime'
 import type { CodeDependency, CodeLanguage, SandboxExpose } from '#/types'
 import type { Component } from 'vue'
 
@@ -52,24 +57,59 @@ defineEmits<{
 const instance = getCurrentInstance()
 const previewComponent = ref<Component | null>(null)
 const compileError = ref<string | null>(null)
+const loadingNpm = ref(false)
+let rebuildToken = 0
 
 const hostComponents = computed(
   () => (instance?.appContext.components ?? {}) as Record<string, Component>,
 )
 
-const activeExpose = computed(() =>
-  resolveActiveExpose(props.expose, props.dependencies, hostComponents.value),
-)
+async function rebuild() {
+  const token = ++rebuildToken
+  loadingNpm.value = true
+  compileError.value = null
 
-function rebuild() {
-  const { component, error } = createPreviewComponent(props.modelValue, activeExpose.value)
-  previewComponent.value = component
-  compileError.value = error
+  try {
+    const base = resolveActiveExpose(
+      props.expose,
+      props.dependencies,
+      hostComponents.value,
+    )
+    const npmExpose = await resolveNpmDependencies(props.dependencies)
+    if (token !== rebuildToken) return
+
+    const merged: SandboxExpose = {
+      ...base,
+      modules: {
+        ...(base.modules ?? {}),
+        ...npmExpose.modules,
+      },
+      apis: {
+        ...(base.apis ?? {}),
+        ...npmExpose.apis,
+      },
+    }
+
+    const { component, error } = createPreviewComponent(props.modelValue, merged)
+    if (token !== rebuildToken) return
+    previewComponent.value = component
+    compileError.value = error
+  } catch (e) {
+    if (token !== rebuildToken) return
+    previewComponent.value = null
+    compileError.value = e instanceof Error ? e.message : String(e)
+  } finally {
+    if (token === rebuildToken) {
+      loadingNpm.value = false
+    }
+  }
 }
 
 watch(
-  () => [props.modelValue, activeExpose.value] as const,
-  () => rebuild(),
+  () => [props.modelValue, props.expose, props.dependencies] as const,
+  () => {
+    void rebuild()
+  },
   { immediate: true, deep: true },
 )
 </script>
