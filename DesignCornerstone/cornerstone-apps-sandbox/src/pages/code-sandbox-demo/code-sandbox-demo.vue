@@ -17,6 +17,7 @@ import {
   DEFAULT_SANDBOX_DEPENDENCIES,
   mergeDependencies,
 } from '@grow-admin-rock/code-sandbox'
+import { useMsg } from '@grow-admin-rock/components'
 import * as GrowState from '@grow-admin-rock/state'
 import * as GrowRouter from '@grow-admin-rock/middleware-router'
 import * as GrowUtils from '@grow-admin-rock/utils'
@@ -69,6 +70,9 @@ const editorCode = ref(
     </div>
   </div>`,
     script: `import { computed, ref } from 'vue'
+import { useMsg } from '@grow-admin-rock/components'
+
+const message = useMsg()
 
 const accountStates = [
   { label: '启用', code: '1' },
@@ -179,7 +183,7 @@ function onSizeChange(val) {
 }
   
 function onAdd() {
-  alert('onAdd')
+  message.success('点击了新增')
 }
 `,
     style: `.list-demo {
@@ -224,6 +228,7 @@ const useRequest = () => diKT(infrastructureLib.types.InfrastructureAxios)
 const sandboxExpose = computed<SandboxExpose>(() => ({
   apis: { useRequest },
   modules: {
+    '@grow-admin-rock/components': { useMsg },
     '@grow-admin-rock/state': GrowState,
     '@grow-admin-rock/middleware-router': GrowRouter,
     '@grow-admin-rock/utils': GrowUtils,
@@ -232,6 +237,13 @@ const sandboxExpose = computed<SandboxExpose>(() => ({
 }))
 
 const dependencies = ref<CodeDependency[]>(
-  mergeDependencies(DEFAULT_SANDBOX_DEPENDENCIES, []),
+  mergeDependencies(DEFAULT_SANDBOX_DEPENDENCIES, [
+    {
+      name: '@grow-admin-rock/components',
+      source: 'host',
+      kind: 'util',
+      enabled: true,
+    },
+  ]),
 )
 </script>
