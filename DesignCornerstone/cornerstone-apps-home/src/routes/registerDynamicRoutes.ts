@@ -21,6 +21,13 @@ import {
   resolveWorkspaceRouteFullPath,
   type WorkspaceRouteConfig,
 } from '@grow-admin-cornerstone/apps-workspace'
+import {
+  isSandboxRouteConfig,
+  resolveSandboxPageComponentName,
+  resolveSandboxRoute,
+  toSandboxRouteConfigsFromMenu,
+  type SandboxRouteConfig,
+} from '@grow-admin-cornerstone/apps-sandbox'
 import { resolveByKeyOrThrow } from '@grow-admin-rock/ioc'
 import {
   resolveTabCacheName,
@@ -40,7 +47,7 @@ const HOME_ROUTE_NAME = 'Home'
 const HOME_PATH = '/home'
 const HOME_INDEX_REDIRECT_NAME = 'HomeIndexRedirect'
 
-type DynamicRouteConfig = WorkspaceRouteConfig | FeatRouteConfig
+type DynamicRouteConfig = WorkspaceRouteConfig | FeatRouteConfig | SandboxRouteConfig
 
 function routeTable() {
   return resolveByKeyOrThrow(routeLib.types.RouteTable)
@@ -108,6 +115,9 @@ function resolveMetaComponentName(config: DynamicRouteConfig, routeName: string)
     if (isFeatRouteConfig(config)) {
       return resolveFeatPageComponentName(config.componentKey)
     }
+    if (isSandboxRouteConfig(config)) {
+      return resolveSandboxPageComponentName(config.componentKey)
+    }
   }
   return routeName
 }
@@ -122,6 +132,9 @@ function resolveDynamicRoute(config: DynamicRouteConfig, fullPath: string) {
   }
   if (isFeatRouteConfig(config)) {
     return resolveFeatRoute(config, fullPath)
+  }
+  if (isSandboxRouteConfig(config)) {
+    return resolveSandboxRoute(config, fullPath)
   }
   return resolveWorkspaceRoute(config as WorkspaceRouteConfig, fullPath)
 }
@@ -217,7 +230,10 @@ async function fetchBackConfigs(): Promise<DynamicRouteConfig[]> {
 }
 
 function buildFrontConfigs(roleValues: string[]): DynamicRouteConfig[] {
-  return filterConfigsByRoles(toFeatRouteConfigs(), roleValues)
+  return [
+    ...filterConfigsByRoles(toFeatRouteConfigs(), roleValues),
+    ...toSandboxRouteConfigsFromMenu(),
+  ]
 }
 
 async function registerBackMenuRoutes(authStore: AuthStore) {

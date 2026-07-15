@@ -1,48 +1,46 @@
 <template>
-  <el-scrollbar class="h-full">
-    <el-row :gutter="10" class="w-full p-[10px]">
-      <el-col :span="24" class="enter-y">
-        <el-card>
-          <template #header>
-            <span>流量趋势</span>
-          </template>
-          <VisitAnalysis />
-        </el-card>
-      </el-col>
-      <el-col :span="24" class="enter-y mt-[10px]">
-        <el-card>
-          <template #header>
-            <span>访问量</span>
-          </template>
-          <VisitAnalysisBar />
-        </el-card>
-      </el-col>
-      <el-col :span="8" class="enter-y mt-[10px]">
-        <el-card>
-          <template #header>
-            <span>转化率</span>
-          </template>
-          <VisitRadar />
-        </el-card>
-      </el-col>
-      <el-col :span="8" class="enter-y mt-[10px]">
-        <el-card>
-          <template #header>
-            <span>访问来源</span>
-          </template>
-          <VisitSource />
-        </el-card>
-      </el-col>
-      <el-col :span="8" class="enter-y mt-[10px]">
-        <el-card>
-          <template #header>
-            <span>成交占比</span>
-          </template>
-          <SalesProductPie />
-        </el-card>
-      </el-col>
-    </el-row>
-  </el-scrollbar>
+  <GrowRow :gutter="10" class="w-full p-[10px]">
+    <GrowCol :span="24" class="enter-y">
+      <GrowCard>
+        <template #header>
+          <span>流量趋势</span>
+        </template>
+        <VisitAnalysis />
+      </GrowCard>
+    </GrowCol>
+    <GrowCol :span="24" class="enter-y mt-[10px]">
+      <GrowCard>
+        <template #header>
+          <span>访问量</span>
+        </template>
+        <VisitAnalysisBar />
+      </GrowCard>
+    </GrowCol>
+    <GrowCol :span="8" class="enter-y mt-[10px]">
+      <GrowCard>
+        <template #header>
+          <span>转化率</span>
+        </template>
+        <VisitRadar />
+      </GrowCard>
+    </GrowCol>
+    <GrowCol :span="8" class="enter-y mt-[10px]">
+      <GrowCard>
+        <template #header>
+          <span>访问来源</span>
+        </template>
+        <VisitSource />
+      </GrowCard>
+    </GrowCol>
+    <GrowCol :span="8" class="enter-y mt-[10px]">
+      <GrowCard>
+        <template #header>
+          <span>成交占比</span>
+        </template>
+        <SalesProductPie />
+      </GrowCard>
+    </GrowCol>
+  </GrowRow>
 </template>
 
 <script lang="ts" setup>
