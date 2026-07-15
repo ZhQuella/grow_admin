@@ -3,7 +3,7 @@
     <div class="mb-2.5 shrink-0 px-5 py-[50px] text-[17px] text-text">
       分屏组件
     </div>
-    <div class="mx-2.5 min-h-0 overflow-hidden">
+    <div class="mx-2.5 min-h-[70vh] overflow-hidden">
       <GrowSplitPane :tree-data="treeData" :root-horizontal="false">
         <template #ComA>ComA</template>
         <template #ComB1>ComB1</template>

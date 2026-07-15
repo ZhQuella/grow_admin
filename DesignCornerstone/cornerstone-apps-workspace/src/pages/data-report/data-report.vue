@@ -1,5 +1,5 @@
 <template>
-  <el-scrollbar class="h-full">
+  <div>
     <GridLayout
       v-model:layout="layout"
       :col-num="24"
@@ -26,7 +26,7 @@
         </el-card>
       </GridItem>
     </GridLayout>
-  </el-scrollbar>
+  </div>
 </template>
 
 <script lang="ts" setup>

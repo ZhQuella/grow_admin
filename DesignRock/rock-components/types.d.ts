@@ -113,6 +113,7 @@ declare module 'vue' {
     GrowAbstractEle: import('vue').Component;
     GrowSearchBar: import('vue').Component;
     GrowColumnBar: import('vue').Component;
+    GrowWatchBox: import('vue').Component;
   }
 }
 

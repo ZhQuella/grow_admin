@@ -1,23 +1,27 @@
 <template>
-  <div class="grid h-full min-h-0 w-full grid-cols-1 grid-rows-1 overflow-hidden">
-    <div class="col-start-1 row-start-1 min-h-0 min-w-0 overflow-hidden">
-      <router-view v-slot="{ Component, route: viewRoute }">
-        <keep-alive :include="cacheIncludeList">
-          <component
-            :is="resolveViewComponent(Component, viewRoute)"
-            v-if="Component"
-            v-show="!isIframeRoute(viewRoute)"
-            :key="getComponentKey(viewRoute)"
-            class="h-full"
+  <div class="relative h-full min-h-0 w-full overflow-hidden">
+    <GrowWatchBox class="absolute inset-0 overflow-hidden">
+      <template #default="{ height }">
+        <GrowScrollbar v-if="height > 0" :height="`${height}px`">
+          <router-view v-slot="{ Component, route: viewRoute }">
+            <keep-alive :include="cacheIncludeList">
+              <component
+                :is="resolveViewComponent(Component, viewRoute)"
+                v-if="Component"
+                v-show="!isIframeRoute(viewRoute)"
+                :key="getComponentKey(viewRoute)"
+              />
+            </keep-alive>
+          </router-view>
+          <RenderIframe
+            v-if="canEmbedIFramePage"
+            v-show="isCurrentRouteIframe"
+            class="h-full w-full"
+            :style="{ height: `${height}px` }"
           />
-        </keep-alive>
-      </router-view>
-    </div>
-    <RenderIframe
-      v-if="canEmbedIFramePage"
-      v-show="isCurrentRouteIframe"
-      class="col-start-1 row-start-1 min-h-0 min-w-0 overflow-hidden"
-    />
+        </GrowScrollbar>
+      </template>
+    </GrowWatchBox>
   </div>
 </template>
 

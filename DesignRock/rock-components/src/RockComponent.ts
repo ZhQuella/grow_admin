@@ -97,6 +97,7 @@ export enum RockComponent {
   AbstractEle = 'AbstractEle',
   SearchBar = 'SearchBar',
   ColumnBar = 'ColumnBar',
+  WatchBox = 'WatchBox',
 }
 
 export type RockComponentType = keyof typeof RockComponent;
