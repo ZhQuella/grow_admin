@@ -10,10 +10,6 @@ export interface VueSfcParts {
   styleScoped?: boolean
 }
 
-const TEMPLATE_RE = /<template[^>]*>([\s\S]*?)<\/template>/i
-const SCRIPT_RE = /<script([^>]*)>([\s\S]*?)<\/script>/i
-const STYLE_RE = /<style([^>]*)>([\s\S]*?)<\/style>/i
-
 function getAttr(attrs: string, name: string): string | undefined {
   const re = new RegExp(`${name}\\s*=\\s*["']([^"']+)["']`, 'i')
   return attrs.match(re)?.[1]
@@ -23,14 +19,57 @@ function hasFlag(attrs: string, name: string): boolean {
   return new RegExp(`\\b${name}\\b`, 'i').test(attrs)
 }
 
+/**
+ * 提取最外层成对标签（支持嵌套同名标签，如 template 内再写 slot template）。
+ */
+function extractOuterTag(
+  source: string,
+  tagName: string,
+): { attrs: string; content: string } | null {
+  const openRe = new RegExp(`<${tagName}(\\s[^>]*)?>`, 'i')
+  const open = openRe.exec(source)
+  if (!open || open.index === undefined) return null
+
+  const attrs = open[1] ?? ''
+  const contentStart = open.index + open[0].length
+  let depth = 1
+  const tokenRe = new RegExp(`</?${tagName}\\b[^>]*>`, 'gi')
+  tokenRe.lastIndex = contentStart
+
+  let token: RegExpExecArray | null
+  while ((token = tokenRe.exec(source))) {
+    const isClose = /^<\//.test(token[0])
+    const selfClosing = /\/>$/.test(token[0])
+    if (isClose) {
+      depth -= 1
+      if (depth === 0) {
+        return {
+          attrs,
+          content: source.slice(contentStart, token.index),
+        }
+      }
+      continue
+    }
+    if (!selfClosing) {
+      depth += 1
+    }
+  }
+
+  return null
+}
+
+function trimBlock(content: string) {
+  return content.replace(/^\n/, '').replace(/\n$/, '')
+}
+
 /** 解析 Vue SFC（无三段时，整体视为 template） */
 export function parseVueSfc(code: string): VueSfcParts {
   const source = code ?? ''
-  const hasTemplate = TEMPLATE_RE.test(source)
-  const hasScript = SCRIPT_RE.test(source)
-  const hasStyle = STYLE_RE.test(source)
+  const templateBlock = extractOuterTag(source, 'template')
+  const scriptBlock = extractOuterTag(source, 'script')
+  const styleBlock = extractOuterTag(source, 'style')
 
-  if (!hasTemplate && !hasScript && !hasStyle) {
+  if (!templateBlock && !scriptBlock && !styleBlock) {
     return {
       template: source,
       script: '',
@@ -40,19 +79,15 @@ export function parseVueSfc(code: string): VueSfcParts {
     }
   }
 
-  const scriptMatch = source.match(SCRIPT_RE)
-  const styleMatch = source.match(STYLE_RE)
-  const templateMatch = source.match(TEMPLATE_RE)
-
-  const scriptAttrs = scriptMatch?.[1] ?? ''
-  const styleAttrs = styleMatch?.[1] ?? ''
+  const scriptAttrs = scriptBlock?.attrs ?? ''
+  const styleAttrs = styleBlock?.attrs ?? ''
 
   return {
-    template: (templateMatch?.[1] ?? '').replace(/^\n/, '').replace(/\n$/, ''),
-    script: (scriptMatch?.[2] ?? '').replace(/^\n/, '').replace(/\n$/, ''),
-    style: (styleMatch?.[2] ?? '').replace(/^\n/, '').replace(/\n$/, ''),
+    template: trimBlock(templateBlock?.content ?? ''),
+    script: trimBlock(scriptBlock?.content ?? ''),
+    style: trimBlock(styleBlock?.content ?? ''),
     scriptLang: getAttr(scriptAttrs, 'lang') || 'ts',
-    styleScoped: !styleMatch || hasFlag(styleAttrs, 'scoped'),
+    styleScoped: !styleBlock || hasFlag(styleAttrs, 'scoped'),
   }
 }
 
