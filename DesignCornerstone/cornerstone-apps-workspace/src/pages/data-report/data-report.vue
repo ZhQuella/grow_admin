@@ -1,32 +1,30 @@
 <template>
-  <div>
-    <GridLayout
-      v-model:layout="layout"
-      :col-num="24"
-      :row-height="30"
-      :is-draggable="draggable"
-      :is-resizable="resizable"
-      :vertical-compact="true"
-      :use-css-transforms="true"
+  <GridLayout
+    v-model:layout="layout"
+    :col-num="24"
+    :row-height="30"
+    :is-draggable="draggable"
+    :is-resizable="resizable"
+    :vertical-compact="true"
+    :use-css-transforms="true"
+  >
+    <GridItem
+      v-for="item in layout"
+      :key="item.i"
+      :x="item.x"
+      :y="item.y"
+      :w="item.w"
+      :h="item.h"
+      :i="item.i"
     >
-      <GridItem
-        v-for="item in layout"
-        :key="item.i"
-        :x="item.x"
-        :y="item.y"
-        :w="item.w"
-        :h="item.h"
-        :i="item.i"
-      >
-        <el-card class="data-report-card">
-          <template #header>
-            <span>{{ item.title }}</span>
-          </template>
-          <component :is="item.componentName" height="100%" />
-        </el-card>
-      </GridItem>
-    </GridLayout>
-  </div>
+      <el-card class="data-report-card">
+        <template #header>
+          <span>{{ item.title }}</span>
+        </template>
+        <component :is="item.componentName" height="100%" />
+      </el-card>
+    </GridItem>
+  </GridLayout>
 </template>
 
 <script lang="ts" setup>
