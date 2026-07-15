@@ -1,5 +1,5 @@
 <template>
-  <div class="h-[90vh]">
+  <div class="h-[88vh]">
     <GrowSplitPane :tree-data="treeData" :root-horizontal="false">
       <template #Editor>
         <div class="box-border flex h-full min-h-0 flex-col overflow-hidden p-2">

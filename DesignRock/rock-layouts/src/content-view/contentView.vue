@@ -3,7 +3,10 @@
     <GrowWatchBox class="absolute inset-0 overflow-hidden">
       <template #default="{ height }">
         <GrowScrollbar v-if="height > 0" :height="`${height}px`">
-          <router-view v-slot="{ Component, route: viewRoute }">
+          <div :style="{
+                  height: `${height}px`
+                }">
+            <router-view v-slot="{ Component, route: viewRoute }">
             <keep-alive :include="cacheIncludeList">
               <component
                 :is="resolveViewComponent(Component, viewRoute)"
@@ -19,6 +22,7 @@
             class="h-full w-full"
             :style="{ height: `${height}px` }"
           />
+          </div>
         </GrowScrollbar>
       </template>
     </GrowWatchBox>

@@ -1,5 +1,5 @@
 <template>
-  <div class="h-[90vh]">
+  <div class="h-full overflow-hidden">
     <GrowCodeSandbox
       v-model="editorCode"
       :expose="sandboxExpose"
@@ -31,7 +31,7 @@ defineOptions({
 
 const editorCode = ref(
   composeVueSfc({
-    template: `  <div class="list-demo">
+    template: `<div class="list-demo">
     <GrowRow justify="space-between" class="list-demo__toolbar">
       <GrowCol :span="14">
         <GrowButton type="primary" @click="onAdd">新增</GrowButton>
@@ -45,15 +45,24 @@ const editorCode = ref(
     </GrowRow>
 
     <div class="list-demo__table">
-      <GrowTable :data="pagedData" height="76vh" border>
-        <GrowTableColumn
-          v-for="col in leafColumns"
-          :key="String(col.field)"
-          :prop="String(col.field)"
-          :label="col.title"
-          min-width="120"
-        />
-      </GrowTable>
+      <GrowWatchBox class="list-demo__watch">
+        <template #default="{ height }">
+          <GrowTable
+            v-if="height > 0"
+            :data="pagedData"
+            :height="height + 'px'"
+            border
+          >
+            <GrowTableColumn
+              v-for="col in leafColumns"
+              :key="String(col.field)"
+              :prop="String(col.field)"
+              :label="col.title"
+              min-width="120"
+            />
+          </GrowTable>
+        </template>
+      </GrowWatchBox>
     </div>
 
     <div class="list-demo__pager">
@@ -187,10 +196,12 @@ function onAdd() {
 }
 `,
     style: `.list-demo {
+  padding: 10px;
   display: flex;
   flex-direction: column;
   min-height: 100%;
   box-sizing: border-box;
+  height: 100%;
 }
 .list-demo__toolbar {
   display: flex;
@@ -207,10 +218,14 @@ function onAdd() {
 }
 .list-demo__table {
   flex: 1;
-  min-height: 200px;
-  overflow: auto;
+  min-height: 0;
+  overflow: hidden;
   border-radius: 8px;
   background: var(--component-color, #fff);
+}
+.list-demo__watch {
+  height: 100%;
+  min-height: 0;
 }
 .list-demo__pager {
   display: flex;

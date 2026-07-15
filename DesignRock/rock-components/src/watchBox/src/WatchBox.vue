@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { addEventResize, removeResizeListener } from '@grow-admin-rock/utils'
 import { RockComponent } from '#/RockComponent'
 
@@ -39,6 +39,8 @@ onMounted(() => {
   const el = elRef.value
   if (!el) return
   updateSize()
+  // 首帧布局可能尚未完成，下一 tick 再测一次，避免 height 卡在 0
+  void nextTick(updateSize)
   addEventResize(el, updateSize)
 })
 
@@ -46,3 +48,13 @@ onBeforeUnmount(() => {
   removeResizeListener(elRef.value, updateSize)
 })
 </script>
+
+<style>
+.grow-watch-box {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+</style>
