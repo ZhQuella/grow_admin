@@ -3,9 +3,10 @@ import type { editor as MonacoEditor } from 'monaco-editor'
 
 export type MonacoTheme = 'vs' | 'vs-dark'
 
-/** Vue SFC 用 html 高亮（覆盖 template / script / style 标签结构） */
+/** 映射到 Monaco 内置 language id */
 function resolveLanguage(language: string) {
-  return language === 'vue' ? 'html' : language
+  if (language === 'vue') return 'html'
+  return language
 }
 
 export interface CreateMonacoOptions {

@@ -28,7 +28,7 @@ import {
   resolveActiveExpose,
   resolveNpmDependencies,
 } from '#/runtime'
-import type { CodeDependency, CodeLanguage, SandboxExpose } from '#/types'
+import type { CodeDependency, SandboxExpose } from '#/types'
 import type { Component } from 'vue'
 
 defineOptions({
@@ -38,13 +38,11 @@ defineOptions({
 const props = withDefaults(
   defineProps<{
     modelValue?: string
-    language?: CodeLanguage
     expose?: SandboxExpose
     dependencies?: CodeDependency[]
   }>(),
   {
     modelValue: '',
-    language: 'vue',
     expose: () => ({}),
     dependencies: () => [],
   },
