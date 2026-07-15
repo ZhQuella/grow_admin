@@ -8,7 +8,8 @@
     "./search-bar": "./src/searchBar/index.ts",
     "./abstract-ele": "./src/abstractEle/index.ts",
     "./column-bar": "./src/columnBar/index.ts",
-    "./watch-box": "./src/watchBox/index.ts"
+    "./watch-box": "./src/watchBox/index.ts",
+    "./scrollbar": "./src/scrollbar/index.ts"
   },
   "license": "MIT",
   "scripts": {

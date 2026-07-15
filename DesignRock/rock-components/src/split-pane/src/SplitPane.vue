@@ -1,7 +1,13 @@
 <template>
   <div class="rock-split-pane h-full w-full min-h-0 overflow-hidden">
     <Splitpanes :horizontal="rootHorizontal" class="default-theme h-full w-full">
-      <Pane v-for="(pItem, i) in treeData" :key="i" :size="pItem.size">
+      <Pane
+        v-for="(pItem, i) in treeData"
+        :key="i"
+        :size="pItem.size"
+        :min-size="pItem.minSize"
+        :max-size="pItem.maxSize"
+      >
         <template v-if="pItem?.slotKey">
           <slot :name="pItem.slotKey" v-bind="pItem" />
         </template>

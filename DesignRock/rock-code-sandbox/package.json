@@ -1,0 +1,30 @@
+{
+  "name": "@grow-admin-rock/code-sandbox",
+  "version": "0.0.0",
+  "main": "./index.ts",
+  "module": "./index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./code-editor": "./src/code-editor/index.ts",
+    "./code-deps": "./src/code-deps/index.ts",
+    "./code-sandbox": "./src/code-sandbox/index.ts"
+  },
+  "license": "MIT",
+  "description": "Grow Admin 在线代码编辑与沙箱预览",
+  "scripts": {
+    "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
+  },
+  "dependencies": {
+    "@grow-admin-rock/components": "workspace:*",
+    "@grow-admin-rock/utils": "workspace:*",
+    "@vue/compiler-sfc": "~3.3.4",
+    "monaco-editor": "^0.34.1",
+    "sucrase": "^3.35.0"
+  },
+  "devDependencies": {
+    "@grow-admin-rock/types": "workspace:*"
+  },
+  "peerDependencies": {
+    "vue": "~3.3.4"
+  }
+}
