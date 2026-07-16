@@ -39,6 +39,8 @@ export enum RockComponent {
   Tabs = 'Tabs',
   Tab = 'Tab',
   TabPane = 'TabPane',
+  Collapse = 'Collapse',
+  CollapseItem = 'CollapseItem',
   Grid = 'Grid',
   GridItem = 'GridItem',
   Ellipsis = 'Ellipsis',

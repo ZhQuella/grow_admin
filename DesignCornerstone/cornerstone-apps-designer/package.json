@@ -1,0 +1,36 @@
+{
+  "name": "@grow-admin-cornerstone/apps-designer",
+  "version": "0.0.0",
+  "main": "index.ts",
+  "module": "index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./route-config": "./src/routes/route-config.ts"
+  },
+  "license": "MIT",
+  "description": "GrowAdmin-低代码设计器演示（rock-designer）",
+  "scripts": {
+    "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
+  },
+  "dependencies": {
+    "@grow-admin-rock/designer": "workspace:*",
+    "@grow-admin-rock/components": "workspace:*",
+    "@grow-admin-rock/hooks": "workspace:*",
+    "@grow-admin-rock/infrastructure": "workspace:*",
+    "@grow-admin-rock/ioc": "workspace:*",
+    "@grow-admin-rock/middleware-router": "workspace:*",
+    "@grow-admin-rock/state": "workspace:*",
+    "@grow-admin-rock/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@grow-admin-rock/base-package": "workspace:*",
+    "@grow-admin-rock/constants": "workspace:*",
+    "typescript": "^5.0.2",
+    "vite": "4.3.9",
+    "vue-tsc": "^1.0.24"
+  },
+  "peerDependencies": {
+    "vue": "~3.3.4",
+    "vue-router": "^4.0.0"
+  }
+}

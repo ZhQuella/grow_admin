@@ -28,6 +28,13 @@ import {
   toSandboxRouteConfigsFromMenu,
   type SandboxRouteConfig,
 } from '@grow-admin-cornerstone/apps-sandbox'
+import {
+  isDesignerRouteConfig,
+  resolveDesignerPageComponentName,
+  resolveDesignerRoute,
+  toDesignerRouteConfigsFromMenu,
+  type DesignerRouteConfig,
+} from '@grow-admin-cornerstone/apps-designer'
 import { resolveByKeyOrThrow } from '@grow-admin-rock/ioc'
 import {
   resolveTabCacheName,
@@ -47,7 +54,7 @@ const HOME_ROUTE_NAME = 'Home'
 const HOME_PATH = '/home'
 const HOME_INDEX_REDIRECT_NAME = 'HomeIndexRedirect'
 
-type DynamicRouteConfig = WorkspaceRouteConfig | FeatRouteConfig | SandboxRouteConfig
+type DynamicRouteConfig = WorkspaceRouteConfig | FeatRouteConfig | SandboxRouteConfig | DesignerRouteConfig
 
 function routeTable() {
   return resolveByKeyOrThrow(routeLib.types.RouteTable)
@@ -118,6 +125,9 @@ function resolveMetaComponentName(config: DynamicRouteConfig, routeName: string)
     if (isSandboxRouteConfig(config)) {
       return resolveSandboxPageComponentName(config.componentKey)
     }
+    if (isDesignerRouteConfig(config)) {
+      return resolveDesignerPageComponentName(config.componentKey)
+    }
   }
   return routeName
 }
@@ -135,6 +145,9 @@ function resolveDynamicRoute(config: DynamicRouteConfig, fullPath: string) {
   }
   if (isSandboxRouteConfig(config)) {
     return resolveSandboxRoute(config, fullPath)
+  }
+  if (isDesignerRouteConfig(config)) {
+    return resolveDesignerRoute(config, fullPath)
   }
   return resolveWorkspaceRoute(config as WorkspaceRouteConfig, fullPath)
 }
@@ -233,6 +246,7 @@ function buildFrontConfigs(roleValues: string[]): DynamicRouteConfig[] {
   return [
     ...filterConfigsByRoles(toFeatRouteConfigs(), roleValues),
     ...toSandboxRouteConfigsFromMenu(),
+    ...toDesignerRouteConfigsFromMenu(),
   ]
 }
 
