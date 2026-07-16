@@ -48,7 +48,7 @@
             <GrowCodeSandbox
               :files="sandboxFiles"
               entry="App.vue"
-              class="bg-component"
+              :preview="previewExpanded"
               :class="
                 previewExpanded
                   ? 'fixed inset-0 z-[1000]'
