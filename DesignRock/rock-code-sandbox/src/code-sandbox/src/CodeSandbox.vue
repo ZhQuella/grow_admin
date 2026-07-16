@@ -1,12 +1,5 @@
 <template>
-  <div
-    class="grow-code-sandbox flex h-full min-h-0 flex-col overflow-hidden"
-    :class="
-      preview
-        ? 'bg-[var(--layout-container-background-color)]'
-        : 'bg-white'
-    "
-  >
+  <div class="grow-code-sandbox flex h-full min-h-0 flex-col overflow-hidden">
     <GrowWatchBox class="min-h-0 flex-1 overflow-hidden">
       <template #default="{ height }">
         <GrowScrollbar v-if="height > 0" :height="`${height}px`">
@@ -51,8 +44,6 @@ const props = withDefaults(
     files?: SandboxFiles
     /** 预览入口，默认 App.vue */
     entry?: string
-    /** 是否为预览（放大）状态；影响容器背景色 */
-    preview?: boolean
     expose?: SandboxExpose
     dependencies?: CodeDependency[]
   }>(),
@@ -60,7 +51,6 @@ const props = withDefaults(
     modelValue: '',
     files: undefined,
     entry: 'App.vue',
-    preview: false,
     expose: () => ({}),
     dependencies: () => [],
   },
