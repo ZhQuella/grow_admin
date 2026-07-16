@@ -1,7 +1,6 @@
 import type { Ref } from 'vue'
 import { computed, nextTick, reactive, ref, unref, watch } from 'vue'
 import { cloneDeep } from '@grow-admin-rock/utils'
-import { DriverRefKey, driverRef } from '#/utils/refSupport'
 import type { ColumnBarItem } from '../types'
 
 interface InitProps {
@@ -14,7 +13,7 @@ interface InitProps {
 type TreeInstance = {
   setCheckedKeys: (keys: Array<string | number>) => void
   getCheckedKeys: (leafOnly?: boolean) => Array<string | number>
-  getHalfCheckedKeys: () => Array<string | number>
+  getHalfCheckedKeys?: () => Array<string | number>
 }
 
 function isTreeInstance(value: unknown): value is TreeInstance {
@@ -38,18 +37,16 @@ export const useInitTree = ({ columns, nodeKey, visible }: InitProps) => {
     treeData: [],
   })
 
-  /** 兼容 driverRef / 直接暴露 / 生产态 expose 解包差异 */
+  /** treeRef 直接指向驱动 Tree 实例（与原版 el-tree ref 一致） */
   const getTree = (): TreeInstance | undefined => {
-    const driven = driverRef(treeRef)
-    if (isTreeInstance(driven)) return driven
-
-    const raw = unref(treeRef) as Record<string, unknown> | undefined
-    if (!raw) return undefined
+    const raw = unref(treeRef)
     if (isTreeInstance(raw)) return raw
-
-    const exposed = unref(raw[DriverRefKey] as Ref<unknown> | unknown)
-    if (isTreeInstance(exposed)) return exposed
-
+    if (raw && typeof raw === 'object') {
+      for (const key of ['DriverRef', 'treeRef']) {
+        const candidate = unref((raw as Record<string, unknown>)[key])
+        if (isTreeInstance(candidate)) return candidate
+      }
+    }
     return undefined
   }
 
@@ -126,7 +123,6 @@ export const useInitTree = ({ columns, nodeKey, visible }: InitProps) => {
     },
   )
 
-  // 弹层打开后 Tree 才挂载：补一次勾选同步（打包后 Popover 懒挂载更明显）
   if (visible) {
     watch(visible, (open) => {
       if (open) void syncCheckedWhenReady()

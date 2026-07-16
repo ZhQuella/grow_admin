@@ -167,6 +167,20 @@ function compileStyles(descriptor: SFCDescriptor, id: string) {
 }
 
 /**
+ * 生产态 Vue 对 PROPS patch 只更新 dynamicProps 列表；
+ * 沙箱编译里 @event="handler" 常被标成静态，可能导致监听在更新后丢失。
+ * 将 PROPS 优化改成 FULL_PROPS，保证事件与属性完整 patch。
+ */
+function forceFullPropsPatch(code: string) {
+  return code
+    .replace(/, 8 \/\* PROPS \*\/, \[[^\]]*\]\)/g, ', 16 /* FULL_PROPS */)')
+    .replace(
+      /, 1032 \/\* PROPS, DYNAMIC_SLOTS \*\/, \[[^\]]*\]\)/g,
+      ', 1040 /* FULL_PROPS, DYNAMIC_SLOTS */)',
+    )
+}
+
+/**
  * 将完整 Vue SFC（template/script/style）编译为宿主树内可挂载组件。
  */
 export function createPreviewComponent(
@@ -201,19 +215,23 @@ export function createPreviewComponent(
     compileStyles(descriptor, id)
 
     const hasScopedStyle = descriptor.styles.some((item) => item.scoped)
+    const isProd = process.env.NODE_ENV === 'production'
     const compiled = compileScript(descriptor, {
       id,
       inlineTemplate: true,
+      isProd,
       templateOptions: {
         scoped: hasScopedStyle,
         compilerOptions: {
           scopeId: hasScopedStyle ? id : undefined,
+          hoistStatic: false,
+          cacheHandlers: false,
         },
       },
     })
 
     const rawComponent = evaluateCompiledScript(
-      compiled.content,
+      forceFullPropsPatch(compiled.content),
       expose.apis ?? {},
       expose.modules ?? {},
     )
