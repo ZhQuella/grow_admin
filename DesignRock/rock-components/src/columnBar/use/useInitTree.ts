@@ -83,7 +83,8 @@ export const useInitTree = ({ columns, nodeKey, visible }: InitProps) => {
 
   const catchCheckedKeys = async () => {
     await nextTick()
-    const keys = getTree()?.getCheckedKeys() ?? []
+    const tree = getTree()
+    const keys = tree?.getCheckedKeys() ?? []
     state.catchTreeCheckedKeys = keys.filter((el) => el !== undefined && el !== null && el !== '')
   }
 
