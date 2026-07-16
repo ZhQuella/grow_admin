@@ -1,5 +1,5 @@
 <template>
-  <div class="h-[88vh]">
+  <div class="h-full">
     <GrowSplitPane :tree-data="treeData" :root-horizontal="false">
       <template #Editor>
         <div class="box-border flex h-full min-h-0 flex-col overflow-hidden p-2">
@@ -31,14 +31,44 @@
       </template>
       <template #Sandbox>
         <div class="box-border flex h-full min-h-0 flex-col overflow-hidden p-2">
-          <div class="mb-2 shrink-0 text-sm font-medium text-text">呈现沙箱</div>
-          <GrowCodeSandbox
-            :files="sandboxFiles"
-            entry="App.vue"
-            class="min-h-0 flex-1 rounded border border-solid border-border bg-component"
-            :expose="sandboxExpose"
-            :dependencies="dependencies"
-          />
+          <div class="mb-2 flex shrink-0 items-center justify-between gap-2">
+            <div class="text-sm font-medium text-text">呈现沙箱</div>
+            <GrowButton
+              v-if="!previewExpanded"
+              size="small"
+              circle
+              title="放大预览"
+              aria-label="放大预览"
+              @click="previewExpanded = true"
+            >
+              <GrowIconify icon="ant-design:fullscreen-outlined" :size="14" />
+            </GrowButton>
+          </div>
+          <div class="relative min-h-0 flex-1">
+            <GrowCodeSandbox
+              :files="sandboxFiles"
+              entry="App.vue"
+              :preview="previewExpanded"
+              :class="
+                previewExpanded
+                  ? 'fixed inset-0 z-[1000]'
+                  : 'h-full rounded border border-solid border-border'
+              "
+              :expose="sandboxExpose"
+              :dependencies="dependencies"
+            />
+            <GrowButton
+              v-if="previewExpanded"
+              size="small"
+              circle
+              class="!fixed right-3 top-3 z-[1001]"
+              title="退出放大"
+              aria-label="退出放大"
+              @click="previewExpanded = false"
+            >
+              <GrowIconify icon="ant-design:fullscreen-exit-outlined" :size="14" />
+            </GrowButton>
+          </div>
         </div>
       </template>
     </GrowSplitPane>
@@ -63,24 +93,26 @@ import {
   DEFAULT_SANDBOX_DEPENDENCIES,
   mergeDependencies,
 } from '@grow-admin-rock/code-sandbox'
-import MultiFileEditor from './MultiFileEditor.vue'
+import MultiFileEditor from './component/MultiFileEditor.vue'
 
 defineOptions({
   name: 'SandboxOverviewPage',
 })
 
+const previewExpanded = ref(false)
+
 const treeData: SplitPaneItem[] = [
   {
-    size: 66,
+    size: 50,
     minSize: 30,
     horizontal: true,
     child: [
-      { size: 65, minSize: 30, slotKey: 'Editor' },
-      { size: 35, minSize: 20, slotKey: 'Deps' },
+      { size: 60, minSize: 30, slotKey: 'Editor' },
+      { size: 40, minSize: 20, slotKey: 'Deps' },
     ],
   },
   {
-    size: 34,
+    size: 50,
     minSize: 20,
     slotKey: 'Sandbox',
   },
