@@ -29,6 +29,7 @@ export const useInitTree = ({ columns, nodeKey, visible }: InitProps) => {
   const treeRef = ref()
   const state = reactive<{
     catchTreeCheckedKeys: Array<string | number>
+    /** 系统默认显隐（仅在首次有效 columns 时快照，不被后续 confirm 覆盖） */
     catchVisible: Recordable<boolean>
     treeData: ColumnBarItem[]
   }>({
@@ -36,6 +37,8 @@ export const useInitTree = ({ columns, nodeKey, visible }: InitProps) => {
     catchVisible: {},
     treeData: [],
   })
+
+  let defaultVisibleCaptured = false
 
   /** treeRef 直接指向驱动 Tree 实例（与原版 el-tree ref 一致） */
   const getTree = (): TreeInstance | undefined => {
@@ -67,7 +70,7 @@ export const useInitTree = ({ columns, nodeKey, visible }: InitProps) => {
   const setTreeNodeSelect = () => {
     const key = nodeKey.value
     const visibleKeys = getAllChild(state.treeData)
-      .filter((el) => el.visible !== false && el[key])
+      .filter((el) => el.visible !== false && el[key] != null && el[key] !== '')
       .map((el) => el[key] as string | number)
     getTree()?.setCheckedKeys(visibleKeys)
   }
@@ -83,26 +86,32 @@ export const useInitTree = ({ columns, nodeKey, visible }: InitProps) => {
 
   const catchCheckedKeys = async () => {
     await nextTick()
-    const tree = getTree()
-    const keys = tree?.getCheckedKeys() ?? []
+    const keys = getTree()?.getCheckedKeys() ?? []
     state.catchTreeCheckedKeys = keys.filter((el) => el !== undefined && el !== null && el !== '')
   }
 
-  const catchInitVisible = () => {
+  /** 仅首次快照，供「系统默认」恢复 */
+  const captureDefaultVisible = () => {
+    if (defaultVisibleCaptured) return
     const key = nodeKey.value
+    const snapshot: Recordable<boolean> = {}
     for (const item of allChild.value) {
-      Reflect.set(state.catchVisible, String(item[key]), item.visible !== false)
+      if (item[key] == null || item[key] === '') continue
+      Reflect.set(snapshot, String(item[key]), item.visible !== false)
     }
+    if (!Object.keys(snapshot).length) return
+    state.catchVisible = snapshot
+    defaultVisibleCaptured = true
   }
 
   const applyColumns = async (newValue: ColumnBarItem[]) => {
     await nextTick()
-    state.treeData = cloneDeep(newValue)
+    state.treeData = cloneDeep(newValue ?? [])
     setDisabled()
+    captureDefaultVisible()
     await nextTick()
     setTreeNodeSelect()
     await catchCheckedKeys()
-    catchInitVisible()
   }
 
   const syncCheckedWhenReady = async () => {
@@ -134,7 +143,10 @@ export const useInitTree = ({ columns, nodeKey, visible }: InitProps) => {
   })
 
   const isAllChecked = computed(() => {
-    return state.catchTreeCheckedKeys.length === allChild.value.length
+    return (
+      allChild.value.length > 0 &&
+      state.catchTreeCheckedKeys.length === allChild.value.length
+    )
   })
 
   return {

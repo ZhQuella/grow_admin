@@ -52,11 +52,13 @@ export const useEvent = ({
 
   const setVisible = (keys: Array<string | number>, children: ColumnBarItem[]) => {
     const key = nodeKey.value
-    const columns = children.filter((el) => el[key])
+    const keySet = new Set(keys.map((item) => String(item)))
+    const columns = children.filter((el) => el[key] != null && el[key] !== '')
     for (const column of columns) {
-      Reflect.set(column, 'visible', keys.includes(column[key] as string | number))
+      Reflect.set(column, 'visible', keySet.has(String(column[key])))
     }
-    emit('confirm', [...state.treeData])
+    state.catchTreeCheckedKeys = [...keySet]
+    emit('confirm', cloneTreeData(state.treeData))
     visible.value = false
   }
 
@@ -68,7 +70,6 @@ export const useEvent = ({
       const keys = tree.getCheckedKeys(false)
       return [...half, ...keys]
     }
-    // Tree 尚未就绪时用缓存，避免 confirm 静默失败
     return [...state.catchTreeCheckedKeys]
   }
 
@@ -82,9 +83,12 @@ export const useEvent = ({
     const keys = Object.entries(catchVisible)
       .filter(([, value]) => value)
       .map(([key]) => key)
+
+    // 先恢复树勾选，再回写并关弹层（否则先关层会看起来「没反应」）
+    const tree = getTree()
+    tree?.setCheckedKeys(keys)
+    state.catchTreeCheckedKeys = keys
     setVisible(keys, children)
-    getTree()?.setCheckedKeys(keys)
-    visible.value = false
   }
 
   return {
@@ -93,4 +97,11 @@ export const useEvent = ({
     onSetColumns,
     onResetColumns,
   }
+}
+
+function cloneTreeData(list: ColumnBarItem[]): ColumnBarItem[] {
+  return list.map((item) => ({
+    ...item,
+    children: item.children?.length ? cloneTreeData(item.children) : item.children,
+  }))
 }
