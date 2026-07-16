@@ -1,12 +1,14 @@
 import type { Ref } from 'vue'
-import { computed, nextTick, reactive, ref, watch } from 'vue'
+import { computed, nextTick, reactive, ref, unref, watch } from 'vue'
 import { cloneDeep } from '@grow-admin-rock/utils'
-import { driverRef } from '#/utils/refSupport'
+import { DriverRefKey, driverRef } from '#/utils/refSupport'
 import type { ColumnBarItem } from '../types'
 
 interface InitProps {
   columns: Ref<ColumnBarItem[]>
   nodeKey: Ref<string>
+  /** 弹层可见性：打开后再同步勾选（Tree 可能尚未挂载） */
+  visible?: Ref<boolean>
 }
 
 type TreeInstance = {
@@ -15,7 +17,16 @@ type TreeInstance = {
   getHalfCheckedKeys: () => Array<string | number>
 }
 
-export const useInitTree = ({ columns, nodeKey }: InitProps) => {
+function isTreeInstance(value: unknown): value is TreeInstance {
+  return (
+    !!value &&
+    typeof value === 'object' &&
+    typeof (value as TreeInstance).setCheckedKeys === 'function' &&
+    typeof (value as TreeInstance).getCheckedKeys === 'function'
+  )
+}
+
+export const useInitTree = ({ columns, nodeKey, visible }: InitProps) => {
   const treeRef = ref()
   const state = reactive<{
     catchTreeCheckedKeys: Array<string | number>
@@ -27,8 +38,19 @@ export const useInitTree = ({ columns, nodeKey }: InitProps) => {
     treeData: [],
   })
 
+  /** 兼容 driverRef / 直接暴露 / 生产态 expose 解包差异 */
   const getTree = (): TreeInstance | undefined => {
-    return driverRef(treeRef) as TreeInstance | undefined
+    const driven = driverRef(treeRef)
+    if (isTreeInstance(driven)) return driven
+
+    const raw = unref(treeRef) as Record<string, unknown> | undefined
+    if (!raw) return undefined
+    if (isTreeInstance(raw)) return raw
+
+    const exposed = unref(raw[DriverRefKey] as Ref<unknown> | unknown)
+    if (isTreeInstance(exposed)) return exposed
+
+    return undefined
   }
 
   const getAllChild = (list: ColumnBarItem[]) => {
@@ -64,7 +86,8 @@ export const useInitTree = ({ columns, nodeKey }: InitProps) => {
 
   const catchCheckedKeys = async () => {
     await nextTick()
-    const keys = getTree()?.getCheckedKeys() ?? []
+    const tree = getTree()
+    const keys = tree?.getCheckedKeys() ?? []
     state.catchTreeCheckedKeys = keys.filter((el) => el !== undefined && el !== null && el !== '')
   }
 
@@ -75,22 +98,44 @@ export const useInitTree = ({ columns, nodeKey }: InitProps) => {
     }
   }
 
+  const applyColumns = async (newValue: ColumnBarItem[]) => {
+    await nextTick()
+    state.treeData = cloneDeep(newValue)
+    setDisabled()
+    await nextTick()
+    setTreeNodeSelect()
+    await catchCheckedKeys()
+    catchInitVisible()
+  }
+
+  const syncCheckedWhenReady = async () => {
+    await nextTick()
+    if (!getTree()) return
+    setTreeNodeSelect()
+    await catchCheckedKeys()
+  }
+
   watch(
     () => columns.value,
-    async (newValue) => {
-      await nextTick()
-      state.treeData = cloneDeep(newValue)
-      setDisabled()
-      await nextTick()
-      setTreeNodeSelect()
-      await catchCheckedKeys()
-      catchInitVisible()
+    (newValue) => {
+      void applyColumns(newValue)
     },
     {
       immediate: true,
       deep: true,
     },
   )
+
+  // 弹层打开后 Tree 才挂载：补一次勾选同步（打包后 Popover 懒挂载更明显）
+  if (visible) {
+    watch(visible, (open) => {
+      if (open) void syncCheckedWhenReady()
+    })
+  }
+
+  watch(treeRef, (el) => {
+    if (el) void syncCheckedWhenReady()
+  })
 
   const isAllChecked = computed(() => {
     return state.catchTreeCheckedKeys.length === allChild.value.length
