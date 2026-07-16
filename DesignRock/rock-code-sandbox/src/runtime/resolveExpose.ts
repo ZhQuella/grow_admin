@@ -21,7 +21,7 @@ function isActive(item: CodeDependency) {
 
 /**
  * 按依赖勾选结果裁剪 expose。
- * - 组件：勾选后按名从宿主全局解析，模板直接用
+ * - 组件：宿主全局组件始终可用（模板直接写 Grow*）；勾选的 component 依赖可额外补充
  * - API：勾选后注入 script（locked 项始终注入）
  * - modules：包名模块，支持 import
  */
@@ -46,6 +46,7 @@ export function resolveActiveExpose(
   const enabledNames = new Set(enabled.map((item) => item.name))
 
   const components: Record<string, Component> = {
+    ...hostComponents,
     ...pickRecord(expose.components, enabledNames),
   }
 

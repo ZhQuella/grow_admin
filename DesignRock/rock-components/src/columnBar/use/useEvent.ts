@@ -28,7 +28,7 @@ export const useEvent = ({
   nodeKey,
 }: EventProps) => {
   const onTreeChange = () => {
-    catchCheckedKeys()
+    void catchCheckedKeys()
   }
 
   const onAllSelectChange = (value: boolean | string | number) => {
@@ -60,12 +60,20 @@ export const useEvent = ({
     visible.value = false
   }
 
-  const onSetColumns = () => {
+  const resolveCheckedKeys = (): Array<string | number> => {
     const tree = getTree()
-    if (!tree) return
-    const indeterminates = tree.getHalfCheckedKeys()
-    const keys = tree.getCheckedKeys(false)
-    setVisible([...indeterminates, ...keys], getAllChild(state.treeData))
+    if (tree) {
+      const half =
+        typeof tree.getHalfCheckedKeys === 'function' ? tree.getHalfCheckedKeys() : []
+      const keys = tree.getCheckedKeys(false)
+      return [...half, ...keys]
+    }
+    // Tree 尚未就绪时用缓存，避免 confirm 静默失败
+    return [...state.catchTreeCheckedKeys]
+  }
+
+  const onSetColumns = () => {
+    setVisible(resolveCheckedKeys(), getAllChild(state.treeData))
   }
 
   const onResetColumns = () => {

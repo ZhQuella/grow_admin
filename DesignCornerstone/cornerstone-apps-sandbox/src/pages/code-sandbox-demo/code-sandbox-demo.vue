@@ -97,6 +97,7 @@ const searchList = [
     isDefault: true,
     model: 'account',
     noDelete: true,
+    clearable: true
   },
   {
     labelText: '昵称',
@@ -104,6 +105,7 @@ const searchList = [
     elType: 'GrowInput',
     isDefault: true,
     model: 'nickname',
+    clearable: true
   },
   {
     isDefault: true,
@@ -114,6 +116,7 @@ const searchList = [
     value: 'code',
     placeholder: '请选择账号状态',
     options: accountStates,
+    clearable: true
   },
 ]
 

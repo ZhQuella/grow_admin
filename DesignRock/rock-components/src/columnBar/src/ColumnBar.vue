@@ -1,12 +1,10 @@
 <template>
   <GrowPopover
-    :visible="visible"
+    v-model:visible="visible"
     :width="350"
     placement="top-end"
     trigger="click"
     persistent
-    @update:visible="visible = $event"
-    @hide="onSetColumns"
   >
     <template #reference>
       <GrowButton circle>
@@ -86,6 +84,7 @@ const { renderLabel, treeRef, getTree, catchCheckedKeys, state, allChild, isAllC
   useInitTree({
     columns,
     nodeKey,
+    visible,
   })
 
 const { onTreeChange, onAllSelectChange, onSetColumns, onResetColumns } = useEvent({
