@@ -48,11 +48,10 @@
             <GrowCodeSandbox
               :files="sandboxFiles"
               entry="App.vue"
-              :preview="previewExpanded"
               :class="
                 previewExpanded
-                  ? 'fixed inset-0 z-[1000]'
-                  : 'h-full rounded border border-solid border-border'
+                  ? 'fixed inset-0 z-[1000] bg-[var(--layout-container-background-color)]'
+                  : 'h-full rounded border border-solid border-border bg-white'
               "
               :expose="sandboxExpose"
               :dependencies="dependencies"
