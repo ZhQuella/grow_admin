@@ -22,7 +22,9 @@
         </GrowCheckbox>
       </div>
       <GrowScrollbar height="400px">
-        <GrowTree
+        <!-- 直接挂驱动 Tree，避免 GrowTree + driverRef 在 Popover/生产态取不到实例 -->
+        <component
+          :is="Tree"
           ref="treeRef"
           :node-key="nodeKey"
           :data="state.treeData"
@@ -49,7 +51,7 @@
 <script lang="ts" setup>
 import { toRefs, ref } from 'vue'
 import { useI18n } from '@grow-admin-rock/locale'
-import { RockComponent } from '#/RockComponent'
+import { RockComponent, useDriverComponent } from '#/index'
 import { useInitTree } from '../use/useInitTree'
 import { useEvent } from '../use/useEvent'
 import type { ColumnBarItem } from '../types'
@@ -79,6 +81,7 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const visible = ref(false)
 const { columns, nodeKey } = toRefs(props)
+const Tree = useDriverComponent(RockComponent.Tree)
 
 const { renderLabel, treeRef, getTree, catchCheckedKeys, state, allChild, isAllChecked, getAllChild } =
   useInitTree({
