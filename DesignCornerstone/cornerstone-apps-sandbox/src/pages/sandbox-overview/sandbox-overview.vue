@@ -3,13 +3,17 @@
     <GrowSplitPane :tree-data="treeData" :root-horizontal="false">
       <template #Editor>
         <div class="box-border flex h-full min-h-0 flex-col overflow-hidden p-2">
-          <div class="mb-2 shrink-0 text-sm font-medium text-text">代码编辑器</div>
-          <GrowCodeEditor
-            v-model="editorCode"
-            default-language="vue"
-            :language-switchable="false"
+          <div class="mb-2 shrink-0 text-sm font-medium text-text">
+            代码编辑器
+            <span class="ml-2 text-xs font-normal text-text-secondary">
+              多文件 · 入口 App.vue · 支持 ./ 相对引入
+            </span>
+          </div>
+          <MultiFileEditor
+            v-model:files="sandboxFiles"
+            entry="App.vue"
             class="min-h-0 flex-1 overflow-hidden rounded border border-solid border-border bg-component"
-            :options="{ theme: 'auto' }"
+            :editor-options="{ theme: 'auto' }"
           />
         </div>
       </template>
@@ -27,9 +31,10 @@
       </template>
       <template #Sandbox>
         <div class="box-border flex h-full min-h-0 flex-col overflow-hidden p-2">
-          <div class="mb-2 shrink-0 text-sm font-medium text-text">代码沙箱</div>
+          <div class="mb-2 shrink-0 text-sm font-medium text-text">呈现沙箱</div>
           <GrowCodeSandbox
-            v-model="editorCode"
+            :files="sandboxFiles"
+            entry="App.vue"
             class="min-h-0 flex-1 rounded border border-solid border-border bg-component"
             :expose="sandboxExpose"
             :dependencies="dependencies"
@@ -52,13 +57,13 @@ import * as GrowUtils from '@grow-admin-rock/utils'
 import * as GrowHooks from '@grow-admin-rock/hooks'
 import type { CodeDependency, SandboxExpose } from '@grow-admin-rock/code-sandbox'
 import {
-  GrowCodeEditor,
   GrowCodeDeps,
   GrowCodeSandbox,
   composeVueSfc,
   DEFAULT_SANDBOX_DEPENDENCIES,
   mergeDependencies,
 } from '@grow-admin-rock/code-sandbox'
+import MultiFileEditor from './MultiFileEditor.vue'
 
 defineOptions({
   name: 'SandboxOverviewPage',
@@ -81,9 +86,14 @@ const treeData: SplitPaneItem[] = [
   },
 ]
 
-const editorCode = ref(
-  composeVueSfc({
-    template: `  <div class="sandbox-demo">
+const appVue = composeVueSfc({
+  template: `  <div class="sandbox-demo">
+    <section class="sandbox-demo__section">
+      <h3>多文件引入演示</h3>
+      <HelloCard :title="cardTitle" />
+      <p class="sandbox-demo__tip">formatLabel(routeName) = {{ formattedRoute }}</p>
+    </section>
+
     <section class="sandbox-demo__section">
       <h3>组件（勾选后无需 import）</h3>
       <div class="sandbox-demo__actions">
@@ -130,11 +140,13 @@ const editorCode = ref(
       <GrowButton size="small" @click="genId">nanoid()</GrowButton>
     </section>
   </div>`,
-    script: `import { computed, ref } from 'vue'
+  script: `import { computed, ref } from 'vue'
 import { useRoute } from '@grow-admin-rock/middleware-router'
 import { useUserStore } from '@grow-admin-rock/state'
 import { isString, isNullOrUnDef } from '@grow-admin-rock/utils'
 import { useRouteNavigate } from '@grow-admin-rock/hooks'
+import HelloCard from './HelloCard.vue'
+import { formatLabel } from './format.js'
 
 const route = useRoute()
 const userStore = useUserStore()
@@ -144,17 +156,18 @@ const loading = ref(false)
 const result = ref(null)
 const error = ref('')
 const randomId = ref('')
+const cardTitle = ref('来自 ./HelloCard.vue')
 
 const routeName = computed(() => String(route.name ?? ''))
 const displayName = computed(() => userStore.getDisplayName)
 const routeNameIsString = computed(() => isString(routeName.value))
 const resultIsEmpty = computed(() => isNullOrUnDef(result.value))
+const formattedRoute = computed(() => formatLabel(routeName.value))
 
 async function fetchUser() {
   loading.value = true
   error.value = ''
   try {
-    // 默认注入的 API，无需 import
     const data = await useRequest().get({ url: '/user/info' })
     result.value = data
     if (data) {
@@ -176,11 +189,10 @@ function goCurrent() {
   go({ name: 'DataReport' })
 }
 
-/** CDN 动态注入的 nanoid，可直接方法调用 */
 function genId() {
   randomId.value = nanoid()
 }`,
-    style: `.sandbox-demo {
+  style: `.sandbox-demo {
   padding: 12px;
   display: flex;
   flex-direction: column;
@@ -221,19 +233,59 @@ function genId() {
   overflow: auto;
   font-size: 12px;
 }`,
-    scriptLang: 'ts',
-    styleScoped: true,
-  }),
-)
+  scriptLang: 'ts',
+  styleScoped: true,
+})
 
-/** 与业务侧 routers.ts 一致：从 IOC 取 Axios 实例 */
+const helloCardVue = composeVueSfc({
+  template: `<div class="hello-card">
+  <strong>{{ title }}</strong>
+  <p class="hello-card__tip">{{ tip }}</p>
+  <GrowButton size="small" @click="onPing">子组件按钮</GrowButton>
+</div>`,
+  script: `import { computed } from 'vue'
+
+const props = defineProps({
+  title: { type: String, default: 'HelloCard' },
+})
+
+const tip = computed(() => \`完整 SFC 子文件 · \${props.title}\`)
+
+function onPing() {
+  // 使用宿主注入的 Grow 能力时，模板里直接写 GrowButton 即可
+}`,
+  style: `.hello-card {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--layout-color);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.hello-card__tip {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-color-secondary);
+}`,
+  scriptLang: 'ts',
+  styleScoped: true,
+})
+
+const formatJs = `/** 纯 JS 工具，可被 App.vue / 其它文件相对路径引入 */
+export function formatLabel(value) {
+  const text = value == null ? '' : String(value)
+  return text ? \`[\${text}]\` : '（空）'
+}
+`
+
+const sandboxFiles = ref<Record<string, string>>({
+  'App.vue': appVue,
+  'HelloCard.vue': helloCardVue,
+  'format.js': formatJs,
+})
+
 const useRequest = () => diKT(infrastructureLib.types.InfrastructureAxios)
 
-/**
- * 默认能力面：
- * - useRequest → script 内直接调用
- * - state / middleware-router / utils / hooks → 可按包名 import
- */
 const sandboxExpose = computed<SandboxExpose>(() => ({
   apis: {
     useRequest,
@@ -246,7 +298,6 @@ const sandboxExpose = computed<SandboxExpose>(() => ({
   },
 }))
 
-/** 默认锁定依赖 + 组件 + CDN npm（nanoid，不安装到本仓库） */
 const dependencies = ref<CodeDependency[]>(
   mergeDependencies(DEFAULT_SANDBOX_DEPENDENCIES, [
     {

@@ -1,5 +1,14 @@
 export { createPreviewComponent } from './createPreviewComponent'
-export type { PreviewCompileResult } from './createPreviewComponent'
+export type {
+  PreviewCompileResult,
+  CreatePreviewOptions,
+  SandboxFiles,
+} from './createPreviewComponent'
+export {
+  normalizeSandboxPath,
+  normalizeSandboxFiles,
+  resolveSandboxFile,
+} from './virtualFiles'
 export { resolveActiveExpose, createDependencyCatalog } from './resolveExpose'
 export {
   DEFAULT_SANDBOX_DEPENDENCIES,
