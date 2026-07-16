@@ -182,6 +182,7 @@ function onSearch(data) {
 }
 
 function onColumnsConfirm(columns) {
+  console.log(columns,"columns");
   tableColumns.value = columns
 }
 
