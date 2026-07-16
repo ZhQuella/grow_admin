@@ -55,6 +55,8 @@ declare module 'vue' {
     GrowTabs: import('vue').Component;
     GrowTab: import('vue').Component;
     GrowTabPane: import('vue').Component;
+    GrowCollapse: import('vue').Component;
+    GrowCollapseItem: import('vue').Component;
     GrowGrid: import('vue').Component;
     GrowGridItem: import('vue').Component;
     GrowEllipsis: import('vue').Component;

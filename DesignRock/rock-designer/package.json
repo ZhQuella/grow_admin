@@ -1,0 +1,24 @@
+{
+  "name": "@grow-admin-rock/designer",
+  "version": "0.0.0",
+  "main": "./index.ts",
+  "module": "./index.ts",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "license": "MIT",
+  "description": "Grow Admin 低代码设计器（GrowDesigner / GrowRenderer）",
+  "scripts": {
+    "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
+  },
+  "dependencies": {
+    "@grow-admin-rock/code-sandbox": "workspace:*",
+    "@grow-admin-rock/components": "workspace:*",
+    "@grow-admin-rock/utils": "workspace:*",
+    "nanoid": "^4.0.2",
+    "vuedraggable": "^4.1.0"
+  },
+  "peerDependencies": {
+    "vue": "~3.3.4"
+  }
+}

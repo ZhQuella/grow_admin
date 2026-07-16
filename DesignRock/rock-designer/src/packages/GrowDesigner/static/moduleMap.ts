@@ -1,0 +1,528 @@
+export const BaseComponent = new Map([
+  [
+    "basicsElement",
+    {
+      title: "基础元素",
+      group: [
+        {
+          elName: "图片",
+          elType: "basic",
+          elTagName: "img",
+          elIcon: "Image",
+          isChild: false,
+          isAdd: false,
+          childName: "",
+          isInlineBlock: true
+        },
+        {
+          elName: "标题",
+          elType: "basic",
+          elTagName: "BasicTitle",
+          elIcon: "FontColorsOutlined",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "正文",
+          elType: "basic",
+          elTagName: "p",
+          elIcon: "FontSizeOutlined",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "短语",
+          elType: "basic",
+          elTagName: "span",
+          elIcon: "ItalicOutlined",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "容器",
+          elType: "basic",
+          elTagName: "div",
+          elIcon: "Box",
+          isChild: true,
+          isAdd: false,
+          childName: ""
+        }
+      ]
+    }
+  ],
+  [
+    "layoutElement",
+    {
+      title: "布局容器",
+      group: [
+        {
+          elName: "卡片",
+          elType: "eleModule",
+          elTagName: "GrowCard",
+          elIcon: "IdcardOutlined",
+          isChild: true,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "选项卡",
+          elType: "eleModule",
+          elTagName: "GrowTabs",
+          elIcon: "DataBaseAlt",
+          isChild: true,
+          isAdd: true,
+          childName: "GrowTabPane"
+        },
+        {
+          elName: "弹性盒子",
+          elType: "eleModule",
+          elTagName: "GrowRow",
+          elIcon: "OpenPanelRight",
+          isChild: true,
+          isAdd: true,
+          childName: "GrowCol"
+        },
+        {
+          elName: "折叠面板",
+          elType: "eleModule",
+          elTagName: "GrowCollapse",
+          elIcon: "RowCollapse",
+          isChild: true,
+          isAdd: true,
+          childName: "GrowCollapseItem"
+        }
+      ]
+    }
+  ],
+  [
+    "interactionElement",
+    {
+      title: "交互组件",
+      group: [
+        {
+          elName: "弹窗",
+          elType: "eleModule",
+          elTagName: "GrowModal",
+          elIcon: "Chat",
+          isChild: true,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "抽屉",
+          elType: "eleModule",
+          elTagName: "GrowDrawer",
+          elIcon: "Notebook",
+          isChild: true,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "弹出框",
+          elType: "eleModule",
+          elTagName: "GrowPopover",
+          elIcon: "CloudAlerting",
+          isChild: true,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "弹出框",
+          elType: "eleModule",
+          elTagName: "GrowTooltip",
+          elIcon: "Slisor",
+          isChild: true,
+          isAdd: false,
+          childName: ""
+        }
+      ]
+    }
+  ],
+  [
+    "tableElement",
+    {
+      title: "表格组件",
+      group: [
+        {
+          elName: "表格",
+          elType: "eleModule",
+          elTagName: "GrowTable",
+          elIcon: "DataTable",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        }
+      ]
+    }
+  ]
+]);
+
+export const BusinessComponent = new Map([
+  [
+    "personnelElement",
+    {
+      title: "人员相关",
+      group: [
+        {
+          elName: "人员选择",
+          elType: "eleModule",
+          elTagName: "GrowSelect",
+          elIcon: "UserMultiple",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        }
+      ]
+    }
+  ]
+]);
+
+export const AtomicComponent = new Map([
+  [
+    "baseElement",
+    {
+      title: "交互组件",
+      group: [
+        {
+          elName: "按钮",
+          elType: "eleModule",
+          elTagName: "GrowButton",
+          elIcon: "TouchInteraction",
+          isChild: false,
+          isAdd: false,
+          childName: "",
+          isInlineBlock: true
+        },
+        {
+          elName: "链接",
+          elType: "eleModule",
+          elTagName: "GrowLink",
+          unsupported: true,
+          elIcon: "Link",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        }
+      ]
+    }
+  ],
+  [
+    "formElement",
+    {
+      title: "表单组件",
+      group: [
+        {
+          elName: "输入框",
+          elType: "eleModule",
+          elTagName: "GrowInput",
+          elIcon: "Erase",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "数字输入框",
+          elType: "eleModule",
+          elTagName: "GrowInputNumber",
+          elIcon: "ListNumbered",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "选择器",
+          elType: "eleModule",
+          elTagName: "GrowSelect",
+          elIcon: "StorageRequest",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "级联选择器",
+          elType: "eleModule",
+          elTagName: "GrowCascader",
+          elIcon: "TextIndentMore",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "开关",
+          elType: "eleModule",
+          elTagName: "GrowSwitch",
+          elIcon: "JoinLeft",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "时间选择器",
+          elType: "eleModule",
+          elTagName: "GrowTimePicker",
+          unsupported: true,
+          elIcon: "Timer",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "日期选择器",
+          elType: "eleModule",
+          elTagName: "GrowDatePicker",
+          elIcon: "EventSchedule",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "单选",
+          elType: "eleModule",
+          elTagName: "GrowRadio",
+          elIcon: "RadioButtonChecked",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "多选",
+          elType: "eleModule",
+          elTagName: "GrowCheckbox",
+          elIcon: "CheckboxChecked",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "树形选择",
+          elType: "eleModule",
+          elTagName: "GrowTreeSelect",
+          elIcon: "DecisionTree",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "上传",
+          elType: "eleModule",
+          elTagName: "GrowUpload",
+          elIcon: "CloudUpload",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "滑块",
+          elType: "eleModule",
+          elTagName: "GrowSlider",
+          unsupported: true,
+          elIcon: "NotAvailable",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "穿梭框",
+          elType: "eleModule",
+          elTagName: "GrowTransfer",
+          unsupported: true,
+          elIcon: "StudyTransfer",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        }
+      ]
+    }
+  ],
+  [
+    "gropFormElement",
+    {
+      title: "表单组",
+      group: [
+        {
+          elName: "表单",
+          elType: "eleModule",
+          elTagName: "GrowForm",
+          elIcon: "DataFormat",
+          isChild: true,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "表单项",
+          elType: "eleModule",
+          elTagName: "GrowFormItem",
+          elIcon: "HorizontalView",
+          isChild: true,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "单选组",
+          elType: "eleModule",
+          elTagName: "GrowRadioGroup",
+          elIcon: "ListBulleted",
+          isChild: true,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "多选组",
+          elType: "eleModule",
+          elTagName: "GrowCheckboxGroup",
+          elIcon: "ListChecked",
+          isChild: true,
+          isAdd: false,
+          childName: ""
+        }
+      ]
+    }
+  ],
+  [
+    "displayInformationElement",
+    {
+      title: "展示信息",
+      group: [
+        {
+          elName: "头像",
+          elType: "eleModule",
+          elTagName: "GrowAvatar",
+          elIcon: "UserAvatar",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "徽章数",
+          elType: "eleModule",
+          elTagName: "GrowBadge",
+          elIcon: "Badge",
+          isChild: true,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "日历",
+          elType: "eleModule",
+          elTagName: "GrowCalendar",
+          unsupported: true,
+          elIcon: "CalendarHeatMap",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "走马灯",
+          elType: "eleModule",
+          elTagName: "GrowCalendar",
+          unsupported: true,
+          elIcon: "CarouselHorizontal",
+          isChild: true,
+          isAdd: true,
+          childName: "GrowCarouselItem"
+        },
+        {
+          elName: "分割线",
+          elType: "eleModule",
+          elTagName: "GrowDivider",
+          elIcon: "BorderVerticleOutlined",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "时间线",
+          elType: "eleModule",
+          elTagName: "GrowTimeline",
+          elIcon: "BoxPlotOutlined",
+          isChild: true,
+          isAdd: true,
+          childName: "GrowTimelineItem"
+        },
+        {
+          elName: "树形组件",
+          elType: "eleModule",
+          elTagName: "GrowTree",
+          elIcon: "TreeViewAlt",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "虚拟树形组件",
+          elType: "eleModule",
+          elTagName: "GrowTreeV2",
+          unsupported: true,
+          elIcon: "TreeViewAlt",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "提示",
+          elType: "eleModule",
+          elTagName: "GrowAlert",
+          unsupported: true,
+          elIcon: "Drought",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        }
+      ]
+    }
+  ]
+]);
+
+export const specificComponent = new Map([
+  [
+    "GrowTabPane",
+    {
+      elName: "选项",
+      elType: "eleModule",
+      elTagName: "GrowTabPane",
+      elIcon: "IdcardOutlined",
+      isChild: true,
+      isAdd: false,
+      childName: ""
+    }
+  ],
+  [
+    "GrowCol",
+    {
+      elName: "布局",
+      elType: "eleModule",
+      elTagName: "GrowCol",
+      elIcon: "IdcardOutlined",
+      isChild: true,
+      isAdd: false,
+      childName: ""
+    }
+  ],
+  [
+    "GrowCollapseItem",
+    {
+      elName: "折叠项",
+      elType: "eleModule",
+      elTagName: "GrowCollapseItem",
+      elIcon: "IdcardOutlined",
+      isChild: true,
+      isAdd: false,
+      childName: ""
+    }
+  ],
+  [
+    "GrowTimelineItem",
+    {
+      elName: "时间项",
+      elType: "eleModule",
+      elTagName: "GrowTimelineItem",
+      elIcon: "IdcardOutlined",
+      isChild: true,
+      isAdd: false,
+      childName: ""
+    }
+  ]
+]);

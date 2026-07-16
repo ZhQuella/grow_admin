@@ -24,6 +24,7 @@
     "@grow-admin-cornerstone/apps-login": "workspace:*",
     "@grow-admin-cornerstone/apps-workspace": "workspace:*",
     "@grow-admin-cornerstone/apps-sandbox": "workspace:*",
+    "@grow-admin-cornerstone/apps-designer": "workspace:*",
     "@grow-admin-rock/base-package": "workspace:*",
     "@grow-admin-rock/component-driver": "workspace:*",
     "@grow-admin-rock/component-driver-antdv": "workspace:*",

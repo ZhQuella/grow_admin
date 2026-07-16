@@ -67,6 +67,55 @@ importers:
         specifier: ^4.2.0
         version: 4.3.2(typescript@5.9.3)(vite@4.3.9(@types/node@25.9.1)(less@4.6.4)(sass@1.100.0)(terser@5.47.1))
 
+  DesignCornerstone/cornerstone-apps-designer:
+    dependencies:
+      '@grow-admin-rock/components':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-components
+      '@grow-admin-rock/designer':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-designer
+      '@grow-admin-rock/hooks':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-hooks
+      '@grow-admin-rock/infrastructure':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-infrastructure
+      '@grow-admin-rock/ioc':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-ioc
+      '@grow-admin-rock/middleware-router':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-middleware-router
+      '@grow-admin-rock/state':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-state
+      '@grow-admin-rock/utils':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-utils
+      vue:
+        specifier: ~3.3.4
+        version: 3.3.13(typescript@5.9.3)
+      vue-router:
+        specifier: ^4.0.0
+        version: 4.6.4(vue@3.3.13(typescript@5.9.3))
+    devDependencies:
+      '@grow-admin-rock/base-package':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-base-package
+      '@grow-admin-rock/constants':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-constants
+      typescript:
+        specifier: ^5.0.2
+        version: 5.9.3
+      vite:
+        specifier: 4.3.9
+        version: 4.3.9(@types/node@25.9.1)(less@4.6.4)(sass@1.100.0)(terser@5.47.1)
+      vue-tsc:
+        specifier: ^1.0.24
+        version: 1.8.27(typescript@5.9.3)
+
   DesignCornerstone/cornerstone-apps-external:
     dependencies:
       '@grow-admin-rock/constants':
@@ -140,6 +189,9 @@ importers:
 
   DesignCornerstone/cornerstone-apps-home:
     dependencies:
+      '@grow-admin-cornerstone/apps-designer':
+        specifier: workspace:*
+        version: link:../cornerstone-apps-designer
       '@grow-admin-cornerstone/apps-external':
         specifier: workspace:*
         version: link:../cornerstone-apps-external
@@ -499,6 +551,27 @@ importers:
         version: 2.2.486
 
   DesignRock/rock-constants: {}
+
+  DesignRock/rock-designer:
+    dependencies:
+      '@grow-admin-rock/code-sandbox':
+        specifier: workspace:*
+        version: link:../rock-code-sandbox
+      '@grow-admin-rock/components':
+        specifier: workspace:*
+        version: link:../rock-components
+      '@grow-admin-rock/utils':
+        specifier: workspace:*
+        version: link:../rock-utils
+      nanoid:
+        specifier: ^4.0.2
+        version: 4.0.2
+      vue:
+        specifier: ~3.3.4
+        version: 3.3.13(typescript@5.9.3)
+      vuedraggable:
+        specifier: ^4.1.0
+        version: 4.1.0(vue@3.3.13(typescript@5.9.3))
 
   DesignRock/rock-hooks:
     dependencies:
@@ -999,6 +1072,9 @@ importers:
 
   sample:
     dependencies:
+      '@grow-admin-cornerstone/apps-designer':
+        specifier: workspace:*
+        version: link:../DesignCornerstone/cornerstone-apps-designer
       '@grow-admin-cornerstone/apps-external':
         specifier: workspace:*
         version: link:../DesignCornerstone/cornerstone-apps-external
@@ -5688,6 +5764,11 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
+  nanoid@4.0.2:
+    resolution: {integrity: sha512-7ZtY5KTCNheRGfEFxnedV5zFiORN1+Y1N6zvPTnHQd8ENUvfaDBeuJDZb2bN/oXwXxu3qkTXDzy57W5vAmDTBw==}
+    engines: {node: ^14 || ^16 || >=18}
+    hasBin: true
+
   nanomatch@1.2.13:
     resolution: {integrity: sha512-fpoe2T0RbHwBTBUOftAfBPaDEi06ufaUai0mE6Yn1kacc3SnTErfb/h+X94VXzI64rKFHYImXSvdwGGCmwOqCA==}
     engines: {node: '>=0.10.0'}
@@ -6873,6 +6954,9 @@ packages:
     resolution: {integrity: sha512-/dPCrG1s3ePpWm6yBbxZq5Be1dXGLyLn9Z791chDC3NFrpkVbWGzkBwPN1knaciexFXgRJ7hzdnwZ4stHSDmjg==}
     engines: {node: '>=4'}
 
+  sortablejs@1.14.0:
+    resolution: {integrity: sha512-pBXvQCs5/33fdN1/39pPL0NZF20LeRbLQ5jtnheIPN9JQAaufGjKdWduZn4U7wCtVuzKhmRkI0DFYHYRbB2H1w==}
+
   sortablejs@1.15.7:
     resolution: {integrity: sha512-Kk8wLQPlS+yi1ZEf48a4+fzHa4yxjC30M/Sr2AnQu+f/MPwvvX9XjZ6OWejiz8crBsLwSq8GHqaxaET7u6ux0A==}
 
@@ -7645,6 +7729,11 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
+
+  vuedraggable@4.1.0:
+    resolution: {integrity: sha512-FU5HCWBmsf20GpP3eudURW3WdWTKIbEIQxh9/8GE806hydR9qZqRRxRE3RjqX7PkuLuMQG/A7n3cfj9rCEchww==}
+    peerDependencies:
+      vue: ^3.0.1
 
   vueuc@0.4.65:
     resolution: {integrity: sha512-lXuMl+8gsBmruudfxnMF9HW4be8rFziylXFu1VHVNbLVhRTXXV4njvpRuJapD/8q+oFEMSfQMH16E/85VoWRyQ==}
@@ -12790,6 +12879,8 @@ snapshots:
 
   nanoid@3.3.12: {}
 
+  nanoid@4.0.2: {}
+
   nanomatch@1.2.13:
     dependencies:
       arr-diff: 4.0.0
@@ -14029,6 +14120,8 @@ snapshots:
     dependencies:
       is-plain-obj: 1.1.0
 
+  sortablejs@1.14.0: {}
+
   sortablejs@1.15.7: {}
 
   source-map-js@1.2.1: {}
@@ -14987,6 +15080,11 @@ snapshots:
       '@vue/shared': 3.3.13
     optionalDependencies:
       typescript: 5.9.3
+
+  vuedraggable@4.1.0(vue@3.3.13(typescript@5.9.3)):
+    dependencies:
+      sortablejs: 1.14.0
+      vue: 3.3.13(typescript@5.9.3)
 
   vueuc@0.4.65(vue@3.3.13(typescript@5.9.3)):
     dependencies:

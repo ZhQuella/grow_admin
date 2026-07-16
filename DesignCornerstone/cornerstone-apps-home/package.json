@@ -18,7 +18,8 @@
     "@grow-admin-cornerstone/apps-external": "workspace:*",
     "@grow-admin-cornerstone/apps-feat": "workspace:*",
     "@grow-admin-cornerstone/apps-workspace": "workspace:*",
-    "@grow-admin-cornerstone/apps-sandbox": "workspace:*"
+    "@grow-admin-cornerstone/apps-sandbox": "workspace:*",
+    "@grow-admin-cornerstone/apps-designer": "workspace:*"
   },
   "devDependencies": {
     "@grow-admin-rock/base-package": "workspace:*",

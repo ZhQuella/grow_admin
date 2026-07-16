@@ -32,6 +32,7 @@ import { Lib as appsExternalLib } from '@grow-admin-cornerstone/apps-external'
 import { Lib as appsFeatLib } from '@grow-admin-cornerstone/apps-feat'
 import { Lib as appsWorkspaceLib } from '@grow-admin-cornerstone/apps-workspace'
 import { Lib as appsSandboxLib } from '@grow-admin-cornerstone/apps-sandbox'
+import { Lib as appsDesignerLib } from '@grow-admin-cornerstone/apps-designer'
 
 import { bootstrapAppConfig } from '../initAppConfig'
 import { GrowAxiosTransform } from '@/apis/infrastructure'
@@ -76,6 +77,8 @@ export const initIoc = async (app: App) => {
     .use(appsWorkspaceLib, appContext)
     // 使用沙箱工具演示模块
     .use(appsSandboxLib, appContext)
+    // 使用设计器演示模块
+    .use(appsDesignerLib, appContext)
     // 使用外部页面演示模块
     .use(appsExternalLib, appContext)
     // 使用功能示例模块
