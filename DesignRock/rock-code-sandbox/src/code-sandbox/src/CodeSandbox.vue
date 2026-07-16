@@ -28,6 +28,7 @@ import {
   resolveActiveExpose,
   resolveNpmDependencies,
 } from '#/runtime'
+import type { SandboxFiles } from '#/runtime'
 import type { CodeDependency, SandboxExpose } from '#/types'
 import type { Component } from 'vue'
 
@@ -37,12 +38,19 @@ defineOptions({
 
 const props = withDefaults(
   defineProps<{
+    /** 单文件模式源码；多文件模式下作为 entry 内容的兼容字段（优先 files） */
     modelValue?: string
+    /** 虚拟多文件（key 如 App.vue、utils.js） */
+    files?: SandboxFiles
+    /** 预览入口，默认 App.vue */
+    entry?: string
     expose?: SandboxExpose
     dependencies?: CodeDependency[]
   }>(),
   {
     modelValue: '',
+    files: undefined,
+    entry: 'App.vue',
     expose: () => ({}),
     dependencies: () => [],
   },
@@ -88,7 +96,14 @@ async function rebuild() {
       },
     }
 
-    const { component, error } = createPreviewComponent(props.modelValue, merged)
+    const hasFiles = props.files && Object.keys(props.files).length > 0
+    const entry = props.entry || 'App.vue'
+    const source = hasFiles ? (props.files?.[entry] ?? props.modelValue) : props.modelValue
+
+    const { component, error } = createPreviewComponent(source, merged, {
+      files: hasFiles ? props.files : undefined,
+      entry,
+    })
     if (token !== rebuildToken) return
     previewComponent.value = component
     compileError.value = error
@@ -104,7 +119,7 @@ async function rebuild() {
 }
 
 watch(
-  () => [props.modelValue, props.expose, props.dependencies] as const,
+  () => [props.modelValue, props.files, props.entry, props.expose, props.dependencies] as const,
   () => {
     void rebuild()
   },

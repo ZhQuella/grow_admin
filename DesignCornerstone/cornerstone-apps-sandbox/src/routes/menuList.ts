@@ -21,7 +21,7 @@ export const SANDBOX_MENU_LIST: SandboxMenuApiItem[] = [
       },
       {
         name: 'CodeSandboxDemo',
-        title: '代码沙箱',
+        title: '呈现沙箱',
         icon: 'ant-design:code-sandbox-outlined',
         menuType: MenuTypeEnum.MENU,
         isVisible: true,
