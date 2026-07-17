@@ -10,6 +10,8 @@
     }"
     :disabled="false"
     ghost-class="ghost"
+    chosen-class="chosen-item"
+    drag-class="drag-item"
     :empty-insert-threshold="40"
     v-model="draggableConfig.structures"
     class="draggable-grop-wrap"

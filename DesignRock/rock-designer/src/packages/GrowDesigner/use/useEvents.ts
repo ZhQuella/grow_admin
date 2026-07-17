@@ -55,9 +55,77 @@ export const useEvents = ({ draggableConfig, activeUUID }: props) => {
       ...renderArgument,
       ...(draggableConfig.renderArgument[uuid] || {}),
     }
-    draggableConfig.styles[uuid] = draggableConfig.styles[uuid] || {}
+    const styleSeed: Record<string, string> = {}
+    const isInline =
+      renderArgument.isInlineBlock || draggableConfig.renderArgument[uuid]?.isInlineBlock
+    if (isInline) {
+      Object.assign(styleSeed, {
+        display: 'inline-block',
+        'min-width': '80px',
+        'min-height': '36px',
+      })
+    }
+    if (renderArgument.elTagName === 'img') {
+      Object.assign(styleSeed, {
+        width: '120px',
+        height: '80px',
+        'object-fit': 'cover',
+      })
+    }
+    if (renderArgument.elTagName === 'BasicTitle') {
+      Object.assign(styleSeed, {
+        width: '100%',
+        'min-height': '48px',
+      })
+    }
+    if (renderArgument.elTagName === 'p') {
+      Object.assign(styleSeed, {
+        width: '100%',
+        'min-height': '40px',
+      })
+    }
+    if (renderArgument.elTagName === 'span') {
+      Object.assign(styleSeed, {
+        'min-height': '36px',
+        'min-width': '96px',
+      })
+    }
+    draggableConfig.styles[uuid] = {
+      ...styleSeed,
+      ...(draggableConfig.styles[uuid] || {}),
+    }
     draggableConfig.events[uuid] = draggableConfig.events[uuid] || {}
-    draggableConfig.props[uuid] = draggableConfig.props[uuid] || {}
+    const defaultProps: Record<string, any> = {}
+    if (renderArgument.elTagName === 'BasicTitle') {
+      Object.assign(defaultProps, { level: 'h3', context: '标题文本' })
+    }
+    if (renderArgument.elTagName === 'p') {
+      Object.assign(defaultProps, { context: '正文内容' })
+    }
+    if (renderArgument.elTagName === 'span') {
+      Object.assign(defaultProps, { context: '短语文本' })
+    }
+    if (renderArgument.elTagName === 'GrowButton') {
+      Object.assign(defaultProps, { content: '按钮', type: 'primary' })
+    }
+    if (renderArgument.elTagName === 'GrowLink') {
+      Object.assign(defaultProps, {
+        content: '链接文字',
+        type: 'primary',
+        href: '#',
+        underline: true,
+      })
+    }
+    if (renderArgument.elTagName === 'img') {
+      Object.assign(defaultProps, {
+        src: 'https://via.placeholder.com/120x80',
+        alt: '图片',
+      })
+    }
+    draggableConfig.props[uuid] = {
+      ...defaultProps,
+      ...(draggableConfig.props[uuid] || {}),
+    }
   }
 
   const onSpecialAdd = ({ structure, renderArgument }) => {
@@ -116,6 +184,16 @@ export const useEvents = ({ draggableConfig, activeUUID }: props) => {
     }
   };
 
+  const onClearCanvas = () => {
+    if (!draggableConfig.structures.length) return
+    draggableConfig.structures = []
+    draggableConfig.renderArgument = {}
+    draggableConfig.styles = {}
+    draggableConfig.events = {}
+    draggableConfig.props = {}
+    activeUUID.value = ''
+  }
+
   return {
     onSpecialAdd,
     onDraggableViewAdd,
@@ -123,6 +201,7 @@ export const useEvents = ({ draggableConfig, activeUUID }: props) => {
     onActivated,
     onDeleteItem,
     onCopyItem,
-    onActiveNode
+    onActiveNode,
+    onClearCanvas,
   };
 };

@@ -1,9 +1,31 @@
 <template>
-  <ElRadioGroup v-bind="$attrs">
-    <ElRadioButton v-for="item in $attrs.options" :key="item.value" :label="item.value">{{item.label}}</ElRadioButton>
+  <ElRadioGroup v-bind="groupAttrs">
+    <slot>
+      <ElRadioButton
+        v-for="item in options || []"
+        :key="String(item.value)"
+        :label="item.value"
+        :value="item.value"
+      >
+        {{ item.label }}
+      </ElRadioButton>
+    </slot>
   </ElRadioGroup>
 </template>
-<script lang="ts" name="ElRadioButtonGroup" setup>
-import { ElRadioButton, ElRadioGroup} from 'element-plus';
-// TODO: 补充插槽，以及自定义字段，单个box是否禁用等等逻辑
+
+<script lang="ts" setup>
+import { computed, useAttrs } from 'vue'
+import { ElRadioButton, ElRadioGroup } from 'element-plus'
+
+defineOptions({ name: 'RadioButtonGroup', inheritAttrs: false })
+
+defineProps<{
+  options?: Array<{ label: string; value: string | number | boolean }>
+}>()
+
+const attrs = useAttrs()
+const groupAttrs = computed(() => {
+  const { options: _options, ...rest } = attrs as Record<string, unknown>
+  return rest
+})
 </script>

@@ -126,13 +126,15 @@
       <GrowInput
         class="element-size__dimension-input"
         size="small"
-        placeholder="长度"
+        placeholder="高度"
         :controls="false"
-        :modelValue="parseFloat(styleOption['height']) || ''"
+        :disabled="heightUnit === 'auto'"
+        :model-value="dimensionValue('height')"
+        @update:model-value="(v) => onDimensionChange('height', v)"
       >
         <template #append>
           <GrowSelect
-            :model-value="'px'"
+            v-model="heightUnit"
             class="element-size__unit-append"
             size="small"
             :options="[
@@ -141,6 +143,7 @@
               { label: 'vh', value: 'vh' },
               { label: 'auto', value: 'auto' },
             ]"
+            @update:model-value="(v) => onDimensionUnitChange('height', v)"
           />
         </template>
       </GrowInput>
@@ -149,11 +152,13 @@
         size="small"
         placeholder="宽度"
         :controls="false"
-        :modelValue="parseFloat(styleOption['width']) || ''"
+        :disabled="widthUnit === 'auto'"
+        :model-value="dimensionValue('width')"
+        @update:model-value="(v) => onDimensionChange('width', v)"
       >
         <template #append>
           <GrowSelect
-            :model-value="'px'"
+            v-model="widthUnit"
             class="element-size__unit-append"
             size="small"
             :options="[
@@ -162,6 +167,7 @@
               { label: 'vw', value: 'vw' },
               { label: 'auto', value: 'auto' },
             ]"
+            @update:model-value="(v) => onDimensionUnitChange('width', v)"
           />
         </template>
       </GrowInput>
@@ -170,7 +176,7 @@
 </template>
 
 <script setup lang="ts">
-import { toRefs } from 'vue'
+import { ref, toRefs, watch } from 'vue'
 import { useMargin } from './use/useMargin'
 
 defineOptions({ name: 'ElementSize' })
@@ -188,6 +194,63 @@ const { marginUnit, onMarginUnitChange, onMarginChange } = useMargin({
   styleOption,
   emits,
 })
+
+const widthUnit = ref('px')
+const heightUnit = ref('px')
+
+const parseUnit = (value: unknown, fallback = 'px') => {
+  if (value == null || value === '') return fallback
+  const str = String(value)
+  if (str === 'auto') return 'auto'
+  const matched = str.match(/(px|%|vh|vw)$/)
+  return matched?.[1] || fallback
+}
+
+watch(
+  styleOption,
+  (styles) => {
+    widthUnit.value = parseUnit(styles?.width, widthUnit.value)
+    heightUnit.value = parseUnit(styles?.height, heightUnit.value)
+  },
+  { immediate: true, deep: true },
+)
+
+const dimensionValue = (key: 'width' | 'height') => {
+  const value = styleOption.value?.[key]
+  if (value == null || value === '' || value === 'auto') return ''
+  const num = parseFloat(value)
+  return Number.isFinite(num) ? num : ''
+}
+
+const onDimensionChange = (key: 'width' | 'height', raw: string | number | null) => {
+  const result = { ...styleOption.value }
+  const unit = key === 'width' ? widthUnit.value : heightUnit.value
+  if (raw === null || raw === undefined || raw === '') {
+    Reflect.deleteProperty(result, key)
+  } else if (unit === 'auto') {
+    result[key] = 'auto'
+  } else {
+    result[key] = `${raw}${unit}`
+  }
+  emits('update:styleOption', result)
+}
+
+const onDimensionUnitChange = (key: 'width' | 'height', unit: string) => {
+  const result = { ...styleOption.value }
+  if (unit === 'auto') {
+    result[key] = 'auto'
+    emits('update:styleOption', result)
+    return
+  }
+  const current = result[key]
+  if (current != null && current !== '' && current !== 'auto') {
+    const num = parseFloat(current)
+    if (Number.isFinite(num)) {
+      result[key] = `${num}${unit}`
+      emits('update:styleOption', result)
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>

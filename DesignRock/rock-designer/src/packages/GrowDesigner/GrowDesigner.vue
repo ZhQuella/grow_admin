@@ -6,10 +6,18 @@
   >
     <div class="grow-designer__toolbar">
       <div class="grow-designer__toolbar-left">
+        <GrowButton
+          size="small"
+          :disabled="!draggableConfig.structures.length"
+          @click.stop="onClearCanvas"
+        >
+          <GrowIconify icon="carbon:erase" :size="14" class="grow-designer__toolbar-icon" />
+          清空
+        </GrowButton>
         <span class="grow-designer__toolbar-desc">从左侧拖入组件到画布</span>
       </div>
       <GrowButton size="small" type="primary">
-        <GrowIconify icon="carbon:play" :size="14" class="grow-designer__preview-icon" />
+        <GrowIconify icon="carbon:play" :size="14" class="grow-designer__toolbar-icon" />
         预览
       </GrowButton>
     </div>
@@ -131,6 +139,7 @@ const {
   onDeleteItem,
   onCopyItem,
   onActiveNode,
+  onClearCanvas,
 } = useEvents({
   draggableConfig,
   activeUUID,
@@ -204,7 +213,7 @@ export default defineComponent({
   text-overflow: ellipsis;
 }
 
-.grow-designer__preview-icon {
+.grow-designer__toolbar-icon {
   margin-right: 4px;
 }
 

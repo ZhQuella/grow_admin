@@ -39,7 +39,8 @@ export const BaseComponent = new Map([
           elIcon: "ItalicOutlined",
           isChild: false,
           isAdd: false,
-          childName: ""
+          childName: "",
+          isInlineBlock: true
         },
         {
           elName: "容器",
@@ -200,11 +201,11 @@ export const AtomicComponent = new Map([
           elName: "链接",
           elType: "eleModule",
           elTagName: "GrowLink",
-          unsupported: true,
           elIcon: "Link",
           isChild: false,
           isAdd: false,
-          childName: ""
+          childName: "",
+          isInlineBlock: true
         }
       ]
     }

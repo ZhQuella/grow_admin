@@ -34,6 +34,7 @@ declare module 'vue' {
     GrowPopover: import('vue').Component;
     GrowButton: import('vue').Component;
     GrowButtonGroup: import('vue').Component;
+    GrowLink: import('vue').Component;
     GrowAvatar: import('vue').Component;
     GrowStatistic: import('vue').Component;
     GrowSelect: import('vue').Component;

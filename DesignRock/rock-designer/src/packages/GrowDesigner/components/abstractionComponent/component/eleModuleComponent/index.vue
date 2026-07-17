@@ -6,8 +6,14 @@
     >
       {{ config.elName || config.elTagName }}（暂未接入）
     </div>
-    <component v-else :is="config.elTagName" v-bind="propsInfo">
+    <component
+      v-else-if="config.elTagName"
+      :is="config.elTagName"
+      v-bind="bindProps"
+      :style="styleInfo"
+    >
       <span v-if="config.elTagName === 'GrowButton'">{{ propsInfo.content }}</span>
+      <span v-else-if="config.elTagName === 'GrowLink'">{{ propsInfo.content }}</span>
     </component>
   </template>
 </template>
@@ -18,20 +24,30 @@ import { computed, toRefs } from 'vue'
 interface PropsType {
   config: any
   propsInfo: any
+  styleInfo?: Record<string, any>
 }
 
 const props = withDefaults(defineProps<PropsType>(), {
   config: () => ({}),
   propsInfo: () => ({}),
+  styleInfo: () => ({}),
 })
 
-const { config, propsInfo } = toRefs(props)
+const { config, propsInfo, styleInfo } = toRefs(props)
 
 const isUnsupported = computed(() => Boolean(config.value.unsupported))
 
 const isSocket = computed(() => {
   const slotMap = ['GrowCard', 'GrowTabs', 'GrowRow']
   return slotMap.includes(config.value.elTagName)
+})
+
+const bindProps = computed(() => {
+  const info = { ...(propsInfo.value || {}) }
+  if (['GrowButton', 'GrowLink'].includes(config.value?.elTagName)) {
+    Reflect.deleteProperty(info, 'content')
+  }
+  return info
 })
 </script>
 
