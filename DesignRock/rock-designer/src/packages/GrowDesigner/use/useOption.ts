@@ -6,9 +6,9 @@ export const useOption = () => {
     //  页面配置
     pageConfig: {},
     //  数据源
-    dataSource: {},
+    dataSource: [],
     //  数据请求
-    apiOutlined: {},
+    apiOutlined: [],
     //  结构
     structures: [],
     //  附属信息  model/类型/props
