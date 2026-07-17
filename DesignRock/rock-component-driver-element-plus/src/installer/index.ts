@@ -10,10 +10,13 @@ import {
   ElButton,
   ElCard,
   ElCascader,
+  ElCalendar,
   ElCheckbox,
   ElCol,
   ElCollapse,
   ElCollapseItem,
+  ElCarousel,
+  ElCarouselItem,
   ElDatePicker,
   ElDescriptions,
   ElDescriptionsItem,
@@ -41,6 +44,7 @@ import {
   ElSkeleton,
   ElSpace,
   ElSwitch,
+  ElSlider,
   ElTabPane,
   ElTabs,
   ElTable,
@@ -51,6 +55,8 @@ import {
   ElTooltip,
   ElTree,
   ElTreeSelect,
+  ElTransfer,
+  ElMention,
   ElUpload,
 } from 'element-plus';
 import ButtonGroup from '#/components/ButtonGroup.vue'
@@ -95,6 +101,7 @@ import Statistic from '#/components/Statistic.vue'
 import Tab from '#/components/Tab.vue'
 import Text from '#/components/Text.vue'
 import Thing from '#/components/Thing.vue'
+import Time from '#/components/Time.vue'
 import UploadDragger from '#/components/UploadDragger.vue'
 
 const allComponents: Partial<Record<RockComponent, any>> = {
@@ -106,11 +113,14 @@ const allComponents: Partial<Record<RockComponent, any>> = {
   [RockComponent.ButtonGroup]: ButtonGroup,
   [RockComponent.Card]: ElCard,
   [RockComponent.Cascader]: ElCascader,
+  [RockComponent.Calendar]: ElCalendar,
   [RockComponent.Checkbox]: ElCheckbox,
   [RockComponent.CheckboxGroup]: CheckboxGroup,
   [RockComponent.Col]: ElCol,
   [RockComponent.Collapse]: ElCollapse,
   [RockComponent.CollapseItem]: ElCollapseItem,
+  [RockComponent.Carousel]: ElCarousel,
+  [RockComponent.CarouselItem]: ElCarouselItem,
   [RockComponent.Config]: Config,
   [RockComponent.DatePicker]: ElDatePicker,
   [RockComponent.Descriptions]: ElDescriptions,
@@ -176,6 +186,8 @@ const allComponents: Partial<Record<RockComponent, any>> = {
   [RockComponent.Spinner]: Spinner,
   [RockComponent.Statistic]: Statistic,
   [RockComponent.Switch]: ElSwitch,
+  [RockComponent.Slider]: ElSlider,
+  [RockComponent.Transfer]: ElTransfer,
   [RockComponent.Tab]: Tab,
   [RockComponent.TabPane]: ElTabPane,
   [RockComponent.Tabs]: ElTabs,
@@ -186,9 +198,11 @@ const allComponents: Partial<Record<RockComponent, any>> = {
   [RockComponent.Thing]: Thing,
   [RockComponent.Timeline]: ElTimeline,
   [RockComponent.TimelineItem]: ElTimelineItem,
+  [RockComponent.Time]: Time,
   [RockComponent.Tooltip]: ElTooltip,
   [RockComponent.Tree]: ElTree,
   [RockComponent.TreeSelect]: ElTreeSelect,
+  [RockComponent.Mention]: ElMention,
   [RockComponent.Upload]: ElUpload,
   [RockComponent.UploadDragger]: UploadDragger,
 };

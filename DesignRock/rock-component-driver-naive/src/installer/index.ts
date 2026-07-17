@@ -162,6 +162,8 @@ const allComponents = {
   [RockComponent.Descriptions]: NDescriptions,
   [RockComponent.DescriptionsItem]: NDescriptionsItem,
   [RockComponent.Switch]: NSwitch,
+  [RockComponent.Slider]: NSlider,
+  [RockComponent.Transfer]: NTransfer,
   [RockComponent.Layout]: NLayout,
   [RockComponent.LayoutHeader]: NLayoutHeader,
   [RockComponent.LayoutFooter]: NLayoutFooter,
@@ -172,6 +174,7 @@ const allComponents = {
   [RockComponent.DropdownMenu]: null,
   [RockComponent.DropdownItem]: null,
   [RockComponent.TreeSelect]: NTreeSelect,
+  [RockComponent.Mention]: NMention,
   [RockComponent.Badge]: NBadge,
   [RockComponent.ListItem]: NListItem,
   [RockComponent.List]: NList,
@@ -203,7 +206,8 @@ const allComponents = {
   [RockComponent.PageHeader]: NPageHeader,
   [RockComponent.NumberAnimation]: NNumberAnimation,
   [RockComponent.Timeline]: NTimeline,
-  [RockComponent.TimelineItem]: NTimelineItem
+  [RockComponent.TimelineItem]: NTimelineItem,
+  [RockComponent.Time]: NTime,
 };
 export const install: (
   componentName: string,

@@ -134,6 +134,45 @@ export const avatarConfig = createConfig([
   textInput('适配方式', 'fit', '图片如何适应容器', '如 cover'),
 ])
 
+/** 日历 */
+export const calendarConfig = createConfig([
+  textInput('绑定值', 'modelValue', '当前选中日期，推荐 YYYY-MM-DD'),
+  textInput('默认值', 'default-value', '默认选中日期（部分驱动支持）'),
+  textInput('值格式', 'value-format', '绑定值格式，如 YYYY-MM-DD（部分驱动支持）'),
+  selectInput(
+    '模式',
+    'mode',
+    [
+      { label: '月', value: 'month' },
+      { label: '年', value: 'year' },
+    ],
+    '面板模式（部分驱动支持）',
+  ),
+  boolSwitch('全屏', 'fullscreen', '是否全屏显示日历（部分驱动支持，默认 true）'),
+  boolSwitch('显示周数', 'show-week', '是否在全屏日历中显示周数（部分驱动支持）'),
+  selectInput(
+    '尺寸',
+    'size',
+    [
+      { label: '大', value: 'large' },
+      { label: '默认', value: 'default' },
+      { label: '小', value: 'small' },
+    ],
+    '组件尺寸（部分驱动支持）',
+  ),
+  selectInput(
+    '头部控制器',
+    'controller-type',
+    [
+      { label: '按钮', value: 'button' },
+      { label: '下拉选择', value: 'select' },
+    ],
+    '头部年月切换控件类型（Element Plus）',
+  ),
+  textInput('范围起', 'range-start', '显示范围起始日 YYYY-MM-DD（需配合范围止，且分别为周一/周日）'),
+  textInput('范围止', 'range-end', '显示范围结束日 YYYY-MM-DD（与范围起组成 range）'),
+])
+
 /** 徽章 */
 export const badgeConfig = createConfig([
   numberInput('显示值', 'value', '显示值'),
@@ -152,6 +191,42 @@ export const badgeConfig = createConfig([
     ],
     '类型',
   ),
+])
+
+/** 时间（Naive UI NTime） */
+export const timeConfig = createConfig([
+  textInput('时间戳', 'time', '要展示的时间（毫秒时间戳；开启 unix 时为秒）', '如 1710000000000'),
+  selectInput(
+    '类型',
+    'type',
+    [
+      { label: '日期时间', value: 'datetime' },
+      { label: '日期', value: 'date' },
+      { label: '相对时间', value: 'relative' },
+    ],
+    '时间展示类型',
+  ),
+  textInput('格式化', 'format', '自定义格式化字符串（date-fns format），设置后优先于 type'),
+  boolSwitch('Unix 时间戳', 'unix', 'time / to 是否按 unix 秒级时间戳解析'),
+  boolSwitch('纯文本', 'text', '是否以纯文本形式渲染'),
+  textInput('目标时间', 'to', '相对时间对比的目标时间戳', '如 1710000000000'),
+  textInput('时区', 'time-zone', '格式化使用的 IANA 时区，如 Asia/Shanghai'),
+])
+
+/** 文本省略（Naive UI NEllipsis） */
+export const ellipsisConfig = createConfig([
+  textInput('文本内容', 'content', '省略展示的文本内容'),
+  numberInput('最大行数', 'line-clamp', '超出行数后省略；不填则单行省略'),
+  selectInput(
+    '展开方式',
+    'expand-trigger',
+    [
+      { label: '不展开', value: '' },
+      { label: '点击展开', value: 'click' },
+    ],
+    '设置点击后切换展开/收起；留空则仅省略展示',
+  ),
+  boolSwitch('悬浮提示', 'tooltip', '省略时是否通过 Tooltip 展示完整内容'),
 ])
 
 /** 时间线 */
@@ -217,4 +292,67 @@ export const tableConfig = createConfig([
   textInput('最大高度', 'max-height', 'Table 的最大高度'),
   sizeSelect('Table 尺寸'),
   boolSwitch('空数据时显示', 'empty-text', '空数据时显示的文本（占位）'),
+])
+
+/** 走马灯 */
+export const carouselConfig = createConfig([
+  textInput('高度', 'height', '走马灯高度', '如 200px'),
+  numberInput('初始索引', 'initial-index', '初始状态激活的幻灯片索引，从 0 开始'),
+  selectInput(
+    '指示器触发',
+    'trigger',
+    [
+      { label: 'hover', value: 'hover' },
+      { label: 'click', value: 'click' },
+    ],
+    '指示器的触发方式',
+  ),
+  boolSwitch('自动切换', 'autoplay', '是否自动切换'),
+  numberInput('切换间隔', 'interval', '自动切换的时间间隔（毫秒）'),
+  selectInput(
+    '指示器位置',
+    'indicator-position',
+    [
+      { label: '默认', value: '' },
+      { label: '外部', value: 'outside' },
+      { label: '不显示', value: 'none' },
+    ],
+    '指示器的位置',
+  ),
+  selectInput(
+    '切换箭头',
+    'arrow',
+    [
+      { label: '总是显示', value: 'always' },
+      { label: '悬停显示', value: 'hover' },
+      { label: '不显示', value: 'never' },
+    ],
+    '切换箭头的显示时机',
+  ),
+  selectInput(
+    '类型',
+    'type',
+    [
+      { label: '默认', value: '' },
+      { label: '卡片', value: 'card' },
+    ],
+    '走马灯类型',
+  ),
+  boolSwitch('循环显示', 'loop', '是否循环显示'),
+  selectInput(
+    '展示方向',
+    'direction',
+    [
+      { label: '水平', value: 'horizontal' },
+      { label: '垂直', value: 'vertical' },
+    ],
+    '展示方向',
+  ),
+  boolSwitch('悬停暂停', 'pause-on-hover', '鼠标悬浮时暂停自动切换'),
+])
+
+/** 走马灯项 */
+export const carouselItemConfig = createConfig([
+  textInput('标识', 'name', '幻灯片对应的 name，可用作 setActiveItem 参数'),
+  textInput('标签', 'label', '幻灯片文本说明（用于指示器）'),
 ])

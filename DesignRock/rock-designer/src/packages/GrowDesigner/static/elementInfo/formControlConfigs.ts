@@ -243,6 +243,41 @@ export const switchConfig = createConfig([
   sizeSelect(),
 ])
 
+/** 滑块 */
+export const sliderConfig = createConfig([
+  numberInput('绑定值', 'modelValue', '绑定值'),
+  numberInput('最小值', 'min', '最小值'),
+  numberInput('最大值', 'max', '最大值'),
+  numberInput('步长', 'step', '步长'),
+  boolSwitch('禁用', 'disabled', '是否禁用'),
+  boolSwitch('显示间断点', 'show-stops', '是否显示间断点'),
+  boolSwitch('显示提示', 'show-tooltip', '是否显示 tooltip'),
+  boolSwitch('范围选择', 'range', '是否为范围选择'),
+  boolSwitch('竖向模式', 'vertical', '是否竖向模式'),
+  textInput('竖向高度', 'height', '竖向模式时的高度', '如 200px'),
+  boolSwitch('显示输入框', 'show-input', '是否显示输入框（仅非范围选择）'),
+  boolSwitch('输入框控制按钮', 'show-input-controls', '输入框控制按钮'),
+  numberInput('输入防抖', 'debounce', '输入时的去抖延迟（毫秒）'),
+  sizeSelect(),
+])
+
+/** 穿梭框 */
+export const transferConfig = createConfig([
+  boolSwitch('可搜索', 'filterable', '是否可搜索'),
+  textInput('搜索占位', 'filter-placeholder', '搜索框占位符'),
+  boolSwitch('禁用', 'disabled', '是否禁用'),
+  selectInput(
+    '右侧排序策略',
+    'target-order',
+    [
+      { label: '原始顺序', value: 'original' },
+      { label: '追加到末尾', value: 'push' },
+      { label: '保持勾选顺序', value: 'unshift' },
+    ],
+    '右侧列表元素的排序策略',
+  ),
+])
+
 /** 日期选择器 */
 export const datePickerConfig = createConfig([
   selectInput(
@@ -304,16 +339,89 @@ export const checkboxGroupConfig = createConfig([
   sizeSelect(),
 ])
 
-/** 树形选择 */
+/** 树形选择（Naive UI NTreeSelect） */
 export const treeSelectConfig = createConfig([
-  textInput('占位文本', 'placeholder', '占位符'),
-  boolSwitch('多选', 'multiple', '是否多选'),
+  textInput('占位文本', 'placeholder', '未选择时的占位文案'),
+  boolSwitch('多选', 'multiple', '是否支持多选'),
+  boolSwitch('可勾选', 'checkable', '节点是否显示复选框'),
+  boolSwitch('级联勾选', 'cascade', '是否关联父子节点勾选'),
+  selectInput(
+    '勾选策略',
+    'check-strategy',
+    [
+      { label: '全部', value: 'all' },
+      { label: '只返回父节点', value: 'parent' },
+      { label: '只返回子节点', value: 'child' },
+    ],
+    '多选勾选时的值回填策略',
+  ),
   boolSwitch('禁用', 'disabled', '是否禁用'),
-  boolSwitch('可清空', 'clearable', '是否可以清空选项'),
-  boolSwitch('可过滤', 'filterable', '是否可过滤'),
-  boolSwitch('严格勾选', 'check-strictly', '父子不互相关联'),
-  boolSwitch('显示复选框', 'show-checkbox', '是否显示 Checkbox'),
-  sizeSelect(),
+  boolSwitch('可清空', 'clearable', '是否可清空'),
+  boolSwitch('可过滤', 'filterable', '是否可搜索过滤'),
+  boolSwitch('显示路径', 'show-path', '选中后是否展示完整路径'),
+  textInput('路径分隔符', 'separator', 'show-path 时的路径分隔符', '/'),
+  boolSwitch('默认展开全部', 'default-expand-all', '是否默认展开全部节点'),
+  boolSwitch('点击展开', 'expand-on-click', '是否点击节点时展开'),
+  boolSwitch('菜单宽度一致', 'consistent-menu-width', '下拉菜单是否与触发器同宽'),
+  numberInput('最多标签数', 'max-tag-count', '多选时最多显示的标签数量'),
+  textInput('key 字段', 'key-field', '节点 key 对应字段名', 'key'),
+  textInput('label 字段', 'label-field', '节点文案对应字段名', 'label'),
+  textInput('children 字段', 'children-field', '子节点对应字段名', 'children'),
+  selectInput(
+    '尺寸',
+    'size',
+    [
+      { label: 'tiny', value: 'tiny' },
+      { label: 'small', value: 'small' },
+      { label: 'medium', value: 'medium' },
+      { label: 'large', value: 'large' },
+    ],
+    '组件尺寸（Naive UI）',
+  ),
+])
+
+/** 提及（Naive UI NMention） */
+export const mentionConfig = createConfig([
+  textInput('占位文本', 'placeholder', '未输入时的占位文案'),
+  textInput('触发前缀', 'prefix', '触发提及的前缀字符，长度须为 1', '@'),
+  textInput('分隔符', 'separator', '切分提及使用的字符，长度须为 1', ' '),
+  selectInput(
+    '输入类型',
+    'type',
+    [
+      { label: '单行', value: 'text' },
+      { label: '多行', value: 'textarea' },
+    ],
+    '输入框类型',
+  ),
+  boolSwitch('自适应高度', 'autosize', 'type 为 textarea 时是否自动调整高度'),
+  boolSwitch('显示边框', 'bordered', '是否显示输入框边框'),
+  boolSwitch('禁用', 'disabled', '是否禁用'),
+  boolSwitch('加载中', 'loading', '选择面板是否显示加载状态'),
+  selectInput(
+    '尺寸',
+    'size',
+    [
+      { label: 'tiny', value: 'tiny' },
+      { label: 'small', value: 'small' },
+      { label: 'medium', value: 'medium' },
+      { label: 'large', value: 'large' },
+    ],
+    '组件尺寸（Naive UI）',
+  ),
+  selectInput(
+    '面板位置',
+    'placement',
+    [
+      { label: 'bottom-start', value: 'bottom-start' },
+      { label: 'bottom', value: 'bottom' },
+      { label: 'bottom-end', value: 'bottom-end' },
+      { label: 'top-start', value: 'top-start' },
+      { label: 'top', value: 'top' },
+      { label: 'top-end', value: 'top-end' },
+    ],
+    '提及候选面板弹出位置',
+  ),
 ])
 
 /** 上传 */
