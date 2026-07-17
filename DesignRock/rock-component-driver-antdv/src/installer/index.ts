@@ -128,6 +128,7 @@ const allComponents: Partial<Record<RockComponent, any>> = {
   [RockComponent.InputGroup]: InputGroup,
   [RockComponent.InputGroupLabel]: InputGroupLabel,
   [RockComponent.InputNumber]: InputNumber,
+  [RockComponent.Link]: Typography.Link,
   [RockComponent.Layout]: Layout,
   [RockComponent.LayoutContent]: Layout.Content,
   [RockComponent.LayoutFooter]: Layout.Footer,

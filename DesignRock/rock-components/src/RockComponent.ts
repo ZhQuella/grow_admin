@@ -18,6 +18,7 @@ export enum RockComponent {
   Popover = 'Popover',
   Button = 'Button',
   ButtonGroup = 'ButtonGroup',
+  Link = 'Link',
   Avatar = 'Avatar',
   Statistic = 'Statistic',
   Select = 'Select',

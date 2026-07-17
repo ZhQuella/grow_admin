@@ -17,6 +17,8 @@
         :is="renderConfigComponent"
         :currentBasicConfig="currentBasicConfig"
         :currentPropsConfig="currentPropsConfig"
+        :currentStylesConfig="currentStylesConfig"
+        @update:currentStylesConfig="onUpdateStyles"
       />
       <p v-if="!renderConfigComponent" class="ele-options__placeholder">该面板建设中</p>
     </GrowScrollbar>
@@ -41,11 +43,19 @@ const props = defineProps({
 
 const { activeUUID, config } = toRefs(props)
 const tabModel = ref('props')
+
 const currentBasicConfig = computed(() => config.value['renderArgument'][activeUUID.value])
 const currentPropsConfig = computed(() => config.value['props'][activeUUID.value])
+const currentStylesConfig = computed(() => config.value.styles[activeUUID.value] || {})
+
+const onUpdateStyles = (value: Record<string, any>) => {
+  config.value.styles[activeUUID.value] = value
+}
+
 const renderConfigComponent = computed(() => {
   const renderMap: Record<string, string> = {
     props: 'componentConfig',
+    styles: 'styleConfig',
   }
   return renderMap[tabModel.value] || null
 })
@@ -53,10 +63,12 @@ const renderConfigComponent = computed(() => {
 
 <script lang="ts">
 import componentConfig from './componentConfig.vue'
+import styleConfig from './styleConfig.vue'
 
 export default {
   components: {
     componentConfig,
+    styleConfig,
   },
 }
 </script>

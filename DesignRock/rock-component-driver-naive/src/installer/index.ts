@@ -103,6 +103,7 @@ import {
 } from 'naive-ui';
 import Config from '#/components/Config.vue'
 import Drawer from '#/components/Drawer.vue'
+import Link from '#/components/Link.vue'
 import { AtomSpinner } from 'epic-spinners'
 import {
   ComponentEntry,
@@ -130,6 +131,7 @@ const allComponents = {
   [RockComponent.InputGroup]: NInputGroup,
   [RockComponent.InputGroupLabel]: NInputGroupLabel,
   [RockComponent.InputNumber]: NInputNumber,
+  [RockComponent.Link]: Link,
   [RockComponent.Form]: NForm,
   [RockComponent.FormItem]: NFormItem,
   [RockComponent.Thing]: NThing,

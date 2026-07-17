@@ -6,55 +6,64 @@
     {{ config.elName || config.elTagName }}（暂未接入）
   </div>
   <template v-else-if="config.elType === 'basic' && !config.isChild">
-    <basicComponent :config="config" :propsInfo="propsInfo" />
+    <basicComponent :config="config" :propsInfo="propsInfo" :styleInfo="styleInfo" />
   </template>
 
   <template v-else-if="config.elType === 'eleModule' && !config.isChild">
-    <eleModuleComponent :config="config" :propsInfo="propsInfo"/>
+    <eleModuleComponent :config="config" :propsInfo="propsInfo" :styleInfo="styleInfo" />
   </template>
 
   <template v-else-if="config.isChild">
     <template v-if="['div'].includes(config.elTagName)">
-      <draggable
-        group="draggable-group"
-        :animation="200"
-        item-key="uuid"
-        :component-data="{
-          tag: 'div',
-          type: 'transition-group',
-          name: 'draggable-group'
-        }"
-        :disabled="false"
-        ghostClass="ghost"
-        class="draggable-grop-wrap"
-        handle=".draggable-content-bar"
-        v-model="structure.children"
-        @add="onChildAdd"
+      <div
+        class="designer-container"
+        :class="{ 'is-inline-host': isInlineMappedDisplay }"
       >
-        <template #item="{ element }">
-          <DraggableItem
-            :structure="element"
-            @active="onActive"
-            @delete="onSpecialDelete"
-            @copy="onCopyItem"
-            @special="onDraggableAdd"
-          >
-            <abstractionComponent
-              :config="draggableConfig.renderArgument[element.uuid]"
-              :propsInfo="draggableConfig.props[element.uuid]"
+        <draggable
+          group="draggable-group"
+          :animation="200"
+          item-key="uuid"
+          :component-data="{
+            tag: 'div',
+            type: 'transition-group',
+            name: 'draggable-group'
+          }"
+          :disabled="false"
+          ghostClass="ghost"
+          chosenClass="chosen-item"
+          dragClass="drag-item"
+          class="draggable-grop-wrap"
+          :class="{ 'is-inline-mapped': isInlineMappedDisplay }"
+          :style="styleInfo"
+          handle=".draggable-content-bar"
+          v-model="structure.children"
+          @add="onChildAdd"
+        >
+          <template #item="{ element }">
+            <DraggableItem
               :structure="element"
-              @add="onAbstractionAdd"
+              @active="onActive"
               @delete="onSpecialDelete"
               @copy="onCopyItem"
-              @active="onActive"
-            />
-          </DraggableItem>
-        </template>
-      </draggable>
+              @special="onDraggableAdd"
+            >
+              <abstractionComponent
+                :config="draggableConfig.renderArgument[element.uuid]"
+                :propsInfo="draggableConfig.props[element.uuid]"
+                :structure="element"
+                @add="onAbstractionAdd"
+                @delete="onSpecialDelete"
+                @copy="onCopyItem"
+                @active="onActive"
+              />
+            </DraggableItem>
+          </template>
+        </draggable>
+      </div>
     </template>
 
     <template v-if="['GrowForm','GrowFormItem'].includes(config.elTagName)">
-      <component :is="config.elTagName" v-bind="propsInfo">
+      <component :is="config.elTagName" v-bind="propsInfo" :style="styleInfo">
         <draggable
             group="draggable-group"
             :animation="200"
@@ -66,6 +75,8 @@
             }"
             :disabled="false"
             ghostClass="ghost"
+            chosenClass="chosen-item"
+            dragClass="drag-item"
             class="draggable-grop-wrap is-full"
             handle=".draggable-content-bar"
             v-model="structure.children"
@@ -106,6 +117,7 @@
       title="Consistency"
       :span="12"
       :name="Math.random()"
+      :style="styleInfo"
     >
       <draggable
         group="draggable-group"
@@ -118,6 +130,8 @@
         }"
         :disabled="false"
         ghostClass="ghost"
+        chosenClass="chosen-item"
+        dragClass="drag-item"
         class="draggable-grop-wrap"
         handle=".draggable-content-bar"
         v-model="structure.children"
@@ -147,7 +161,7 @@
       </draggable>
     </component>
 
-    <GrowBadge v-if="config.elTagName === 'GrowBadge'" class="is-full">
+    <GrowBadge v-if="config.elTagName === 'GrowBadge'" class="is-full" :style="styleInfo">
       <draggable
         group="draggable-group"
         :animation="200"
@@ -159,6 +173,8 @@
         }"
         :disabled="false"
         ghostClass="ghost"
+        chosenClass="chosen-item"
+        dragClass="drag-item"
         class="draggable-grop-wrap"
         handle=".draggable-content-bar"
         v-model="structure.children"
@@ -186,7 +202,7 @@
       </draggable>
     </GrowBadge>
 
-    <GrowCard v-if="config.elTagName === 'GrowCard'">
+    <GrowCard v-if="config.elTagName === 'GrowCard'" :style="styleInfo">
       <template #header>
         <div class="card-header-row">
           <div>
@@ -208,6 +224,8 @@
         }"
         :disabled="false"
         ghostClass="ghost"
+        chosenClass="chosen-item"
+        dragClass="drag-item"
         class="draggable-grop-wrap"
         handle=".draggable-content-bar"
         v-model="structure.children"
@@ -238,7 +256,7 @@
     </GrowCard>
 
     <template v-if="['GrowTabs', 'GrowRow', 'GrowCollapse','GrowTimeline'].includes(config.elTagName)">
-      <component :is="config.elTagName" v-bind="propsInfo">
+      <component :is="config.elTagName" v-bind="propsInfo" :style="styleInfo">
         <abstractionComponent
           v-for="ele in structure.children"
           :structure="ele"
@@ -257,7 +275,7 @@
 
     <template v-if="['GrowDrawer', 'GrowModal'].includes(config.elTagName)">
       <!--todo 需要后续增加事件之后才能添加-->
-      <component :is="config.elTagName" v-bind="propsInfo">
+      <component :is="config.elTagName" v-bind="propsInfo" :style="styleInfo">
         <abstractionComponent
           v-for="ele in structure.children"
           :structure="ele"
@@ -278,7 +296,7 @@
 
 <script lang="ts" setup>
 import { DRAGGABLE_CONGIG } from "../../config/designation";
-import { inject, toRefs } from "vue";
+import { computed, inject, toRefs } from "vue";
 import draggable from "vuedraggable";
 import basicComponent from "./component/basicComponent/index.vue";
 import eleModuleComponent from "./component/eleModuleComponent/index.vue";
@@ -307,6 +325,37 @@ const props = withDefaults(defineProps<PropsType>(), {
 });
 
 const { structure, drag, propsInfo } = toRefs(props);
+
+/** 样式作用在映射组件上；尺寸由外框承接时组件铺满外框 */
+const styleInfo = computed(() => {
+  const uuid = structure.value?.uuid
+  if (!uuid) return undefined
+  const styles = { ...(draggableConfig?.styles?.[uuid] || {}) }
+  if (!Object.keys(styles).length) return undefined
+
+  const display = styles.display
+  const isInlineDisplay =
+    display === 'inline' || display === 'inline-block' || display === 'inline-flex'
+
+  const hasWidth = styles.width != null && styles.width !== ''
+  const hasHeight = styles.height != null && styles.height !== ''
+  if (hasWidth || hasHeight) {
+    styles['box-sizing'] = styles['box-sizing'] || 'border-box'
+    // 行内级保持真实 display，且不要把 100% 宽度灌进映射组件（与 GrowLink 一致）
+    if (hasWidth && !isInlineDisplay) styles.width = '100%'
+    if (hasWidth && isInlineDisplay && styles.width === '100%') {
+      Reflect.deleteProperty(styles, 'width')
+    }
+    if (hasHeight && !isInlineDisplay) styles.height = '100%'
+  }
+  return styles
+})
+
+/** 映射组件自身为 inline*（外框由 draggable-item 转为 inline-block） */
+const isInlineMappedDisplay = computed(() => {
+  const display = styleInfo.value?.display
+  return display === 'inline' || display === 'inline-block' || display === 'inline-flex'
+})
 
 const onAbstractionAdd = (event) => {
   emit("add", event);
@@ -344,6 +393,7 @@ const onCopyItem = (event) => {
 }
 
 .draggable-grop-wrap {
+  width: 100%;
   height: 100%;
   min-height: 48px;
   position: relative;
@@ -351,6 +401,7 @@ const onCopyItem = (event) => {
   border: 1px dashed var(--layout-border-color);
   border-radius: 6px;
   background-color: var(--color-primary-a04);
+  box-sizing: border-box;
 
   &.is-full {
     width: 100%;
@@ -364,5 +415,24 @@ const onCopyItem = (event) => {
 .card-header-row {
   display: flex;
   justify-content: space-between;
+}
+
+.designer-container {
+  width: 100%;
+  min-height: 48px;
+  box-sizing: border-box;
+
+  /* 避免 width:100% 把行内外框撑满整行 */
+  &.is-inline-host {
+    display: contents;
+  }
+}
+
+.draggable-grop-wrap.is-inline-mapped {
+  width: fit-content;
+  max-width: 100%;
+  height: auto;
+  min-height: 0;
+  vertical-align: top;
 }
 </style>

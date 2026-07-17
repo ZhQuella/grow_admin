@@ -1,9 +1,9 @@
 <template>
-  <component :is="level">{{ context }}</component>
+  <component :is="tag">{{ context }}</component>
 </template>
 
 <script setup lang="ts">
-import { toRefs } from "vue"
+import { computed, toRefs } from 'vue'
 
 interface PropsType {
   level: string
@@ -12,12 +12,13 @@ interface PropsType {
 
 const props = withDefaults(defineProps<PropsType>(), {
   level: 'h1',
-  context: ''
-});
+  context: '',
+})
 
 const { level, context } = toRefs(props)
+
+const tag = computed(() => {
+  const raw = String(level.value || 'h1').toLowerCase()
+  return /^h[1-6]$/.test(raw) ? raw : 'h1'
+})
 </script>
-
-<style scoped>
-
-</style>
