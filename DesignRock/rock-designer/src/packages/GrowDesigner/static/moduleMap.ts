@@ -125,16 +125,16 @@ export const BaseComponent = new Map([
           elName: "弹出框",
           elType: "eleModule",
           elTagName: "GrowPopover",
-          elIcon: "CloudAlerting",
+          elIcon: "Popover",
           isChild: true,
           isAdd: false,
           childName: ""
         },
         {
-          elName: "弹出框",
+          elName: "文字提示",
           elType: "eleModule",
           elTagName: "GrowTooltip",
-          elIcon: "Slisor",
+          elIcon: "Tooltip",
           isChild: true,
           isAdd: false,
           childName: ""
@@ -307,6 +307,15 @@ export const AtomicComponent = new Map([
           childName: ""
         },
         {
+          elName: "提及",
+          elType: "eleModule",
+          elTagName: "GrowMention",
+          elIcon: "Mention",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
           elName: "上传",
           elType: "eleModule",
           elTagName: "GrowUpload",
@@ -319,8 +328,7 @@ export const AtomicComponent = new Map([
           elName: "滑块",
           elType: "eleModule",
           elTagName: "GrowSlider",
-          unsupported: true,
-          elIcon: "NotAvailable",
+          elIcon: "Slider",
           isChild: false,
           isAdd: false,
           childName: ""
@@ -329,7 +337,6 @@ export const AtomicComponent = new Map([
           elName: "穿梭框",
           elType: "eleModule",
           elTagName: "GrowTransfer",
-          unsupported: true,
           elIcon: "StudyTransfer",
           isChild: false,
           isAdd: false,
@@ -406,10 +413,29 @@ export const AtomicComponent = new Map([
           childName: ""
         },
         {
+          elName: "时间",
+          elType: "eleModule",
+          elTagName: "GrowTime",
+          elIcon: "Time",
+          isChild: false,
+          isAdd: false,
+          childName: "",
+          isInlineBlock: true
+        },
+        {
+          elName: "文本省略",
+          elType: "eleModule",
+          elTagName: "GrowEllipsis",
+          elIcon: "Ellipsis",
+          isChild: false,
+          isAdd: false,
+          childName: "",
+          isInlineBlock: true
+        },
+        {
           elName: "日历",
           elType: "eleModule",
           elTagName: "GrowCalendar",
-          unsupported: true,
           elIcon: "CalendarHeatMap",
           isChild: false,
           isAdd: false,
@@ -418,8 +444,7 @@ export const AtomicComponent = new Map([
         {
           elName: "走马灯",
           elType: "eleModule",
-          elTagName: "GrowCalendar",
-          unsupported: true,
+          elTagName: "GrowCarousel",
           elIcon: "CarouselHorizontal",
           isChild: true,
           isAdd: true,
@@ -521,6 +546,18 @@ export const specificComponent = new Map([
       elType: "eleModule",
       elTagName: "GrowTimelineItem",
       elIcon: "IdcardOutlined",
+      isChild: true,
+      isAdd: false,
+      childName: ""
+    }
+  ],
+  [
+    "GrowCarouselItem",
+    {
+      elName: "走马灯项",
+      elType: "eleModule",
+      elTagName: "GrowCarouselItem",
+      elIcon: "CarouselHorizontal",
       isChild: true,
       isAdd: false,
       childName: ""

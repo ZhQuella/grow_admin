@@ -58,6 +58,8 @@ declare module 'vue' {
     GrowTabPane: import('vue').Component;
     GrowCollapse: import('vue').Component;
     GrowCollapseItem: import('vue').Component;
+    GrowCarousel: import('vue').Component;
+    GrowCarouselItem: import('vue').Component;
     GrowGrid: import('vue').Component;
     GrowGridItem: import('vue').Component;
     GrowEllipsis: import('vue').Component;
@@ -72,6 +74,9 @@ declare module 'vue' {
     GrowDescriptions: import('vue').Component;
     GrowDescriptionsItem: import('vue').Component;
     GrowSwitch: import('vue').Component;
+    GrowSlider: import('vue').Component;
+    GrowTransfer: import('vue').Component;
+    GrowCalendar: import('vue').Component;
     GrowLayout: import('vue').Component;
     GrowLayoutHeader: import('vue').Component;
     GrowLayoutFooter: import('vue').Component;
@@ -81,6 +86,7 @@ declare module 'vue' {
     GrowDropdownMenu: import('vue').Component;
     GrowDropdownItem: import('vue').Component;
     GrowTreeSelect: import('vue').Component;
+    GrowMention: import('vue').Component;
     GrowBadge: import('vue').Component;
     GrowListItem: import('vue').Component;
     GrowList: import('vue').Component;
@@ -100,6 +106,7 @@ declare module 'vue' {
     GrowPopSelect: import('vue').Component;
     GrowTimeline: import('vue').Component;
     GrowTimelineItem: import('vue').Component;
+    GrowTime: import('vue').Component;
     GrowScrollbar: import('vue').Component;
     GrowSkeleton: import('vue').Component;
     GrowTooltip: import('vue').Component;

@@ -90,6 +90,12 @@ export const useEvents = ({ draggableConfig, activeUUID }: props) => {
         'min-width': '96px',
       })
     }
+    if (renderArgument.elTagName === 'GrowEllipsis') {
+      Object.assign(styleSeed, {
+        width: '240px',
+        'max-width': '100%',
+      })
+    }
     draggableConfig.styles[uuid] = {
       ...styleSeed,
       ...(draggableConfig.styles[uuid] || {}),
@@ -120,6 +126,98 @@ export const useEvents = ({ draggableConfig, activeUUID }: props) => {
       Object.assign(defaultProps, {
         src: 'https://via.placeholder.com/120x80',
         alt: '图片',
+      })
+    }
+    if (renderArgument.elTagName === 'GrowCarousel') {
+      Object.assign(defaultProps, {
+        height: '200px',
+        autoplay: true,
+        interval: 3000,
+        arrow: 'hover',
+        loop: true,
+        direction: 'horizontal',
+        'pause-on-hover': true,
+      })
+    }
+    if (renderArgument.elTagName === 'GrowSlider') {
+      Object.assign(defaultProps, {
+        modelValue: 0,
+        min: 0,
+        max: 100,
+        step: 1,
+        'show-tooltip': true,
+      })
+    }
+    if (renderArgument.elTagName === 'GrowTransfer') {
+      Object.assign(defaultProps, {
+        modelValue: [],
+        data: [
+          { key: 1, label: '选项 1' },
+          { key: 2, label: '选项 2' },
+          { key: 3, label: '选项 3' },
+          { key: 4, label: '选项 4' },
+        ],
+        filterable: false,
+        titles: ['列表 1', '列表 2'],
+        'button-texts': [],
+        'target-order': 'original',
+      })
+    }
+    if (renderArgument.elTagName === 'GrowTreeSelect') {
+      Object.assign(defaultProps, {
+        value: null,
+        placeholder: '请选择',
+        clearable: true,
+        filterable: true,
+        size: 'medium',
+        options: [
+          {
+            label: '选项组 1',
+            key: '1',
+            children: [
+              { label: '选项 1-1', key: '1-1' },
+              { label: '选项 1-2', key: '1-2' },
+            ],
+          },
+          {
+            label: '选项组 2',
+            key: '2',
+            children: [{ label: '选项 2-1', key: '2-1' }],
+          },
+        ],
+      })
+    }
+    if (renderArgument.elTagName === 'GrowMention') {
+      Object.assign(defaultProps, {
+        value: '',
+        placeholder: '输入 @ 提及某人',
+        prefix: '@',
+        separator: ' ',
+        type: 'text',
+        bordered: true,
+        size: 'medium',
+        options: [
+          { label: '张三', value: 'zhangsan' },
+          { label: '李四', value: 'lisi' },
+          { label: '王五', value: 'wangwu' },
+        ],
+      })
+    }
+    if (renderArgument.elTagName === 'GrowTime') {
+      Object.assign(defaultProps, {
+        time: Date.now(),
+        type: 'datetime',
+        unix: false,
+        text: false,
+        format: 'yyyy-MM-dd HH:mm:ss',
+      })
+    }
+    if (renderArgument.elTagName === 'GrowEllipsis') {
+      Object.assign(defaultProps, {
+        content:
+          '这是一段很长的文本内容，超出容器宽度或设定行数后会被省略显示，悬浮可查看完整内容。',
+        'line-clamp': 1,
+        tooltip: true,
       })
     }
     draggableConfig.props[uuid] = {

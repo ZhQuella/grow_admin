@@ -106,7 +106,7 @@ const props = defineProps({
 const { styleOption, elTagName } = toRefs(props)
 
 /** 仅标题 / 正文 / 短语 / 容器 / 链接 可设置布局模式 */
-const LAYOUT_MODE_ALLOWED_TAGS = new Set(['BasicTitle', 'p', 'span', 'div', 'GrowLink'])
+const LAYOUT_MODE_ALLOWED_TAGS = new Set(['BasicTitle', 'p', 'span', 'div', 'GrowLink', 'GrowTime', 'GrowEllipsis'])
 
 const allowLayoutMode = computed(() => LAYOUT_MODE_ALLOWED_TAGS.has(elTagName.value))
 

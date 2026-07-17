@@ -110,13 +110,14 @@
 
     <component
       v-if="
-        ['GrowCol', 'GrowTabPane', 'GrowCollapseItem', 'GrowTimelineItem'].includes(config.elTagName)
+        ['GrowCol', 'GrowTabPane', 'GrowCollapseItem', 'GrowTimelineItem', 'GrowCarouselItem'].includes(config.elTagName)
       "
       :is="config.elTagName"
       label="User"
       title="Consistency"
       :span="12"
       :name="Math.random()"
+      v-bind="propsInfo"
       :style="styleInfo"
     >
       <draggable
@@ -255,7 +256,7 @@
       </draggable>
     </GrowCard>
 
-    <template v-if="['GrowTabs', 'GrowRow', 'GrowCollapse','GrowTimeline'].includes(config.elTagName)">
+    <template v-if="['GrowTabs', 'GrowRow', 'GrowCollapse','GrowTimeline', 'GrowCarousel'].includes(config.elTagName)">
       <component :is="config.elTagName" v-bind="propsInfo" :style="styleInfo">
         <abstractionComponent
           v-for="ele in structure.children"

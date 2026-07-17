@@ -71,7 +71,7 @@ const INLINE_DISPLAYS = new Set(['inline', 'inline-block', 'inline-flex'])
 const BLOCK_DISPLAYS = new Set(['block', 'flex', 'grid', 'flow-root', 'table'])
 
 /** 支持布局模式且需外框 inline-block / 内部保持原 display 的组件 */
-const INLINE_FRAME_TAGS = new Set(['BasicTitle', 'p', 'span', 'div', 'GrowLink'])
+const INLINE_FRAME_TAGS = new Set(['BasicTitle', 'p', 'span', 'div', 'GrowLink', 'GrowTime', 'GrowEllipsis'])
 
 interface Props {
   structure: any

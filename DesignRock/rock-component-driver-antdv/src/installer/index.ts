@@ -9,9 +9,11 @@ import {
   Button,
   Card,
   Cascader,
+  Calendar,
   Checkbox,
   Col,
   Collapse,
+  Carousel,
   ConfigProvider,
   DatePicker,
   Descriptions,
@@ -36,6 +38,7 @@ import {
   Space,
   Spin,
   Switch,
+  Slider,
   Tabs,
   Tag,
   Timeline,
@@ -44,9 +47,12 @@ import {
   TreeSelect,
   Table,
   Typography,
+  Transfer,
+  Mentions,
   Upload,
 } from 'ant-design-vue';
 import ButtonGroup from '#/components/ButtonGroup.vue'
+import CarouselItem from '#/components/CarouselItem.vue'
 import Config from '#/components/Config.vue'
 import Dialog from '#/components/Dialog.vue'
 import DialogProvider from '#/components/DialogProvider.vue'
@@ -80,6 +86,7 @@ import Statistic from '#/components/Statistic.vue'
 import Tab from '#/components/Tab.vue'
 import Text from '#/components/Text.vue'
 import Thing from '#/components/Thing.vue'
+import Time from '#/components/Time.vue'
 import UploadDragger from '#/components/UploadDragger.vue'
 
 const allComponents: Partial<Record<RockComponent, any>> = {
@@ -91,11 +98,14 @@ const allComponents: Partial<Record<RockComponent, any>> = {
   [RockComponent.ButtonGroup]: ButtonGroup,
   [RockComponent.Card]: Card,
   [RockComponent.Cascader]: Cascader,
+  [RockComponent.Calendar]: Calendar,
   [RockComponent.Checkbox]: Checkbox,
   [RockComponent.CheckboxGroup]: Checkbox.Group,
   [RockComponent.Col]: Col,
   [RockComponent.Collapse]: Collapse,
   [RockComponent.CollapseItem]: Collapse.Panel,
+  [RockComponent.Carousel]: Carousel,
+  [RockComponent.CarouselItem]: CarouselItem,
   [RockComponent.Config]: Config,
   [RockComponent.DatePicker]: DatePicker,
   [RockComponent.Descriptions]: Descriptions,
@@ -161,6 +171,8 @@ const allComponents: Partial<Record<RockComponent, any>> = {
   [RockComponent.Spinner]: Spinner,
   [RockComponent.Statistic]: Statistic,
   [RockComponent.Switch]: Switch,
+  [RockComponent.Slider]: Slider,
+  [RockComponent.Transfer]: Transfer,
   [RockComponent.Tab]: Tab,
   [RockComponent.TabPane]: Tabs.TabPane,
   [RockComponent.Tabs]: Tabs,
@@ -169,9 +181,11 @@ const allComponents: Partial<Record<RockComponent, any>> = {
   [RockComponent.Thing]: Thing,
   [RockComponent.Timeline]: Timeline,
   [RockComponent.TimelineItem]: Timeline.Item,
+  [RockComponent.Time]: Time,
   [RockComponent.Tooltip]: Tooltip,
   [RockComponent.Tree]: Tree,
   [RockComponent.TreeSelect]: TreeSelect,
+  [RockComponent.Mention]: Mentions,
   [RockComponent.Table]: Table,
   [RockComponent.TableColumn]: Table.Column,
   [RockComponent.Upload]: Upload,
