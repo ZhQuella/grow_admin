@@ -256,6 +256,54 @@
       </draggable>
     </GrowCard>
 
+    <GrowWatchBox
+      v-if="config.elTagName === 'GrowWatchBox'"
+      class="is-full grow-watch-box-host"
+      v-bind="propsInfo"
+      :style="styleInfo"
+    >
+      <draggable
+        group="draggable-group"
+        :animation="200"
+        item-key="uuid"
+        :component-data="{
+          tag: 'div',
+          type: 'transition-group',
+          name: 'draggable-group'
+        }"
+        :disabled="false"
+        ghostClass="ghost"
+        chosenClass="chosen-item"
+        dragClass="drag-item"
+        class="draggable-grop-wrap is-full grow-watch-box-drop"
+        handle=".draggable-content-bar"
+        v-model="structure.children"
+        @add="onChildAdd"
+      >
+        <template #item="{ element }">
+          <DraggableItem
+            :structure="element"
+            @active="onActive"
+            @delete="onSpecialDelete"
+            @copy="onCopyItem"
+            @special="onDraggableAdd"
+          >
+            <abstractionComponent
+              :config="draggableConfig.renderArgument[element.uuid]"
+              :propsInfo="draggableConfig.props[element.uuid]"
+              :structure="element"
+              :drag="drag"
+              @add="onAbstractionAdd"
+              @special="onDraggableAdd"
+              @delete="onSpecialDelete"
+              @copy="onCopyItem"
+              @active="onActive"
+            />
+          </DraggableItem>
+        </template>
+      </draggable>
+    </GrowWatchBox>
+
     <template v-if="['GrowTabs', 'GrowRow', 'GrowCollapse','GrowTimeline', 'GrowCarousel'].includes(config.elTagName)">
       <component :is="config.elTagName" v-bind="propsInfo" :style="styleInfo">
         <abstractionComponent
@@ -406,11 +454,29 @@ const onCopyItem = (event) => {
 
   &.is-full {
     width: 100%;
+    height: 100%;
   }
 }
 
 .is-full {
   width: 100%;
+  height: 100%;
+}
+
+.grow-watch-box-host {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+.grow-watch-box-drop {
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
 }
 
 .card-header-row {

@@ -57,6 +57,7 @@ import {
   ElTreeSelect,
   ElTransfer,
   ElMention,
+  ElTimePicker,
   ElUpload,
 } from 'element-plus';
 import ButtonGroup from '#/components/ButtonGroup.vue'
@@ -203,6 +204,7 @@ const allComponents: Partial<Record<RockComponent, any>> = {
   [RockComponent.Tree]: ElTree,
   [RockComponent.TreeSelect]: ElTreeSelect,
   [RockComponent.Mention]: ElMention,
+  [RockComponent.TimePicker]: ElTimePicker,
   [RockComponent.Upload]: ElUpload,
   [RockComponent.UploadDragger]: UploadDragger,
 };

@@ -20,7 +20,7 @@
           <component
             :is="item.eleType"
             v-bind="item.props || {}"
-            class="component-config__control"
+            class="component-config__control w-full"
             clearable
             v-model="currentPropsConfig[item.modelKey]"
           />

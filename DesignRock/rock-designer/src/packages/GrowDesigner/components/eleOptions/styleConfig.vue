@@ -55,7 +55,18 @@ const props = defineProps({
 })
 
 /** 与 ElementDisplay 保持一致：仅部分组件可配布局模式 */
-const LAYOUT_MODE_ALLOWED_TAGS = new Set(['BasicTitle', 'p', 'span', 'div', 'GrowLink', 'GrowTime', 'GrowEllipsis'])
+const LAYOUT_MODE_ALLOWED_TAGS = new Set([
+  'BasicTitle',
+  'p',
+  'span',
+  'div',
+  'GrowLink',
+  'GrowSwitch',
+  'GrowRadio',
+  'GrowCheckbox',
+  'GrowTime',
+  'GrowEllipsis',
+])
 
 /** 仅标题 / 正文 / 短语 / 容器可配背景色 */
 const BACKGROUND_ALLOWED_TAGS = new Set(['BasicTitle', 'p', 'span', 'div'])

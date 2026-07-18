@@ -19,7 +19,7 @@ export const EL_TO_GROW_TAG: Record<string, { tag: string; unsupported?: boolean
   'el-input-number': { tag: 'GrowInputNumber' },
   'el-cascader': { tag: 'GrowCascader' },
   'el-switch': { tag: 'GrowSwitch' },
-  'el-time-picker': { tag: 'GrowTimePicker', unsupported: true },
+  'el-time-picker': { tag: 'GrowTimePicker' },
   'el-date-picker': { tag: 'GrowDatePicker' },
   'el-radio': { tag: 'GrowRadio' },
   'el-checkbox': { tag: 'GrowCheckbox' },
@@ -52,7 +52,6 @@ export function resolveGrowTag(elTagName: string): { tag: string; unsupported: b
   }
   if (elTagName.startsWith('Grow') || ['img', 'p', 'span', 'div', 'BasicTitle'].includes(elTagName)) {
     const unsupportedPlaceholders = new Set([
-      'GrowTimePicker',
       'GrowTreeV2',
       'GrowAlert',
     ])

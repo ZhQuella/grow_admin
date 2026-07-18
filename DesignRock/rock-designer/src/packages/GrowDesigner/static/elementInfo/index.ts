@@ -4,6 +4,7 @@ import {
   colConfig,
   collapseConfig,
   collapseItemConfig,
+  watchBoxConfig,
   divConfig,
   imageConfig,
   paragraphConfig,
@@ -36,6 +37,7 @@ import {
   checkboxConfig,
   checkboxGroupConfig,
   datePickerConfig,
+  timePickerConfig,
   formConfig,
   formItemConfig,
   inputConfig,
@@ -69,6 +71,7 @@ export const elementPropsMap: Record<string, any[]> = {
   GrowCol: colConfig.props,
   GrowCollapse: collapseConfig.props,
   GrowCollapseItem: collapseItemConfig.props,
+  GrowWatchBox: watchBoxConfig.props,
 
   // 反馈 / 浮层
   GrowModal: modalConfig.props,
@@ -89,6 +92,7 @@ export const elementPropsMap: Record<string, any[]> = {
   GrowSlider: sliderConfig.props,
   GrowTransfer: transferConfig.props,
   GrowDatePicker: datePickerConfig.props,
+  GrowTimePicker: timePickerConfig.props,
   GrowRadio: radioConfig.props,
   GrowCheckbox: checkboxConfig.props,
   GrowRadioGroup: radioGroupConfig.props,

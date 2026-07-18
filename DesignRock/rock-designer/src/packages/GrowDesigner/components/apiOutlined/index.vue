@@ -22,7 +22,7 @@
 
     <div
       v-if="drawerVisible"
-      class="absolute bottom-0 left-full top-0 z-20 flex w-100 flex-col border-l border-solid border-border bg-component shadow-card"
+      class="absolute bottom-0 left-full top-0 z-20 flex w-[520px] flex-col border-l border-solid border-border bg-component shadow-card"
     >
       <div
         class="flex h-11 shrink-0 items-center justify-between gap-2 border-b border-solid border-border px-3"

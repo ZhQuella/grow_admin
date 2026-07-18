@@ -79,16 +79,15 @@
       </div>
 
       <div class="grow-designer__canvas">
-        <GrowScrollbar class="grow-designer__canvas-scroll draggable-content">
-          <DraggableView
-            :draggableConfig="draggableConfig"
-            @add="onDraggableViewAdd"
-            @special="onSpecialAdd"
-            @active="onActivated"
-            @delete="onDeleteItem"
-            @copy="onCopyItem"
-          />
-        </GrowScrollbar>
+        <DraggableView
+          class="draggable-content"
+          :draggableConfig="draggableConfig"
+          @add="onDraggableViewAdd"
+          @special="onSpecialAdd"
+          @active="onActivated"
+          @delete="onDeleteItem"
+          @copy="onCopyItem"
+        />
         <div v-if="!draggableConfig.structures.length" class="grow-designer__empty">
           <div class="grow-designer__empty-inner">
             <GrowIconify icon="carbon:application" :size="56" class="grow-designer__empty-icon" />
@@ -408,13 +407,9 @@ export default defineComponent({
   min-width: 0;
   height: 100%;
   min-height: 0;
+  overflow: hidden;
   z-index: 1;
   background: var(--layout-container-background-color);
-}
-
-.grow-designer__canvas-scroll {
-  width: 100%;
-  height: 100%;
 }
 
 .grow-designer__empty {

@@ -1,5 +1,5 @@
 import type { Ref } from "vue";
-import { specificComponent } from "../static/moduleMap";
+import { FORM_MODULE_FULL_WIDTH_TAGS, specificComponent } from "../static/moduleMap";
 import { nanoid } from "nanoid";
 import {
   getAllChilds,
@@ -94,6 +94,18 @@ export const useEvents = ({ draggableConfig, activeUUID }: props) => {
       Object.assign(styleSeed, {
         width: '240px',
         'max-width': '100%',
+      })
+    }
+    if (FORM_MODULE_FULL_WIDTH_TAGS.has(renderArgument.elTagName)) {
+      Object.assign(styleSeed, {
+        width: '100%',
+      })
+    }
+    if (renderArgument.elTagName === 'GrowWatchBox') {
+      Object.assign(styleSeed, {
+        width: '100%',
+        height: '100%',
+        'min-height': '120px',
       })
     }
     draggableConfig.styles[uuid] = {
@@ -218,6 +230,20 @@ export const useEvents = ({ draggableConfig, activeUUID }: props) => {
           '这是一段很长的文本内容，超出容器宽度或设定行数后会被省略显示，悬浮可查看完整内容。',
         'line-clamp': 1,
         tooltip: true,
+      })
+    }
+    if (renderArgument.elTagName === 'GrowTimePicker') {
+      Object.assign(defaultProps, {
+        value: null,
+        placeholder: '请选择时间',
+        format: 'HH:mm:ss',
+        clearable: true,
+        size: 'medium',
+      })
+    }
+    if (FORM_MODULE_FULL_WIDTH_TAGS.has(renderArgument.elTagName)) {
+      Object.assign(defaultProps, {
+        class: 'w-full',
       })
     }
     draggableConfig.props[uuid] = {
