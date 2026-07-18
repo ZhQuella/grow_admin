@@ -180,6 +180,7 @@ const allComponents = {
   [RockComponent.List]: NList,
   [RockComponent.Cascader]: NCascader,
   [RockComponent.DatePicker]: NDatePicker,
+  [RockComponent.TimePicker]: NTimePicker,
   [RockComponent.FormItemGi]: NFormItemGi,
   [RockComponent.Tree]: NTree,
   [RockComponent.Table]: NDataTable,

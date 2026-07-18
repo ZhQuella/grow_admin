@@ -82,12 +82,9 @@ const onCopyItem = (event: any) => {
 
 <style lang="scss" scoped>
 .draggable-grop-wrap {
-  height: 100%;
-  min-height: 100%;
   box-sizing: border-box;
+  min-height: 100%;
+  height: auto;
   padding: 8px;
-  border: 1px dashed var(--layout-border-color);
-  border-radius: 6px;
-  background-color: var(--component-background-color);
 }
 </style>

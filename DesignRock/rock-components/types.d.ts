@@ -92,6 +92,7 @@ declare module 'vue' {
     GrowList: import('vue').Component;
     GrowCascader: import('vue').Component;
     GrowDatePicker: import('vue').Component;
+    GrowTimePicker: import('vue').Component;
     GrowFormItemGi: import('vue').Component;
     GrowTree: import('vue').Component;
     GrowTable: import('vue').Component;

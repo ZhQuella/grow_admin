@@ -10,6 +10,7 @@
       v-else-if="config.elTagName"
       :is="config.elTagName"
       v-bind="bindProps"
+      :class="{ 'w-full': isFormFullWidth }"
       :style="styleInfo"
     >
       <span v-if="config.elTagName === 'GrowButton'">{{ propsInfo.content }}</span>
@@ -21,6 +22,7 @@
 
 <script setup lang="ts">
 import { computed, toRefs } from 'vue'
+import { FORM_MODULE_FULL_WIDTH_TAGS } from '../../../../static/moduleMap'
 
 interface PropsType {
   config: any
@@ -38,8 +40,12 @@ const { config, propsInfo, styleInfo } = toRefs(props)
 
 const isUnsupported = computed(() => Boolean(config.value.unsupported))
 
+const isFormFullWidth = computed(() =>
+  FORM_MODULE_FULL_WIDTH_TAGS.has(config.value?.elTagName),
+)
+
 const isSocket = computed(() => {
-  const slotMap = ['GrowCard', 'GrowTabs', 'GrowRow']
+  const slotMap = ['GrowCard', 'GrowTabs', 'GrowRow', 'GrowWatchBox']
   return slotMap.includes(config.value.elTagName)
 })
 
@@ -101,6 +107,21 @@ const bindProps = computed(() => {
     }
     if (info.split === undefined && info.separator !== undefined) {
       info.split = info.separator
+    }
+  }
+  // Naive UI TimePicker：value；Element Plus / antdv 兼容 modelValue
+  if (config.value?.elTagName === 'GrowTimePicker') {
+    if (info.value === undefined && info.modelValue !== undefined) {
+      info.value = info.modelValue
+    }
+    if (info.modelValue === undefined && info.value !== undefined) {
+      info.modelValue = info.value
+    }
+    if (info['time-zone'] === '' || info['time-zone'] == null) {
+      Reflect.deleteProperty(info, 'time-zone')
+    }
+    if (info.timeZone === '' || info.timeZone == null) {
+      Reflect.deleteProperty(info, 'timeZone')
     }
   }
   // Naive UI Time：保证 time / to 为可用的数字时间戳

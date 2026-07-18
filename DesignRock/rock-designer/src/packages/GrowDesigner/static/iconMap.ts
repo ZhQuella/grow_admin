@@ -9,6 +9,7 @@ const ICON_MAP: Record<string, string> = {
   DataBaseAlt: 'carbon:data-base-alt',
   OpenPanelRight: 'carbon:open-panel-right',
   RowCollapse: 'carbon:row-collapse',
+  WatchBox: 'carbon:area-custom',
   Chat: 'carbon:chat',
   Notebook: 'carbon:notebook',
   Popover: 'ant-design:message-outlined',

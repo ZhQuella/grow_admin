@@ -142,3 +142,8 @@ export const collapseItemConfig = createConfig([
   textInput('标识', 'name', '唯一标识符'),
   boolSwitch('禁用', 'disabled', '是否禁用'),
 ])
+
+/** 尺寸监听容器 WatchBox */
+export const watchBoxConfig = createConfig([
+  textInput('类名', 'class', '自定义 class'),
+])

@@ -5,7 +5,7 @@
         ref="formRef"
         :model="model"
         :rules="rules"
-        label-width="48px"
+        label-width="120px"
         label-position="left"
         size="small"
       >
@@ -13,7 +13,12 @@
           <GrowInput v-model="model.name" placeholder="请输入" clearable />
         </GrowFormItem>
         <GrowFormItem label="描述" prop="description">
-          <GrowInput v-model="model.description" placeholder="请输入" clearable />
+          <GrowInput
+            v-model="model.description"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入"
+          />
         </GrowFormItem>
       </GrowForm>
     </div>

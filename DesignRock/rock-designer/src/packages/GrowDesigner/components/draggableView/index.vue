@@ -1,13 +1,17 @@
 <template>
   <div class="draggable-view">
-    <draggableContent
-      :draggableConfig="draggableConfig"
-      @add="onDraggableAdd"
-      @special="onSpecialAdd"
-      @active="onActive"
-      @delete="onDeleteItem"
-      @copy="onCopyItem"
-    />
+    <div class="draggable-stage">
+      <GrowScrollbar class="draggable-stage__scroll">
+        <draggableContent
+          :draggableConfig="draggableConfig"
+          @add="onDraggableAdd"
+          @special="onSpecialAdd"
+          @active="onActive"
+          @delete="onDeleteItem"
+          @copy="onCopyItem"
+        />
+      </GrowScrollbar>
+    </div>
   </div>
 </template>
 
@@ -35,8 +39,45 @@ const { onDraggableAdd, onSpecialAdd, onActive, onDeleteItem, onCopyItem } = use
   box-sizing: border-box;
   width: 100%;
   height: 100%;
-  min-height: 100%;
+  min-height: 0;
   padding: 5px;
+}
+
+/* 白色展示区外壳：固定高度，滚动发生在内部 */
+.draggable-stage {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px dashed var(--layout-border-color);
+  border-radius: 6px;
+  background-color: var(--component-background-color);
+}
+
+.draggable-stage__scroll {
+  flex: 1 1 auto;
+  width: 100%;
+  height: 0;
+  min-height: 0;
+}
+
+.draggable-stage__scroll :deep(.n-scrollbar),
+.draggable-stage__scroll :deep(.el-scrollbar) {
+  height: 100%;
+}
+
+.draggable-stage__scroll :deep(.n-scrollbar-container),
+.draggable-stage__scroll :deep(.el-scrollbar__wrap) {
+  max-height: 100%;
+}
+
+.draggable-stage__scroll :deep(.n-scrollbar-content),
+.draggable-stage__scroll :deep(.el-scrollbar__view) {
+  min-height: 100%;
+  box-sizing: border-box;
 }
 </style>
 

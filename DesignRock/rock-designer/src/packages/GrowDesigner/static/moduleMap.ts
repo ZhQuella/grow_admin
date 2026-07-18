@@ -1,3 +1,18 @@
+/** 表单组件：画布默认铺满宽度（w-full / width:100%） */
+export const FORM_MODULE_FULL_WIDTH_TAGS = new Set([
+  'GrowInput',
+  'GrowInputNumber',
+  'GrowSelect',
+  'GrowCascader',
+  'GrowTimePicker',
+  'GrowDatePicker',
+  'GrowTreeSelect',
+  'GrowMention',
+  'GrowUpload',
+  'GrowSlider',
+  'GrowTransfer',
+])
+
 export const BaseComponent = new Map([
   [
     "basicsElement",
@@ -94,6 +109,15 @@ export const BaseComponent = new Map([
           isChild: true,
           isAdd: true,
           childName: "GrowCollapseItem"
+        },
+        {
+          elName: "尺寸监听",
+          elType: "eleModule",
+          elTagName: "GrowWatchBox",
+          elIcon: "WatchBox",
+          isChild: true,
+          isAdd: false,
+          childName: ""
         }
       ]
     }
@@ -258,13 +282,13 @@ export const AtomicComponent = new Map([
           elIcon: "JoinLeft",
           isChild: false,
           isAdd: false,
-          childName: ""
+          childName: "",
+          isInlineBlock: true
         },
         {
           elName: "时间选择器",
           elType: "eleModule",
           elTagName: "GrowTimePicker",
-          unsupported: true,
           elIcon: "Timer",
           isChild: false,
           isAdd: false,
@@ -286,7 +310,8 @@ export const AtomicComponent = new Map([
           elIcon: "RadioButtonChecked",
           isChild: false,
           isAdd: false,
-          childName: ""
+          childName: "",
+          isInlineBlock: true
         },
         {
           elName: "多选",
@@ -295,7 +320,8 @@ export const AtomicComponent = new Map([
           elIcon: "CheckboxChecked",
           isChild: false,
           isAdd: false,
-          childName: ""
+          childName: "",
+          isInlineBlock: true
         },
         {
           elName: "树形选择",

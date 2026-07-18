@@ -303,6 +303,45 @@ export const datePickerConfig = createConfig([
   sizeSelect(),
 ])
 
+/** 时间选择器（Naive UI NTimePicker） */
+export const timePickerConfig = createConfig([
+  textInput('占位文本', 'placeholder', '未选择时的占位文案'),
+  textInput('格式', 'format', '时间显示格式（date-fns），如 HH:mm:ss', 'HH:mm:ss'),
+  textInput('值格式', 'value-format', 'formatted-value 的格式，默认跟随 format'),
+  boolSwitch('可清空', 'clearable', '是否显示清除按钮'),
+  boolSwitch('禁用', 'disabled', '是否禁用'),
+  boolSwitch('输入框只读', 'input-readonly', '输入框只读，避免移动端弹出键盘'),
+  boolSwitch('12 小时制', 'use-12-hours', '是否使用 12 小时制面板'),
+  numberInput('小时步进', 'hours', '小时步进；也可在数据中配置为数组限定可选小时'),
+  numberInput('分钟步进', 'minutes', '分钟步进；也可在数据中配置为数组限定可选分钟'),
+  numberInput('秒步进', 'seconds', '秒步进；也可在数据中配置为数组限定可选秒'),
+  selectInput(
+    '尺寸',
+    'size',
+    [
+      { label: 'tiny', value: 'tiny' },
+      { label: 'small', value: 'small' },
+      { label: 'medium', value: 'medium' },
+      { label: 'large', value: 'large' },
+    ],
+    '组件尺寸（Naive UI）',
+  ),
+  selectInput(
+    '面板位置',
+    'placement',
+    [
+      { label: 'bottom-start', value: 'bottom-start' },
+      { label: 'bottom', value: 'bottom' },
+      { label: 'bottom-end', value: 'bottom-end' },
+      { label: 'top-start', value: 'top-start' },
+      { label: 'top', value: 'top' },
+      { label: 'top-end', value: 'top-end' },
+    ],
+    '面板弹出位置',
+  ),
+  textInput('时区', 'time-zone', '格式化使用的 IANA 时区，如 Asia/Shanghai'),
+])
+
 /** 单选 */
 export const radioConfig = createConfig([
   textInput('绑定值', 'modelValue', '绑定值'),
