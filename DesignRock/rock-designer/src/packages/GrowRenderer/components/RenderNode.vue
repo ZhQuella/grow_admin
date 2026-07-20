@@ -232,13 +232,28 @@
       <template #default="{ height: watchHeight }">
         <component
           :is="tag"
+          :key="tableColumnsKey"
           v-bind="tableBaseProps"
           :height="watchHeight > 0 ? watchHeight : undefined"
           class="w-full"
-        />
+        >
+          <TableColumnNodes :columns="rawProps.columns || []" />
+        </component>
       </template>
     </GrowWatchBox>
   </div>
+
+  <!-- GrowTable：普通渲染（带多级表头） -->
+  <component
+    v-else-if="isModuleLeaf && tag === 'GrowTable'"
+    :is="tag"
+    :key="tableColumnsKey"
+    v-bind="moduleProps"
+    :class="[nodeClass, { 'w-full': isFormFullWidth }]"
+    :style="nodeStyle"
+  >
+    <TableColumnNodes :columns="rawProps.columns || []" />
+  </component>
 
   <!-- 模块叶子 -->
   <component
@@ -277,6 +292,8 @@ import {
   resolveBoundProps,
 } from '../utils/resolveBoundProps'
 import RenderPageLayout from './RenderPageLayout.vue'
+import TableColumnNodes from '../../GrowDesigner/components/shared/TableColumnNodes.vue'
+import { tableColumnsSignature } from '../../GrowDesigner/static/tableColumnUtils'
 
 defineOptions({ name: 'RenderNode' })
 
@@ -361,6 +378,10 @@ const tableBaseProps = computed(() => {
   Reflect.deleteProperty(info, 'fitLayoutMainHeight')
   return info
 })
+/** 列配置变化时强制重建表格，确保列属性生效 */
+const tableColumnsKey = computed(
+  () => `cols:${tableColumnsSignature(rawProps.value?.columns)}`,
+)
 const scrollbarModuleProps = computed(() =>
   normalizeModuleProps(tag.value || '', rawProps.value),
 )

@@ -10,12 +10,17 @@
       v-else-if="config.elTagName"
       :is="config.elTagName"
       v-bind="bindProps"
+      :key="moduleRenderKey"
       :class="{ 'w-full': isFormFullWidth }"
       :style="styleInfo"
     >
       <span v-if="config.elTagName === 'GrowButton'">{{ propsInfo.content }}</span>
       <span v-else-if="config.elTagName === 'GrowLink'">{{ propsInfo.content }}</span>
       <template v-else-if="config.elTagName === 'GrowEllipsis'">{{ propsInfo.content }}</template>
+      <TableColumnNodes
+        v-else-if="config.elTagName === 'GrowTable'"
+        :columns="propsInfo.columns || []"
+      />
     </component>
   </template>
 </template>
@@ -24,6 +29,8 @@
 import { computed, inject, toRefs } from 'vue'
 import { FORM_MODULE_FULL_WIDTH_TAGS } from '../../../../static/moduleMap'
 import { LAYOUT_MAIN_SIZE, type LayoutMainSize } from '../../../../config/designation'
+import { tableColumnsSignature } from '../../../../static/tableColumnUtils'
+import TableColumnNodes from '../../../shared/TableColumnNodes.vue'
 
 interface PropsType {
   config: any
@@ -46,6 +53,14 @@ const isUnsupported = computed(() => Boolean(config.value.unsupported))
 const isFormFullWidth = computed(() =>
   FORM_MODULE_FULL_WIDTH_TAGS.has(config.value?.elTagName),
 )
+
+/** 表格列配置变化时强制重建，确保 align / fixed 等列属性生效 */
+const moduleRenderKey = computed(() => {
+  if (config.value?.elTagName !== 'GrowTable') {
+    return config.value?.elTagName || 'module'
+  }
+  return `GrowTable:${tableColumnsSignature(propsInfo.value?.columns)}`
+})
 
 const isSocket = computed(() => {
   const slotMap = [
@@ -157,6 +172,7 @@ const bindProps = computed(() => {
   // 设计器：表格真实子树可 inject 主区域高度
   if (config.value?.elTagName === 'GrowTable') {
     Reflect.deleteProperty(info, 'fitLayoutMainHeight')
+    Reflect.deleteProperty(info, 'columns')
     if (info.height === 'layout-main' || propsInfo.value?.fitLayoutMainHeight) {
       Reflect.deleteProperty(info, 'height')
       if (layoutMainSize && layoutMainSize.height > 0) {

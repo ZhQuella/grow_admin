@@ -72,6 +72,7 @@ export function normalizeModuleProps(
 
   if (tag === 'GrowTable') {
     Reflect.deleteProperty(info, 'fitLayoutMainHeight')
+    Reflect.deleteProperty(info, 'columns')
     if (info.height === 'layout-main') {
       Reflect.deleteProperty(info, 'height')
     }

@@ -1,4 +1,5 @@
 import { FORM_MODULE_FULL_WIDTH_TAGS } from './moduleMap'
+import { createDefaultTableColumns } from './tableColumnUtils'
 
 /** 行内块元素的默认画布样式 */
 export const INLINE_BLOCK_STYLES: Record<string, string> = {
@@ -143,6 +144,11 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
     'show-close': true,
     'close-on-click-modal': true,
     'close-on-press-escape': true,
+  },
+  GrowTable: {
+    border: true,
+    stripe: false,
+    'show-header': true,
   },
   GrowSlider: {
     modelValue: 0,
@@ -340,6 +346,9 @@ export const resolveDefaultProps = (elTagName?: string): Record<string, any> => 
   }
   if (elTagName === 'GrowTime') {
     props.time = Date.now()
+  }
+  if (elTagName === 'GrowTable') {
+    props.columns = createDefaultTableColumns()
   }
   if (elTagName && FORM_MODULE_FULL_WIDTH_TAGS.has(elTagName)) {
     props.class = 'w-full'
