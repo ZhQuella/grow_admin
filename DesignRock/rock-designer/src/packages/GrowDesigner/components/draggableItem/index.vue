@@ -18,6 +18,15 @@
         title="拖拽排序"
       />
       <GrowIconify
+        v-if="isOverlayHost"
+        class="draggable-item__action"
+        icon="carbon:launch"
+        :size="14"
+        hover-pointer
+        :title="overlayOpenTitle"
+        @click.stop="onOpenOverlayEditor"
+      />
+      <GrowIconify
         class="draggable-item__action"
         icon="carbon:copy"
         :size="14"
@@ -51,11 +60,12 @@
 
 <script setup lang="ts">
 import type { Ref } from 'vue'
-import { ACTIVE_UUID, DRAGGABLE_CONGIG } from '../../config/designation'
+import { ACTIVE_UUID, DRAGGABLE_CONGIG, OVERLAY_EDIT_UUID } from '../../config/designation'
 import { inject, computed, toRefs } from 'vue'
 
 const draggableConfig: any = inject(DRAGGABLE_CONGIG)
 const activeUUID = inject(ACTIVE_UUID) as Ref<string>
+const overlayEditUUID = inject(OVERLAY_EDIT_UUID, null) as Ref<string> | null
 
 /** 外框同步的尺寸相关样式 */
 const FRAME_SIZE_KEYS = [
@@ -82,6 +92,9 @@ const INLINE_FRAME_TAGS = new Set([
   'GrowCheckbox',
   'GrowTime',
   'GrowEllipsis',
+  'GrowTooltip',
+  'GrowPopover',
+  'GrowSearchBar',
 ])
 
 interface Props {
@@ -109,7 +122,27 @@ const currentStyles = computed(() => {
   return draggableConfig.styles?.[uuid.value] || {}
 })
 
+/** 滚动条：高度由组件 props 控制，不重复写到外框（避免与 body padding 叠加） */
+const effectiveFrameStyles = computed(() => {
+  return { ...currentStyles.value }
+})
+
 const isAdd = computed(() => currentArgument?.value?.isAdd)
+
+const isOverlayHost = computed(() => {
+  const tag = currentArgument.value?.elTagName
+  return tag === 'GrowModal' || tag === 'GrowDrawer'
+})
+
+const overlayOpenTitle = computed(() =>
+  currentArgument.value?.elTagName === 'GrowDrawer' ? '打开抽屉编辑' : '打开弹窗编辑',
+)
+
+const onOpenOverlayEditor = () => {
+  if (!overlayEditUUID || !uuid.value) return
+  overlayEditUUID.value = uuid.value
+  activeUUID.value = uuid.value
+}
 
 const isInlineBlockDefault = computed(() => Boolean(currentArgument?.value?.isInlineBlock))
 
@@ -137,13 +170,13 @@ const isInlineLevel = computed(() => {
 
 const hasFrameSize = computed(() =>
   FRAME_SIZE_KEYS.some((key) => {
-    const value = currentStyles.value[key]
+    const value = effectiveFrameStyles.value[key]
     return value != null && value !== ''
   }),
 )
 
 const frameStyle = computed(() => {
-  const styles = currentStyles.value
+  const styles = effectiveFrameStyles.value
   const result: Record<string, string> = {
     'box-sizing': 'border-box',
   }
@@ -179,6 +212,15 @@ const frameStyle = computed(() => {
     if (key === 'width' && isInlineFrame) {
       // 用户显式设了具体宽度时才覆盖 fit-content
       result.width = value
+      continue
+    }
+    // 布局容器 height:100% 相对舞台实测高度，避免父级仅有 min-height 时塌陷
+    if (
+      key === 'height' &&
+      tag === 'GrowLayout' &&
+      (value === '100%' || value === '100vh')
+    ) {
+      result.height = 'var(--designer-stage-height, 100%)'
       continue
     }
     result[key] = value

@@ -1,12 +1,18 @@
 /** 将旧 Element Plus 标签映射到 Grow*；无对应实现时保留并标记 unsupported */
 export const EL_TO_GROW_TAG: Record<string, { tag: string; unsupported?: boolean }> = {
   'el-card': { tag: 'GrowCard' },
+  'el-scrollbar': { tag: 'GrowScrollbar' },
   'el-tabs': { tag: 'GrowTabs' },
   'el-tab-pane': { tag: 'GrowTabPane' },
   'el-row': { tag: 'GrowRow' },
   'el-col': { tag: 'GrowCol' },
   'el-collapse': { tag: 'GrowCollapse' },
   'el-collapse-item': { tag: 'GrowCollapseItem' },
+  'el-container': { tag: 'GrowLayout' },
+  'el-header': { tag: 'GrowLayoutHeader' },
+  'el-aside': { tag: 'GrowLayoutSider' },
+  'el-main': { tag: 'GrowLayoutContent' },
+  'el-footer': { tag: 'GrowLayoutFooter' },
   'el-dialog': { tag: 'GrowModal' },
   'el-drawer': { tag: 'GrowDrawer' },
   'el-popover': { tag: 'GrowPopover' },

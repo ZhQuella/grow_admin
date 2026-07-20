@@ -12,7 +12,7 @@
     ghost-class="ghost"
     chosen-class="chosen-item"
     drag-class="drag-item"
-    :empty-insert-threshold="40"
+    :empty-insert-threshold="120"
     v-model="draggableConfig.structures"
     class="draggable-grop-wrap"
     handle=".draggable-content-bar"
@@ -83,8 +83,14 @@ const onCopyItem = (event: any) => {
 <style lang="scss" scoped>
 .draggable-grop-wrap {
   box-sizing: border-box;
-  min-height: 100%;
-  height: auto;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  /*
+   * 用舞台实测高度撑满可投放区域（兼容空画布拖入），
+   * 内容超出后仍可继续增高并由外层滚动，不锁死 height。
+   */
+  min-height: var(--designer-stage-height, 100%);
   padding: 8px;
 }
 </style>

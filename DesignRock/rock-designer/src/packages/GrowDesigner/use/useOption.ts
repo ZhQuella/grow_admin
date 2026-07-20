@@ -1,5 +1,5 @@
 import { reactive, provide, ref } from "vue";
-import { ACTIVE_UUID, DRAGGABLE_CONGIG } from "../config/designation";
+import { ACTIVE_UUID, DRAGGABLE_CONGIG, OVERLAY_EDIT_UUID } from "../config/designation";
 
 export const useOption = () => {
   const draggableConfig = reactive({
@@ -22,9 +22,11 @@ export const useOption = () => {
   });
 
   const activeUUID = ref("");
+  const overlayEditUUID = ref("");
 
   provide(DRAGGABLE_CONGIG, draggableConfig);
   provide(ACTIVE_UUID, activeUUID);
+  provide(OVERLAY_EDIT_UUID, overlayEditUUID);
 
   const optionConfig = reactive({
     title: "组件库",
@@ -88,6 +90,7 @@ export const useOption = () => {
 
   return {
     activeUUID,
+    overlayEditUUID,
     optionConfig,
     draggableConfig,
     onLeftOptionClick,

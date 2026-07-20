@@ -15,6 +15,7 @@
     <GrowScrollbar class="ele-options__scroll">
       <component
         :is="renderConfigComponent"
+        :activeUUID="activeUUID"
         :currentBasicConfig="currentBasicConfig"
         :currentPropsConfig="currentPropsConfig"
         :currentStylesConfig="currentStylesConfig"
@@ -56,6 +57,7 @@ const renderConfigComponent = computed(() => {
   const renderMap: Record<string, string> = {
     props: 'componentConfig',
     styles: 'styleConfig',
+    renderArgument: 'advancedConfig',
   }
   return renderMap[tabModel.value] || null
 })
@@ -64,11 +66,13 @@ const renderConfigComponent = computed(() => {
 <script lang="ts">
 import componentConfig from './componentConfig.vue'
 import styleConfig from './styleConfig.vue'
+import advancedConfig from './advancedConfig.vue'
 
 export default {
   components: {
     componentConfig,
     styleConfig,
+    advancedConfig,
   },
 }
 </script>
