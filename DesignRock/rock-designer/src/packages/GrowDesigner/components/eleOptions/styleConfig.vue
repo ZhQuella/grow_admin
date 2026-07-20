@@ -36,6 +36,8 @@ import ElementBorder from '../../optionComponent/ElementBorder/index.vue'
 import ElementBackground from '../../optionComponent/ElementBackground/index.vue'
 import ElementShadow from '../../optionComponent/ElementShadow/index.vue'
 import ElementDisplay from '../../optionComponent/ElementDisplay/index.vue'
+import ElementText from '../../optionComponent/ElementText/index.vue'
+import { TEXT_ALLOWED_TAGS } from '../../optionComponent/ElementText/constants'
 
 defineOptions({ name: 'styleConfig' })
 
@@ -78,6 +80,14 @@ const BORDER_ALLOWED_TAGS = new Set(['img', 'BasicTitle', 'p', 'span', 'div'])
 const SHADOW_ALLOWED_TAGS = BORDER_ALLOWED_TAGS
 
 const styleGroups = [
+  {
+    key: 'text',
+    title: '文字设置',
+    summary: '设置文字颜色、字号、样式与对齐',
+    describe: '仅标题、正文、短语支持。可调节颜色透明度、字号、加粗斜体下划线、对齐方式、字距与行高；点击「…」打开更多文本设置。',
+    component: ElementText,
+    visible: () => TEXT_ALLOWED_TAGS.has(props.currentBasicConfig?.elTagName),
+  },
   {
     key: 'size',
     title: '尺寸与间距',
@@ -186,6 +196,7 @@ const onUpdateStyle = (value: Record<string, any>) => {
 }
 
 .style-config__body {
+  :deep(.element-text),
   :deep(.element-size),
   :deep(.element-radius),
   :deep(.element-border),

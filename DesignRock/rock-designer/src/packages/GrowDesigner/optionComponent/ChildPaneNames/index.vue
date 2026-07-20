@@ -146,6 +146,7 @@ const cleanupNode = (node: any) => {
     Reflect.deleteProperty(draggableConfig.props, el.uuid)
     Reflect.deleteProperty(draggableConfig.events, el.uuid)
     Reflect.deleteProperty(draggableConfig.renderArgument, el.uuid)
+    Reflect.deleteProperty(draggableConfig.propBindModes, el.uuid)
   }
 }
 

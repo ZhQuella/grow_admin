@@ -5,11 +5,12 @@ import {
   selectInput,
   sizeSelect,
   textInput,
+  variableBindInput,
 } from './shared'
 
 /** 弹窗：设计态用面板壳编辑；运行时由 modelValue / 事件控制显隐 */
 export const modalConfig = createConfig([
-  textInput('标题', 'title', '对话框标题'),
+  variableBindInput('标题', 'title', '对话框标题，支持变量绑定'),
   boolSwitch('默认显示', 'modelValue', '运行时初始是否显示；设计态用工具栏打开模拟编辑层；预览不强制打开'),
   boolSwitch('启用页脚', 'showFooter', '开启后显示弹窗页脚拖入区域'),
   boolSwitch('显示关闭', 'show-close', '是否显示关闭按钮'),
@@ -25,7 +26,7 @@ export const modalConfig = createConfig([
 
 /** 抽屉：设计态用面板壳编辑；运行时由 modelValue / 事件控制显隐 */
 export const drawerConfig = createConfig([
-  textInput('标题', 'title', '抽屉标题'),
+  variableBindInput('标题', 'title', '抽屉标题，支持变量绑定'),
   boolSwitch('默认显示', 'modelValue', '运行时初始是否显示；设计态用工具栏打开模拟编辑层；预览不强制打开'),
   boolSwitch('启用页脚', 'showFooter', '开启后显示抽屉页脚拖入区域'),
   selectInput(

@@ -91,11 +91,14 @@ export const useDataSource = (data: Ref<Record<string, any>>) => {
     }
 
     const index = list.findIndex((item) => item.id === payload.id)
+    const next = list.slice()
     if (index >= 0) {
-      list[index] = payload
+      next[index] = payload
     } else {
-      list.push(payload)
+      next.push(payload)
     }
+    // 替换数组引用，确保绑定组件 / 预览跟随更新
+    data.value.dataSource = next
 
     message.success(editingId.value ? '修改成功' : '添加成功')
     onClose()
@@ -105,7 +108,7 @@ export const useDataSource = (data: Ref<Record<string, any>>) => {
     const list = ensureDataSourceList()
     const index = list.findIndex((item) => item.id === id)
     if (index < 0) return
-    list.splice(index, 1)
+    data.value.dataSource = list.filter((item) => item.id !== id)
     if (editingId.value === id) {
       onClose()
     }

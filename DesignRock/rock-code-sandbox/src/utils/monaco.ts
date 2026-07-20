@@ -6,6 +6,8 @@ export type MonacoTheme = 'vs' | 'vs-dark'
 /** 映射到 Monaco 内置 language id */
 function resolveLanguage(language: string) {
   if (language === 'vue') return 'html'
+  // 表达式：直接书写字面量（字符串/数字/布尔/对象/数组/null），沿用 JS 高亮
+  if (language === 'expression') return 'javascript'
   return language
 }
 

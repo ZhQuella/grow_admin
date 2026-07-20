@@ -15,9 +15,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, provide, ref } from 'vue'
 import RenderNode from './components/RenderNode.vue'
 import type { DesignerSchema } from './types'
+import { GROW_RUNTIME_STATE } from '../GrowDesigner/config/designation'
+import { buildRuntimeState } from './utils/resolveBoundProps'
 
 defineOptions({ name: 'GrowRenderer' })
 
@@ -34,6 +36,12 @@ const props = withDefaults(
 const resolvedSchema = computed<DesignerSchema>(() => props.schema || {})
 
 const structures = computed(() => resolvedSchema.value.structures || [])
+
+/** 预览态 runtime state：随 schema.dataSource 变更重算 */
+const runtimeState = computed(() =>
+  buildRuntimeState(resolvedSchema.value.dataSource),
+)
+provide(GROW_RUNTIME_STATE, runtimeState)
 
 const pageStyle = computed(() => {
   const page = resolvedSchema.value.pageConfig || {}

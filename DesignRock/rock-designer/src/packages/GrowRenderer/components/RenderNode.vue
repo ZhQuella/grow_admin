@@ -255,9 +255,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, provide, reactive } from 'vue'
+import { computed, inject, provide, reactive, type ComputedRef } from 'vue'
 import { FORM_MODULE_FULL_WIDTH_TAGS } from '../../GrowDesigner/static/moduleMap'
 import {
+  GROW_RUNTIME_STATE,
   LAYOUT_MAIN_SIZE,
   type LayoutMainSize,
 } from '../../GrowDesigner/config/designation'
@@ -271,6 +272,10 @@ import {
   resolveNodeStyle,
   toRendererRelativeSize,
 } from '../utils/normalizeProps'
+import {
+  buildRuntimeState,
+  resolveBoundProps,
+} from '../utils/resolveBoundProps'
 import RenderPageLayout from './RenderPageLayout.vue'
 
 defineOptions({ name: 'RenderNode' })
@@ -290,7 +295,23 @@ const contentChildren = computed(() => props.node.contentSlot || [])
 const headerChildren = computed(() => props.node.headerSlot || [])
 const asideChildren = computed(() => props.node.asideSlot || [])
 const config = computed(() => props.schema.renderArgument?.[uuid.value])
-const rawProps = computed(() => props.schema.props?.[uuid.value] || {})
+const injectedRuntimeState = inject<ComputedRef<Record<string, unknown>> | null>(
+  GROW_RUNTIME_STATE,
+  null,
+)
+const runtimeState = computed(
+  () =>
+    injectedRuntimeState?.value ??
+    buildRuntimeState(props.schema.dataSource),
+)
+/** 按 propBindModes 求值后的 props（绑定字段已解析为展示值） */
+const rawProps = computed(() =>
+  resolveBoundProps(
+    props.schema.props?.[uuid.value] || {},
+    props.schema.propBindModes?.[uuid.value],
+    runtimeState.value,
+  ),
+)
 const rawStyles = computed(() => props.schema.styles?.[uuid.value])
 
 const tag = computed(() => config.value?.elTagName as string | undefined)

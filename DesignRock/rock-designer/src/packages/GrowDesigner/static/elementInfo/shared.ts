@@ -148,6 +148,29 @@ export const dimensionInput = (
   },
 })
 
+/** 可输入 + 变量绑定（加号弹出绑定弹窗） */
+export const variableBindInput = (
+  name: string,
+  modelKey: string,
+  describe?: string,
+  placeholder?: string,
+): PropConfigItem => ({
+  eleType: 'PropVariableBind',
+  name,
+  describe,
+  modelKey,
+  props: {
+    placeholder: placeholder || `请输入${name}或绑定变量`,
+  },
+})
+
+/** 组件默认值（绑定到 modelValue，支持变量） */
+export const defaultValueBind = (
+  describe = '组件初始默认值，支持变量绑定',
+  modelKey = 'modelValue',
+): PropConfigItem =>
+  variableBindInput('默认值', modelKey, describe, '请输入默认值或绑定变量')
+
 export const createConfig = (props: PropConfigItem[]): ElementInfoConfig => ({
   props,
   styles: {},

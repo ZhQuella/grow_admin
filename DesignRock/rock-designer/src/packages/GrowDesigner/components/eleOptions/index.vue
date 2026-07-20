@@ -19,7 +19,9 @@
         :currentBasicConfig="currentBasicConfig"
         :currentPropsConfig="currentPropsConfig"
         :currentStylesConfig="currentStylesConfig"
+        :currentBindModes="currentBindModes"
         @update:currentStylesConfig="onUpdateStyles"
+        @update:currentBindModes="onUpdateBindModes"
       />
       <p v-if="!renderConfigComponent" class="ele-options__placeholder">该面板建设中</p>
     </GrowScrollbar>
@@ -48,9 +50,19 @@ const tabModel = ref('props')
 const currentBasicConfig = computed(() => config.value['renderArgument'][activeUUID.value])
 const currentPropsConfig = computed(() => config.value['props'][activeUUID.value])
 const currentStylesConfig = computed(() => config.value.styles[activeUUID.value] || {})
+const currentBindModes = computed(
+  () => config.value.propBindModes?.[activeUUID.value] || {},
+)
 
 const onUpdateStyles = (value: Record<string, any>) => {
   config.value.styles[activeUUID.value] = value
+}
+
+const onUpdateBindModes = (value: Record<string, string>) => {
+  if (!config.value.propBindModes) {
+    config.value.propBindModes = {}
+  }
+  config.value.propBindModes[activeUUID.value] = value
 }
 
 const renderConfigComponent = computed(() => {

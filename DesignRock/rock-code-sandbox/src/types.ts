@@ -2,6 +2,7 @@ import type { Component } from 'vue'
 
 /**
  * GrowCodeEditor 内置语言（不含 typescript）。
+ * expression：直接书写 JS 字面量 / 表达式（字符串、数字、布尔、对象、数组、null 等）
  */
 export type CodeEditorLanguage =
   | 'javascript'
@@ -10,6 +11,7 @@ export type CodeEditorLanguage =
   | 'json'
   | 'vue'
   | 'sql'
+  | 'expression'
 
 /** @deprecated 请使用 CodeEditorLanguage；沙箱场景可继续用扩展语言 */
 export type CodeLanguage = CodeEditorLanguage | 'typescript'
@@ -27,6 +29,7 @@ export const CODE_EDITOR_LANGUAGE_OPTIONS: CodeEditorLanguageOption[] = [
   { label: 'JSON', value: 'json' },
   { label: 'Vue 3', value: 'vue' },
   { label: 'SQL', value: 'sql' },
+  { label: '表达式', value: 'expression' },
 ]
 
 /** 语言切换事件载荷 */

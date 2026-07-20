@@ -53,7 +53,7 @@
         <GrowCodeEditor
           v-model="processor.code"
           class="h-full"
-          default-language="javascript"
+          default-language="expression"
           :language-switchable="false"
         />
       </div>

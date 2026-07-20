@@ -7,6 +7,7 @@ import {
   numberInput,
   selectInput,
   textInput,
+  variableBindInput,
 } from './shared'
 
 /** 标题 BasicTitle */
@@ -23,23 +24,23 @@ export const basicTitleConfig = createConfig([
     ],
     '标题级别',
   ),
-  textInput('展示内容', 'context', '展示在标签中的文字内容'),
+  variableBindInput('展示内容', 'context', '展示在标签中的文字内容，支持变量绑定'),
 ])
 
 /** 图片 img */
 export const imageConfig = createConfig([
-  textInput('图片地址', 'src', '图片的路径，用于指定图片的来源地址', '请输入 URL'),
-  textInput('替代文本', 'alt', '图片无法加载时显示的文字，提高可访问性', '请输入 alt'),
+  variableBindInput('图片地址', 'src', '图片的路径，用于指定图片的来源地址，支持变量绑定', '请输入 URL 或绑定变量'),
+  variableBindInput('替代文本', 'alt', '图片无法加载时显示的文字，提高可访问性，支持变量绑定', '请输入 alt 或绑定变量'),
 ])
 
 /** 正文 p */
 export const paragraphConfig = createConfig([
-  textInput('展示内容', 'context', '段落文本内容'),
+  variableBindInput('展示内容', 'context', '段落文本内容，支持变量绑定'),
 ])
 
 /** 短语 span */
 export const spanConfig = createConfig([
-  textInput('展示内容', 'context', '行内文本内容'),
+  variableBindInput('展示内容', 'context', '行内文本内容，支持变量绑定'),
 ])
 
 /** 容器 div */
@@ -50,7 +51,7 @@ export const divConfig = createConfig([
 
 /** 卡片 */
 export const cardConfig = createConfig([
-  textInput('标题', 'header', '卡片头部标题'),
+  variableBindInput('标题', 'header', '卡片头部标题，支持变量绑定'),
   selectInput(
     '阴影时机',
     'shadow',
