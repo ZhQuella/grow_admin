@@ -2,7 +2,8 @@ import type { Component } from 'vue'
 
 /**
  * GrowCodeEditor 内置语言（不含 typescript）。
- * expression：直接书写 JS 字面量 / 表达式（字符串、数字、布尔、对象、数组、null 等）
+ * expression：直接书写 JS 字面量 / 表达式（如 `{ a: 1 }`、`state.x`）；
+ * 使用独立 Monaco 语言，避免按 JS 语句校验导致对象字面量误报。
  */
 export type CodeEditorLanguage =
   | 'javascript'
