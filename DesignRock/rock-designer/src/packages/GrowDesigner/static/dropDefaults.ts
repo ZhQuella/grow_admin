@@ -323,6 +323,11 @@ export const resolveDefaultStyles = (
   if (elTagName && FORM_MODULE_FULL_WIDTH_TAGS.has(elTagName)) {
     styles.width = '100%'
   }
+  // 链接：保留行内块，不设默认最小宽高
+  if (elTagName === 'GrowLink') {
+    Reflect.deleteProperty(styles, 'min-width')
+    Reflect.deleteProperty(styles, 'min-height')
+  }
   return styles
 }
 
