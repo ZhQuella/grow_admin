@@ -61,7 +61,7 @@ async function update() {
   }
 }
 
-watch(() => props.icon, update, { flush: 'post' })
+watch(iconRef, update, { flush: 'post' })
 
 onMounted(update)
 </script>

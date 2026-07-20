@@ -111,10 +111,19 @@ export const BaseComponent = new Map([
           childName: "GrowCollapseItem"
         },
         {
-          elName: "尺寸监听",
+          elName: "滚动条",
           elType: "eleModule",
-          elTagName: "GrowWatchBox",
-          elIcon: "WatchBox",
+          elTagName: "GrowScrollbar",
+          elIcon: "Scrollbar",
+          isChild: true,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "布局容器",
+          elType: "eleModule",
+          elTagName: "GrowLayout",
+          elIcon: "Container",
           isChild: true,
           isAdd: false,
           childName: ""
@@ -152,7 +161,8 @@ export const BaseComponent = new Map([
           elIcon: "Popover",
           isChild: true,
           isAdd: false,
-          childName: ""
+          childName: "",
+          isInlineBlock: true
         },
         {
           elName: "文字提示",
@@ -161,7 +171,8 @@ export const BaseComponent = new Map([
           elIcon: "Tooltip",
           isChild: true,
           isAdd: false,
-          childName: ""
+          childName: "",
+          isInlineBlock: true
         }
       ]
     }
@@ -226,6 +237,16 @@ export const AtomicComponent = new Map([
           elType: "eleModule",
           elTagName: "GrowLink",
           elIcon: "Link",
+          isChild: false,
+          isAdd: false,
+          childName: "",
+          isInlineBlock: true
+        },
+        {
+          elName: "高级搜索",
+          elType: "eleModule",
+          elTagName: "GrowSearchBar",
+          elIcon: "SearchBar",
           isChild: false,
           isAdd: false,
           childName: "",
@@ -453,6 +474,16 @@ export const AtomicComponent = new Map([
           elType: "eleModule",
           elTagName: "GrowEllipsis",
           elIcon: "Ellipsis",
+          isChild: false,
+          isAdd: false,
+          childName: "",
+          isInlineBlock: true
+        },
+        {
+          elName: "图标",
+          elType: "eleModule",
+          elTagName: "GrowIconify",
+          elIcon: "Iconify",
           isChild: false,
           isAdd: false,
           childName: "",

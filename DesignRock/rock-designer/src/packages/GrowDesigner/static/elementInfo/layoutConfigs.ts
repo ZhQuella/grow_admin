@@ -1,6 +1,9 @@
 import {
   boolSwitch,
+  childColSpans,
+  childPaneNames,
   createConfig,
+  dimensionInput,
   numberInput,
   selectInput,
   textInput,
@@ -58,6 +61,8 @@ export const cardConfig = createConfig([
     ],
     '卡片阴影显示时机',
   ),
+  boolSwitch('启用页脚', 'showFooter', '开启后显示卡片页脚拖入区域'),
+  boolSwitch('启用操作', 'showHeaderExtra', '开启后在标题右侧显示操作拖入区域'),
 ])
 
 /** 选项卡 */
@@ -85,6 +90,17 @@ export const tabsConfig = createConfig([
     '选项卡所在位置',
   ),
   boolSwitch('拉伸', 'stretch', '标签是否自动撑开'),
+  childPaneNames(
+    '选项名称',
+    {
+      childName: 'GrowTabPane',
+      titleKey: 'label',
+      nameKey: 'name',
+      activeKey: 'modelValue',
+      titlePrefix: '选项',
+    },
+    '增删选项卡子项，并设置标题与标识',
+  ),
 ])
 
 /** 选项 */
@@ -120,6 +136,11 @@ export const rowConfig = createConfig([
     ],
     'flex 布局下的垂直排列方式',
   ),
+  childColSpans(
+    '列配置',
+    { childName: 'GrowCol', defaultSpan: 12 },
+    '增删列并设置 span / offset / push / pull',
+  ),
 ])
 
 /** 布局 Col */
@@ -134,6 +155,17 @@ export const colConfig = createConfig([
 export const collapseConfig = createConfig([
   boolSwitch('手风琴', 'accordion', '是否手风琴模式'),
   textInput('展开项', 'modelValue', '当前展开的面板 name'),
+  childPaneNames(
+    '面板名称',
+    {
+      childName: 'GrowCollapseItem',
+      titleKey: 'title',
+      nameKey: 'name',
+      activeKey: 'modelValue',
+      titlePrefix: '面板',
+    },
+    '增删折叠面板子项，并设置标题与标识',
+  ),
 ])
 
 /** 折叠项 */
@@ -143,7 +175,31 @@ export const collapseItemConfig = createConfig([
   boolSwitch('禁用', 'disabled', '是否禁用'),
 ])
 
-/** 尺寸监听容器 WatchBox */
-export const watchBoxConfig = createConfig([
+/** 滚动条容器 Scrollbar */
+export const scrollbarConfig = createConfig([
+  dimensionInput('高度', 'height', { placeholder: '200' }, '滚动区域高度，支持 px / % / vh'),
+  dimensionInput('最大高度', 'max-height', { placeholder: '400' }, '滚动区域最大高度，支持 px / % / vh'),
+  boolSwitch('始终显示', 'always', '是否始终显示滚动条'),
   textInput('类名', 'class', '自定义 class'),
+])
+
+/** 布局容器：通过 layout 选择常见页面结构 */
+export const layoutConfig = createConfig([
+  selectInput(
+    '布局方式',
+    'layout',
+    [
+      { label: '顶栏 + 主区域', value: 'header-main' },
+      { label: '顶栏 + 主区域 + 底栏', value: 'header-main-footer' },
+      { label: '侧边栏 + 主区域', value: 'aside-main' },
+      { label: '顶栏 + 侧边栏 + 主区域', value: 'header-aside-main' },
+      { label: '顶栏 + 侧边栏 + 主区域 + 底栏', value: 'header-aside-main-footer' },
+      { label: '侧边栏 + 顶栏 + 主区域', value: 'aside-header-main' },
+      { label: '侧边栏 + 顶栏 + 主区域 + 底栏', value: 'aside-header-main-footer' },
+    ],
+    '选择常见页面布局结构，切换后各区域内容会保留',
+  ),
+  textInput('顶栏高度', 'headerHeight', 'Header 高度，默认 40px'),
+  textInput('侧边栏宽度', 'asideWidth', 'Aside 宽度，默认 200px'),
+  textInput('底栏高度', 'footerHeight', 'Footer 高度，默认 60px'),
 ])

@@ -33,8 +33,17 @@ const treeData = computed(() => {
   return deepCopyArray(data.value.structures);
 });
 
+const resolveNodeLabel = (uuid: string) => {
+  const arg = data.value.renderArgument?.[uuid] || {}
+  const propsInfo = data.value.props?.[uuid] || {}
+  const tag = arg.elTagName
+  if (tag === 'GrowTabPane' && propsInfo.label) return propsInfo.label
+  if (tag === 'GrowCollapseItem' && propsInfo.title) return propsInfo.title
+  return arg.elName || tag || ''
+}
+
 const renderContent = (_, { data: nodeData }) => {
-  return `${data.value.renderArgument[nodeData.uuid].elName} `;
+  return `${resolveNodeLabel(nodeData.uuid)} `;
 };
 
 const onNodeClick = ({ uuid }) => {

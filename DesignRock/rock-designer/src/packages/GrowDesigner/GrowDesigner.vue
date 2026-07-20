@@ -16,11 +16,27 @@
         </GrowButton>
         <span class="grow-designer__toolbar-desc">从左侧拖入组件到画布</span>
       </div>
-      <GrowButton size="small" type="primary">
+      <GrowButton size="small" type="primary" @click.stop="onPreview">
         <GrowIconify icon="carbon:play" :size="14" class="grow-designer__toolbar-icon" />
         预览
       </GrowButton>
     </div>
+
+    <GrowDrawer
+      v-model="previewVisible"
+      title="页面预览"
+      direction="btt"
+      placement="bottom"
+      size="90%"
+      height="90%"
+      :destroy-on-close="true"
+      class="grow-designer__preview-drawer"
+      @click.stop
+    >
+      <GrowRenderer :schema="previewSchema">
+        <template #empty>空预览</template>
+      </GrowRenderer>
+    </GrowDrawer>
 
     <div class="grow-designer__body">
       <aside class="grow-designer__rail" @mouseup.stop>
@@ -94,6 +110,17 @@
             <p class="grow-designer__empty-title">请从左侧组件库中拖入组件</p>
           </div>
         </div>
+        <OverlayEditor
+          v-if="overlayEditUUID"
+          :uuid="overlayEditUUID"
+          :draggable-config="draggableConfig"
+          @close="overlayEditUUID = ''"
+          @add="onDraggableViewAdd"
+          @special="onSpecialAdd"
+          @active="onActivated"
+          @delete="onDeleteItem"
+          @copy="onCopyItem"
+        />
       </div>
 
       <div class="grow-designer__inspector" @click.stop>
@@ -108,7 +135,11 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from 'vue'
 import DraggableView from './components/draggableView/index.vue'
+import OverlayEditor from './components/overlayEditor/index.vue'
+import { GrowRenderer } from '../GrowRenderer'
+import type { DesignerSchema } from '../GrowRenderer/types'
 import { useOption } from './use/useOption'
 import { useEvents } from './use/useEvents'
 
@@ -128,6 +159,7 @@ const {
   onChangeOptionFixed,
   onLeftClose,
   activeUUID,
+  overlayEditUUID,
 } = useOption()
 
 const {
@@ -142,7 +174,23 @@ const {
 } = useEvents({
   draggableConfig,
   activeUUID,
+  overlayEditUUID,
 })
+
+const previewVisible = ref(false)
+
+/** 预览只传结构 / 样式 / 属性（不做数据源与事件） */
+const previewSchema = computed<DesignerSchema>(() => ({
+  structures: draggableConfig.structures,
+  renderArgument: draggableConfig.renderArgument,
+  props: draggableConfig.props,
+  styles: draggableConfig.styles,
+  pageConfig: draggableConfig.pageConfig,
+}))
+
+const onPreview = () => {
+  previewVisible.value = true
+}
 </script>
 
 <script lang="ts">
@@ -480,18 +528,34 @@ export default defineComponent({
   max-height: 100%;
 }
 
-:deep(.draggable-content .el-scrollbar__wrap),
-:deep(.draggable-content .n-scrollbar-container) {
+:deep(.grow-designer__preview-drawer.el-drawer),
+:deep(.grow-designer__preview-drawer.n-drawer) {
   display: flex;
   flex-direction: column;
-  min-height: 100%;
 }
 
-:deep(.draggable-content .el-scrollbar__view),
-:deep(.draggable-content .n-scrollbar-content) {
-  flex: 1;
+:deep(.grow-designer__preview-drawer .el-drawer__body),
+:deep(.grow-designer__preview-drawer .n-drawer-body-content-wrapper) {
+  flex: 1 1 auto;
+  padding: 0;
+  height: 0;
+  min-height: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  background: var(--layout-container-background-color);
+}
+
+:deep(.grow-designer__preview-drawer .grow-renderer) {
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+:deep(.draggable-content) {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 </style>

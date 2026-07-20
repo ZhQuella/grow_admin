@@ -1,6 +1,31 @@
 /**
  * 设计器结构树工具：按 uuid 查找 / 删除 / 更新节点。
+ * 子节点集合：children（默认）+ footerSlot / optionSlot（GrowCard）+ contentSlot（GrowPopover）
+ * + headerSlot / asideSlot（GrowLayout）
  */
+
+const CHILD_KEYS = ['children', 'footerSlot', 'optionSlot', 'contentSlot', 'headerSlot', 'asideSlot'] as const
+
+const pushChildLists = (node: any, sink: any[]) => {
+  for (const key of CHILD_KEYS) {
+    const list = node?.[key]
+    if (Array.isArray(list) && list.length > 0) {
+      sink.push(...list)
+    }
+  }
+}
+
+const forEachChildList = (node: any, fn: (list: any[], key: string) => void) => {
+  for (const key of CHILD_KEYS) {
+    const list = node?.[key]
+    if (Array.isArray(list)) {
+      fn(list, key)
+    }
+  }
+}
+
+const hasAnyChildList = (node: any) =>
+  CHILD_KEYS.some((key) => Array.isArray(node?.[key]) && node[key].length > 0)
 
 export const getAllChilds = (arr: any[], isOnlyChild = false) => {
   const result: any[] = []
@@ -11,14 +36,24 @@ export const getAllChilds = (arr: any[], isOnlyChild = false) => {
       result.push({
         uuid: node.uuid,
         children: node.children,
+        footerSlot: node.footerSlot,
+        optionSlot: node.optionSlot,
+        contentSlot: node.contentSlot,
+        headerSlot: node.headerSlot,
+        asideSlot: node.asideSlot,
       })
     }
-    if (node.children && node.children.length > 0) {
-      stack.push(...node.children)
+    if (hasAnyChildList(node)) {
+      pushChildLists(node, stack)
     } else if (isOnlyChild) {
       result.push({
         uuid: node.uuid,
         children: node.children,
+        footerSlot: node.footerSlot,
+        optionSlot: node.optionSlot,
+        contentSlot: node.contentSlot,
+        headerSlot: node.headerSlot,
+        asideSlot: node.asideSlot,
       })
     }
   }
@@ -94,10 +129,15 @@ export const deleteByUUID = (data: any[], targetUUID: string) => {
     const { parent, node } = queue.shift() as any
     if (node.uuid === targetUUID) {
       if (parent) {
-        const index = parent.children.indexOf(node)
-        if (index > -1) {
-          parent.children.splice(index, 1)
-        }
+        let removed = false
+        forEachChildList(parent, (list) => {
+          if (removed) return
+          const index = list.indexOf(node)
+          if (index > -1) {
+            list.splice(index, 1)
+            removed = true
+          }
+        })
       } else {
         const index = newData.indexOf(node)
         if (index > -1) {
@@ -106,26 +146,27 @@ export const deleteByUUID = (data: any[], targetUUID: string) => {
       }
       break
     }
-    if (node.children && node.children.length > 0) {
-      node.children.forEach((child: any) => queue.push({ parent: node, node: child }))
-    }
+    forEachChildList(node, (list) => {
+      list.forEach((child: any) => queue.push({ parent: node, node: child }))
+    })
   }
   return newData
 }
 
 export const findArrayByUUID = (data: any, targetUUID: string) => {
   const dataCopy = deepCloneDesigner(data)
-  const queue = [{ parent: null as any, children: dataCopy }]
+  const queue = [{ parent: null as any, children: dataCopy, key: 'children' as string }]
   while (queue.length > 0) {
-    const { parent, children } = queue.shift() as any
+    const { parent, children, key } = queue.shift() as any
     for (let i = 0; i < children.length; i++) {
       const child = children[i]
       if (child.uuid === targetUUID) {
-        return parent ? parent.children : dataCopy
+        if (!parent) return dataCopy
+        return parent[key] || []
       }
-      if (child.children) {
-        queue.push({ parent: child, children: child.children })
-      }
+      forEachChildList(child, (list, childKey) => {
+        queue.push({ parent: child, children: list, key: childKey })
+      })
     }
   }
   return []
@@ -140,9 +181,9 @@ export const findParentByUUID = (data: any[], targetUUID: string) => {
       if (child.uuid === targetUUID) {
         return parent
       }
-      if (child.children) {
-        queue.push({ parent: child, node: child.children })
-      }
+      forEachChildList(child, (list) => {
+        queue.push({ parent: child, node: list })
+      })
     }
   }
   return null
@@ -158,9 +199,7 @@ export const updateArrayUUIDs = (data: any[], callback: (uuid: string) => string
     const node = queue.shift() as any
     const oldUUID = node.uuid
     node.uuid = callback(oldUUID)
-    if (node.children && Array.isArray(node.children)) {
-      queue.push(...node.children)
-    }
+    pushChildLists(node, queue)
   }
   return dataCopy
 }
@@ -171,9 +210,7 @@ export const updateUUIDs = (data: any, callback: (uuid: string) => string) => {
   while (stack.length > 0) {
     const node = stack.pop()
     node.uuid = callback(node.uuid)
-    if (node.children && node.children.length > 0) {
-      stack.push(...node.children)
-    }
+    pushChildLists(node, stack)
   }
   return newData
 }
@@ -185,9 +222,7 @@ export const findByUUID = (data: any[], targetUUID: string) => {
     if (node.uuid === targetUUID) {
       return node
     }
-    if (node.children && node.children.length > 0) {
-      stack.push(...node.children)
-    }
+    pushChildLists(node, stack)
   }
   return null
 }

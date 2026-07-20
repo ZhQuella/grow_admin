@@ -4,7 +4,6 @@ import { nanoid } from "nanoid";
 import {
   getAllChilds,
   deleteByUUID,
-  findArrayByUUID,
   findParentByUUID,
   findByUUID,
   updateUUIDs,
@@ -14,9 +13,10 @@ import {
 interface props {
   draggableConfig: any;
   activeUUID: Ref<string>;
+  overlayEditUUID?: Ref<string>;
 }
 
-export const useEvents = ({ draggableConfig, activeUUID }: props) => {
+export const useEvents = ({ draggableConfig, activeUUID, overlayEditUUID }: props) => {
   const onActivated = (uuid: string) => {
     activeUUID.value = uuid;
   };
@@ -36,6 +36,29 @@ export const useEvents = ({ draggableConfig, activeUUID }: props) => {
     return structure;
   };
 
+  const ensureCardSlots = (structure: any, elTagName?: string) => {
+    if (elTagName === 'GrowCard') {
+      if (!Array.isArray(structure.footerSlot)) structure.footerSlot = [];
+      if (!Array.isArray(structure.optionSlot)) structure.optionSlot = [];
+    }
+    if (elTagName === 'GrowModal' || elTagName === 'GrowDrawer') {
+      if (!Array.isArray(structure.children)) structure.children = [];
+      if (!Array.isArray(structure.footerSlot)) structure.footerSlot = [];
+    }
+    if (elTagName === 'GrowPopover') {
+      // children → #reference；contentSlot → default 弹出内容
+      if (!Array.isArray(structure.children)) structure.children = [];
+      if (!Array.isArray(structure.contentSlot)) structure.contentSlot = [];
+    }
+    if (elTagName === 'GrowLayout') {
+      if (!Array.isArray(structure.children)) structure.children = [];
+      if (!Array.isArray(structure.headerSlot)) structure.headerSlot = [];
+      if (!Array.isArray(structure.asideSlot)) structure.asideSlot = [];
+      if (!Array.isArray(structure.footerSlot)) structure.footerSlot = [];
+    }
+    return structure;
+  };
+
   const getIsChild = (obj1: any = {}, obj2: any = {}): boolean => {
     return Boolean(obj1.isChild || obj2.isChild);
   };
@@ -49,7 +72,10 @@ export const useEvents = ({ draggableConfig, activeUUID }: props) => {
     const { children, uuid: _u, ...otherConfig } = { ...config, uuid }
     const renderArgument = { ...otherConfig }
     const isChild: boolean = getIsChild(renderArgument, draggableConfig.renderArgument[uuid])
-    const structure = setChildren(isChild, { uuid }, children)
+    const structure = ensureCardSlots(
+      setChildren(isChild, { uuid }, children),
+      renderArgument.elTagName,
+    )
     list[newIndex] = structure
     draggableConfig.renderArgument[uuid] = {
       ...renderArgument,
@@ -101,11 +127,22 @@ export const useEvents = ({ draggableConfig, activeUUID }: props) => {
         width: '100%',
       })
     }
-    if (renderArgument.elTagName === 'GrowWatchBox') {
+    if (renderArgument.elTagName === 'GrowScrollbar') {
+      Object.assign(styleSeed, {
+        width: '100%',
+      })
+    }
+    if (
+      renderArgument.elTagName === 'GrowLayout'
+    ) {
       Object.assign(styleSeed, {
         width: '100%',
         height: '100%',
-        'min-height': '120px',
+      })
+    }
+    if (renderArgument.elTagName === 'GrowModal' || renderArgument.elTagName === 'GrowDrawer') {
+      Object.assign(styleSeed, {
+        width: '100%',
       })
     }
     draggableConfig.styles[uuid] = {
@@ -134,6 +171,34 @@ export const useEvents = ({ draggableConfig, activeUUID }: props) => {
         underline: true,
       })
     }
+    if (renderArgument.elTagName === 'GrowSearchBar') {
+      Object.assign(defaultProps, {
+        search: [
+          {
+            labelText: '关键词',
+            placeholder: '请输入关键词',
+            elType: 'GrowInput',
+            isDefault: true,
+            model: 'keyword',
+            noDelete: true,
+          },
+          {
+            labelText: '状态',
+            elType: 'GrowSelect',
+            isDefault: true,
+            model: 'status',
+            label: 'label',
+            value: 'value',
+            placeholder: '请选择状态',
+            options: [
+              { label: '启用', value: '1' },
+              { label: '禁用', value: '0' },
+            ],
+          },
+        ],
+        defaultData: {},
+      })
+    }
     if (renderArgument.elTagName === 'img') {
       Object.assign(defaultProps, {
         src: 'https://via.placeholder.com/120x80',
@@ -149,6 +214,59 @@ export const useEvents = ({ draggableConfig, activeUUID }: props) => {
         loop: true,
         direction: 'horizontal',
         'pause-on-hover': true,
+      })
+    }
+    if (renderArgument.elTagName === 'GrowScrollbar') {
+      Object.assign(defaultProps, {
+        height: '200px',
+      })
+    }
+    if (renderArgument.elTagName === 'GrowLayout') {
+      Object.assign(defaultProps, {
+        layout: 'header-main',
+        headerHeight: '40px',
+        asideWidth: '200px',
+        footerHeight: '60px',
+      })
+    }
+    if (renderArgument.elTagName === 'GrowTooltip') {
+      Object.assign(defaultProps, {
+        content: '文字提示',
+        placement: 'top',
+        trigger: 'hover',
+        effect: 'dark',
+      })
+    }
+    if (renderArgument.elTagName === 'GrowPopover') {
+      Object.assign(defaultProps, {
+        title: '标题',
+        content: '弹出框内容',
+        placement: 'bottom',
+        trigger: 'click',
+        width: 200,
+      })
+    }
+    if (renderArgument.elTagName === 'GrowModal') {
+      Object.assign(defaultProps, {
+        title: '弹窗标题',
+        modelValue: false,
+        showFooter: false,
+        width: '480px',
+        'show-close': true,
+        'close-on-click-modal': true,
+        'close-on-press-escape': true,
+      })
+    }
+    if (renderArgument.elTagName === 'GrowDrawer') {
+      Object.assign(defaultProps, {
+        title: '抽屉标题',
+        modelValue: false,
+        showFooter: false,
+        direction: 'rtl',
+        size: '30%',
+        'show-close': true,
+        'close-on-click-modal': true,
+        'close-on-press-escape': true,
       })
     }
     if (renderArgument.elTagName === 'GrowSlider') {
@@ -232,6 +350,17 @@ export const useEvents = ({ draggableConfig, activeUUID }: props) => {
         tooltip: true,
       })
     }
+    if (renderArgument.elTagName === 'GrowIconify') {
+      Object.assign(defaultProps, {
+        icon: 'carbon:application',
+        size: 24,
+        color: '',
+        prefix: '',
+        infinite: false,
+        hoverPointer: false,
+        hoverColor: 'inherit',
+      })
+    }
     if (renderArgument.elTagName === 'GrowTimePicker') {
       Object.assign(defaultProps, {
         value: null,
@@ -239,6 +368,12 @@ export const useEvents = ({ draggableConfig, activeUUID }: props) => {
         format: 'HH:mm:ss',
         clearable: true,
         size: 'medium',
+      })
+    }
+    if (renderArgument.elTagName === 'GrowCard') {
+      Object.assign(defaultProps, {
+        showFooter: false,
+        showHeaderExtra: false,
       })
     }
     if (FORM_MODULE_FULL_WIDTH_TAGS.has(renderArgument.elTagName)) {
@@ -250,25 +385,145 @@ export const useEvents = ({ draggableConfig, activeUUID }: props) => {
       ...defaultProps,
       ...(draggableConfig.props[uuid] || {}),
     }
+
+    // 选项卡：拖入后默认创建一个子选项，并设为激活项
+    if (renderArgument.elTagName === 'GrowTabs') {
+      const paneName = addSpecificChild(structure, renderArgument, {
+        titlePrefix: '选项',
+        titleKey: 'label',
+      })
+      draggableConfig.props[uuid].modelValue = paneName
+    }
+    // 折叠面板：拖入后默认创建一个子面板，并设为展开项
+    if (renderArgument.elTagName === 'GrowCollapse') {
+      const paneName = addSpecificChild(structure, renderArgument, {
+        titlePrefix: '面板',
+        titleKey: 'title',
+      })
+      draggableConfig.props[uuid].modelValue = paneName
+    }
+    // 弹性盒子：拖入后默认创建一个 Col
+    if (renderArgument.elTagName === 'GrowRow') {
+      addColChild(structure, renderArgument, { span: 12 })
+    }
+  }
+
+  /** 为 Tabs / Collapse 等容器添加特定子项，返回子项 name */
+  const addSpecificChild = (
+    parentStructure: any,
+    parentRenderArgument: any,
+    options?: {
+      titlePrefix?: string
+      titleKey?: string
+      nameKey?: string
+      title?: string
+      name?: string
+    },
+  ) => {
+    const childName = parentRenderArgument.childName
+    const childMeta: any = specificComponent.get(childName) || {}
+    const childUuid = nanoid()
+    const paneName = options?.name ?? nanoid()
+    const titleKey = options?.titleKey || 'label'
+    const nameKey = options?.nameKey || 'name'
+    const titlePrefix = options?.titlePrefix || '选项'
+
+    if (!Array.isArray(parentStructure.children)) {
+      parentStructure.children = []
+    }
+    const index = parentStructure.children.length + 1
+    const child: Record<string, any> = { uuid: childUuid }
+    if (childMeta.isChild) {
+      child.children = []
+    }
+
+    const titleText = options?.title ?? `${titlePrefix} ${index}`
+    draggableConfig.renderArgument[childUuid] = {
+      ...childMeta,
+      elName: titleText,
+    }
+    draggableConfig.styles[childUuid] = {}
+    draggableConfig.events[childUuid] = {}
+    draggableConfig.props[childUuid] = {
+      [titleKey]: titleText,
+      [nameKey]: paneName,
+    }
+    parentStructure.children.push(child)
+    return paneName
+  }
+
+  /** 为 Row 添加 Col 子项 */
+  const addColChild = (
+    parentStructure: any,
+    parentRenderArgument: any,
+    options?: {
+      span?: number
+      offset?: number
+      push?: number
+      pull?: number
+      elName?: string
+    },
+  ) => {
+    const childName = parentRenderArgument.childName || 'GrowCol'
+    const childMeta: any = specificComponent.get(childName) || {}
+    const childUuid = nanoid()
+    if (!Array.isArray(parentStructure.children)) {
+      parentStructure.children = []
+    }
+    const index = parentStructure.children.length + 1
+    const child: Record<string, any> = { uuid: childUuid }
+    if (childMeta.isChild) {
+      child.children = []
+    }
+    draggableConfig.renderArgument[childUuid] = {
+      ...childMeta,
+      elName: options?.elName || `列 ${index}`,
+    }
+    draggableConfig.styles[childUuid] = {}
+    draggableConfig.events[childUuid] = {}
+    draggableConfig.props[childUuid] = {
+      span: options?.span ?? 12,
+      offset: options?.offset ?? 0,
+      push: options?.push ?? 0,
+      pull: options?.pull ?? 0,
+    }
+    parentStructure.children.push(child)
+    return childUuid
   }
 
   const onSpecialAdd = ({ structure, renderArgument }) => {
-    const uuid = nanoid();
-    const { childName } = renderArgument;
-    const childRenderArgument = specificComponent.get(childName);
-    const isChild = childRenderArgument?.isChild;
-    const child = { uuid };
-    isChild && Reflect.set(child, "children", []);
-    draggableConfig.renderArgument[uuid] = { ...(childRenderArgument || {}) };
-    draggableConfig.renderArgument[uuid] = {
-      ...renderArgument,
-      ...draggableConfig.renderArgument[uuid]
-    };
-    draggableConfig.styles[uuid] = draggableConfig.styles[uuid] || {};
-    draggableConfig.events[uuid] = draggableConfig.events[uuid] || {};
-    draggableConfig.props[uuid] = draggableConfig.props[uuid] || {};
-    structure.children.push(child);
-  };
+    const childName = renderArgument?.childName
+    if (childName === 'GrowTabPane') {
+      addSpecificChild(structure, renderArgument, {
+        titlePrefix: '选项',
+        titleKey: 'label',
+      })
+      return
+    }
+    if (childName === 'GrowCollapseItem') {
+      addSpecificChild(structure, renderArgument, {
+        titlePrefix: '面板',
+        titleKey: 'title',
+      })
+      return
+    }
+    if (childName === 'GrowCol') {
+      addColChild(structure, renderArgument, { span: 12 })
+      return
+    }
+
+    const uuid = nanoid()
+    const childRenderArgument = specificComponent.get(childName)
+    const isChild = childRenderArgument?.isChild
+    const child: Record<string, any> = { uuid }
+    if (isChild) Reflect.set(child, 'children', [])
+    draggableConfig.renderArgument[uuid] = { ...(childRenderArgument || {}) }
+    draggableConfig.styles[uuid] = draggableConfig.styles[uuid] || {}
+    draggableConfig.events[uuid] = draggableConfig.events[uuid] || {}
+    draggableConfig.props[uuid] = draggableConfig.props[uuid] || {}
+    if (!Array.isArray(structure.children)) structure.children = []
+    structure.children.push(child)
+  }
 
   const onDeleteItem = (event) => {
     const result = getAllChilds([event]);
@@ -281,6 +536,9 @@ export const useEvents = ({ draggableConfig, activeUUID }: props) => {
     }
     draggableConfig.structures = deleteByUUID(draggableConfig.structures, event.uuid);
     activeUUID.value = "";
+    if (overlayEditUUID?.value && uuids.includes(overlayEditUUID.value)) {
+      overlayEditUUID.value = "";
+    }
   };
 
   const copyObjectConfig = (oldUUID) => {
@@ -295,17 +553,29 @@ export const useEvents = ({ draggableConfig, activeUUID }: props) => {
 
   const onCopyItem = (event) => {
     const { uuid } = event;
-    const result = findArrayByUUID(draggableConfig.structures, uuid);
     const parent = findParentByUUID(draggableConfig.structures, uuid);
-    const currnet = findByUUID(draggableConfig.structures, uuid);
-    const cResult: any[] = deepCloneDesigner(currnet);
-    const structure: any[] = updateUUIDs(cResult, copyObjectConfig);
-    const index = result.findIndex((elem) => elem.uuid === uuid);
+    const current = findByUUID(draggableConfig.structures, uuid);
+    const structure = updateUUIDs(deepCloneDesigner(current), copyObjectConfig);
+    let siblingArray = draggableConfig.structures;
     if (parent) {
-      parent.children.splice(index + 1, 0, structure);
-    } else {
-      draggableConfig.structures.splice(index + 1, 0, structure);
+      if (parent.children?.some((el: any) => el.uuid === uuid)) {
+        siblingArray = parent.children;
+      } else if (parent.footerSlot?.some((el: any) => el.uuid === uuid)) {
+        siblingArray = parent.footerSlot;
+      } else if (parent.optionSlot?.some((el: any) => el.uuid === uuid)) {
+        siblingArray = parent.optionSlot;
+      } else if (parent.contentSlot?.some((el: any) => el.uuid === uuid)) {
+        siblingArray = parent.contentSlot;
+      } else if (parent.headerSlot?.some((el: any) => el.uuid === uuid)) {
+        siblingArray = parent.headerSlot;
+      } else if (parent.asideSlot?.some((el: any) => el.uuid === uuid)) {
+        siblingArray = parent.asideSlot;
+      } else {
+        siblingArray = parent.children || [];
+      }
     }
+    const index = siblingArray.findIndex((elem) => elem.uuid === uuid);
+    siblingArray.splice(index + 1, 0, structure);
   };
 
   const onClearCanvas = () => {
@@ -316,6 +586,7 @@ export const useEvents = ({ draggableConfig, activeUUID }: props) => {
     draggableConfig.events = {}
     draggableConfig.props = {}
     activeUUID.value = ''
+    if (overlayEditUUID) overlayEditUUID.value = ''
   }
 
   return {

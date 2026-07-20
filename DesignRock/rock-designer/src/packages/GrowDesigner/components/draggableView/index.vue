@@ -1,7 +1,7 @@
 <template>
   <div class="draggable-view">
-    <div class="draggable-stage">
-      <GrowScrollbar class="draggable-stage__scroll">
+    <div ref="stageRef" class="draggable-stage">
+      <GrowScrollbar height="100%" class="draggable-stage__scroll">
         <draggableContent
           :draggableConfig="draggableConfig"
           @add="onDraggableAdd"
@@ -16,6 +16,7 @@
 </template>
 
 <script setup lang="ts">
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import draggableContent from '../draggableContent/index.vue'
 import { useEvents } from './use/useEvents'
 
@@ -32,6 +33,28 @@ defineProps<Props>()
 const { onDraggableAdd, onSpecialAdd, onActive, onDeleteItem, onCopyItem } = useEvents({
   emits,
 })
+
+/** 舞台实际高度写入 CSS 变量，供子项 % 高度换算，且不影响内容区滚动 */
+const stageRef = ref<HTMLElement | null>(null)
+let stageObserver: ResizeObserver | null = null
+
+const syncStageHeightVar = () => {
+  const el = stageRef.value
+  if (!el) return
+  el.style.setProperty('--designer-stage-height', `${el.clientHeight}px`)
+}
+
+onMounted(() => {
+  syncStageHeightVar()
+  if (typeof ResizeObserver === 'undefined' || !stageRef.value) return
+  stageObserver = new ResizeObserver(() => syncStageHeightVar())
+  stageObserver.observe(stageRef.value)
+})
+
+onBeforeUnmount(() => {
+  stageObserver?.disconnect()
+  stageObserver = null
+})
 </script>
 
 <style lang="scss" scoped>
@@ -41,6 +64,37 @@ const { onDraggableAdd, onSpecialAdd, onActive, onDeleteItem, onCopyItem } = use
   height: 100%;
   min-height: 0;
   padding: 5px;
+  overflow: hidden;
+}
+
+/* 外层锁死高度；滚动只发生在内部 GrowScrollbar */
+.draggable-stage {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px dashed var(--layout-border-color);
+  border-radius: 6px;
+  background-color: var(--component-background-color);
+}
+
+.draggable-stage__scroll {
+  width: 100%;
+  height: 100%;
+}
+
+/* wrap 锁住视口高度，view 可随内容增高 → 既能全区域投放，又能滚动 */
+.draggable-stage__scroll :deep(.el-scrollbar__wrap),
+.draggable-stage__scroll :deep(.n-scrollbar-container) {
+  height: 100%;
+  max-height: 100%;
+}
+
+.draggable-stage__scroll :deep(.el-scrollbar__view),
+.draggable-stage__scroll :deep(.n-scrollbar-content) {
+  box-sizing: border-box;
+  min-height: 100%;
 }
 
 /* 白色展示区外壳：固定高度，滚动发生在内部 */

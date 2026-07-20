@@ -21,8 +21,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, toRefs } from 'vue'
+import { computed, inject, toRefs } from 'vue'
 import { FORM_MODULE_FULL_WIDTH_TAGS } from '../../../../static/moduleMap'
+import { LAYOUT_MAIN_SIZE, type LayoutMainSize } from '../../../../config/designation'
 
 interface PropsType {
   config: any
@@ -38,6 +39,8 @@ const props = withDefaults(defineProps<PropsType>(), {
 
 const { config, propsInfo, styleInfo } = toRefs(props)
 
+const layoutMainSize = inject<LayoutMainSize | null>(LAYOUT_MAIN_SIZE, null)
+
 const isUnsupported = computed(() => Boolean(config.value.unsupported))
 
 const isFormFullWidth = computed(() =>
@@ -45,7 +48,17 @@ const isFormFullWidth = computed(() =>
 )
 
 const isSocket = computed(() => {
-  const slotMap = ['GrowCard', 'GrowTabs', 'GrowRow', 'GrowWatchBox']
+  const slotMap = [
+    'GrowCard',
+    'GrowTabs',
+    'GrowRow',
+    'GrowScrollbar',
+    'GrowTooltip',
+    'GrowPopover',
+    'GrowModal',
+    'GrowDrawer',
+    'GrowLayout',
+  ]
   return slotMap.includes(config.value.elTagName)
 })
 
@@ -54,7 +67,6 @@ const bindProps = computed(() => {
   if (['GrowButton', 'GrowLink', 'GrowEllipsis'].includes(config.value?.elTagName)) {
     Reflect.deleteProperty(info, 'content')
   }
-  // Naive UI Ellipsis：空的 expand-trigger 表示不启用点击展开
   if (config.value?.elTagName === 'GrowEllipsis') {
     if (info['expand-trigger'] === '' || info['expand-trigger'] == null) {
       Reflect.deleteProperty(info, 'expand-trigger')
@@ -79,7 +91,6 @@ const bindProps = computed(() => {
       }
     }
   }
-  // Naive UI TreeSelect：options + value；Element Plus 兼容 data（key → value）
   if (config.value?.elTagName === 'GrowTreeSelect') {
     if (info.options && !info.data) {
       const mapNodes = (nodes: any[]): any[] =>
@@ -97,7 +108,6 @@ const bindProps = computed(() => {
       info.modelValue = info.value
     }
   }
-  // Naive UI Mention：value + separator；Element Plus 兼容 modelValue + split
   if (config.value?.elTagName === 'GrowMention') {
     if (info.value === undefined && info.modelValue !== undefined) {
       info.value = info.modelValue
@@ -109,7 +119,6 @@ const bindProps = computed(() => {
       info.split = info.separator
     }
   }
-  // Naive UI TimePicker：value；Element Plus / antdv 兼容 modelValue
   if (config.value?.elTagName === 'GrowTimePicker') {
     if (info.value === undefined && info.modelValue !== undefined) {
       info.value = info.modelValue
@@ -124,7 +133,6 @@ const bindProps = computed(() => {
       Reflect.deleteProperty(info, 'timeZone')
     }
   }
-  // Naive UI Time：保证 time / to 为可用的数字时间戳
   if (config.value?.elTagName === 'GrowTime') {
     const coerceTime = (raw: unknown) => {
       if (raw == null || raw === '') return undefined
@@ -144,6 +152,16 @@ const bindProps = computed(() => {
     }
     if (info.timeZone === '' || info.timeZone == null) {
       Reflect.deleteProperty(info, 'timeZone')
+    }
+  }
+  // 设计器：表格真实子树可 inject 主区域高度
+  if (config.value?.elTagName === 'GrowTable') {
+    Reflect.deleteProperty(info, 'fitLayoutMainHeight')
+    if (info.height === 'layout-main' || propsInfo.value?.fitLayoutMainHeight) {
+      Reflect.deleteProperty(info, 'height')
+      if (layoutMainSize && layoutMainSize.height > 0) {
+        info.height = layoutMainSize.height
+      }
     }
   }
   return info

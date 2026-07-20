@@ -7,10 +7,11 @@ import {
   textInput,
 } from './shared'
 
-/** 弹窗 */
+/** 弹窗：设计态用面板壳编辑；运行时由 modelValue / 事件控制显隐 */
 export const modalConfig = createConfig([
   textInput('标题', 'title', '对话框标题'),
-  boolSwitch('显示', 'modelValue', '是否显示 Dialog'),
+  boolSwitch('默认显示', 'modelValue', '运行时初始是否显示；设计态用工具栏打开模拟编辑层；预览不强制打开'),
+  boolSwitch('启用页脚', 'showFooter', '开启后显示弹窗页脚拖入区域'),
   boolSwitch('显示关闭', 'show-close', '是否显示关闭按钮'),
   boolSwitch('点击遮罩关闭', 'close-on-click-modal', '是否可通过点击遮罩关闭'),
   boolSwitch('按 ESC 关闭', 'close-on-press-escape', '是否可通过按下 ESC 关闭'),
@@ -19,13 +20,14 @@ export const modalConfig = createConfig([
   boolSwitch('居中', 'center', '是否对头部和底部采用居中布局'),
   boolSwitch('可拖拽', 'draggable', '是否可拖拽'),
   boolSwitch('销毁子元素', 'destroy-on-close', '关闭时销毁 Dialog 中的元素'),
-  textInput('宽度', 'width', 'Dialog 的宽度', '如 50%'),
+  textInput('宽度', 'width', 'Dialog 的宽度', '如 50% 或 480px'),
 ])
 
-/** 抽屉 */
+/** 抽屉：设计态用面板壳编辑；运行时由 modelValue / 事件控制显隐 */
 export const drawerConfig = createConfig([
   textInput('标题', 'title', '抽屉标题'),
-  boolSwitch('显示', 'modelValue', '是否显示 Drawer'),
+  boolSwitch('默认显示', 'modelValue', '运行时初始是否显示；设计态用工具栏打开模拟编辑层；预览不强制打开'),
+  boolSwitch('启用页脚', 'showFooter', '开启后显示抽屉页脚拖入区域'),
   selectInput(
     '打开方向',
     'direction',
@@ -37,17 +39,17 @@ export const drawerConfig = createConfig([
     ],
     'Drawer 打开的方向',
   ),
-  textInput('尺寸', 'size', 'Drawer 窗体的大小', '如 30%'),
+  textInput('尺寸', 'size', 'Drawer 窗体的大小', '如 30% 或 360px'),
   boolSwitch('显示关闭', 'show-close', '是否显示关闭按钮'),
   boolSwitch('点击遮罩关闭', 'close-on-click-modal', '点击遮罩是否关闭'),
   boolSwitch('按 ESC 关闭', 'close-on-press-escape', '按下 ESC 是否关闭'),
   boolSwitch('销毁子元素', 'destroy-on-close', '控制是否在关闭后销毁'),
 ])
 
-/** 弹出框 Popover */
+/** 弹出框 Popover：reference=触发元素；default=弹出内容（可用 contentSlot 自定义） */
 export const popoverConfig = createConfig([
-  textInput('标题', 'title', '标题'),
-  textInput('内容', 'content', '显示的内容'),
+  textInput('标题', 'title', '标题；有自定义内容插槽时仍可显示'),
+  textInput('内容', 'content', '无自定义内容插槽时显示的文案'),
   selectInput(
     '触发方式',
     'trigger',
@@ -64,12 +66,21 @@ export const popoverConfig = createConfig([
     'placement',
     [
       { label: 'top', value: 'top' },
+      { label: 'top-start', value: 'top-start' },
+      { label: 'top-end', value: 'top-end' },
       { label: 'bottom', value: 'bottom' },
+      { label: 'bottom-start', value: 'bottom-start' },
+      { label: 'bottom-end', value: 'bottom-end' },
       { label: 'left', value: 'left' },
+      { label: 'left-start', value: 'left-start' },
+      { label: 'left-end', value: 'left-end' },
       { label: 'right', value: 'right' },
+      { label: 'right-start', value: 'right-start' },
+      { label: 'right-end', value: 'right-end' },
     ],
     '出现位置',
   ),
+  numberInput('宽度', 'width', '弹出层宽度，单位 px'),
   numberInput('延迟显示', 'show-after', '延迟出现，单位毫秒'),
   numberInput('延迟隐藏', 'hide-after', '延迟关闭，单位毫秒'),
   boolSwitch('禁用', 'disabled', 'Popover 是否可用'),
@@ -79,15 +90,43 @@ export const popoverConfig = createConfig([
 export const tooltipConfig = createConfig([
   textInput('内容', 'content', '显示的内容'),
   selectInput(
+    '触发方式',
+    'trigger',
+    [
+      { label: 'hover', value: 'hover' },
+      { label: 'click', value: 'click' },
+      { label: 'focus', value: 'focus' },
+      { label: 'contextmenu', value: 'contextmenu' },
+    ],
+    '如何触发 Tooltip',
+  ),
+  selectInput(
     '出现位置',
     'placement',
     [
       { label: 'top', value: 'top' },
+      { label: 'top-start', value: 'top-start' },
+      { label: 'top-end', value: 'top-end' },
       { label: 'bottom', value: 'bottom' },
+      { label: 'bottom-start', value: 'bottom-start' },
+      { label: 'bottom-end', value: 'bottom-end' },
       { label: 'left', value: 'left' },
+      { label: 'left-start', value: 'left-start' },
+      { label: 'left-end', value: 'left-end' },
       { label: 'right', value: 'right' },
+      { label: 'right-start', value: 'right-start' },
+      { label: 'right-end', value: 'right-end' },
     ],
     'Tooltip 组件出现的位置',
+  ),
+  selectInput(
+    '主题',
+    'effect',
+    [
+      { label: 'dark', value: 'dark' },
+      { label: 'light', value: 'light' },
+    ],
+    'Tooltip 主题',
   ),
   boolSwitch('禁用', 'disabled', 'Tooltip 是否可用'),
   numberInput('延迟显示', 'show-after', '延迟出现，单位毫秒'),
@@ -229,6 +268,17 @@ export const ellipsisConfig = createConfig([
   boolSwitch('悬浮提示', 'tooltip', '省略时是否通过 Tooltip 展示完整内容'),
 ])
 
+/** Iconify 图标 */
+export const iconifyConfig = createConfig([
+  textInput('图标', 'icon', 'Iconify 图标名，如 carbon:application', 'carbon:application'),
+  textInput('前缀', 'prefix', '图标集合前缀；icon 已含前缀时可不填', '如 carbon'),
+  numberInput('尺寸', 'size', '图标尺寸（px）'),
+  textInput('颜色', 'color', '图标颜色，如 #409eff / currentColor'),
+  boolSwitch('旋转动画', 'infinite', '是否持续旋转'),
+  boolSwitch('悬浮手型', 'hoverPointer', '悬浮时是否显示手型光标'),
+  textInput('悬浮颜色', 'hoverColor', '悬浮时的图标颜色'),
+])
+
 /** 时间线 */
 export const timelineConfig = createConfig([
   boolSwitch('倒序', 'reverse', '指定节点排序方向，默认为正序'),
@@ -288,7 +338,13 @@ export const tableConfig = createConfig([
   boolSwitch('边框', 'border', '是否带有纵向边框'),
   boolSwitch('显示表头', 'show-header', '是否显示表头'),
   boolSwitch('高亮当前行', 'highlight-current-row', '是否要高亮当前行'),
-  textInput('高度', 'height', 'Table 的高度', '如 400'),
+  {
+    eleType: 'PropTableHeight',
+    name: '高度',
+    describe:
+      '默认不固定高度；选择「适应主区域高度」时跟随布局容器主区域 WatchBox；固定高度可输入像素值',
+    modelKey: 'height',
+  },
   textInput('最大高度', 'max-height', 'Table 的最大高度'),
   sizeSelect('Table 尺寸'),
   boolSwitch('空数据时显示', 'empty-text', '空数据时显示的文本（占位）'),
@@ -356,3 +412,6 @@ export const carouselItemConfig = createConfig([
   textInput('标识', 'name', '幻灯片对应的 name，可用作 setActiveItem 参数'),
   textInput('标签', 'label', '幻灯片文本说明（用于指示器）'),
 ])
+
+/** 高级搜索栏 SearchBar：字段由 props.search 配置，拖入后带示例条件 */
+export const searchBarConfig = createConfig([])

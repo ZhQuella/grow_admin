@@ -7,7 +7,11 @@
       size="small"
       :show-message="false"
     >
-      <GrowFormItem v-for="(item, index) in renderList" :key="index">
+      <GrowFormItem
+        v-for="(item, index) in renderList"
+        :key="index"
+        :class="{ 'component-config__item--custom': isCustomOption(item) }"
+      >
         <template #label>
           {{ item.name }}
           <GrowTooltip v-if="item.describe" :content="item.describe" placement="left">
@@ -17,7 +21,26 @@
           </GrowTooltip>
         </template>
         <template #default>
+          <ChildPaneNames
+            v-if="item.eleType === 'ChildPaneNames'"
+            v-bind="item.props || {}"
+          />
+          <ChildColSpans
+            v-else-if="item.eleType === 'ChildColSpans'"
+            v-bind="item.props || {}"
+          />
+          <PropDimensionInput
+            v-else-if="item.eleType === 'PropDimensionInput'"
+            v-bind="item.props || {}"
+            v-model="currentPropsConfig[item.modelKey]"
+          />
+          <PropTableHeight
+            v-else-if="item.eleType === 'PropTableHeight'"
+            v-bind="item.props || {}"
+            v-model="currentPropsConfig[item.modelKey]"
+          />
           <component
+            v-else
             :is="item.eleType"
             v-bind="item.props || {}"
             class="component-config__control w-full"
@@ -34,6 +57,11 @@
 <script setup lang="ts">
 import { computed, toRefs } from 'vue'
 import { elementPropsMap } from '../../static/elementInfo'
+import ChildPaneNames from '../../optionComponent/ChildPaneNames/index.vue'
+import ChildColSpans from '../../optionComponent/ChildColSpans/index.vue'
+import PropDimensionInput from '../../optionComponent/PropDimensionInput/index.vue'
+import PropTableHeight from '../../optionComponent/PropTableHeight/index.vue'
+import type { PropConfigItem } from '../../static/elementInfo/shared'
 
 const props = defineProps({
   currentBasicConfig: {
@@ -47,6 +75,15 @@ const props = defineProps({
 })
 
 const { currentBasicConfig, currentPropsConfig } = toRefs(props)
+
+const CUSTOM_OPTION_TYPES = new Set([
+  'ChildPaneNames',
+  'ChildColSpans',
+  'PropDimensionInput',
+  'PropTableHeight',
+])
+
+const isCustomOption = (item: PropConfigItem) => CUSTOM_OPTION_TYPES.has(item.eleType)
 
 const renderList = computed(() => {
   const tag = currentBasicConfig.value?.elTagName
@@ -67,6 +104,12 @@ const renderList = computed(() => {
 }
 
 .component-config__control {
+  width: 100%;
+}
+
+.component-config__item--custom :deep(.el-form-item__content),
+.component-config__item--custom :deep(.n-form-item-blank) {
+  display: block;
   width: 100%;
 }
 
