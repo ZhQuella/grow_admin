@@ -112,6 +112,15 @@ const CUSTOM_OPTION_TYPES = new Set([
 
 const isCustomOption = (item: PropConfigItem) => CUSTOM_OPTION_TYPES.has(item.eleType)
 
+const CUSTOM_OPTION_TYPES = new Set([
+  'ChildPaneNames',
+  'ChildColSpans',
+  'PropDimensionInput',
+  'PropTableHeight',
+])
+
+const isCustomOption = (item: PropConfigItem) => CUSTOM_OPTION_TYPES.has(item.eleType)
+
 const renderList = computed(() => {
   const tag = currentBasicConfig.value?.elTagName
   return elementPropsMap[tag] || []
