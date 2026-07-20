@@ -6,11 +6,11 @@
     {{ config.elName || config.elTagName }}（暂未接入）
   </div>
   <template v-else-if="config.elType === 'basic' && !config.isChild">
-    <basicComponent :config="config" :propsInfo="propsInfo" :styleInfo="styleInfo" />
+    <basicComponent :config="config" :propsInfo="resolvedPropsInfo" :styleInfo="styleInfo" />
   </template>
 
   <template v-else-if="config.elType === 'eleModule' && !config.isChild">
-    <eleModuleComponent :config="config" :propsInfo="propsInfo" :styleInfo="styleInfo" />
+    <eleModuleComponent :config="config" :propsInfo="resolvedPropsInfo" :styleInfo="styleInfo" />
   </template>
 
   <template v-else-if="config.isChild">
@@ -212,7 +212,7 @@
     >
       <template v-if="propsInfo.showHeaderExtra" #header>
         <div class="grow-card-header-extra">
-          <div class="grow-card-header-extra__title">{{ propsInfo.header }}</div>
+          <div class="grow-card-header-extra__title">{{ resolvedPropsInfo.header }}</div>
           <div class="grow-card-header-extra__option">
             <draggable
               group="draggable-group"
@@ -806,7 +806,7 @@
           :size="18"
         />
         <div class="grow-overlay-placeholder__title">
-          {{ propsInfo.title || (config.elTagName === 'GrowModal' ? '弹窗' : '抽屉') }}
+          {{ resolvedPropsInfo.title || (config.elTagName === 'GrowModal' ? '弹窗' : '抽屉') }}
         </div>
       </div>
     </template>
@@ -814,8 +814,8 @@
 </template>
 
 <script lang="ts" setup>
-import { DRAGGABLE_CONGIG } from "../../config/designation";
-import { computed, inject, toRefs } from "vue";
+import { DRAGGABLE_CONGIG, GROW_RUNTIME_STATE } from "../../config/designation";
+import { computed, inject, toRefs, type ComputedRef } from "vue";
 import draggable from "vuedraggable";
 import basicComponent from "./component/basicComponent/index.vue";
 import eleModuleComponent from "./component/eleModuleComponent/index.vue";
@@ -827,8 +827,16 @@ import {
   layoutHasFooter,
   layoutHasHeader,
 } from "../../static/layoutPresets";
+import {
+  buildRuntimeState,
+  resolveBoundProps,
+} from "../../../GrowRenderer/utils/resolveBoundProps";
 
 const draggableConfig: any = inject(DRAGGABLE_CONGIG);
+const injectedRuntimeState = inject<ComputedRef<Record<string, unknown>> | null>(
+  GROW_RUNTIME_STATE,
+  null,
+);
 
 defineOptions({ name: "abstractionComponent" });
 
@@ -852,9 +860,24 @@ const props = withDefaults(defineProps<PropsType>(), {
 
 const { structure, drag, propsInfo } = toRefs(props);
 
+/** 叶子节点展示：绑定字段随 runtimeState（dataSource）变更重算 */
+const resolvedPropsInfo = computed(() => {
+  const uuid = structure.value?.uuid
+  const raw = propsInfo.value || {}
+  if (!uuid || !draggableConfig) return raw
+  const state =
+    injectedRuntimeState?.value ??
+    buildRuntimeState(draggableConfig.dataSource)
+  return resolveBoundProps(
+    raw,
+    draggableConfig.propBindModes?.[uuid],
+    state,
+  )
+})
+
 /** GrowCard：设计器开关不透传；启用操作区时 header 由 #header 插槽渲染 */
 const cardBindProps = computed(() => {
-  const info = { ...(propsInfo.value || {}) }
+  const info = { ...(resolvedPropsInfo.value || {}) }
   Reflect.deleteProperty(info, 'showFooter')
   Reflect.deleteProperty(info, 'showHeaderExtra')
   if (propsInfo.value?.showHeaderExtra) {

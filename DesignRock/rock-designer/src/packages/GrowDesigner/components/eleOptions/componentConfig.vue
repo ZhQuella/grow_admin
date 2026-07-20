@@ -39,6 +39,13 @@
             v-bind="item.props || {}"
             v-model="currentPropsConfig[item.modelKey]"
           />
+          <PropVariableBind
+            v-else-if="item.eleType === 'PropVariableBind'"
+            v-bind="item.props || {}"
+            v-model="currentPropsConfig[item.modelKey]"
+            :bind-mode="getBindMode(item.modelKey)"
+            @update:bind-mode="(mode) => setBindMode(item.modelKey, mode)"
+          />
           <component
             v-else
             :is="item.eleType"
@@ -61,9 +68,19 @@ import ChildPaneNames from '../../optionComponent/ChildPaneNames/index.vue'
 import ChildColSpans from '../../optionComponent/ChildColSpans/index.vue'
 import PropDimensionInput from '../../optionComponent/PropDimensionInput/index.vue'
 import PropTableHeight from '../../optionComponent/PropTableHeight/index.vue'
+import PropVariableBind from '../../optionComponent/PropVariableBind/index.vue'
 import type { PropConfigItem } from '../../static/elementInfo/shared'
+import {
+  normalizePropBindMode,
+  PROP_BIND_MODE_TEXT,
+  type PropBindMode,
+} from '../../static/propBindModes'
 
 const props = defineProps({
+  activeUUID: {
+    type: String,
+    default: '',
+  },
   currentBasicConfig: {
     type: Object,
     default: () => ({}),
@@ -72,9 +89,28 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
+  /** uuid 下各 modelKey 的输入模式 */
+  currentBindModes: {
+    type: Object,
+    default: () => ({}),
+  },
 })
 
-const { currentBasicConfig, currentPropsConfig } = toRefs(props)
+const emit = defineEmits<{
+  'update:currentBindModes': [value: Record<string, PropBindMode>]
+}>()
+
+const { currentBasicConfig, currentPropsConfig, currentBindModes } = toRefs(props)
+
+const CUSTOM_OPTION_TYPES = new Set([
+  'ChildPaneNames',
+  'ChildColSpans',
+  'PropDimensionInput',
+  'PropTableHeight',
+  'PropVariableBind',
+])
+
+const isCustomOption = (item: PropConfigItem) => CUSTOM_OPTION_TYPES.has(item.eleType)
 
 const CUSTOM_OPTION_TYPES = new Set([
   'ChildPaneNames',
@@ -89,6 +125,16 @@ const renderList = computed(() => {
   const tag = currentBasicConfig.value?.elTagName
   return elementPropsMap[tag] || []
 })
+
+const getBindMode = (modelKey: string): PropBindMode =>
+  normalizePropBindMode(currentBindModes.value?.[modelKey])
+
+const setBindMode = (modelKey: string, mode: PropBindMode) => {
+  emit('update:currentBindModes', {
+    ...(currentBindModes.value || {}),
+    [modelKey]: normalizePropBindMode(mode) || PROP_BIND_MODE_TEXT,
+  })
+}
 </script>
 
 <style scoped>

@@ -1,5 +1,11 @@
-import { reactive, provide, ref } from "vue";
-import { ACTIVE_UUID, DRAGGABLE_CONGIG, OVERLAY_EDIT_UUID } from "../config/designation";
+import { computed, reactive, provide, ref } from "vue";
+import {
+  ACTIVE_UUID,
+  DRAGGABLE_CONGIG,
+  GROW_RUNTIME_STATE,
+  OVERLAY_EDIT_UUID,
+} from "../config/designation";
+import { buildRuntimeState } from "../../GrowRenderer/utils/resolveBoundProps";
 
 export const useOption = () => {
   const draggableConfig = reactive({
@@ -18,15 +24,23 @@ export const useOption = () => {
     //  事件相关
     events: {},
     //  组件参数相关
-    props: {}
+    props: {},
+    //  属性输入模式（text | bind），按 uuid -> modelKey 记录
+    propBindModes: {},
   });
 
   const activeUUID = ref("");
   const overlayEditUUID = ref("");
 
+  /** 随 dataSource 深层变更重算，供画布绑定展示 */
+  const runtimeState = computed(() =>
+    buildRuntimeState(draggableConfig.dataSource),
+  );
+
   provide(DRAGGABLE_CONGIG, draggableConfig);
   provide(ACTIVE_UUID, activeUUID);
   provide(OVERLAY_EDIT_UUID, overlayEditUUID);
+  provide(GROW_RUNTIME_STATE, runtimeState);
 
   const optionConfig = reactive({
     title: "组件库",

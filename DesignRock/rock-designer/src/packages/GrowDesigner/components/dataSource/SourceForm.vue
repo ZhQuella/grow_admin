@@ -40,7 +40,7 @@
       <GrowCodeEditor
         v-model="model.data"
         class="h-full"
-        default-language="javascript"
+        default-language="expression"
         :language-switchable="false"
       />
     </div>

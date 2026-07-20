@@ -179,14 +179,25 @@ const {
 
 const previewVisible = ref(false)
 
-/** 预览只传结构 / 样式 / 属性（不做数据源与事件） */
-const previewSchema = computed<DesignerSchema>(() => ({
-  structures: draggableConfig.structures,
-  renderArgument: draggableConfig.renderArgument,
-  props: draggableConfig.props,
-  styles: draggableConfig.styles,
-  pageConfig: draggableConfig.pageConfig,
-}))
+/** 预览传结构 / 样式 / 属性 / 数据源（用于变量绑定求值；事件暂不跑） */
+const previewSchema = computed<DesignerSchema>(() => {
+  // 显式读取每项字段，保证数据源内容变更时预览跟随更新
+  const dataSource = (draggableConfig.dataSource || []).map((item: any) => ({
+    id: item?.id,
+    name: item?.name,
+    description: item?.description,
+    data: item?.data,
+  }))
+  return {
+    structures: draggableConfig.structures,
+    renderArgument: draggableConfig.renderArgument,
+    props: draggableConfig.props,
+    styles: draggableConfig.styles,
+    pageConfig: draggableConfig.pageConfig,
+    dataSource,
+    propBindModes: draggableConfig.propBindModes,
+  }
+})
 
 const onPreview = () => {
   previewVisible.value = true

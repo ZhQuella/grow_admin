@@ -116,9 +116,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, inject, watch, type ComputedRef } from 'vue'
 import draggable from 'vuedraggable'
 import { findByUUID } from '@grow-admin-rock/utils'
+import { GROW_RUNTIME_STATE } from '../../config/designation'
+import {
+  buildRuntimeState,
+  resolveBoundProps,
+} from '../../../GrowRenderer/utils/resolveBoundProps'
 import DraggableItem from '../draggableItem/index.vue'
 import abstractionComponent from '../abstractionComponent/index.vue'
 
@@ -138,6 +143,11 @@ const emit = defineEmits<{
   active: [payload: any]
 }>()
 
+const injectedRuntimeState = inject<ComputedRef<Record<string, unknown>> | null>(
+  GROW_RUNTIME_STATE,
+  null,
+)
+
 const structure = computed(() => {
   const node = findByUUID(props.draggableConfig.structures || [], props.uuid)
   if (node) {
@@ -153,13 +163,21 @@ const config = computed(
   () => props.draggableConfig.renderArgument?.[props.uuid] || {},
 )
 const propsInfo = computed(() => props.draggableConfig.props?.[props.uuid] || {})
+const resolvedPropsInfo = computed(() =>
+  resolveBoundProps(
+    propsInfo.value,
+    props.draggableConfig.propBindModes?.[props.uuid],
+    injectedRuntimeState?.value ??
+      buildRuntimeState(props.draggableConfig.dataSource),
+  ),
+)
 
 const isModal = computed(() => config.value.elTagName === 'GrowModal')
 const isDrawer = computed(() => config.value.elTagName === 'GrowDrawer')
 const direction = computed(() => propsInfo.value.direction || 'rtl')
 const title = computed(
   () =>
-    propsInfo.value.title ||
+    resolvedPropsInfo.value.title ||
     (isModal.value ? '弹窗标题' : '抽屉标题'),
 )
 const showClose = computed(() => propsInfo.value['show-close'] !== false)

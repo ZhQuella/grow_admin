@@ -17,7 +17,7 @@
       <GrowCodeEditor
         :model-value="modelValue"
         class="h-full"
-        default-language="javascript"
+        default-language="expression"
         :language-switchable="false"
         @update:model-value="emit('update:modelValue', $event)"
       />

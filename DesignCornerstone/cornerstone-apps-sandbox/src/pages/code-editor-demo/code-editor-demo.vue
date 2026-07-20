@@ -3,7 +3,7 @@
     <div class="shrink-0">
       <h1 class="m-0 mb-1 text-lg font-semibold text-text">代码编辑器</h1>
       <p class="m-0 text-sm text-text-secondary">
-        演示 GrowCodeEditor 多语言切换（JavaScript / HTML / CSS / JSON / Vue 3 / SQL）
+        演示 GrowCodeEditor 多语言切换（JavaScript / HTML / CSS / JSON / Vue 3 / SQL / 表达式）
       </p>
     </div>
 
@@ -93,6 +93,14 @@ FROM users
 WHERE status = 1
 ORDER BY id DESC
 LIMIT 20;
+`,
+  expression: `{
+  name: "gaokai",
+  age: 18,
+  active: true,
+  tags: ["1", "2"],
+  extra: null
+}
 `,
 }
 

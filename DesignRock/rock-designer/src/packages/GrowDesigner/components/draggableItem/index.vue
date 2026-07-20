@@ -6,6 +6,7 @@
       'is-idle': !isActived,
       'is-inline-level': isInlineLevel,
       'has-frame-size': hasFrameSize,
+      'has-explicit-height': hasExplicitHeight,
     }"
     :style="frameStyle"
     @click.stop="onActiveStructure"
@@ -175,6 +176,12 @@ const hasFrameSize = computed(() =>
   }),
 )
 
+/** 仅显式设置了 height 时，body 才铺满高度；仅有 min-height 时应随内容撑开 */
+const hasExplicitHeight = computed(() => {
+  const value = effectiveFrameStyles.value.height
+  return value != null && value !== ''
+})
+
 const frameStyle = computed(() => {
   const styles = effectiveFrameStyles.value
   const result: Record<string, string> = {
@@ -295,10 +302,14 @@ const onCopyItem = () => {
 
     .draggable-item__body {
       width: 100%;
-      height: 100%;
       min-width: 0;
       min-height: 0;
       box-sizing: border-box;
+    }
+
+    /* 只有明确设置了 height 才让 body 高度 100%，避免仅 min-height 时文字被裁切 */
+    &.has-explicit-height .draggable-item__body {
+      height: 100%;
     }
   }
 

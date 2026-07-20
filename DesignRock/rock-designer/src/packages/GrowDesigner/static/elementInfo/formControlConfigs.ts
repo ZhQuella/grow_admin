@@ -1,10 +1,12 @@
 import {
   boolSwitch,
   createConfig,
+  defaultValueBind,
   numberInput,
   selectInput,
   sizeSelect,
   textInput,
+  variableBindInput,
 } from './shared'
 
 /** 表单 GrowForm */
@@ -85,7 +87,7 @@ export const formItemConfig = createConfig([
 
 /** 按钮 GrowButton */
 export const buttonConfig = createConfig([
-  textInput('文字', 'content', '按钮文字', '请输入按钮文字'),
+  variableBindInput('文字', 'content', '按钮文字，支持变量绑定', '请输入按钮文字或绑定变量'),
   sizeSelect('用于控制该表单域下按钮的尺寸'),
   selectInput(
     '按钮类型',
@@ -132,8 +134,8 @@ export const buttonConfig = createConfig([
 
 /** 链接 */
 export const linkConfig = createConfig([
-  textInput('文字', 'content', '链接显示文字'),
-  textInput('链接地址', 'href', '原生 href 属性'),
+  variableBindInput('文字', 'content', '链接显示文字，支持变量绑定'),
+  variableBindInput('链接地址', 'href', '原生 href 属性，支持变量绑定', '请输入 URL 或绑定变量'),
   selectInput(
     '类型',
     'type',
@@ -164,7 +166,7 @@ export const linkConfig = createConfig([
 
 /** 输入框 */
 export const inputConfig = createConfig([
-  textInput('绑定值', 'modelValue', '输入框绑定值'),
+  defaultValueBind('输入框初始默认值，支持变量绑定'),
   textInput('占位文本', 'placeholder', '输入框占位文本'),
   selectInput(
     '类型',
@@ -189,7 +191,7 @@ export const inputConfig = createConfig([
 
 /** 数字输入框 */
 export const inputNumberConfig = createConfig([
-  numberInput('绑定值', 'modelValue', '选中项绑定值'),
+  defaultValueBind('数字输入框初始默认值，支持变量绑定'),
   numberInput('最小值', 'min', '设置计数器允许的最小值'),
   numberInput('最大值', 'max', '设置计数器允许的最大值'),
   numberInput('步长', 'step', '计数器步长'),
@@ -211,6 +213,7 @@ export const inputNumberConfig = createConfig([
 
 /** 选择器 */
 export const selectConfig = createConfig([
+  defaultValueBind('选择器初始默认值，支持变量绑定'),
   textInput('占位文本', 'placeholder', '占位符'),
   boolSwitch('多选', 'multiple', '是否多选'),
   boolSwitch('禁用', 'disabled', '是否禁用'),
@@ -223,6 +226,7 @@ export const selectConfig = createConfig([
 
 /** 级联选择器 */
 export const cascaderConfig = createConfig([
+  defaultValueBind('级联选择器初始默认值，支持变量绑定'),
   textInput('占位文本', 'placeholder', '输入框占位文本'),
   boolSwitch('禁用', 'disabled', '是否禁用'),
   boolSwitch('可清空', 'clearable', '是否支持清空选项'),
@@ -234,7 +238,7 @@ export const cascaderConfig = createConfig([
 
 /** 开关 */
 export const switchConfig = createConfig([
-  boolSwitch('绑定值', 'modelValue', '绑定值'),
+  defaultValueBind('开关初始默认值，支持变量绑定（如 true / false）'),
   boolSwitch('禁用', 'disabled', '是否禁用'),
   boolSwitch('加载中', 'loading', '是否显示加载中'),
   boolSwitch('行内提示', 'inline-prompt', '无论图标或文本是否显示都会居中'),
@@ -245,7 +249,7 @@ export const switchConfig = createConfig([
 
 /** 滑块 */
 export const sliderConfig = createConfig([
-  numberInput('绑定值', 'modelValue', '绑定值'),
+  defaultValueBind('滑块初始默认值，支持变量绑定'),
   numberInput('最小值', 'min', '最小值'),
   numberInput('最大值', 'max', '最大值'),
   numberInput('步长', 'step', '步长'),
@@ -280,6 +284,7 @@ export const transferConfig = createConfig([
 
 /** 日期选择器 */
 export const datePickerConfig = createConfig([
+  defaultValueBind('日期选择器初始默认值，支持变量绑定'),
   selectInput(
     '显示类型',
     'type',
@@ -305,6 +310,7 @@ export const datePickerConfig = createConfig([
 
 /** 时间选择器（Naive UI NTimePicker） */
 export const timePickerConfig = createConfig([
+  defaultValueBind('时间选择器初始默认值，支持变量绑定'),
   textInput('占位文本', 'placeholder', '未选择时的占位文案'),
   textInput('格式', 'format', '时间显示格式（date-fns），如 HH:mm:ss', 'HH:mm:ss'),
   textInput('值格式', 'value-format', 'formatted-value 的格式，默认跟随 format'),
@@ -344,7 +350,7 @@ export const timePickerConfig = createConfig([
 
 /** 单选 */
 export const radioConfig = createConfig([
-  textInput('绑定值', 'modelValue', '绑定值'),
+  defaultValueBind('单选初始默认值，支持变量绑定'),
   textInput('label', 'label', '单选框的 value'),
   textInput('value', 'value', '单选框的值'),
   boolSwitch('禁用', 'disabled', '是否禁用'),
@@ -354,7 +360,7 @@ export const radioConfig = createConfig([
 
 /** 多选 */
 export const checkboxConfig = createConfig([
-  textInput('绑定值', 'modelValue', '绑定值'),
+  defaultValueBind('多选初始默认值，支持变量绑定'),
   textInput('label', 'label', '选中状态的值'),
   boolSwitch('禁用', 'disabled', '是否禁用'),
   boolSwitch('边框', 'border', '是否显示边框'),
@@ -380,6 +386,7 @@ export const checkboxGroupConfig = createConfig([
 
 /** 树形选择（Naive UI NTreeSelect） */
 export const treeSelectConfig = createConfig([
+  defaultValueBind('树形选择初始默认值，支持变量绑定'),
   textInput('占位文本', 'placeholder', '未选择时的占位文案'),
   boolSwitch('多选', 'multiple', '是否支持多选'),
   boolSwitch('可勾选', 'checkable', '节点是否显示复选框'),
@@ -421,6 +428,7 @@ export const treeSelectConfig = createConfig([
 
 /** 提及（Naive UI NMention） */
 export const mentionConfig = createConfig([
+  defaultValueBind('提及初始默认值，支持变量绑定'),
   textInput('占位文本', 'placeholder', '未输入时的占位文案'),
   textInput('触发前缀', 'prefix', '触发提及的前缀字符，长度须为 1', '@'),
   textInput('分隔符', 'separator', '切分提及使用的字符，长度须为 1', ' '),
@@ -465,6 +473,7 @@ export const mentionConfig = createConfig([
 
 /** 上传 */
 export const uploadConfig = createConfig([
+  defaultValueBind('上传文件列表默认值，支持变量绑定', 'file-list'),
   textInput('上传地址', 'action', '请求 URL'),
   textInput('接受类型', 'accept', '接受上传的文件类型'),
   boolSwitch('多选文件', 'multiple', '是否支持多选文件'),
