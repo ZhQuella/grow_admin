@@ -68,12 +68,22 @@
       destroy-on-close
     >
       <div class="flex flex-col gap-2 py-1">
-        <GrowInput
-          v-model="fileNameInput"
-          placeholder="例如 Comp.vue 或 components/Foo.js"
-          clearable
-          @keyup.enter="confirmFileDialog"
-        />
+        <div class="flex items-center gap-2">
+          <GrowInput
+            v-model="fileNameInput"
+            class="min-w-0 flex-1"
+            placeholder="例如 Comp 或 components/Foo"
+            clearable
+            @keyup.enter="confirmFileDialog"
+          />
+          <div class="w-20 shrink-0">
+            <GrowSelect
+              v-model="fileExt"
+              class="w-full"
+              :options="fileExtOptions"
+            />
+          </div>
+        </div>
         <p v-if="dialogError" class="m-0 text-sm text-error">{{ dialogError }}</p>
       </div>
       <template #footer>
@@ -122,11 +132,19 @@ const tabOrder = ref<string[]>([])
 const activeFile = ref('')
 
 type FileDialogMode = 'add' | 'rename'
+type FileExt = '.vue' | '.js'
+
 const fileDialogVisible = ref(false)
 const fileDialogMode = ref<FileDialogMode>('add')
 const renameFrom = ref('')
 const fileNameInput = ref('')
+const fileExt = ref<FileExt>('.vue')
 const dialogError = ref('')
+
+const fileExtOptions = [
+  { label: '.vue', value: '.vue' },
+  { label: '.js', value: '.js' },
+]
 
 const fileDialogTitle = computed(() =>
   fileDialogMode.value === 'add' ? '新建文件' : '重命名',
@@ -191,25 +209,45 @@ function onFileMenuCommand(command: string | number) {
   }
 }
 
+function splitFileName(name: string): { base: string; ext: FileExt } {
+  const normalized = normalizeSandboxPath(name)
+  const match = normalized.match(/^(.*?)(\.(vue|js))$/i)
+  if (!match) {
+    return { base: normalized, ext: '.vue' }
+  }
+  return {
+    base: match[1],
+    ext: match[2].toLowerCase() as FileExt,
+  }
+}
+
 function openAddDialog() {
   fileDialogMode.value = 'add'
   renameFrom.value = ''
-  fileNameInput.value = 'Comp.vue'
+  fileNameInput.value = 'Comp'
+  fileExt.value = '.vue'
   dialogError.value = ''
   fileDialogVisible.value = true
 }
 
 function openRenameDialog(name: string) {
   if (!name || name === entry.value) return
+  const { base, ext } = splitFileName(name)
   fileDialogMode.value = 'rename'
   renameFrom.value = name
-  fileNameInput.value = name
+  fileNameInput.value = base
+  fileExt.value = ext
   dialogError.value = ''
   fileDialogVisible.value = true
 }
 
+function resolveDialogFileName() {
+  const base = fileNameInput.value.trim().replace(/\.(vue|js)$/i, '')
+  return normalizeSandboxPath(`${base}${fileExt.value}`)
+}
+
 function confirmFileDialog() {
-  const name = normalizeSandboxPath(fileNameInput.value.trim())
+  const name = resolveDialogFileName()
   if (!isValidFileName(name)) {
     dialogError.value = '文件名无效，仅支持 .vue / .js'
     return
@@ -220,7 +258,7 @@ function confirmFileDialog() {
       dialogError.value = '文件已存在'
       return
     }
-    const content = /\.vue$/i.test(name)
+    const content = fileExt.value === '.vue'
       ? `<template>\n  <div>${name}</div>\n</template>\n\n` + '<script setup>\n</' + 'script>\n'
       : `export function hello() {\n  return 'hello from ${name}'\n}\n`
     emit('update:files', { ...props.files, [name]: content })

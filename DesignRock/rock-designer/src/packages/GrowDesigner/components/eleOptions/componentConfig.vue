@@ -39,6 +39,11 @@
             v-bind="item.props || {}"
             v-model="currentPropsConfig[item.modelKey]"
           />
+          <PropTableColumns
+            v-else-if="item.eleType === 'PropTableColumns'"
+            v-bind="item.props || {}"
+            v-model="currentPropsConfig[item.modelKey]"
+          />
           <PropVariableBind
             v-else-if="item.eleType === 'PropVariableBind'"
             v-bind="item.props || {}"
@@ -68,6 +73,7 @@ import ChildPaneNames from '../../optionComponent/ChildPaneNames/index.vue'
 import ChildColSpans from '../../optionComponent/ChildColSpans/index.vue'
 import PropDimensionInput from '../../optionComponent/PropDimensionInput/index.vue'
 import PropTableHeight from '../../optionComponent/PropTableHeight/index.vue'
+import PropTableColumns from '../../optionComponent/PropTableColumns/index.vue'
 import PropVariableBind from '../../optionComponent/PropVariableBind/index.vue'
 import type { PropConfigItem } from '../../static/elementInfo/shared'
 import {
@@ -107,6 +113,7 @@ const CUSTOM_OPTION_TYPES = new Set([
   'ChildColSpans',
   'PropDimensionInput',
   'PropTableHeight',
+  'PropTableColumns',
   'PropVariableBind',
 ])
 

@@ -6,6 +6,7 @@ import {
   sizeSelect,
   textInput,
   variableBindInput,
+  tableColumnsInput,
 } from './shared'
 
 /** 弹窗：设计态用面板壳编辑；运行时由 modelValue / 事件控制显隐 */
@@ -335,6 +336,13 @@ export const treeConfig = createConfig([
 
 /** 表格（常用项） */
 export const tableConfig = createConfig([
+  tableColumnsInput(),
+  variableBindInput(
+    '数据源',
+    'data',
+    '表格行数据，支持变量绑定（如 state.list）',
+    '请输入数据或绑定变量',
+  ),
   boolSwitch('斑马纹', 'stripe', '是否为斑马纹 table'),
   boolSwitch('边框', 'border', '是否带有纵向边框'),
   boolSwitch('显示表头', 'show-header', '是否显示表头'),
@@ -348,7 +356,7 @@ export const tableConfig = createConfig([
   },
   textInput('最大高度', 'max-height', 'Table 的最大高度'),
   sizeSelect('Table 尺寸'),
-  boolSwitch('空数据时显示', 'empty-text', '空数据时显示的文本（占位）'),
+  textInput('空数据文案', 'empty-text', '空数据时显示的文本'),
 ])
 
 /** 走马灯 */

@@ -7,6 +7,7 @@ const DriverRef = ref()
 defineExpose({ [DriverRefKey]: DriverRef })
 defineOptions({
   name: RockComponent.Table,
+  inheritAttrs: false,
 })
 const Table = useDriverComponent(RockComponent.Table)
 </script>

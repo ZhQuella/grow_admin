@@ -171,6 +171,17 @@ export const defaultValueBind = (
 ): PropConfigItem =>
   variableBindInput('默认值', modelKey, describe, '请输入默认值或绑定变量')
 
+/** 表格多级表头配置 */
+export const tableColumnsInput = (
+  name = '表头',
+  describe = '配置表格列，支持多级表头、排序与常用列属性',
+): PropConfigItem => ({
+  eleType: 'PropTableColumns',
+  name,
+  describe,
+  modelKey: 'columns',
+})
+
 export const createConfig = (props: PropConfigItem[]): ElementInfoConfig => ({
   props,
   styles: {},
