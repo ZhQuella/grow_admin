@@ -1,11 +1,20 @@
 <template>
   <NDrawer v-model:show="model" v-bind="$attrs">
-    <slot />
+    <NDrawerContent v-if="hasChromeSlots">
+      <slot />
+      <template v-if="$slots.header" #header>
+        <slot name="header" />
+      </template>
+      <template v-if="$slots.footer" #footer>
+        <slot name="footer" />
+      </template>
+    </NDrawerContent>
+    <slot v-else />
   </NDrawer>
 </template>
 <script lang="ts" setup>
-import { computed } from 'vue'
-import { NDrawer } from 'naive-ui'
+import { computed, useSlots } from 'vue'
+import { NDrawer, NDrawerContent } from 'naive-ui'
 
 defineOptions({ name: 'Drawer' })
 
@@ -21,6 +30,9 @@ const props = withDefaults(
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
 }>()
+
+const slots = useSlots()
+const hasChromeSlots = computed(() => Boolean(slots.footer || slots.header))
 
 const model = computed({
   get: () => props.modelValue,

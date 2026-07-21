@@ -329,8 +329,15 @@ export const resolveDefaultStyles = (
   if (elTagName && FORM_MODULE_FULL_WIDTH_TAGS.has(elTagName)) {
     styles.width = '100%'
   }
-  // 链接：保留行内块，不设默认最小宽高
-  if (elTagName === 'GrowLink') {
+  // 链接 / 按钮 / 高级搜索 / 开关 / 单选 / 多选：保留行内块，不设默认最小宽高
+  if (
+    elTagName === 'GrowLink' ||
+    elTagName === 'GrowButton' ||
+    elTagName === 'GrowSearchBar' ||
+    elTagName === 'GrowSwitch' ||
+    elTagName === 'GrowRadio' ||
+    elTagName === 'GrowCheckbox'
+  ) {
     Reflect.deleteProperty(styles, 'min-width')
     Reflect.deleteProperty(styles, 'min-height')
   }
