@@ -28,7 +28,10 @@
 <script setup lang="ts">
 import { computed, inject, toRefs } from 'vue'
 import { FORM_MODULE_FULL_WIDTH_TAGS } from '../../../../static/moduleMap'
-import { LAYOUT_MAIN_SIZE, type LayoutMainSize } from '../../../../config/designation'
+import {
+  LAYOUT_MAIN_SIZE,
+  type LayoutMainSize,
+} from '../../../../config/designation'
 import { tableColumnsSignature } from '../../../../static/tableColumnUtils'
 import TableColumnNodes from '../../../shared/TableColumnNodes.vue'
 
@@ -73,18 +76,37 @@ const isSocket = computed(() => {
     'GrowModal',
     'GrowDrawer',
     'GrowLayout',
+    'GrowUpload',
   ]
   return slotMap.includes(config.value.elTagName)
 })
 
 const bindProps = computed(() => {
   const info = { ...(propsInfo.value || {}) }
+  // 设计器表单字段名，不透传给底层组件
+  Reflect.deleteProperty(info, 'model')
+  Reflect.deleteProperty(info, 'visible')
+  Reflect.deleteProperty(info, 'render')
   if (['GrowButton', 'GrowLink', 'GrowEllipsis'].includes(config.value?.elTagName)) {
     Reflect.deleteProperty(info, 'content')
   }
   if (config.value?.elTagName === 'GrowEllipsis') {
     if (info['expand-trigger'] === '' || info['expand-trigger'] == null) {
       Reflect.deleteProperty(info, 'expand-trigger')
+    }
+  }
+  if (config.value?.elTagName === 'GrowUpload') {
+    if (
+      info.modelValue != null &&
+      (info['file-list'] == null || info['file-list'] === '')
+    ) {
+      info['file-list'] = info.modelValue
+    }
+    if (
+      info.modelValue != null &&
+      (info.fileList == null || info.fileList === '')
+    ) {
+      info.fileList = info.modelValue
     }
   }
   if (config.value?.elTagName === 'GrowCalendar') {

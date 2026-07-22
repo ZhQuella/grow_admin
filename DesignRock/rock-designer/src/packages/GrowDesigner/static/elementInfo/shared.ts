@@ -1,5 +1,7 @@
 /** 属性配置项公共类型与复用选项 */
 
+import { registerFunctionPropParams } from '../functionPropParams'
+
 export type PropConfigItem = {
   eleType: string
   name: string
@@ -164,12 +166,48 @@ export const variableBindInput = (
   },
 })
 
+/** 表单字段 model 绑定（如 user.name），支持变量 */
+export const modelBind = (
+  describe = '表单字段 model 绑定，支持变量绑定',
+  modelKey = 'model',
+): PropConfigItem =>
+  variableBindInput('model', modelKey, describe, '请输入 model 或绑定变量')
+
 /** 组件默认值（绑定到 modelValue，支持变量） */
 export const defaultValueBind = (
   describe = '组件初始默认值，支持变量绑定',
   modelKey = 'modelValue',
 ): PropConfigItem =>
   variableBindInput('默认值', modelKey, describe, '请输入默认值或绑定变量')
+
+/** Switch + 变量绑定（显示 / 渲染等布尔控制） */
+export const switchVariableBind = (
+  name: string,
+  modelKey: string,
+  describe?: string,
+): PropConfigItem => ({
+  eleType: 'PropSwitchBind',
+  name,
+  describe,
+  modelKey,
+  props: {
+    defaultValue: true,
+  },
+})
+
+/** 所有组件通用：显示（v-show）/ 渲染（v-if） */
+export const COMMON_VISIBILITY_PROPS: PropConfigItem[] = [
+  switchVariableBind(
+    '显示',
+    'visible',
+    '控制是否显示，对应 v-show（不显示时仍会渲染，仅隐藏）',
+  ),
+  switchVariableBind(
+    '渲染',
+    'render',
+    '控制是否渲染，对应 v-if（不渲染时不创建节点）',
+  ),
+]
 
 /** 表格多级表头配置 */
 export const tableColumnsInput = (
@@ -181,6 +219,32 @@ export const tableColumnsInput = (
   describe,
   modelKey: 'columns',
 })
+
+/** 函数绑定（纯 prop 回调，运行时编译为 Function） */
+export const functionBind = (
+  name: string,
+  modelKey: string,
+  describe?: string,
+  options?: {
+    params?: string[]
+    example?: string
+    placeholder?: string
+  },
+): PropConfigItem => {
+  registerFunctionPropParams(modelKey, options?.params || [])
+  return {
+    eleType: 'PropFunctionBind',
+    name,
+    describe,
+    modelKey,
+    props: {
+      label: name,
+      params: options?.params || [],
+      example: options?.example || '',
+      placeholder: options?.placeholder || '点击右侧绑定函数',
+    },
+  }
+}
 
 export const createConfig = (props: PropConfigItem[]): ElementInfoConfig => ({
   props,

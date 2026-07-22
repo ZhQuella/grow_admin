@@ -17,7 +17,6 @@ import {
   NIcon,
   NIconWrapper,
   NCheckbox,
-  NCheckboxGroup,
   NCollapse,
   NCollapseItem,
   NButtonGroup,
@@ -104,6 +103,8 @@ import {
 import Config from '#/components/Config.vue'
 import Drawer from '#/components/Drawer.vue'
 import Link from '#/components/Link.vue'
+import RadioGroup from '#/components/RadioGroup.vue'
+import CheckboxGroup from '#/components/CheckboxGroup.vue'
 import { AtomSpinner } from 'epic-spinners'
 import {
   ComponentEntry,
@@ -136,7 +137,7 @@ const allComponents = {
   [RockComponent.FormItem]: NFormItem,
   [RockComponent.Thing]: NThing,
   [RockComponent.Checkbox]: NCheckbox,
-  [RockComponent.CheckboxGroup]: NCheckboxGroup,
+  [RockComponent.CheckboxGroup]: CheckboxGroup,
   [RockComponent.Collapse]: NCollapse,
   [RockComponent.CollapseItem]: NCollapseItem,
   [RockComponent.Breadcrumb]: NBreadcrumb,
@@ -154,7 +155,7 @@ const allComponents = {
   [RockComponent.Pagination]: NPagination,
   [RockComponent.Radio]: NRadio,
   [RockComponent.RadioButton]: NRadioButton,
-  [RockComponent.RadioGroup]: NRadioGroup,
+  [RockComponent.RadioGroup]: RadioGroup,
   [RockComponent.RadioButtonGroup]: NRadioGroup,
   [RockComponent.Text]: NText,
   [RockComponent.Config]: Config,

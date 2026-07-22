@@ -51,6 +51,20 @@
             :bind-mode="getBindMode(item.modelKey)"
             @update:bind-mode="(mode) => setBindMode(item.modelKey, mode)"
           />
+          <PropSwitchBind
+            v-else-if="item.eleType === 'PropSwitchBind'"
+            v-bind="item.props || {}"
+            v-model="currentPropsConfig[item.modelKey]"
+            :bind-mode="getBindMode(item.modelKey)"
+            @update:bind-mode="(mode) => setBindMode(item.modelKey, mode)"
+          />
+          <PropFunctionBind
+            v-else-if="item.eleType === 'PropFunctionBind'"
+            v-bind="item.props || {}"
+            v-model="currentPropsConfig[item.modelKey]"
+            :bind-mode="getBindMode(item.modelKey)"
+            @update:bind-mode="(mode) => setBindMode(item.modelKey, mode)"
+          />
           <component
             v-else
             :is="item.eleType"
@@ -75,7 +89,12 @@ import PropDimensionInput from '../../optionComponent/PropDimensionInput/index.v
 import PropTableHeight from '../../optionComponent/PropTableHeight/index.vue'
 import PropTableColumns from '../../optionComponent/PropTableColumns/index.vue'
 import PropVariableBind from '../../optionComponent/PropVariableBind/index.vue'
-import type { PropConfigItem } from '../../static/elementInfo/shared'
+import PropSwitchBind from '../../optionComponent/PropSwitchBind/index.vue'
+import PropFunctionBind from '../../optionComponent/PropFunctionBind/index.vue'
+import {
+  COMMON_VISIBILITY_PROPS,
+  type PropConfigItem,
+} from '../../static/elementInfo/shared'
 import {
   normalizePropBindMode,
   PROP_BIND_MODE_TEXT,
@@ -115,13 +134,16 @@ const CUSTOM_OPTION_TYPES = new Set([
   'PropTableHeight',
   'PropTableColumns',
   'PropVariableBind',
+  'PropSwitchBind',
+  'PropFunctionBind',
 ])
 
 const isCustomOption = (item: PropConfigItem) => CUSTOM_OPTION_TYPES.has(item.eleType)
 
 const renderList = computed(() => {
   const tag = currentBasicConfig.value?.elTagName
-  return elementPropsMap[tag] || []
+  const list = elementPropsMap[tag] || []
+  return [...list, ...COMMON_VISIBILITY_PROPS]
 })
 
 const getBindMode = (modelKey: string): PropBindMode =>

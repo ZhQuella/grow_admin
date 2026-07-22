@@ -19,11 +19,12 @@
           :size="14"
         />
       </button>
-      <span class="column-tree-node__title" :title="column.title">
-        {{ column.title || '未命名' }}
+      <span class="column-tree-node__title" :title="displayTitle">
+        {{ displayTitle }}
       </span>
-      <span class="column-tree-node__field">{{ column.field || (hasChildren ? '分组' : '-') }}</span>
+      <span class="column-tree-node__field">{{ fieldLabel }}</span>
       <button
+        v-if="!isSpecial"
         type="button"
         class="column-tree-node__btn"
         title="添加子列"
@@ -85,7 +86,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import draggable from 'vuedraggable'
-import type { DesignerTableColumn } from '../../static/tableColumns'
+import {
+  isSpecialTableColumn,
+  TABLE_COLUMN_SPECIAL_LABEL,
+  type DesignerTableColumn,
+} from '../../static/tableColumns'
 import ColumnEditForm from './ColumnEditForm.vue'
 
 defineOptions({ name: 'ColumnTreeNode' })
@@ -104,6 +109,22 @@ const emit = defineEmits<{
 
 const depth = computed(() => props.depth ?? 0)
 const hasChildren = computed(() => Boolean(props.column.children?.length))
+const isSpecial = computed(() => isSpecialTableColumn(props.column))
+const displayTitle = computed(() => {
+  if (isSpecial.value) {
+    const label = TABLE_COLUMN_SPECIAL_LABEL[props.column.type]
+    if (props.column.type === 'index' && props.column.title) {
+      return props.column.title
+    }
+    return label
+  }
+  return props.column.title || '未命名'
+})
+const fieldLabel = computed(() => {
+  if (isSpecial.value) return TABLE_COLUMN_SPECIAL_LABEL[props.column.type]
+  if (hasChildren.value) return '分组'
+  return props.column.field || '-'
+})
 const expanded = ref(true)
 const editing = ref(false)
 

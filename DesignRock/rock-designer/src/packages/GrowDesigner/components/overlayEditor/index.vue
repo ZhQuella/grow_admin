@@ -116,7 +116,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, watch, type ComputedRef } from 'vue'
+import { computed, inject, watch } from 'vue'
 import draggable from 'vuedraggable'
 import { findByUUID } from '@grow-admin-rock/utils'
 import { GROW_RUNTIME_STATE } from '../../config/designation'
@@ -143,7 +143,7 @@ const emit = defineEmits<{
   active: [payload: any]
 }>()
 
-const injectedRuntimeState = inject<ComputedRef<Record<string, unknown>> | null>(
+const injectedRuntimeState = inject<Record<string, unknown> | null>(
   GROW_RUNTIME_STATE,
   null,
 )
@@ -167,7 +167,7 @@ const resolvedPropsInfo = computed(() =>
   resolveBoundProps(
     propsInfo.value,
     props.draggableConfig.propBindModes?.[props.uuid],
-    injectedRuntimeState?.value ??
+    injectedRuntimeState ??
       buildRuntimeState(props.draggableConfig.dataSource),
   ),
 )

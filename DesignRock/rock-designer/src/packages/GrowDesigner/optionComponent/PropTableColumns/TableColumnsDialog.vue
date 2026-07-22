@@ -16,14 +16,49 @@
         </header>
 
         <div class="table-columns-dialog__body">
+          <div class="table-columns-dialog__toolbar">
+            <button
+              type="button"
+              class="table-columns-dialog__tool-btn"
+              :class="{ 'is-disabled': hasSelection }"
+              :disabled="hasSelection"
+              :title="hasSelection ? '已存在勾选列' : '添加勾选列'"
+              @click="onAddSelection"
+            >
+              <GrowIconify icon="carbon:checkbox-checked" :size="14" />
+              <span>添加勾选列</span>
+            </button>
+            <button
+              type="button"
+              class="table-columns-dialog__tool-btn"
+              :class="{ 'is-disabled': hasIndex }"
+              :disabled="hasIndex"
+              :title="hasIndex ? '已存在序号列' : '添加序号列'"
+              @click="onAddIndex"
+            >
+              <GrowIconify icon="carbon:list-numbered" :size="14" />
+              <span>添加序号列</span>
+            </button>
+            <button
+              type="button"
+              class="table-columns-dialog__tool-btn is-primary"
+              title="添加普通列"
+              @click="onAddRoot"
+            >
+              <GrowIconify icon="carbon:add" :size="14" />
+              <span>添加列</span>
+            </button>
+          </div>
+
           <draggable
+            :key="listKey"
             class="table-columns-dialog__tree"
-            :model-value="draft"
+            :list="draft"
             item-key="id"
             group="designer-table-columns"
             handle=".column-tree-node__drag"
             :animation="200"
-            @update:model-value="onRootChange"
+            @change="onDragChange"
           >
             <template #item="{ element }">
               <ColumnTreeNode
@@ -36,11 +71,6 @@
               />
             </template>
           </draggable>
-
-          <button type="button" class="table-columns-dialog__add" @click="onAddRoot">
-            <GrowIconify icon="carbon:add" :size="14" />
-            <span>添加列</span>
-          </button>
         </div>
 
         <footer class="table-columns-dialog__footer">
@@ -53,13 +83,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import draggable from 'vuedraggable'
 import { deepCloneDesigner } from '@grow-admin-rock/utils'
 import type { DesignerTableColumn } from '../../static/tableColumns'
 import {
   appendTableColumn,
+  createIndexColumn,
+  createSelectionColumn,
   createTableColumn,
+  hasSpecialColumn,
+  insertSpecialColumn,
+  normalizeSpecialColumns,
   removeTableColumnById,
   replaceChildrenById,
   updateTableColumnById,
@@ -78,45 +113,72 @@ const emit = defineEmits<{
   confirm: [value: DesignerTableColumn[]]
 }>()
 
+/** 使用可变数组 + :list，避免 model-value 回写冲掉程序化新增 */
 const draft = ref<DesignerTableColumn[]>([])
+const listKey = ref(0)
 
 /** Vue Proxy 无法用 structuredClone，改用设计器深拷贝 */
 const cloneColumns = (list: DesignerTableColumn[] = []) =>
   deepCloneDesigner(Array.isArray(list) ? list : []) as DesignerTableColumn[]
 
+const hasSelection = computed(() => hasSpecialColumn(draft.value, 'selection'))
+const hasIndex = computed(() => hasSpecialColumn(draft.value, 'index'))
+
+const replaceDraft = (next: DesignerTableColumn[], remount = false) => {
+  draft.value = normalizeSpecialColumns(next)
+  if (remount) listKey.value += 1
+}
+
 watch(
   () => props.visible,
   (open) => {
     if (!open) return
-    draft.value = cloneColumns(props.modelValue)
+    replaceDraft(cloneColumns(props.modelValue), true)
   },
 )
 
-const onRootChange = (next: DesignerTableColumn[]) => {
-  draft.value = next
+/** 拖拽结束后再规范化（把误拖入分组的特殊列提回根级） */
+const onDragChange = () => {
+  replaceDraft([...draft.value], true)
 }
 
 const onUpdateColumn = (column: DesignerTableColumn) => {
-  draft.value = updateTableColumnById(draft.value, column.id, column)
+  replaceDraft(updateTableColumnById(draft.value, column.id, column))
 }
 
 const onRemove = (id: string) => {
-  draft.value = removeTableColumnById(draft.value, id)
+  replaceDraft(removeTableColumnById(draft.value, id), true)
 }
 
 const onAddRoot = () => {
   const index = draft.value.length + 1
-  draft.value = [
-    ...draft.value,
-    createTableColumn({ title: `列 ${index}`, field: `field${index}` }),
-  ]
+  replaceDraft(
+    [
+      ...draft.value,
+      createTableColumn({ title: `列 ${index}`, field: `field${index}` }),
+    ],
+    true,
+  )
+}
+
+const onAddSelection = () => {
+  if (hasSpecialColumn(draft.value, 'selection')) return
+  replaceDraft(insertSpecialColumn(draft.value, createSelectionColumn()), true)
+}
+
+const onAddIndex = () => {
+  if (hasSpecialColumn(draft.value, 'index')) return
+  replaceDraft(insertSpecialColumn(draft.value, createIndexColumn()), true)
 }
 
 const onAddChild = (parentId: string) => {
-  draft.value = appendTableColumn(
-    draft.value,
-    parentId,
-    createTableColumn({ title: '子列', field: '' }),
+  replaceDraft(
+    appendTableColumn(
+      draft.value,
+      parentId,
+      createTableColumn({ title: '子列', field: '' }),
+    ),
+    true,
   )
 }
 
@@ -124,17 +186,16 @@ const onReplaceChildren = (payload: {
   parentId: string
   children: DesignerTableColumn[]
 }) => {
-  draft.value = replaceChildrenById(
-    draft.value,
-    payload.parentId,
-    payload.children,
+  replaceDraft(
+    replaceChildrenById(draft.value, payload.parentId, payload.children),
+    true,
   )
 }
 
 const onCancel = () => emit('update:visible', false)
 
 const onConfirm = () => {
-  emit('confirm', cloneColumns(draft.value))
+  emit('confirm', normalizeSpecialColumns(cloneColumns(draft.value)))
   emit('update:visible', false)
 }
 </script>
@@ -218,26 +279,31 @@ const onConfirm = () => {
   padding: 12px 16px;
 }
 
-.table-columns-dialog__tree {
+.table-columns-dialog__toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -12px -16px 12px;
+  padding: 10px 16px;
+  background: var(--layout-container-background-color, #fff);
+  border-bottom: 1px solid var(--layout-border-color, #ebeef5);
 }
 
-.table-columns-dialog__add {
+.table-columns-dialog__tool-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  width: 100%;
-  height: 32px;
+  height: 28px;
   margin: 0;
-  padding: 0 8px;
-  border: 1px dashed var(--layout-border-color, #dcdfe6);
+  padding: 0 10px;
+  border: 1px solid var(--layout-border-color, #dcdfe6);
   border-radius: 4px;
-  background: transparent;
-  color: var(--text-color-secondary, #909399);
+  background: #fff;
+  color: var(--text-color, #303133);
   font-size: 12px;
   cursor: pointer;
   line-height: 1;
@@ -245,14 +311,31 @@ const onConfirm = () => {
   :deep(.grow-iconify),
   :deep(svg) {
     display: block;
-    margin: auto 0;
     line-height: 0;
   }
 
-  &:hover {
+  &:hover:not(:disabled) {
     border-color: var(--primary-color, #409eff);
     color: var(--primary-color, #409eff);
   }
+
+  &.is-primary {
+    border-color: var(--primary-color, #409eff);
+    color: var(--primary-color, #409eff);
+    background: var(--el-color-primary-light-9, #ecf5ff);
+  }
+
+  &:disabled,
+  &.is-disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.table-columns-dialog__tree {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .table-columns-dialog__footer {

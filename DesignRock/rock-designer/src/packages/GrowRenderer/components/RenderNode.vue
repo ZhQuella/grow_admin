@@ -3,9 +3,15 @@
     <!-- 未接入组件：预览阶段跳过 -->
   </template>
 
+  <!-- render=false → 不创建；visible=false → 隐藏 -->
+  <div
+    v-else-if="isNodeRenderable"
+    class="grow-render-node"
+    :class="{ 'grow-render-node--hidden': !isNodeVisible }"
+  >
   <!-- 基础元素（叶子） -->
   <component
-    v-else-if="isBasicLeaf && basicTag"
+    v-if="isBasicLeaf && basicTag"
     :is="basicTag"
     v-bind="basicProps"
     :class="nodeClass"
@@ -17,6 +23,7 @@
   <!-- 容器：div -->
   <div
     v-else-if="isChild && tag === 'div'"
+    v-bind="runtimeEventProps"
     :class="nodeClass"
     :style="nodeStyle"
   >
@@ -153,6 +160,31 @@
     </div>
   </component>
 
+  <!-- GrowUpload：行内块；默认插槽为触发内容 -->
+  <component
+    v-else-if="isChild && tag === 'GrowUpload'"
+    :is="tag"
+    v-bind="moduleProps"
+    :class="nodeClass"
+    :style="nodeStyle"
+    @update:model-value="onModelUpdate"
+    @update:value="onModelUpdate"
+    @update:file-list="onModelUpdate"
+    @update:fileList="onModelUpdate"
+  >
+    <div class="grow-upload-trigger">
+      <template v-if="children.length">
+        <RenderNode
+          v-for="child in children"
+          :key="child.uuid"
+          :node="child"
+          :schema="schema"
+        />
+      </template>
+      <span v-else class="grow-upload-trigger__placeholder">上传触发内容</span>
+    </div>
+  </component>
+
   <!-- GrowPopover：#reference 触发；default 弹出内容 -->
   <component
     v-else-if="isChild && tag === 'GrowPopover'"
@@ -262,15 +294,20 @@
     v-bind="moduleProps"
     :class="[nodeClass, { 'w-full': isFormFullWidth }]"
     :style="nodeStyle"
+    @update:model-value="onModelUpdate"
+    @update:value="onModelUpdate"
+    @update:file-list="onModelUpdate"
+    @update:fileList="onModelUpdate"
   >
     <span v-if="tag === 'GrowButton'">{{ rawProps.content }}</span>
     <span v-else-if="tag === 'GrowLink'">{{ rawProps.content }}</span>
     <template v-else-if="tag === 'GrowEllipsis'">{{ rawProps.content }}</template>
   </component>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { computed, inject, provide, reactive, type ComputedRef } from 'vue'
+import { computed, inject, provide, reactive } from 'vue'
 import { FORM_MODULE_FULL_WIDTH_TAGS } from '../../GrowDesigner/static/moduleMap'
 import {
   GROW_RUNTIME_STATE,
@@ -289,8 +326,11 @@ import {
 } from '../utils/normalizeProps'
 import {
   buildRuntimeState,
+  coerceBool,
   resolveBoundProps,
+  writeModelBinding,
 } from '../utils/resolveBoundProps'
+import { buildRuntimeEventProps } from '../utils/runDesignerEvent'
 import RenderPageLayout from './RenderPageLayout.vue'
 import TableColumnNodes from '../../GrowDesigner/components/shared/TableColumnNodes.vue'
 import { tableColumnsSignature } from '../../GrowDesigner/static/tableColumnUtils'
@@ -312,14 +352,12 @@ const contentChildren = computed(() => props.node.contentSlot || [])
 const headerChildren = computed(() => props.node.headerSlot || [])
 const asideChildren = computed(() => props.node.asideSlot || [])
 const config = computed(() => props.schema.renderArgument?.[uuid.value])
-const injectedRuntimeState = inject<ComputedRef<Record<string, unknown>> | null>(
+const injectedRuntimeState = inject<Record<string, unknown> | null>(
   GROW_RUNTIME_STATE,
   null,
 )
 const runtimeState = computed(
-  () =>
-    injectedRuntimeState?.value ??
-    buildRuntimeState(props.schema.dataSource),
+  () => injectedRuntimeState ?? buildRuntimeState(props.schema.dataSource),
 )
 /** 按 propBindModes 求值后的 props（绑定字段已解析为展示值） */
 const rawProps = computed(() =>
@@ -329,6 +367,29 @@ const rawProps = computed(() =>
     runtimeState.value,
   ),
 )
+
+/** 渲染（v-if）：默认 true */
+const isNodeRenderable = computed(() => coerceBool(rawProps.value?.render, true))
+/** 显示（v-show）：默认 true */
+const isNodeVisible = computed(() => coerceBool(rawProps.value?.visible, true))
+
+/** enabled=true 的事件 → onXxx，合并进组件 props */
+const runtimeEventProps = computed(() =>
+  buildRuntimeEventProps(
+    props.schema.events?.[uuid.value] as any,
+    runtimeState.value,
+  ),
+)
+
+/** model 双向绑定：控件变更写回 runtime state */
+const onModelUpdate = (value: unknown) => {
+  writeModelBinding(
+    injectedRuntimeState,
+    props.schema.props?.[uuid.value],
+    props.schema.propBindModes?.[uuid.value],
+    value,
+  )
+}
 const rawStyles = computed(() => props.schema.styles?.[uuid.value])
 
 const tag = computed(() => config.value?.elTagName as string | undefined)
@@ -361,7 +422,10 @@ if (nodeTagAtSetup === 'GrowLayout') {
 const layoutMainSize = inject<LayoutMainSize | null>(LAYOUT_MAIN_SIZE, null)
 
 const basicTag = computed(() => resolveBasicTag(tag.value, rawProps.value))
-const basicProps = computed(() => normalizeBasicProps(tag.value || '', rawProps.value))
+const basicProps = computed(() => ({
+  ...normalizeBasicProps(tag.value || '', rawProps.value),
+  ...runtimeEventProps.value,
+}))
 const basicText = computed(() => resolveBasicText(tag.value, rawProps.value))
 const moduleProps = computed(() => {
   const info = normalizeModuleProps(tag.value || '', rawProps.value)
@@ -369,29 +433,39 @@ const moduleProps = computed(() => {
     // 走本地 WatchBox 分支时不在这里写 height
     Reflect.deleteProperty(info, 'height')
   }
-  return info
+  return {
+    ...info,
+    ...runtimeEventProps.value,
+  }
 })
 /** 适应主区域时透传除 height 外的表格 props */
 const tableBaseProps = computed(() => {
   const info = normalizeModuleProps('GrowTable', rawProps.value)
   Reflect.deleteProperty(info, 'height')
   Reflect.deleteProperty(info, 'fitLayoutMainHeight')
-  return info
+  return {
+    ...info,
+    ...runtimeEventProps.value,
+  }
 })
 /** 列配置变化时强制重建表格，确保列属性生效 */
 const tableColumnsKey = computed(
   () => `cols:${tableColumnsSignature(rawProps.value?.columns)}`,
 )
-const scrollbarModuleProps = computed(() =>
-  normalizeModuleProps(tag.value || '', rawProps.value),
-)
+const scrollbarModuleProps = computed(() => ({
+  ...normalizeModuleProps(tag.value || '', rawProps.value),
+  ...runtimeEventProps.value,
+}))
 /** 有自定义内容插槽时，不再传 content，避免与 default slot 冲突 */
 const popoverModuleProps = computed(() => {
   const info = normalizeModuleProps(tag.value || '', rawProps.value)
   if (contentChildren.value.length) {
     Reflect.deleteProperty(info, 'content')
   }
-  return info
+  return {
+    ...info,
+    ...runtimeEventProps.value,
+  }
 })
 
 const nodeStyle = computed(() => resolveNodeStyle(rawStyles.value))
@@ -465,6 +539,22 @@ const isFormFullWidth = computed(() =>
   color: var(--text-color-secondary, #909399);
 }
 
+.grow-upload-trigger {
+  display: inline-block;
+  vertical-align: top;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.grow-upload-trigger__placeholder {
+  display: inline-block;
+  padding: 4px 10px;
+  border: 1px dashed var(--layout-border-color, #dcdfe6);
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--text-color-secondary, #909399);
+}
+
 .grow-popover-trigger {
   display: inline-block;
   vertical-align: top;
@@ -497,5 +587,14 @@ const isFormFullWidth = computed(() =>
   height: auto !important;
   min-width: 0;
   min-height: 0;
+}
+
+/* display:contents 不打断布局；hidden 等价 v-show=false */
+.grow-render-node {
+  display: contents;
+}
+
+.grow-render-node--hidden {
+  display: none !important;
 }
 </style>

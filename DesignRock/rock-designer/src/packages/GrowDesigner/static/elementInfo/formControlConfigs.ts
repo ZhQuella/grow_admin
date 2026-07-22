@@ -2,6 +2,8 @@ import {
   boolSwitch,
   createConfig,
   defaultValueBind,
+  functionBind,
+  modelBind,
   numberInput,
   selectInput,
   sizeSelect,
@@ -166,6 +168,7 @@ export const linkConfig = createConfig([
 
 /** 输入框 */
 export const inputConfig = createConfig([
+  modelBind(),
   defaultValueBind('输入框初始默认值，支持变量绑定'),
   textInput('占位文本', 'placeholder', '输入框占位文本'),
   selectInput(
@@ -187,10 +190,28 @@ export const inputConfig = createConfig([
   numberInput('最大长度', 'maxlength', '原生 maxlength 属性'),
   numberInput('最小长度', 'minlength', '原生 minlength 属性'),
   sizeSelect(),
+  functionBind(
+    '格式化显示值',
+    'formatter',
+    '指定输入值的格式（仅当 type 为 text 时生效）',
+    {
+      params: ['value'],
+      example: `// return \`￥ \${value}\`\nreturn value`,
+    },
+  ),
+  functionBind(
+    '解析输入值',
+    'parser',
+    '指定从格式化器输入中提取的值（仅当 type 为 text 时生效）',
+    {
+      params: ['value'],
+      example: `// return String(value).replace(/￥\\s?|(,*)/g, '')\nreturn value`,
+    },
+  ),
 ])
-
 /** 数字输入框 */
 export const inputNumberConfig = createConfig([
+  modelBind(),
   defaultValueBind('数字输入框初始默认值，支持变量绑定'),
   numberInput('最小值', 'min', '设置计数器允许的最小值'),
   numberInput('最大值', 'max', '设置计数器允许的最大值'),
@@ -213,7 +234,14 @@ export const inputNumberConfig = createConfig([
 
 /** 选择器 */
 export const selectConfig = createConfig([
+  modelBind(),
   defaultValueBind('选择器初始默认值，支持变量绑定'),
+  variableBindInput(
+    '选项数据',
+    'options',
+    '下拉选项，支持变量绑定（如 state.options）',
+    '请输入数据或绑定变量',
+  ),
   textInput('占位文本', 'placeholder', '占位符'),
   boolSwitch('多选', 'multiple', '是否多选'),
   boolSwitch('禁用', 'disabled', '是否禁用'),
@@ -221,12 +249,38 @@ export const selectConfig = createConfig([
   boolSwitch('可过滤', 'filterable', '是否可过滤'),
   boolSwitch('允许创建条目', 'allow-create', '是否允许用户创建新条目'),
   boolSwitch('折叠标签', 'collapse-tags', '多选时是否将选中值按文字的形式展示'),
+  boolSwitch('远程搜索', 'remote', '是否为远程搜索'),
+  boolSwitch('远程加载中', 'loading', '是否正在从远程获取数据'),
   sizeSelect(),
+  functionBind(
+    '远程搜索方法',
+    'remote-method',
+    '自定义远程搜索方法（需开启 remote）',
+    {
+      params: ['query'],
+      example: `// 根据 query 请求并写入 state.options\nconsole.log('query', query, state)`,
+    },
+  ),
+  functionBind(
+    '自定义过滤方法',
+    'filter-method',
+    '自定义搜索方法；需返回是否匹配（开启 filterable 时）',
+    {
+      params: ['query'],
+      example: `// 自定义过滤时由组件调用\nconsole.log('query', query)`,
+    },
+  ),
 ])
-
 /** 级联选择器 */
 export const cascaderConfig = createConfig([
+  modelBind(),
   defaultValueBind('级联选择器初始默认值，支持变量绑定'),
+  variableBindInput(
+    '选项数据',
+    'options',
+    '级联选项，支持变量绑定（如 state.options）',
+    '请输入数据或绑定变量',
+  ),
   textInput('占位文本', 'placeholder', '输入框占位文本'),
   boolSwitch('禁用', 'disabled', '是否禁用'),
   boolSwitch('可清空', 'clearable', '是否支持清空选项'),
@@ -234,10 +288,28 @@ export const cascaderConfig = createConfig([
   boolSwitch('显示完整路径', 'show-all-levels', '输入框中是否显示选中值的完整路径'),
   boolSwitch('折叠标签', 'collapse-tags', '多选模式下是否折叠 Tag'),
   sizeSelect(),
+  functionBind(
+    '过滤前钩子',
+    'before-filter',
+    '过滤前的钩子；返回 false 或返回 Promise 且被 reject，则停止筛选',
+    {
+      params: ['value'],
+      example: `// return true\nreturn true`,
+    },
+  ),
+  functionBind(
+    '自定义过滤方法',
+    'filter-method',
+    '自定义搜索逻辑，第一个参数是节点，第二个是关键字，需返回布尔值',
+    {
+      params: ['node', 'keyword'],
+      example: `// return node.text?.includes(keyword)\nreturn true`,
+    },
+  ),
 ])
-
 /** 开关 */
 export const switchConfig = createConfig([
+  modelBind(),
   defaultValueBind('开关初始默认值，支持变量绑定（如 true / false）'),
   boolSwitch('禁用', 'disabled', '是否禁用'),
   boolSwitch('加载中', 'loading', '是否显示加载中'),
@@ -249,6 +321,7 @@ export const switchConfig = createConfig([
 
 /** 滑块 */
 export const sliderConfig = createConfig([
+  modelBind(),
   defaultValueBind('滑块初始默认值，支持变量绑定'),
   numberInput('最小值', 'min', '最小值'),
   numberInput('最大值', 'max', '最大值'),
@@ -263,10 +336,26 @@ export const sliderConfig = createConfig([
   boolSwitch('输入框控制按钮', 'show-input-controls', '输入框控制按钮'),
   numberInput('输入防抖', 'debounce', '输入时的去抖延迟（毫秒）'),
   sizeSelect(),
+  functionBind(
+    '格式化 tooltip',
+    'format-tooltip',
+    '格式化 tooltip message',
+    {
+      params: ['value'],
+      example: `// return \`\${value}%\`\nreturn value`,
+    },
+  ),
 ])
-
 /** 穿梭框 */
 export const transferConfig = createConfig([
+  modelBind(),
+  defaultValueBind('穿梭框选中值（右侧列表 key 数组），支持变量绑定'),
+  variableBindInput(
+    '数据源',
+    'data',
+    '穿梭框数据源，支持变量绑定（如 state.list）',
+    '请输入数据或绑定变量',
+  ),
   boolSwitch('可搜索', 'filterable', '是否可搜索'),
   textInput('搜索占位', 'filter-placeholder', '搜索框占位符'),
   boolSwitch('禁用', 'disabled', '是否禁用'),
@@ -280,10 +369,19 @@ export const transferConfig = createConfig([
     ],
     '右侧列表元素的排序策略',
   ),
+  functionBind(
+    '自定义搜索方法',
+    'filter-method',
+    '自定义搜索方法',
+    {
+      params: ['query', 'item'],
+      example: `// return item.label?.includes(query)\nreturn true`,
+    },
+  ),
 ])
-
 /** 日期选择器 */
 export const datePickerConfig = createConfig([
+  modelBind(),
   defaultValueBind('日期选择器初始默认值，支持变量绑定'),
   selectInput(
     '显示类型',
@@ -306,10 +404,19 @@ export const datePickerConfig = createConfig([
   boolSwitch('只读', 'readonly', '完全只读'),
   boolSwitch('可清空', 'clearable', '是否显示清除按钮'),
   sizeSelect(),
+  functionBind(
+    '禁用日期',
+    'disabled-date',
+    '一个用来判断该日期是否被禁用的函数，返回 true 禁用',
+    {
+      params: ['date'],
+      example: `// return date.getTime() < Date.now() - 8.64e7\nreturn false`,
+    },
+  ),
 ])
-
 /** 时间选择器（Naive UI NTimePicker） */
 export const timePickerConfig = createConfig([
+  modelBind(),
   defaultValueBind('时间选择器初始默认值，支持变量绑定'),
   textInput('占位文本', 'placeholder', '未选择时的占位文案'),
   textInput('格式', 'format', '时间显示格式（date-fns），如 HH:mm:ss', 'HH:mm:ss'),
@@ -346,11 +453,37 @@ export const timePickerConfig = createConfig([
     '面板弹出位置',
   ),
   textInput('时区', 'time-zone', '格式化使用的 IANA 时区，如 Asia/Shanghai'),
+  functionBind(
+    '禁用小时',
+    'disabled-hours',
+    '禁止选择部分小时选项，返回禁用的小时数组',
+    {
+      params: ['role', 'comparingDate'],
+      example: `// return [1, 2, 3]\nreturn []`,
+    },
+  ),
+  functionBind(
+    '禁用分钟',
+    'disabled-minutes',
+    '禁止选择部分分钟选项',
+    {
+      params: ['hour', 'role', 'comparingDate'],
+      example: `// return [0, 15, 30, 45]\nreturn []`,
+    },
+  ),
+  functionBind(
+    '禁用秒',
+    'disabled-seconds',
+    '禁止选择部分秒选项',
+    {
+      params: ['hour', 'minute', 'role', 'comparingDate'],
+      example: `return []`,
+    },
+  ),
 ])
 
-/** 单选 */
+/** 单选（单选项，兼容旧 schema） */
 export const radioConfig = createConfig([
-  defaultValueBind('单选初始默认值，支持变量绑定'),
   textInput('label', 'label', '单选框的 value'),
   textInput('value', 'value', '单选框的值'),
   boolSwitch('禁用', 'disabled', '是否禁用'),
@@ -358,9 +491,8 @@ export const radioConfig = createConfig([
   sizeSelect(),
 ])
 
-/** 多选 */
+/** 多选（单选项，兼容旧 schema） */
 export const checkboxConfig = createConfig([
-  defaultValueBind('多选初始默认值，支持变量绑定'),
   textInput('label', 'label', '选中状态的值'),
   boolSwitch('禁用', 'disabled', '是否禁用'),
   boolSwitch('边框', 'border', '是否显示边框'),
@@ -370,14 +502,28 @@ export const checkboxConfig = createConfig([
 
 /** 单选组 */
 export const radioGroupConfig = createConfig([
-  textInput('绑定值', 'modelValue', '绑定值'),
+  modelBind(),
+  defaultValueBind('单选组初始默认值，支持变量绑定'),
+  variableBindInput(
+    '选项数据',
+    'options',
+    '单选选项，支持变量绑定（如 state.options）',
+    '请输入数据或绑定变量',
+  ),
   boolSwitch('禁用', 'disabled', '是否禁用'),
   sizeSelect(),
 ])
 
 /** 多选组 */
 export const checkboxGroupConfig = createConfig([
-  textInput('绑定值', 'modelValue', '绑定值'),
+  modelBind(),
+  defaultValueBind('多选组初始默认值（数组），支持变量绑定'),
+  variableBindInput(
+    '选项数据',
+    'options',
+    '多选选项，支持变量绑定（如 state.options）',
+    '请输入数据或绑定变量',
+  ),
   boolSwitch('禁用', 'disabled', '是否禁用'),
   numberInput('最小数量', 'min', '可被勾选的最小数量'),
   numberInput('最大数量', 'max', '可被勾选的最大数量'),
@@ -386,7 +532,14 @@ export const checkboxGroupConfig = createConfig([
 
 /** 树形选择（Naive UI NTreeSelect） */
 export const treeSelectConfig = createConfig([
+  modelBind(),
   defaultValueBind('树形选择初始默认值，支持变量绑定'),
+  variableBindInput(
+    '数据源',
+    'data',
+    '树形数据，支持变量绑定（如 state.tree）；也可使用 options',
+    '请输入数据或绑定变量',
+  ),
   textInput('占位文本', 'placeholder', '未选择时的占位文案'),
   boolSwitch('多选', 'multiple', '是否支持多选'),
   boolSwitch('可勾选', 'checkable', '节点是否显示复选框'),
@@ -424,11 +577,35 @@ export const treeSelectConfig = createConfig([
     ],
     '组件尺寸（Naive UI）',
   ),
+  functionBind(
+    '过滤方法',
+    'filter',
+    '自定义节点过滤方法（Naive TreeSelect）；返回 true 表示保留',
+    {
+      params: ['pattern', 'node'],
+      example: `// return node.label?.includes(pattern)\nreturn true`,
+    },
+  ),
+  functionBind(
+    '渲染标签',
+    'render-label',
+    '自定义节点标签渲染（Naive TreeSelect）',
+    {
+      params: ['info'],
+      example: `// return info.option.label\nreturn info.option.label`,
+    },
+  ),
 ])
 
-/** 提及（Naive UI NMention） */
 export const mentionConfig = createConfig([
+  modelBind(),
   defaultValueBind('提及初始默认值，支持变量绑定'),
+  variableBindInput(
+    '选项数据',
+    'options',
+    '提及候选列表，支持变量绑定（如 state.mentions）',
+    '请输入数据或绑定变量',
+  ),
   textInput('占位文本', 'placeholder', '未输入时的占位文案'),
   textInput('触发前缀', 'prefix', '触发提及的前缀字符，长度须为 1', '@'),
   textInput('分隔符', 'separator', '切分提及使用的字符，长度须为 1', ' '),
@@ -469,10 +646,20 @@ export const mentionConfig = createConfig([
     ],
     '提及候选面板弹出位置',
   ),
+  functionBind(
+    '过滤选项',
+    'filter',
+    '自定义过滤提及选项（Naive Mention）',
+    {
+      params: ['pattern', 'option'],
+      example: `// return option.label?.includes(pattern)\nreturn true`,
+    },
+  ),
 ])
 
 /** 上传 */
 export const uploadConfig = createConfig([
+  modelBind(),
   defaultValueBind('上传文件列表默认值，支持变量绑定', 'file-list'),
   textInput('上传地址', 'action', '请求 URL'),
   textInput('接受类型', 'accept', '接受上传的文件类型'),
@@ -486,10 +673,37 @@ export const uploadConfig = createConfig([
     '列表类型',
     'list-type',
     [
-      { label: 'text', value: 'text' },
-      { label: 'picture', value: 'picture' },
-      { label: 'picture-card', value: 'picture-card' },
+      { label: '文本', value: 'text' },
+      { label: '图片', value: 'picture' },
+      { label: '照片墙', value: 'picture-card' },
     ],
     '文件列表的类型',
+  ),
+  functionBind(
+    '上传前钩子',
+    'before-upload',
+    '上传文件之前的钩子；返回 false 或 reject Promise 则停止上传',
+    {
+      params: ['rawFile'],
+      example: `// return rawFile.size < 1024 * 1024\nreturn true`,
+    },
+  ),
+  functionBind(
+    '移除前钩子',
+    'before-remove',
+    '删除文件之前的钩子；返回 false 或 reject Promise 则停止删除',
+    {
+      params: ['uploadFile', 'uploadFiles'],
+      example: `// return true\nreturn true`,
+    },
+  ),
+  functionBind(
+    '覆盖默认上传',
+    'http-request',
+    '覆盖默认的 XHR 上传行为，可自定义上传实现',
+    {
+      params: ['options'],
+      example: `// options 含 file / action / onSuccess / onError 等\nconsole.log('http-request', options, state)`,
+    },
   ),
 ])

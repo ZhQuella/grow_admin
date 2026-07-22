@@ -1,6 +1,8 @@
 <template>
   <ADrawer v-model:open="model" v-bind="$attrs">
-    <slot />
+    <template v-for="(_, name) in $slots" #[name]="slotData">
+      <slot :name="name" v-bind="slotData || {}" />
+    </template>
   </ADrawer>
 </template>
 <script lang="ts" setup>

@@ -2,12 +2,16 @@
 
 export type TableColumnAlign = 'left' | 'center' | 'right'
 export type TableColumnFixed = boolean | 'left' | 'right'
+/** 特殊列：勾选 / 序号（对应 el-table-column type） */
+export type TableColumnSpecialType = 'selection' | 'index'
 
 export type DesignerTableColumn = {
   id: string
+  /** 特殊列类型；空为普通数据列 */
+  type?: TableColumnSpecialType | ''
   /** 表头文案 → el-table-column label */
   title: string
-  /** 字段名 → el-table-column prop（分组列可空） */
+  /** 字段名 → el-table-column prop（分组列 / 特殊列可空） */
   field?: string
   width?: string | number
   minWidth?: string | number
@@ -23,6 +27,16 @@ export type DesignerTableColumn = {
   /** 是否显示，默认 true */
   visible?: boolean
   children?: DesignerTableColumn[]
+}
+
+export const isSpecialTableColumn = (
+  col?: Pick<DesignerTableColumn, 'type'> | null,
+): col is DesignerTableColumn & { type: TableColumnSpecialType } =>
+  col?.type === 'selection' || col?.type === 'index'
+
+export const TABLE_COLUMN_SPECIAL_LABEL: Record<TableColumnSpecialType, string> = {
+  selection: '勾选',
+  index: '序号',
 }
 
 /** ElOption 空字符串 value 异常，用占位后再映射回 '' */

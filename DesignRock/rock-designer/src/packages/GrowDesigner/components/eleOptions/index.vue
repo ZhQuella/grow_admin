@@ -20,8 +20,10 @@
         :currentPropsConfig="currentPropsConfig"
         :currentStylesConfig="currentStylesConfig"
         :currentBindModes="currentBindModes"
+        :currentEventsConfig="currentEventsConfig"
         @update:currentStylesConfig="onUpdateStyles"
         @update:currentBindModes="onUpdateBindModes"
+        @update:currentEventsConfig="onUpdateEvents"
       />
       <p v-if="!renderConfigComponent" class="ele-options__placeholder">该面板建设中</p>
     </GrowScrollbar>
@@ -30,6 +32,7 @@
 
 <script setup lang="ts">
 import { toRefs, ref, computed } from 'vue'
+import type { DesignerEventItem } from '../../static/elementEvents/types'
 
 defineOptions({ name: 'eleOptions' })
 
@@ -53,6 +56,9 @@ const currentStylesConfig = computed(() => config.value.styles[activeUUID.value]
 const currentBindModes = computed(
   () => config.value.propBindModes?.[activeUUID.value] || {},
 )
+const currentEventsConfig = computed(
+  () => config.value.events?.[activeUUID.value] || {},
+)
 
 const onUpdateStyles = (value: Record<string, any>) => {
   config.value.styles[activeUUID.value] = value
@@ -65,10 +71,18 @@ const onUpdateBindModes = (value: Record<string, string>) => {
   config.value.propBindModes[activeUUID.value] = value
 }
 
+const onUpdateEvents = (value: Record<string, DesignerEventItem>) => {
+  if (!config.value.events) {
+    config.value.events = {}
+  }
+  config.value.events[activeUUID.value] = value
+}
+
 const renderConfigComponent = computed(() => {
   const renderMap: Record<string, string> = {
     props: 'componentConfig',
     styles: 'styleConfig',
+    events: 'eventConfig',
     renderArgument: 'advancedConfig',
   }
   return renderMap[tabModel.value] || null
@@ -78,12 +92,14 @@ const renderConfigComponent = computed(() => {
 <script lang="ts">
 import componentConfig from './componentConfig.vue'
 import styleConfig from './styleConfig.vue'
+import eventConfig from './eventConfig.vue'
 import advancedConfig from './advancedConfig.vue'
 
 export default {
   components: {
     componentConfig,
     styleConfig,
+    eventConfig,
     advancedConfig,
   },
 }

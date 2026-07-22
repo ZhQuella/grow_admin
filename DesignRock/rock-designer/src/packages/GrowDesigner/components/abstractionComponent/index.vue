@@ -10,7 +10,11 @@
   </template>
 
   <template v-else-if="config.elType === 'eleModule' && !config.isChild">
-    <eleModuleComponent :config="config" :propsInfo="resolvedPropsInfo" :styleInfo="styleInfo" />
+    <eleModuleComponent
+      :config="config"
+      :propsInfo="resolvedPropsInfo"
+      :styleInfo="styleInfo"
+    />
   </template>
 
   <template v-else-if="config.isChild">
@@ -438,6 +442,56 @@
       </div>
     </GrowTooltip>
 
+    <!-- 上传：行内块；默认插槽为触发内容投放区 -->
+    <GrowUpload
+      v-if="config.elTagName === 'GrowUpload'"
+      v-bind="uploadBindProps"
+      :style="styleInfo"
+    >
+      <div class="grow-upload-host">
+        <draggable
+          group="draggable-group"
+          :animation="200"
+          item-key="uuid"
+          :component-data="{
+            tag: 'div',
+            type: 'transition-group',
+            name: 'draggable-group'
+          }"
+          :disabled="false"
+          ghostClass="ghost"
+          chosenClass="chosen-item"
+          dragClass="drag-item"
+          class="draggable-grop-wrap grow-upload-drop"
+          handle=".draggable-content-bar"
+          v-model="structure.children"
+          @add="onChildAdd"
+        >
+          <template #item="{ element }">
+            <DraggableItem
+              :structure="element"
+              @active="onActive"
+              @delete="onSpecialDelete"
+              @copy="onCopyItem"
+              @special="onDraggableAdd"
+            >
+              <abstractionComponent
+                :config="draggableConfig.renderArgument[element.uuid]"
+                :propsInfo="draggableConfig.props[element.uuid]"
+                :structure="element"
+                :drag="drag"
+                @add="onAbstractionAdd"
+                @special="onDraggableAdd"
+                @delete="onSpecialDelete"
+                @copy="onCopyItem"
+                @active="onActive"
+              />
+            </DraggableItem>
+          </template>
+        </draggable>
+      </div>
+    </GrowUpload>
+
     <!-- 弹出框：reference=触发区(children)；default=内容区(contentSlot) -->
     <div
       v-if="config.elTagName === 'GrowPopover'"
@@ -815,7 +869,7 @@
 
 <script lang="ts" setup>
 import { DRAGGABLE_CONGIG, GROW_RUNTIME_STATE } from "../../config/designation";
-import { computed, inject, toRefs, type ComputedRef } from "vue";
+import { computed, inject, toRefs } from "vue";
 import draggable from "vuedraggable";
 import basicComponent from "./component/basicComponent/index.vue";
 import eleModuleComponent from "./component/eleModuleComponent/index.vue";
@@ -833,7 +887,7 @@ import {
 } from "../../../GrowRenderer/utils/resolveBoundProps";
 
 const draggableConfig: any = inject(DRAGGABLE_CONGIG);
-const injectedRuntimeState = inject<ComputedRef<Record<string, unknown>> | null>(
+const injectedRuntimeState = inject<Record<string, unknown> | null>(
   GROW_RUNTIME_STATE,
   null,
 );
@@ -866,13 +920,17 @@ const resolvedPropsInfo = computed(() => {
   const raw = propsInfo.value || {}
   if (!uuid || !draggableConfig) return raw
   const state =
-    injectedRuntimeState?.value ??
+    injectedRuntimeState ??
     buildRuntimeState(draggableConfig.dataSource)
-  return resolveBoundProps(
+  const resolved = resolveBoundProps(
     raw,
     draggableConfig.propBindModes?.[uuid],
     state,
   )
+  // 设计器控制字段不透传给真实组件（画布始终展示，由外框标记）
+  Reflect.deleteProperty(resolved, 'visible')
+  Reflect.deleteProperty(resolved, 'render')
+  return resolved
 })
 
 /** GrowCard：设计器开关不透传；启用操作区时 header 由 #header 插槽渲染 */
@@ -919,6 +977,28 @@ const scrollbarDropStyle = computed(() => {
 /** 设计器内禁用浮层，避免干扰拖拽；属性仍可配置，预览生效 */
 const tooltipBindProps = computed(() => {
   const info = { ...(propsInfo.value || {}) }
+  info.disabled = true
+  return info
+})
+
+/** 上传：剥离设计器字段；设计态强制禁用，避免点选/拖文件交互 */
+const uploadBindProps = computed(() => {
+  const info = { ...(resolvedPropsInfo.value || {}) }
+  Reflect.deleteProperty(info, 'model')
+  Reflect.deleteProperty(info, 'visible')
+  Reflect.deleteProperty(info, 'render')
+  if (
+    info.modelValue != null &&
+    (info['file-list'] == null || info['file-list'] === '')
+  ) {
+    info['file-list'] = info.modelValue
+  }
+  if (
+    info.modelValue != null &&
+    (info.fileList == null || info.fileList === '')
+  ) {
+    info.fileList = info.modelValue
+  }
   info.disabled = true
   return info
 })
@@ -1222,6 +1302,29 @@ const onCopyItem = (event) => {
 }
 
 .grow-tooltip-drop.draggable-grop-wrap {
+  width: auto;
+  min-width: 96px;
+  min-height: 36px;
+  height: auto;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+.grow-upload-host {
+  display: inline-block;
+  vertical-align: top;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  /* 投放区可拖入子节点，但阻断原生文件选择 */
+  :deep(input[type='file']),
+  :deep(.el-upload__input),
+  :deep(.n-upload-file-input) {
+    pointer-events: none !important;
+  }
+}
+
+.grow-upload-drop.draggable-grop-wrap {
   width: auto;
   min-width: 96px;
   min-height: 36px;

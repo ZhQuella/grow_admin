@@ -1,6 +1,7 @@
 import {
   boolSwitch,
   createConfig,
+  functionBind,
   numberInput,
   selectInput,
   sizeSelect,
@@ -23,6 +24,15 @@ export const modalConfig = createConfig([
   boolSwitch('可拖拽', 'draggable', '是否可拖拽'),
   boolSwitch('销毁子元素', 'destroy-on-close', '关闭时销毁 Dialog 中的元素'),
   textInput('宽度', 'width', 'Dialog 的宽度', '如 50% 或 480px'),
+  functionBind(
+    '关闭前钩子',
+    'before-close',
+    '关闭前的回调，调用 done 才会关闭（Element Plus / 同类 Dialog）',
+    {
+      params: ['done'],
+      example: `// 关闭前确认\n// done()\nconsole.log('before-close', state)`,
+    },
+  ),
 ])
 
 /** 抽屉：设计态用面板壳编辑；运行时由 modelValue / 事件控制显隐 */
@@ -46,6 +56,15 @@ export const drawerConfig = createConfig([
   boolSwitch('点击遮罩关闭', 'close-on-click-modal', '点击遮罩是否关闭'),
   boolSwitch('按 ESC 关闭', 'close-on-press-escape', '按下 ESC 是否关闭'),
   boolSwitch('销毁子元素', 'destroy-on-close', '控制是否在关闭后销毁'),
+  functionBind(
+    '关闭前钩子',
+    'before-close',
+    '关闭前的回调，调用 done 才会关闭',
+    {
+      params: ['done'],
+      example: `// done()\nconsole.log('before-close', state)`,
+    },
+  ),
 ])
 
 /** 弹出框 Popover：reference=触发元素；default=弹出内容（可用 contentSlot 自定义） */
@@ -332,6 +351,42 @@ export const treeConfig = createConfig([
   boolSwitch('严格勾选', 'check-strictly', '父子不互相关联'),
   boolSwitch('可拖拽', 'draggable', '是否开启拖拽节点功能'),
   sizeSelect('组件尺寸'),
+  functionBind(
+    '节点过滤方法',
+    'filter-node-method',
+    '对树节点进行筛选时执行的方法，返回 true 表示显示',
+    {
+      params: ['value', 'data', 'node'],
+      example: `// return !value || data.label?.includes(value)\nreturn true`,
+    },
+  ),
+  functionBind(
+    '允许拖拽',
+    'allow-drag',
+    '判断节点能否被拖拽',
+    {
+      params: ['node'],
+      example: `// return true\nreturn true`,
+    },
+  ),
+  functionBind(
+    '允许放置',
+    'allow-drop',
+    '拖拽时判定目标节点能否被放置；type 为 prev / inner / next',
+    {
+      params: ['draggingNode', 'dropNode', 'type'],
+      example: `// return type !== 'inner'\nreturn true`,
+    },
+  ),
+  functionBind(
+    '懒加载方法',
+    'load',
+    '加载子树数据的方法，懒加载时必填',
+    {
+      params: ['node', 'resolve'],
+      example: `// resolve([{ label: '子节点', leaf: true }])\nresolve([])`,
+    },
+  ),
 ])
 
 /** 表格（常用项） */
@@ -357,6 +412,97 @@ export const tableConfig = createConfig([
   textInput('最大高度', 'max-height', 'Table 的最大高度'),
   sizeSelect('Table 尺寸'),
   textInput('空数据文案', 'empty-text', '空数据时显示的文本'),
+  boolSwitch('显示合计行', 'show-summary', '是否在表尾显示合计行'),
+  functionBind(
+    '合并行或列',
+    'span-method',
+    '合并行或列的计算方法，需返回 [rowspan, colspan] 或 { rowspan, colspan }',
+    {
+      params: ['row', 'column', 'rowIndex', 'columnIndex'],
+      example: `// return [1, 1]\nreturn [1, 1]`,
+    },
+  ),
+  functionBind(
+    '合计方法',
+    'summary-method',
+    '自定义合计行的计算方法（需开启 show-summary）',
+    {
+      params: ['param'],
+      example: `// const { columns, data } = param\n// return columns.map(() => '')\nreturn []`,
+    },
+  ),
+  functionBind(
+    '行 class',
+    'row-class-name',
+    '行的 className 回调；也可直接绑字符串',
+    {
+      params: ['row', 'rowIndex'],
+      example: `// return rowIndex % 2 === 0 ? 'even' : 'odd'\nreturn ''`,
+    },
+  ),
+  functionBind(
+    '行 style',
+    'row-style',
+    '行的 style 回调',
+    {
+      params: ['row', 'rowIndex'],
+      example: `// return {}\nreturn {}`,
+    },
+  ),
+  functionBind(
+    '单元格 class',
+    'cell-class-name',
+    '单元格的 className 回调',
+    {
+      params: ['row', 'column', 'rowIndex', 'columnIndex'],
+      example: `return ''`,
+    },
+  ),
+  functionBind(
+    '单元格 style',
+    'cell-style',
+    '单元格的 style 回调',
+    {
+      params: ['row', 'column', 'rowIndex', 'columnIndex'],
+      example: `return {}`,
+    },
+  ),
+  functionBind(
+    '表头行 class',
+    'header-row-class-name',
+    '表头行的 className 回调',
+    {
+      params: ['row', 'rowIndex'],
+      example: `return ''`,
+    },
+  ),
+  functionBind(
+    '表头行 style',
+    'header-row-style',
+    '表头行的 style 回调',
+    {
+      params: ['row', 'rowIndex'],
+      example: `return {}`,
+    },
+  ),
+  functionBind(
+    '表头单元格 class',
+    'header-cell-class-name',
+    '表头单元格的 className 回调',
+    {
+      params: ['row', 'column', 'rowIndex', 'columnIndex'],
+      example: `return ''`,
+    },
+  ),
+  functionBind(
+    '表头单元格 style',
+    'header-cell-style',
+    '表头单元格的 style 回调',
+    {
+      params: ['row', 'column', 'rowIndex', 'columnIndex'],
+      example: `return {}`,
+    },
+  ),
 ])
 
 /** 走马灯 */

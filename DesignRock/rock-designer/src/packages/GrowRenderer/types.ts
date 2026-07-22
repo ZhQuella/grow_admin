@@ -28,10 +28,37 @@ export type DesignerSchema = {
   renderArgument?: Record<string, DesignerRenderArgument>
   styles?: Record<string, Record<string, any>>
   props?: Record<string, Record<string, any>>
-  /** 属性输入模式：uuid -> modelKey -> 'text' | 'bind' */
-  propBindModes?: Record<string, Record<string, 'text' | 'bind'>>
-  pageConfig?: Record<string, any>
-  events?: Record<string, any>
+  /** 属性输入模式：uuid -> modelKey -> 'text' | 'bind' | 'function' */
+  propBindModes?: Record<string, Record<string, 'text' | 'bind' | 'function'>>
+  pageConfig?: Record<string, any> & {
+    /** 页面生命周期事件：onBeforeMount / onMounted / onUpdated ... */
+    events?: Record<string, {
+      name: string
+      eventType: string
+      code: string
+      enabled: boolean
+      /** @deprecated 兼容旧字段 */
+      immediate?: boolean
+    }>
+    /** 页面 state 监听：source -> 配置 */
+    watchers?: Record<string, {
+      name: string
+      source: string
+      code: string
+      enabled: boolean
+      deep: boolean
+      immediate: boolean
+    }>
+  }
+  /** uuid -> eventType -> 事件配置 */
+  events?: Record<string, Record<string, {
+    name: string
+    eventType: string
+    code: string
+    enabled: boolean
+    /** @deprecated 兼容旧字段 */
+    immediate?: boolean
+  }>>
   dataSource?: unknown[]
   apiOutlined?: unknown[]
 }

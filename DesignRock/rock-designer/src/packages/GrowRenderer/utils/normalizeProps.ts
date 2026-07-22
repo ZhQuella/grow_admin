@@ -8,6 +8,8 @@ export function normalizeBasicProps(
   raw: Record<string, any> | undefined,
 ): Record<string, any> {
   const info = { ...(raw || {}) }
+  Reflect.deleteProperty(info, 'visible')
+  Reflect.deleteProperty(info, 'render')
   if (tag === 'BasicTitle' || ['p', 'span', 'div'].includes(tag)) {
     Reflect.deleteProperty(info, 'level')
     Reflect.deleteProperty(info, 'context')
@@ -47,6 +49,11 @@ export function normalizeModuleProps(
 ): Record<string, any> {
   const info = { ...(raw || {}) }
 
+  // 设计器控制字段，不透传给底层组件
+  Reflect.deleteProperty(info, 'model')
+  Reflect.deleteProperty(info, 'visible')
+  Reflect.deleteProperty(info, 'render')
+
   if (TEXT_CONTENT_TAGS.has(tag)) {
     Reflect.deleteProperty(info, 'content')
   }
@@ -68,6 +75,22 @@ export function normalizeModuleProps(
     Reflect.deleteProperty(info, 'headerHeight')
     Reflect.deleteProperty(info, 'asideWidth')
     Reflect.deleteProperty(info, 'footerHeight')
+  }
+
+  if (tag === 'GrowUpload') {
+    // model 绑定写入的 modelValue → 同步到 file-list
+    if (
+      info.modelValue != null &&
+      (info['file-list'] == null || info['file-list'] === '')
+    ) {
+      info['file-list'] = info.modelValue
+    }
+    if (
+      info.modelValue != null &&
+      (info.fileList == null || info.fileList === '')
+    ) {
+      info.fileList = info.modelValue
+    }
   }
 
   if (tag === 'GrowTable') {

@@ -1,11 +1,14 @@
-import { computed, reactive, provide, ref } from "vue";
+import { reactive, provide, ref, watch } from "vue";
 import {
   ACTIVE_UUID,
   DRAGGABLE_CONGIG,
   GROW_RUNTIME_STATE,
   OVERLAY_EDIT_UUID,
 } from "../config/designation";
-import { buildRuntimeState } from "../../GrowRenderer/utils/resolveBoundProps";
+import {
+  buildRuntimeState,
+  syncRuntimeState,
+} from "../../GrowRenderer/utils/resolveBoundProps";
 
 export const useOption = () => {
   const draggableConfig = reactive({
@@ -32,9 +35,14 @@ export const useOption = () => {
   const activeUUID = ref("");
   const overlayEditUUID = ref("");
 
-  /** 随 dataSource 深层变更重算，供画布绑定展示 */
-  const runtimeState = computed(() =>
-    buildRuntimeState(draggableConfig.dataSource),
+  /** 可写 runtime state：绑定展示 + 控件变更回写；dataSource 变更时同步 */
+  const runtimeState = reactive<Record<string, unknown>>({});
+  watch(
+    () => draggableConfig.dataSource,
+    (ds) => {
+      syncRuntimeState(runtimeState, buildRuntimeState(ds));
+    },
+    { deep: true, immediate: true },
   );
 
   provide(DRAGGABLE_CONGIG, draggableConfig);
