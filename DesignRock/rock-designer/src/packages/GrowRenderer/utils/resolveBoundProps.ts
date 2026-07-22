@@ -153,6 +153,96 @@ export const applyModelBinding = (
   result.value = value
 }
 
+/** 解析 Tabs/Collapse 的 model 字面量（支持 JSON 数组） */
+export const parseContainerActiveLiteral = (raw: unknown): unknown => {
+  if (typeof raw !== 'string') return raw
+  const trimmed = raw.trim()
+  if (!trimmed) return trimmed
+  if (
+    (trimmed.startsWith('[') && trimmed.endsWith(']')) ||
+    (trimmed.startsWith('{') && trimmed.endsWith('}'))
+  ) {
+    try {
+      return JSON.parse(trimmed)
+    } catch {
+      /* 非 JSON 时按原字符串 */
+    }
+  }
+  return trimmed
+}
+
+/** 折叠面板：按 accordion 适配激活值类型 */
+export const adaptCollapseActiveValue = (
+  value: unknown,
+  accordion: boolean,
+): unknown => {
+  if (accordion) {
+    return Array.isArray(value) ? value[0] : value
+  }
+  if (Array.isArray(value)) return value
+  if (value == null || value === '') return []
+  return [value]
+}
+
+/**
+ * Tabs / Collapse 激活值：
+ * - model 为绑定表达式 → 用求值后的 modelValue
+ * - model 为字面量 → 直接作为激活值（替代原「默认值」）
+ * - 否则回退 modelValue（子项管理写入）
+ */
+export const resolveContainerActiveValue = (
+  rawProps: Record<string, any> | undefined,
+  bindModes: Record<string, string> | undefined,
+  state: Record<string, unknown>,
+  options?: { collapse?: boolean },
+): unknown => {
+  const resolved = resolveBoundProps(rawProps, bindModes, state)
+  const modelRaw = rawProps?.model
+  let value: unknown = resolved.modelValue
+
+  if (modelRaw != null && modelRaw !== '') {
+    const expr = String(modelRaw).trim()
+    if (isModelBindExpression(expr, bindModes)) {
+      value = resolved.modelValue
+    } else {
+      value = parseContainerActiveLiteral(modelRaw)
+    }
+  }
+
+  if (options?.collapse) {
+    return adaptCollapseActiveValue(value, Boolean(rawProps?.accordion))
+  }
+  return value
+}
+
+/** Tabs / Collapse 激活值写回：优先 model 绑定，否则写 model 字面量 / modelValue */
+export const writeContainerActiveValue = (
+  state: Record<string, unknown> | null | undefined,
+  rawProps: Record<string, any> | undefined,
+  bindModes: Record<string, string> | undefined,
+  value: unknown,
+): boolean => {
+  if (writeModelBinding(state, rawProps, bindModes, value)) return true
+  if (!rawProps) return false
+
+  const modelRaw = rawProps.model
+  if (
+    modelRaw != null &&
+    modelRaw !== '' &&
+    !isModelBindExpression(String(modelRaw), bindModes)
+  ) {
+    rawProps.model =
+      typeof value === 'string' || typeof value === 'number'
+        ? value
+        : JSON.stringify(value ?? '')
+    rawProps.modelValue = value
+    return true
+  }
+
+  rawProps.modelValue = value
+  return true
+}
+
 /** 将控件变更写回 runtime state（双向绑定） */
 export const writeModelBinding = (
   state: Record<string, unknown> | null | undefined,
