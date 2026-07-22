@@ -309,6 +309,7 @@ export const timelineConfig = createConfig([
 export const timelineItemConfig = createConfig([
   textInput('时间戳', 'timestamp', '时间戳'),
   boolSwitch('隐藏时间戳', 'hide-timestamp', '是否隐藏时间戳'),
+  boolSwitch('垂直居中', 'center', '是否垂直居中'),
   selectInput(
     '时间戳位置',
     'placement',
@@ -330,6 +331,7 @@ export const timelineItemConfig = createConfig([
     ],
     '节点类型',
   ),
+  textInput('节点颜色', 'color', '节点背景色，如 #0bbd87'),
   selectInput(
     '节点尺寸',
     'size',
@@ -339,6 +341,7 @@ export const timelineItemConfig = createConfig([
     ],
     '节点尺寸',
   ),
+  textInput('节点图标', 'icon', '自定义节点图标组件名'),
   boolSwitch('空心点', 'hollow', '是否空心点'),
 ])
 

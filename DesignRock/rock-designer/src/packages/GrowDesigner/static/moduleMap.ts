@@ -505,8 +505,17 @@ export const AtomicComponent = new Map([
           elTagName: "GrowTimeline",
           elIcon: "BoxPlotOutlined",
           isChild: true,
-          isAdd: true,
-          childName: "GrowTimelineItem"
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "时间项",
+          elType: "eleModule",
+          elTagName: "GrowTimelineItem",
+          elIcon: "IdcardOutlined",
+          isChild: true,
+          isAdd: false,
+          childName: ""
         },
         {
           elName: "树形组件",
@@ -573,18 +582,6 @@ export const specificComponent = new Map([
       elName: "折叠项",
       elType: "eleModule",
       elTagName: "GrowCollapseItem",
-      elIcon: "IdcardOutlined",
-      isChild: true,
-      isAdd: false,
-      childName: ""
-    }
-  ],
-  [
-    "GrowTimelineItem",
-    {
-      elName: "时间项",
-      elType: "eleModule",
-      elTagName: "GrowTimelineItem",
       elIcon: "IdcardOutlined",
       isChild: true,
       isAdd: false,

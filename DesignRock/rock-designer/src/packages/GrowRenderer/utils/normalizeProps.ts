@@ -64,6 +64,9 @@ export function normalizeModuleProps(
     if (raw?.showHeaderExtra) {
       Reflect.deleteProperty(info, 'header')
     }
+    if (raw?.showFooter) {
+      Reflect.deleteProperty(info, 'footer')
+    }
   }
 
   if (tag === 'GrowModal' || tag === 'GrowDrawer') {

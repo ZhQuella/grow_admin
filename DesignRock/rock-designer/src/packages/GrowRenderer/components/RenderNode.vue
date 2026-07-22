@@ -244,6 +244,8 @@
     v-bind="moduleProps"
     :class="[nodeClass, { 'w-full': isFormFullWidth }]"
     :style="nodeStyle"
+    @update:model-value="onModelUpdate"
+    @update:value="onModelUpdate"
   >
     <RenderNode
       v-for="child in children"
@@ -328,6 +330,8 @@ import {
   buildRuntimeState,
   coerceBool,
   resolveBoundProps,
+  resolveContainerActiveValue,
+  writeContainerActiveValue,
   writeModelBinding,
 } from '../utils/resolveBoundProps'
 import { buildRuntimeEventProps } from '../utils/runDesignerEvent'
@@ -381,18 +385,21 @@ const runtimeEventProps = computed(() =>
   ),
 )
 
-/** model 双向绑定：控件变更写回 runtime state */
-const onModelUpdate = (value: unknown) => {
-  writeModelBinding(
-    injectedRuntimeState,
-    props.schema.props?.[uuid.value],
-    props.schema.propBindModes?.[uuid.value],
-    value,
-  )
-}
 const rawStyles = computed(() => props.schema.styles?.[uuid.value])
 
 const tag = computed(() => config.value?.elTagName as string | undefined)
+
+/** model 双向绑定：控件变更写回 runtime state */
+const onModelUpdate = (value: unknown) => {
+  const raw = props.schema.props?.[uuid.value]
+  const modes = props.schema.propBindModes?.[uuid.value]
+  if (tag.value === 'GrowTabs' || tag.value === 'GrowCollapse') {
+    writeContainerActiveValue(injectedRuntimeState, raw, modes, value)
+    return
+  }
+  writeModelBinding(injectedRuntimeState, raw, modes, value)
+}
+
 const isChild = computed(() => Boolean(config.value?.isChild))
 const isBasicLeaf = computed(
   () => config.value?.elType === 'basic' && !config.value?.isChild,
@@ -428,7 +435,19 @@ const basicProps = computed(() => ({
 }))
 const basicText = computed(() => resolveBasicText(tag.value, rawProps.value))
 const moduleProps = computed(() => {
-  const info = normalizeModuleProps(tag.value || '', rawProps.value)
+  const modes = props.schema.propBindModes?.[uuid.value]
+  const sourceRaw = props.schema.props?.[uuid.value] || {}
+  let source = rawProps.value
+  if (tag.value === 'GrowTabs' || tag.value === 'GrowCollapse') {
+    const active = resolveContainerActiveValue(
+      sourceRaw,
+      modes,
+      runtimeState.value,
+      { collapse: tag.value === 'GrowCollapse' },
+    )
+    source = { ...rawProps.value, modelValue: active }
+  }
+  const info = normalizeModuleProps(tag.value || '', source)
   if (tag.value === 'GrowTable' && useLayoutMainHeight.value) {
     // 走本地 WatchBox 分支时不在这里写 height
     Reflect.deleteProperty(info, 'height')

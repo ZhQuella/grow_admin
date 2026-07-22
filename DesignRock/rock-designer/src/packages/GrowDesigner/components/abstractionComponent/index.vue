@@ -66,7 +66,7 @@
       </div>
     </template>
 
-    <template v-if="['GrowForm','GrowFormItem'].includes(config.elTagName)">
+    <template v-if="['GrowForm','GrowFormItem','GrowTimeline','GrowTimelineItem'].includes(config.elTagName)">
       <component :is="config.elTagName" v-bind="propsInfo" :style="styleInfo">
         <draggable
             group="draggable-group"
@@ -118,7 +118,6 @@
           'GrowCol',
           'GrowTabPane',
           'GrowCollapseItem',
-          'GrowTimelineItem',
           'GrowCarouselItem',
         ].includes(config.elTagName)
       "
@@ -588,9 +587,10 @@
 
     <template v-if="config.elTagName === 'GrowTabs'">
       <GrowTabs
-        v-bind="propsInfo"
-        v-model="propsInfo.modelValue"
+        v-bind="tabsBindProps"
+        :model-value="tabsModelValue"
         :style="styleInfo"
+        @update:model-value="onTabsModelUpdate"
       >
         <abstractionComponent
           v-for="ele in structure.children"
@@ -610,9 +610,10 @@
 
     <template v-if="config.elTagName === 'GrowCollapse'">
       <GrowCollapse
-        v-bind="propsInfo"
-        v-model="propsInfo.modelValue"
+        v-bind="collapseBindProps"
+        :model-value="collapseModelValue"
         :style="styleInfo"
+        @update:model-value="onCollapseModelUpdate"
       >
         <abstractionComponent
           v-for="ele in structure.children"
@@ -827,7 +828,7 @@
       </div>
     </template>
 
-    <template v-if="['GrowRow', 'GrowTimeline', 'GrowCarousel'].includes(config.elTagName)">
+    <template v-if="['GrowRow', 'GrowCarousel'].includes(config.elTagName)">
       <component :is="config.elTagName" v-bind="propsInfo" :style="styleInfo">
         <abstractionComponent
           v-for="ele in structure.children"
@@ -884,6 +885,8 @@ import {
 import {
   buildRuntimeState,
   resolveBoundProps,
+  resolveContainerActiveValue,
+  writeContainerActiveValue,
 } from "../../../GrowRenderer/utils/resolveBoundProps";
 
 const draggableConfig: any = inject(DRAGGABLE_CONGIG);
@@ -941,8 +944,73 @@ const cardBindProps = computed(() => {
   if (propsInfo.value?.showHeaderExtra) {
     Reflect.deleteProperty(info, 'header')
   }
+  if (propsInfo.value?.showFooter) {
+    Reflect.deleteProperty(info, 'footer')
+  }
   return info
 })
+
+/** GrowTabs：剥离 model；激活值走解析后的 modelValue，并支持写回绑定 */
+const tabsBindProps = computed(() => {
+  const info = { ...(resolvedPropsInfo.value || {}) }
+  Reflect.deleteProperty(info, 'model')
+  Reflect.deleteProperty(info, 'modelValue')
+  Reflect.deleteProperty(info, 'visible')
+  Reflect.deleteProperty(info, 'render')
+  return info
+})
+
+const containerBindModes = computed(() => {
+  const uuid = structure.value?.uuid
+  return uuid ? draggableConfig?.propBindModes?.[uuid] : undefined
+})
+
+const containerRuntimeState = computed(
+  () =>
+    injectedRuntimeState ??
+    (draggableConfig ? buildRuntimeState(draggableConfig.dataSource) : {}),
+)
+
+const tabsModelValue = computed(() =>
+  resolveContainerActiveValue(
+    propsInfo.value,
+    containerBindModes.value,
+    containerRuntimeState.value,
+  ),
+)
+
+const onTabsModelUpdate = (value: unknown) => {
+  writeContainerActiveValue(
+    injectedRuntimeState ??
+      (draggableConfig ? buildRuntimeState(draggableConfig.dataSource) : null),
+    propsInfo.value,
+    containerBindModes.value,
+    value,
+  )
+}
+
+/** GrowCollapse：model 支持绑定表达式或字面量面板 name */
+const collapseBindProps = computed(() => {
+  const info = { ...(resolvedPropsInfo.value || {}) }
+  Reflect.deleteProperty(info, 'model')
+  Reflect.deleteProperty(info, 'modelValue')
+  Reflect.deleteProperty(info, 'visible')
+  Reflect.deleteProperty(info, 'render')
+  return info
+})
+
+const collapseModelValue = computed(() =>
+  resolveContainerActiveValue(
+    propsInfo.value,
+    containerBindModes.value,
+    containerRuntimeState.value,
+    { collapse: true },
+  ),
+)
+
+const onCollapseModelUpdate = (value: unknown) => {
+  onTabsModelUpdate(value)
+}
 
 /** 滚动条：高度直接传给组件；% 相对舞台实测高度 */
 const toStageRelativeSize = (value: unknown) => {
