@@ -153,6 +153,31 @@
     </div>
   </component>
 
+  <!-- GrowUpload：行内块；默认插槽为触发内容 -->
+  <component
+    v-else-if="isChild && tag === 'GrowUpload'"
+    :is="tag"
+    v-bind="moduleProps"
+    :class="nodeClass"
+    :style="nodeStyle"
+    @update:model-value="onModelUpdate"
+    @update:value="onModelUpdate"
+    @update:file-list="onModelUpdate"
+    @update:fileList="onModelUpdate"
+  >
+    <div class="grow-upload-trigger">
+      <template v-if="children.length">
+        <RenderNode
+          v-for="child in children"
+          :key="child.uuid"
+          :node="child"
+          :schema="schema"
+        />
+      </template>
+      <span v-else class="grow-upload-trigger__placeholder">上传触发内容</span>
+    </div>
+  </component>
+
   <!-- GrowPopover：#reference 触发；default 弹出内容 -->
   <component
     v-else-if="isChild && tag === 'GrowPopover'"
@@ -262,6 +287,10 @@
     v-bind="moduleProps"
     :class="[nodeClass, { 'w-full': isFormFullWidth }]"
     :style="nodeStyle"
+    @update:model-value="onModelUpdate"
+    @update:value="onModelUpdate"
+    @update:file-list="onModelUpdate"
+    @update:fileList="onModelUpdate"
   >
     <span v-if="tag === 'GrowButton'">{{ rawProps.content }}</span>
     <span v-else-if="tag === 'GrowLink'">{{ rawProps.content }}</span>
@@ -270,7 +299,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, provide, reactive, type ComputedRef } from 'vue'
+import { computed, inject, provide, reactive } from 'vue'
 import { FORM_MODULE_FULL_WIDTH_TAGS } from '../../GrowDesigner/static/moduleMap'
 import {
   GROW_RUNTIME_STATE,
@@ -290,6 +319,7 @@ import {
 import {
   buildRuntimeState,
   resolveBoundProps,
+  writeModelBinding,
 } from '../utils/resolveBoundProps'
 import RenderPageLayout from './RenderPageLayout.vue'
 import TableColumnNodes from '../../GrowDesigner/components/shared/TableColumnNodes.vue'
@@ -312,14 +342,12 @@ const contentChildren = computed(() => props.node.contentSlot || [])
 const headerChildren = computed(() => props.node.headerSlot || [])
 const asideChildren = computed(() => props.node.asideSlot || [])
 const config = computed(() => props.schema.renderArgument?.[uuid.value])
-const injectedRuntimeState = inject<ComputedRef<Record<string, unknown>> | null>(
+const injectedRuntimeState = inject<Record<string, unknown> | null>(
   GROW_RUNTIME_STATE,
   null,
 )
 const runtimeState = computed(
-  () =>
-    injectedRuntimeState?.value ??
-    buildRuntimeState(props.schema.dataSource),
+  () => injectedRuntimeState ?? buildRuntimeState(props.schema.dataSource),
 )
 /** 按 propBindModes 求值后的 props（绑定字段已解析为展示值） */
 const rawProps = computed(() =>
@@ -329,6 +357,16 @@ const rawProps = computed(() =>
     runtimeState.value,
   ),
 )
+
+/** model 双向绑定：控件变更写回 runtime state */
+const onModelUpdate = (value: unknown) => {
+  writeModelBinding(
+    injectedRuntimeState,
+    props.schema.props?.[uuid.value],
+    props.schema.propBindModes?.[uuid.value],
+    value,
+  )
+}
 const rawStyles = computed(() => props.schema.styles?.[uuid.value])
 
 const tag = computed(() => config.value?.elTagName as string | undefined)
@@ -457,6 +495,22 @@ const isFormFullWidth = computed(() =>
 }
 
 .grow-tooltip-trigger__placeholder {
+  display: inline-block;
+  padding: 4px 10px;
+  border: 1px dashed var(--layout-border-color, #dcdfe6);
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--text-color-secondary, #909399);
+}
+
+.grow-upload-trigger {
+  display: inline-block;
+  vertical-align: top;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.grow-upload-trigger__placeholder {
   display: inline-block;
   padding: 4px 10px;
   border: 1px dashed var(--layout-border-color, #dcdfe6);

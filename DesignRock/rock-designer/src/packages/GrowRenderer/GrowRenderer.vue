@@ -15,11 +15,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, provide, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, provide, reactive, ref, watch } from 'vue'
 import RenderNode from './components/RenderNode.vue'
 import type { DesignerSchema } from './types'
 import { GROW_RUNTIME_STATE } from '../GrowDesigner/config/designation'
-import { buildRuntimeState } from './utils/resolveBoundProps'
+import { buildRuntimeState, syncRuntimeState } from './utils/resolveBoundProps'
 
 defineOptions({ name: 'GrowRenderer' })
 
@@ -37,9 +37,14 @@ const resolvedSchema = computed<DesignerSchema>(() => props.schema || {})
 
 const structures = computed(() => resolvedSchema.value.structures || [])
 
-/** 预览态 runtime state：随 schema.dataSource 变更重算 */
-const runtimeState = computed(() =>
-  buildRuntimeState(resolvedSchema.value.dataSource),
+/** 预览态可写 runtime state：绑定展示 + 控件变更回写 */
+const runtimeState = reactive<Record<string, unknown>>({})
+watch(
+  () => resolvedSchema.value.dataSource,
+  (ds) => {
+    syncRuntimeState(runtimeState, buildRuntimeState(ds))
+  },
+  { deep: true, immediate: true },
 )
 provide(GROW_RUNTIME_STATE, runtimeState)
 

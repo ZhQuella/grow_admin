@@ -159,16 +159,16 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
   },
   GrowTransfer: {
     modelValue: [],
-    data: [
-      { key: 1, label: '选项 1' },
-      { key: 2, label: '选项 2' },
-      { key: 3, label: '选项 3' },
-      { key: 4, label: '选项 4' },
-    ],
     filterable: false,
     titles: ['列表 1', '列表 2'],
     'button-texts': [],
     'target-order': 'original',
+  },
+  GrowRadioGroup: {
+    modelValue: '',
+  },
+  GrowCheckboxGroup: {
+    modelValue: [],
   },
   GrowTreeSelect: {
     value: null,
@@ -329,14 +329,14 @@ export const resolveDefaultStyles = (
   if (elTagName && FORM_MODULE_FULL_WIDTH_TAGS.has(elTagName)) {
     styles.width = '100%'
   }
-  // 链接 / 按钮 / 高级搜索 / 开关 / 单选 / 多选：保留行内块，不设默认最小宽高
+  // 链接 / 按钮 / 高级搜索 / 开关 / 头像 / 图标：保留行内块，不设默认最小宽高
   if (
     elTagName === 'GrowLink' ||
     elTagName === 'GrowButton' ||
     elTagName === 'GrowSearchBar' ||
     elTagName === 'GrowSwitch' ||
-    elTagName === 'GrowRadio' ||
-    elTagName === 'GrowCheckbox'
+    elTagName === 'GrowAvatar' ||
+    elTagName === 'GrowIconify'
   ) {
     Reflect.deleteProperty(styles, 'min-width')
     Reflect.deleteProperty(styles, 'min-height')

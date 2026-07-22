@@ -2,7 +2,7 @@ import { computed, type Ref } from 'vue'
 import { BIND_PREFIX, type VariableListItem } from '../constants'
 import type { DesignerDataSourceItem } from '../../../components/dataSource/types'
 
-/** 将「数据源」列表项映射为可绑定变量 */
+/** 将「数据源」列表项映射为可绑定变量（仅顶层，避免对象属性展开导致列表杂乱） */
 export const mapDataSourceToVariables = (
   list: DesignerDataSourceItem[] = [],
 ): VariableListItem[] =>

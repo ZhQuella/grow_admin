@@ -64,8 +64,6 @@ const LAYOUT_MODE_ALLOWED_TAGS = new Set([
   'div',
   'GrowLink',
   'GrowSwitch',
-  'GrowRadio',
-  'GrowCheckbox',
   'GrowTime',
   'GrowEllipsis',
 ])

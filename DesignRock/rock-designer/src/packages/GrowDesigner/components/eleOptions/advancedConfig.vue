@@ -1,7 +1,7 @@
 <template>
   <div class="advanced-config">
     <GrowForm
-      label-width="130px"
+      label-width="100px"
       label-position="left"
       size="small"
       :show-message="false"

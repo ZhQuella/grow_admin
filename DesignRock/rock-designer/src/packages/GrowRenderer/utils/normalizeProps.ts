@@ -47,6 +47,9 @@ export function normalizeModuleProps(
 ): Record<string, any> {
   const info = { ...(raw || {}) }
 
+  // 设计器表单字段名，不透传给底层组件
+  Reflect.deleteProperty(info, 'model')
+
   if (TEXT_CONTENT_TAGS.has(tag)) {
     Reflect.deleteProperty(info, 'content')
   }
@@ -68,6 +71,22 @@ export function normalizeModuleProps(
     Reflect.deleteProperty(info, 'headerHeight')
     Reflect.deleteProperty(info, 'asideWidth')
     Reflect.deleteProperty(info, 'footerHeight')
+  }
+
+  if (tag === 'GrowUpload') {
+    // model 绑定写入的 modelValue → 同步到 file-list
+    if (
+      info.modelValue != null &&
+      (info['file-list'] == null || info['file-list'] === '')
+    ) {
+      info['file-list'] = info.modelValue
+    }
+    if (
+      info.modelValue != null &&
+      (info.fileList == null || info.fileList === '')
+    ) {
+      info.fileList = info.modelValue
+    }
   }
 
   if (tag === 'GrowTable') {

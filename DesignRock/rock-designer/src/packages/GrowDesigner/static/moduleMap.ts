@@ -8,9 +8,10 @@ export const FORM_MODULE_FULL_WIDTH_TAGS = new Set([
   'GrowDatePicker',
   'GrowTreeSelect',
   'GrowMention',
-  'GrowUpload',
   'GrowSlider',
   'GrowTransfer',
+  'GrowRadioGroup',
+  'GrowCheckboxGroup',
 ])
 
 export const BaseComponent = new Map([
@@ -327,22 +328,20 @@ export const AtomicComponent = new Map([
         {
           elName: "单选",
           elType: "eleModule",
-          elTagName: "GrowRadio",
+          elTagName: "GrowRadioGroup",
           elIcon: "RadioButtonChecked",
           isChild: false,
           isAdd: false,
-          childName: "",
-          isInlineBlock: true
+          childName: ""
         },
         {
           elName: "多选",
           elType: "eleModule",
-          elTagName: "GrowCheckbox",
+          elTagName: "GrowCheckboxGroup",
           elIcon: "CheckboxChecked",
           isChild: false,
           isAdd: false,
-          childName: "",
-          isInlineBlock: true
+          childName: ""
         },
         {
           elName: "树形选择",
@@ -367,9 +366,10 @@ export const AtomicComponent = new Map([
           elType: "eleModule",
           elTagName: "GrowUpload",
           elIcon: "CloudUpload",
-          isChild: false,
+          isChild: true,
           isAdd: false,
-          childName: ""
+          childName: "",
+          isInlineBlock: true
         },
         {
           elName: "滑块",
@@ -414,24 +414,6 @@ export const AtomicComponent = new Map([
           isChild: true,
           isAdd: false,
           childName: ""
-        },
-        {
-          elName: "单选组",
-          elType: "eleModule",
-          elTagName: "GrowRadioGroup",
-          elIcon: "ListBulleted",
-          isChild: true,
-          isAdd: false,
-          childName: ""
-        },
-        {
-          elName: "多选组",
-          elType: "eleModule",
-          elTagName: "GrowCheckboxGroup",
-          elIcon: "ListChecked",
-          isChild: true,
-          isAdd: false,
-          childName: ""
         }
       ]
     }
@@ -448,7 +430,8 @@ export const AtomicComponent = new Map([
           elIcon: "UserAvatar",
           isChild: false,
           isAdd: false,
-          childName: ""
+          childName: "",
+          isInlineBlock: true
         },
         {
           elName: "徽章数",

@@ -10,7 +10,13 @@
   </template>
 
   <template v-else-if="config.elType === 'eleModule' && !config.isChild">
-    <eleModuleComponent :config="config" :propsInfo="resolvedPropsInfo" :styleInfo="styleInfo" />
+    <eleModuleComponent
+      :config="config"
+      :propsInfo="resolvedPropsInfo"
+      :rawPropsInfo="propsInfo"
+      :uuid="structure.uuid"
+      :styleInfo="styleInfo"
+    />
   </template>
 
   <template v-else-if="config.isChild">
@@ -438,6 +444,60 @@
       </div>
     </GrowTooltip>
 
+    <!-- 上传：行内块；默认插槽为触发内容投放区 -->
+    <GrowUpload
+      v-if="config.elTagName === 'GrowUpload'"
+      v-bind="uploadBindProps"
+      :style="styleInfo"
+      @update:model-value="onModelUpdate"
+      @update:value="onModelUpdate"
+      @update:file-list="onModelUpdate"
+      @update:fileList="onModelUpdate"
+    >
+      <div class="grow-upload-host">
+        <draggable
+          group="draggable-group"
+          :animation="200"
+          item-key="uuid"
+          :component-data="{
+            tag: 'div',
+            type: 'transition-group',
+            name: 'draggable-group'
+          }"
+          :disabled="false"
+          ghostClass="ghost"
+          chosenClass="chosen-item"
+          dragClass="drag-item"
+          class="draggable-grop-wrap grow-upload-drop"
+          handle=".draggable-content-bar"
+          v-model="structure.children"
+          @add="onChildAdd"
+        >
+          <template #item="{ element }">
+            <DraggableItem
+              :structure="element"
+              @active="onActive"
+              @delete="onSpecialDelete"
+              @copy="onCopyItem"
+              @special="onDraggableAdd"
+            >
+              <abstractionComponent
+                :config="draggableConfig.renderArgument[element.uuid]"
+                :propsInfo="draggableConfig.props[element.uuid]"
+                :structure="element"
+                :drag="drag"
+                @add="onAbstractionAdd"
+                @special="onDraggableAdd"
+                @delete="onSpecialDelete"
+                @copy="onCopyItem"
+                @active="onActive"
+              />
+            </DraggableItem>
+          </template>
+        </draggable>
+      </div>
+    </GrowUpload>
+
     <!-- 弹出框：reference=触发区(children)；default=内容区(contentSlot) -->
     <div
       v-if="config.elTagName === 'GrowPopover'"
@@ -815,7 +875,7 @@
 
 <script lang="ts" setup>
 import { DRAGGABLE_CONGIG, GROW_RUNTIME_STATE } from "../../config/designation";
-import { computed, inject, toRefs, type ComputedRef } from "vue";
+import { computed, inject, toRefs } from "vue";
 import draggable from "vuedraggable";
 import basicComponent from "./component/basicComponent/index.vue";
 import eleModuleComponent from "./component/eleModuleComponent/index.vue";
@@ -830,10 +890,11 @@ import {
 import {
   buildRuntimeState,
   resolveBoundProps,
+  writeModelBinding,
 } from "../../../GrowRenderer/utils/resolveBoundProps";
 
 const draggableConfig: any = inject(DRAGGABLE_CONGIG);
-const injectedRuntimeState = inject<ComputedRef<Record<string, unknown>> | null>(
+const injectedRuntimeState = inject<Record<string, unknown> | null>(
   GROW_RUNTIME_STATE,
   null,
 );
@@ -866,7 +927,7 @@ const resolvedPropsInfo = computed(() => {
   const raw = propsInfo.value || {}
   if (!uuid || !draggableConfig) return raw
   const state =
-    injectedRuntimeState?.value ??
+    injectedRuntimeState ??
     buildRuntimeState(draggableConfig.dataSource)
   return resolveBoundProps(
     raw,
@@ -874,6 +935,18 @@ const resolvedPropsInfo = computed(() => {
     state,
   )
 })
+
+/** model 双向绑定：画布控件变更写回 runtime state */
+const onModelUpdate = (value: unknown) => {
+  const uuid = structure.value?.uuid
+  if (!uuid || !draggableConfig) return
+  writeModelBinding(
+    injectedRuntimeState,
+    propsInfo.value,
+    draggableConfig.propBindModes?.[uuid],
+    value,
+  )
+}
 
 /** GrowCard：设计器开关不透传；启用操作区时 header 由 #header 插槽渲染 */
 const cardBindProps = computed(() => {
@@ -920,6 +993,25 @@ const scrollbarDropStyle = computed(() => {
 const tooltipBindProps = computed(() => {
   const info = { ...(propsInfo.value || {}) }
   info.disabled = true
+  return info
+})
+
+/** 上传：剥离设计器 model 字段，并解析变量绑定 */
+const uploadBindProps = computed(() => {
+  const info = { ...(resolvedPropsInfo.value || {}) }
+  Reflect.deleteProperty(info, 'model')
+  if (
+    info.modelValue != null &&
+    (info['file-list'] == null || info['file-list'] === '')
+  ) {
+    info['file-list'] = info.modelValue
+  }
+  if (
+    info.modelValue != null &&
+    (info.fileList == null || info.fileList === '')
+  ) {
+    info.fileList = info.modelValue
+  }
   return info
 })
 
@@ -1222,6 +1314,22 @@ const onCopyItem = (event) => {
 }
 
 .grow-tooltip-drop.draggable-grop-wrap {
+  width: auto;
+  min-width: 96px;
+  min-height: 36px;
+  height: auto;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+.grow-upload-host {
+  display: inline-block;
+  vertical-align: top;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.grow-upload-drop.draggable-grop-wrap {
   width: auto;
   min-width: 96px;
   min-height: 36px;

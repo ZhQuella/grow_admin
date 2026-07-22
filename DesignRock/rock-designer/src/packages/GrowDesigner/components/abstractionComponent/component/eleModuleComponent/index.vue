@@ -13,6 +13,10 @@
       :key="moduleRenderKey"
       :class="{ 'w-full': isFormFullWidth }"
       :style="styleInfo"
+      @update:model-value="onModelUpdate"
+      @update:value="onModelUpdate"
+      @update:file-list="onModelUpdate"
+      @update:fileList="onModelUpdate"
     >
       <span v-if="config.elTagName === 'GrowButton'">{{ propsInfo.content }}</span>
       <span v-else-if="config.elTagName === 'GrowLink'">{{ propsInfo.content }}</span>
@@ -28,25 +32,38 @@
 <script setup lang="ts">
 import { computed, inject, toRefs } from 'vue'
 import { FORM_MODULE_FULL_WIDTH_TAGS } from '../../../../static/moduleMap'
-import { LAYOUT_MAIN_SIZE, type LayoutMainSize } from '../../../../config/designation'
+import {
+  DRAGGABLE_CONGIG,
+  GROW_RUNTIME_STATE,
+  LAYOUT_MAIN_SIZE,
+  type LayoutMainSize,
+} from '../../../../config/designation'
+import { writeModelBinding } from '../../../../../GrowRenderer/utils/resolveBoundProps'
 import { tableColumnsSignature } from '../../../../static/tableColumnUtils'
 import TableColumnNodes from '../../../shared/TableColumnNodes.vue'
 
 interface PropsType {
   config: any
   propsInfo: any
+  /** 未 resolve 的原始 props（含 model 绑定路径） */
+  rawPropsInfo?: any
   styleInfo?: Record<string, any>
+  uuid?: string
 }
 
 const props = withDefaults(defineProps<PropsType>(), {
   config: () => ({}),
   propsInfo: () => ({}),
+  rawPropsInfo: () => ({}),
   styleInfo: () => ({}),
+  uuid: '',
 })
 
 const { config, propsInfo, styleInfo } = toRefs(props)
 
 const layoutMainSize = inject<LayoutMainSize | null>(LAYOUT_MAIN_SIZE, null)
+const runtimeState = inject<Record<string, unknown> | null>(GROW_RUNTIME_STATE, null)
+const draggableConfig: any = inject(DRAGGABLE_CONGIG, null)
 
 const isUnsupported = computed(() => Boolean(config.value.unsupported))
 
@@ -73,18 +90,47 @@ const isSocket = computed(() => {
     'GrowModal',
     'GrowDrawer',
     'GrowLayout',
+    'GrowUpload',
   ]
   return slotMap.includes(config.value.elTagName)
 })
 
+/** 使用原始 props 中的 model / 默认值路径写回 runtime state */
+const onModelUpdate = (value: unknown) => {
+  const raw =
+    props.rawPropsInfo && Object.keys(props.rawPropsInfo).length
+      ? props.rawPropsInfo
+      : propsInfo.value
+  const bindModes = props.uuid
+    ? draggableConfig?.propBindModes?.[props.uuid]
+    : undefined
+  writeModelBinding(runtimeState, raw, bindModes, value)
+}
+
 const bindProps = computed(() => {
   const info = { ...(propsInfo.value || {}) }
+  // 设计器表单字段名，不透传给底层组件
+  Reflect.deleteProperty(info, 'model')
   if (['GrowButton', 'GrowLink', 'GrowEllipsis'].includes(config.value?.elTagName)) {
     Reflect.deleteProperty(info, 'content')
   }
   if (config.value?.elTagName === 'GrowEllipsis') {
     if (info['expand-trigger'] === '' || info['expand-trigger'] == null) {
       Reflect.deleteProperty(info, 'expand-trigger')
+    }
+  }
+  if (config.value?.elTagName === 'GrowUpload') {
+    if (
+      info.modelValue != null &&
+      (info['file-list'] == null || info['file-list'] === '')
+    ) {
+      info['file-list'] = info.modelValue
+    }
+    if (
+      info.modelValue != null &&
+      (info.fileList == null || info.fileList === '')
+    ) {
+      info.fileList = info.modelValue
     }
   }
   if (config.value?.elTagName === 'GrowCalendar') {

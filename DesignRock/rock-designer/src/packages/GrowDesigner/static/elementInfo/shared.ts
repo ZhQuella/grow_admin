@@ -164,6 +164,13 @@ export const variableBindInput = (
   },
 })
 
+/** 表单字段 model 绑定（如 user.name），支持变量 */
+export const modelBind = (
+  describe = '表单字段 model 绑定，支持变量绑定',
+  modelKey = 'model',
+): PropConfigItem =>
+  variableBindInput('model', modelKey, describe, '请输入 model 或绑定变量')
+
 /** 组件默认值（绑定到 modelValue，支持变量） */
 export const defaultValueBind = (
   describe = '组件初始默认值，支持变量绑定',

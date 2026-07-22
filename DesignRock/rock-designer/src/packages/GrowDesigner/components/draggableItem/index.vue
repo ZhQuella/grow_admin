@@ -89,13 +89,14 @@ const INLINE_FRAME_TAGS = new Set([
   'div',
   'GrowLink',
   'GrowSwitch',
-  'GrowRadio',
-  'GrowCheckbox',
   'GrowTime',
   'GrowEllipsis',
   'GrowTooltip',
   'GrowPopover',
   'GrowSearchBar',
+  'GrowUpload',
+  'GrowAvatar',
+  'GrowIconify',
 ])
 
 interface Props {
