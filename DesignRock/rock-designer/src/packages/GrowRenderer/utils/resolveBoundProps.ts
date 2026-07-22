@@ -1,5 +1,7 @@
 /** 变量绑定：由 dataSource 构建 state，并按 propBindModes 求值 */
 
+import { compileDesignerPropFunction } from './runDesignerPropFunction'
+
 export type DataSourceLike = {
   id?: string
   name?: string
@@ -185,6 +187,7 @@ export const writeModelBinding = (
 /**
  * 按 propBindModes 解析 props：
  * - mode === 'bind'：求值表达式并写回展示值
+ * - mode === 'function'：编译为可调用函数
  * - model：特殊处理 → 写入 modelValue，保留路径
  * - 其余字段保持原样
  */
@@ -196,6 +199,14 @@ export const resolveBoundProps = (
   const result = { ...(rawProps || {}) }
   if (bindModes) {
     for (const [key, mode] of Object.entries(bindModes)) {
+      if (mode === 'function') {
+        const raw = result[key]
+        const code = raw == null ? '' : String(raw)
+        const fn = compileDesignerPropFunction(code, state, { modelKey: key })
+        if (fn) result[key] = fn
+        else Reflect.deleteProperty(result, key)
+        continue
+      }
       if (mode !== 'bind') continue
       // model 由 applyModelBinding 处理，避免把路径替换成叶子值
       if (key === 'model') continue

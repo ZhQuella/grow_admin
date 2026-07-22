@@ -28,8 +28,8 @@ export type DesignerSchema = {
   renderArgument?: Record<string, DesignerRenderArgument>
   styles?: Record<string, Record<string, any>>
   props?: Record<string, Record<string, any>>
-  /** 属性输入模式：uuid -> modelKey -> 'text' | 'bind' */
-  propBindModes?: Record<string, Record<string, 'text' | 'bind'>>
+  /** 属性输入模式：uuid -> modelKey -> 'text' | 'bind' | 'function' */
+  propBindModes?: Record<string, Record<string, 'text' | 'bind' | 'function'>>
   pageConfig?: Record<string, any> & {
     /** 页面生命周期事件：onBeforeMount / onMounted / onUpdated ... */
     events?: Record<string, {

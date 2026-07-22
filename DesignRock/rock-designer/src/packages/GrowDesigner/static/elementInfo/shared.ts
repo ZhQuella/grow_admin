@@ -1,5 +1,7 @@
 /** 属性配置项公共类型与复用选项 */
 
+import { registerFunctionPropParams } from '../functionPropParams'
+
 export type PropConfigItem = {
   eleType: string
   name: string
@@ -217,6 +219,32 @@ export const tableColumnsInput = (
   describe,
   modelKey: 'columns',
 })
+
+/** 函数绑定（纯 prop 回调，运行时编译为 Function） */
+export const functionBind = (
+  name: string,
+  modelKey: string,
+  describe?: string,
+  options?: {
+    params?: string[]
+    example?: string
+    placeholder?: string
+  },
+): PropConfigItem => {
+  registerFunctionPropParams(modelKey, options?.params || [])
+  return {
+    eleType: 'PropFunctionBind',
+    name,
+    describe,
+    modelKey,
+    props: {
+      label: name,
+      params: options?.params || [],
+      example: options?.example || '',
+      placeholder: options?.placeholder || '点击右侧绑定函数',
+    },
+  }
+}
 
 export const createConfig = (props: PropConfigItem[]): ElementInfoConfig => ({
   props,

@@ -981,10 +981,12 @@ const tooltipBindProps = computed(() => {
   return info
 })
 
-/** 上传：剥离设计器 model 字段，并解析变量绑定 */
+/** 上传：剥离设计器字段；设计态强制禁用，避免点选/拖文件交互 */
 const uploadBindProps = computed(() => {
   const info = { ...(resolvedPropsInfo.value || {}) }
   Reflect.deleteProperty(info, 'model')
+  Reflect.deleteProperty(info, 'visible')
+  Reflect.deleteProperty(info, 'render')
   if (
     info.modelValue != null &&
     (info['file-list'] == null || info['file-list'] === '')
@@ -997,6 +999,7 @@ const uploadBindProps = computed(() => {
   ) {
     info.fileList = info.modelValue
   }
+  info.disabled = true
   return info
 })
 
@@ -1312,6 +1315,13 @@ const onCopyItem = (event) => {
   vertical-align: top;
   max-width: 100%;
   box-sizing: border-box;
+
+  /* 投放区可拖入子节点，但阻断原生文件选择 */
+  :deep(input[type='file']),
+  :deep(.el-upload__input),
+  :deep(.n-upload-file-input) {
+    pointer-events: none !important;
+  }
 }
 
 .grow-upload-drop.draggable-grop-wrap {

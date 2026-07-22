@@ -2,6 +2,7 @@ import {
   boolSwitch,
   createConfig,
   defaultValueBind,
+  functionBind,
   modelBind,
   numberInput,
   selectInput,
@@ -189,8 +190,25 @@ export const inputConfig = createConfig([
   numberInput('最大长度', 'maxlength', '原生 maxlength 属性'),
   numberInput('最小长度', 'minlength', '原生 minlength 属性'),
   sizeSelect(),
+  functionBind(
+    '格式化显示值',
+    'formatter',
+    '指定输入值的格式（仅当 type 为 text 时生效）',
+    {
+      params: ['value'],
+      example: `// return \`￥ \${value}\`\nreturn value`,
+    },
+  ),
+  functionBind(
+    '解析输入值',
+    'parser',
+    '指定从格式化器输入中提取的值（仅当 type 为 text 时生效）',
+    {
+      params: ['value'],
+      example: `// return String(value).replace(/￥\\s?|(,*)/g, '')\nreturn value`,
+    },
+  ),
 ])
-
 /** 数字输入框 */
 export const inputNumberConfig = createConfig([
   modelBind(),
@@ -231,9 +249,28 @@ export const selectConfig = createConfig([
   boolSwitch('可过滤', 'filterable', '是否可过滤'),
   boolSwitch('允许创建条目', 'allow-create', '是否允许用户创建新条目'),
   boolSwitch('折叠标签', 'collapse-tags', '多选时是否将选中值按文字的形式展示'),
+  boolSwitch('远程搜索', 'remote', '是否为远程搜索'),
+  boolSwitch('远程加载中', 'loading', '是否正在从远程获取数据'),
   sizeSelect(),
+  functionBind(
+    '远程搜索方法',
+    'remote-method',
+    '自定义远程搜索方法（需开启 remote）',
+    {
+      params: ['query'],
+      example: `// 根据 query 请求并写入 state.options\nconsole.log('query', query, state)`,
+    },
+  ),
+  functionBind(
+    '自定义过滤方法',
+    'filter-method',
+    '自定义搜索方法；需返回是否匹配（开启 filterable 时）',
+    {
+      params: ['query'],
+      example: `// 自定义过滤时由组件调用\nconsole.log('query', query)`,
+    },
+  ),
 ])
-
 /** 级联选择器 */
 export const cascaderConfig = createConfig([
   modelBind(),
@@ -251,8 +288,25 @@ export const cascaderConfig = createConfig([
   boolSwitch('显示完整路径', 'show-all-levels', '输入框中是否显示选中值的完整路径'),
   boolSwitch('折叠标签', 'collapse-tags', '多选模式下是否折叠 Tag'),
   sizeSelect(),
+  functionBind(
+    '过滤前钩子',
+    'before-filter',
+    '过滤前的钩子；返回 false 或返回 Promise 且被 reject，则停止筛选',
+    {
+      params: ['value'],
+      example: `// return true\nreturn true`,
+    },
+  ),
+  functionBind(
+    '自定义过滤方法',
+    'filter-method',
+    '自定义搜索逻辑，第一个参数是节点，第二个是关键字，需返回布尔值',
+    {
+      params: ['node', 'keyword'],
+      example: `// return node.text?.includes(keyword)\nreturn true`,
+    },
+  ),
 ])
-
 /** 开关 */
 export const switchConfig = createConfig([
   modelBind(),
@@ -282,8 +336,16 @@ export const sliderConfig = createConfig([
   boolSwitch('输入框控制按钮', 'show-input-controls', '输入框控制按钮'),
   numberInput('输入防抖', 'debounce', '输入时的去抖延迟（毫秒）'),
   sizeSelect(),
+  functionBind(
+    '格式化 tooltip',
+    'format-tooltip',
+    '格式化 tooltip message',
+    {
+      params: ['value'],
+      example: `// return \`\${value}%\`\nreturn value`,
+    },
+  ),
 ])
-
 /** 穿梭框 */
 export const transferConfig = createConfig([
   modelBind(),
@@ -307,8 +369,16 @@ export const transferConfig = createConfig([
     ],
     '右侧列表元素的排序策略',
   ),
+  functionBind(
+    '自定义搜索方法',
+    'filter-method',
+    '自定义搜索方法',
+    {
+      params: ['query', 'item'],
+      example: `// return item.label?.includes(query)\nreturn true`,
+    },
+  ),
 ])
-
 /** 日期选择器 */
 export const datePickerConfig = createConfig([
   modelBind(),
@@ -334,8 +404,16 @@ export const datePickerConfig = createConfig([
   boolSwitch('只读', 'readonly', '完全只读'),
   boolSwitch('可清空', 'clearable', '是否显示清除按钮'),
   sizeSelect(),
+  functionBind(
+    '禁用日期',
+    'disabled-date',
+    '一个用来判断该日期是否被禁用的函数，返回 true 禁用',
+    {
+      params: ['date'],
+      example: `// return date.getTime() < Date.now() - 8.64e7\nreturn false`,
+    },
+  ),
 ])
-
 /** 时间选择器（Naive UI NTimePicker） */
 export const timePickerConfig = createConfig([
   modelBind(),
@@ -375,6 +453,33 @@ export const timePickerConfig = createConfig([
     '面板弹出位置',
   ),
   textInput('时区', 'time-zone', '格式化使用的 IANA 时区，如 Asia/Shanghai'),
+  functionBind(
+    '禁用小时',
+    'disabled-hours',
+    '禁止选择部分小时选项，返回禁用的小时数组',
+    {
+      params: ['role', 'comparingDate'],
+      example: `// return [1, 2, 3]\nreturn []`,
+    },
+  ),
+  functionBind(
+    '禁用分钟',
+    'disabled-minutes',
+    '禁止选择部分分钟选项',
+    {
+      params: ['hour', 'role', 'comparingDate'],
+      example: `// return [0, 15, 30, 45]\nreturn []`,
+    },
+  ),
+  functionBind(
+    '禁用秒',
+    'disabled-seconds',
+    '禁止选择部分秒选项',
+    {
+      params: ['hour', 'minute', 'role', 'comparingDate'],
+      example: `return []`,
+    },
+  ),
 ])
 
 /** 单选（单选项，兼容旧 schema） */
@@ -472,9 +577,26 @@ export const treeSelectConfig = createConfig([
     ],
     '组件尺寸（Naive UI）',
   ),
+  functionBind(
+    '过滤方法',
+    'filter',
+    '自定义节点过滤方法（Naive TreeSelect）；返回 true 表示保留',
+    {
+      params: ['pattern', 'node'],
+      example: `// return node.label?.includes(pattern)\nreturn true`,
+    },
+  ),
+  functionBind(
+    '渲染标签',
+    'render-label',
+    '自定义节点标签渲染（Naive TreeSelect）',
+    {
+      params: ['info'],
+      example: `// return info.option.label\nreturn info.option.label`,
+    },
+  ),
 ])
 
-/** 提及（Naive UI NMention） */
 export const mentionConfig = createConfig([
   modelBind(),
   defaultValueBind('提及初始默认值，支持变量绑定'),
@@ -524,6 +646,15 @@ export const mentionConfig = createConfig([
     ],
     '提及候选面板弹出位置',
   ),
+  functionBind(
+    '过滤选项',
+    'filter',
+    '自定义过滤提及选项（Naive Mention）',
+    {
+      params: ['pattern', 'option'],
+      example: `// return option.label?.includes(pattern)\nreturn true`,
+    },
+  ),
 ])
 
 /** 上传 */
@@ -547,5 +678,32 @@ export const uploadConfig = createConfig([
       { label: '照片墙', value: 'picture-card' },
     ],
     '文件列表的类型',
+  ),
+  functionBind(
+    '上传前钩子',
+    'before-upload',
+    '上传文件之前的钩子；返回 false 或 reject Promise 则停止上传',
+    {
+      params: ['rawFile'],
+      example: `// return rawFile.size < 1024 * 1024\nreturn true`,
+    },
+  ),
+  functionBind(
+    '移除前钩子',
+    'before-remove',
+    '删除文件之前的钩子；返回 false 或 reject Promise 则停止删除',
+    {
+      params: ['uploadFile', 'uploadFiles'],
+      example: `// return true\nreturn true`,
+    },
+  ),
+  functionBind(
+    '覆盖默认上传',
+    'http-request',
+    '覆盖默认的 XHR 上传行为，可自定义上传实现',
+    {
+      params: ['options'],
+      example: `// options 含 file / action / onSuccess / onError 等\nconsole.log('http-request', options, state)`,
+    },
   ),
 ])

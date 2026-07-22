@@ -58,6 +58,13 @@
             :bind-mode="getBindMode(item.modelKey)"
             @update:bind-mode="(mode) => setBindMode(item.modelKey, mode)"
           />
+          <PropFunctionBind
+            v-else-if="item.eleType === 'PropFunctionBind'"
+            v-bind="item.props || {}"
+            v-model="currentPropsConfig[item.modelKey]"
+            :bind-mode="getBindMode(item.modelKey)"
+            @update:bind-mode="(mode) => setBindMode(item.modelKey, mode)"
+          />
           <component
             v-else
             :is="item.eleType"
@@ -83,6 +90,7 @@ import PropTableHeight from '../../optionComponent/PropTableHeight/index.vue'
 import PropTableColumns from '../../optionComponent/PropTableColumns/index.vue'
 import PropVariableBind from '../../optionComponent/PropVariableBind/index.vue'
 import PropSwitchBind from '../../optionComponent/PropSwitchBind/index.vue'
+import PropFunctionBind from '../../optionComponent/PropFunctionBind/index.vue'
 import {
   COMMON_VISIBILITY_PROPS,
   type PropConfigItem,
@@ -127,6 +135,7 @@ const CUSTOM_OPTION_TYPES = new Set([
   'PropTableColumns',
   'PropVariableBind',
   'PropSwitchBind',
+  'PropFunctionBind',
 ])
 
 const isCustomOption = (item: PropConfigItem) => CUSTOM_OPTION_TYPES.has(item.eleType)
