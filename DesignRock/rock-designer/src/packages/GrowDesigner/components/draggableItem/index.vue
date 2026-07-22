@@ -7,10 +7,19 @@
       'is-inline-level': isInlineLevel,
       'has-frame-size': hasFrameSize,
       'has-explicit-height': hasExplicitHeight,
+      'is-design-invisible': !designVisible,
+      'is-design-unrendered': !designRenderable,
     }"
     :style="frameStyle"
     @click.stop="onActiveStructure"
   >
+    <div
+      v-if="!designVisible || !designRenderable"
+      class="draggable-item__flags"
+    >
+      <span v-if="!designVisible" class="draggable-item__flag is-invisible">不显示</span>
+      <span v-if="!designRenderable" class="draggable-item__flag is-unrendered">不渲染</span>
+    </div>
     <div v-show="isActived" class="draggable-item__toolbar">
       <GrowIconify
         class="draggable-content-bar draggable-item__action is-handle"
@@ -61,12 +70,26 @@
 
 <script setup lang="ts">
 import type { Ref } from 'vue'
-import { ACTIVE_UUID, DRAGGABLE_CONGIG, OVERLAY_EDIT_UUID } from '../../config/designation'
+import {
+  ACTIVE_UUID,
+  DRAGGABLE_CONGIG,
+  GROW_RUNTIME_STATE,
+  OVERLAY_EDIT_UUID,
+} from '../../config/designation'
 import { inject, computed, toRefs } from 'vue'
+import {
+  buildRuntimeState,
+  coerceBool,
+  resolveBoundProps,
+} from '../../../GrowRenderer/utils/resolveBoundProps'
 
 const draggableConfig: any = inject(DRAGGABLE_CONGIG)
 const activeUUID = inject(ACTIVE_UUID) as Ref<string>
 const overlayEditUUID = inject(OVERLAY_EDIT_UUID, null) as Ref<string> | null
+const injectedRuntimeState = inject<Record<string, unknown> | null>(
+  GROW_RUNTIME_STATE,
+  null,
+)
 
 /** 外框同步的尺寸相关样式 */
 const FRAME_SIZE_KEYS = [
@@ -124,6 +147,26 @@ const currentStyles = computed(() => {
   return draggableConfig.styles?.[uuid.value] || {}
 })
 
+/** 设计态：解析显示/渲染开关，仅做标记不真正隐藏 */
+const designVisibility = computed(() => {
+  const id = uuid.value
+  if (!id || !draggableConfig) {
+    return { visible: true, render: true }
+  }
+  const state =
+    injectedRuntimeState ?? buildRuntimeState(draggableConfig.dataSource)
+  const resolved = resolveBoundProps(
+    draggableConfig.props?.[id] || {},
+    draggableConfig.propBindModes?.[id],
+    state,
+  )
+  return {
+    visible: coerceBool(resolved.visible, true),
+    render: coerceBool(resolved.render, true),
+  }
+})
+const designVisible = computed(() => designVisibility.value.visible)
+const designRenderable = computed(() => designVisibility.value.render)
 /** 滚动条：高度由组件 props 控制，不重复写到外框（避免与 body padding 叠加） */
 const effectiveFrameStyles = computed(() => {
   return { ...currentStyles.value }
@@ -334,11 +377,108 @@ const onCopyItem = () => {
     border-style: solid;
     box-shadow: 0 0 0 1px var(--color-primary-a16);
   }
+
+  /* 设计态：不显示（v-show=false） */
+  &.is-design-invisible {
+    opacity: 0.55;
+    border-style: dotted;
+    border-color: #e6a23c;
+    background-image: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 6px,
+      rgba(230, 162, 60, 0.08) 6px,
+      rgba(230, 162, 60, 0.08) 12px
+    );
+  }
+
+  /* 设计态：不渲染（v-if=false） */
+  &.is-design-unrendered {
+    opacity: 0.5;
+    border-style: dashed;
+    border-color: #909399;
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 6px,
+      rgba(144, 147, 153, 0.12) 6px,
+      rgba(144, 147, 153, 0.12) 12px
+    );
+  }
+
+  &.is-design-invisible.is-design-unrendered {
+    border-color: #f56c6c;
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 6px,
+      rgba(245, 108, 108, 0.1) 6px,
+      rgba(245, 108, 108, 0.1) 12px
+    );
+  }
+}
+
+.draggable-item__flags {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 15;
+  display: inline-flex;
+  gap: 4px;
+  padding: 2px 4px;
+  pointer-events: none;
+}
+
+.draggable-item__flag {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 0 0 0 6px;
+  font-size: 11px;
+  line-height: 18px;
+  color: #fff;
+  white-space: nowrap;
+
+  &.is-invisible {
+    background: #e6a23c;
+  }
+
+  &.is-unrendered {
+    background: #909399;
+  }
+}
+
+.draggable-item.is-design-invisible.is-design-unrendered .draggable-item__flag.is-unrendered {
+  background: #f56c6c;
 }
 
 .draggable-item__body {
   padding: 6px;
   box-sizing: border-box;
+  /* 操作区禁止组件交互，仅预览可操作 */
+  pointer-events: none;
+  user-select: none;
+
+  :deep(*) {
+    pointer-events: none !important;
+    user-select: none !important;
+  }
+
+  /* 投放区、子节点外框与工具栏需可点选 / 拖入 */
+  :deep(.draggable-item),
+  :deep(.draggable-grop-wrap),
+  :deep(.draggable-item__toolbar),
+  :deep(.draggable-item__toolbar *),
+  :deep(.draggable-item__flags),
+  :deep(.draggable-item__flag) {
+    pointer-events: auto !important;
+  }
+
+  :deep(.draggable-item__flags),
+  :deep(.draggable-item__flag) {
+    pointer-events: none !important;
+  }
 }
 
 .draggable-item__toolbar {

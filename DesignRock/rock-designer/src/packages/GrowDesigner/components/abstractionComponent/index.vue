@@ -13,8 +13,6 @@
     <eleModuleComponent
       :config="config"
       :propsInfo="resolvedPropsInfo"
-      :rawPropsInfo="propsInfo"
-      :uuid="structure.uuid"
       :styleInfo="styleInfo"
     />
   </template>
@@ -449,10 +447,6 @@
       v-if="config.elTagName === 'GrowUpload'"
       v-bind="uploadBindProps"
       :style="styleInfo"
-      @update:model-value="onModelUpdate"
-      @update:value="onModelUpdate"
-      @update:file-list="onModelUpdate"
-      @update:fileList="onModelUpdate"
     >
       <div class="grow-upload-host">
         <draggable
@@ -890,7 +884,6 @@ import {
 import {
   buildRuntimeState,
   resolveBoundProps,
-  writeModelBinding,
 } from "../../../GrowRenderer/utils/resolveBoundProps";
 
 const draggableConfig: any = inject(DRAGGABLE_CONGIG);
@@ -929,24 +922,16 @@ const resolvedPropsInfo = computed(() => {
   const state =
     injectedRuntimeState ??
     buildRuntimeState(draggableConfig.dataSource)
-  return resolveBoundProps(
+  const resolved = resolveBoundProps(
     raw,
     draggableConfig.propBindModes?.[uuid],
     state,
   )
+  // 设计器控制字段不透传给真实组件（画布始终展示，由外框标记）
+  Reflect.deleteProperty(resolved, 'visible')
+  Reflect.deleteProperty(resolved, 'render')
+  return resolved
 })
-
-/** model 双向绑定：画布控件变更写回 runtime state */
-const onModelUpdate = (value: unknown) => {
-  const uuid = structure.value?.uuid
-  if (!uuid || !draggableConfig) return
-  writeModelBinding(
-    injectedRuntimeState,
-    propsInfo.value,
-    draggableConfig.propBindModes?.[uuid],
-    value,
-  )
-}
 
 /** GrowCard：设计器开关不透传；启用操作区时 header 由 #header 插槽渲染 */
 const cardBindProps = computed(() => {

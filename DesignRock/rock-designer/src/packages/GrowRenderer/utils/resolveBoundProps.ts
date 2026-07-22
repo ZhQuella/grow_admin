@@ -98,6 +98,19 @@ export const isAssignableModelValue = (value: unknown): boolean => {
   return false
 }
 
+/** 将绑定/配置值规范为布尔（空值回退 defaultValue） */
+export const coerceBool = (value: unknown, defaultValue = true): boolean => {
+  if (value === undefined || value === null || value === '') return defaultValue
+  if (typeof value === 'boolean') return value
+  if (typeof value === 'number') return value !== 0
+  if (typeof value === 'string') {
+    const text = value.trim().toLowerCase()
+    if (text === 'true' || text === '1') return true
+    if (text === 'false' || text === '0') return false
+  }
+  return Boolean(value)
+}
+
 /** 展示用格式化：基础类型与对象/数组原样保留（表单默认值需保留复杂类型） */
 export const formatBoundDisplayValue = (value: unknown): any => {
   if (value === undefined) return undefined

@@ -41,6 +41,8 @@ const resolvedTag = computed(() => {
 
 const bindProps = computed(() => {
   const info = { ...(propsInfo.value || {}) }
+  Reflect.deleteProperty(info, 'visible')
+  Reflect.deleteProperty(info, 'render')
   if (isTitle.value || ['p', 'span', 'div'].includes(config.value?.elTagName)) {
     Reflect.deleteProperty(info, 'level')
     Reflect.deleteProperty(info, 'context')

@@ -179,7 +179,7 @@ const {
 
 const previewVisible = ref(false)
 
-/** 预览传结构 / 样式 / 属性 / 数据源（用于变量绑定求值；事件暂不跑） */
+/** 预览传结构 / 样式 / 属性 / 数据源 / 事件 */
 const previewSchema = computed<DesignerSchema>(() => {
   // 显式读取每项字段，保证数据源内容变更时预览跟随更新
   const dataSource = (draggableConfig.dataSource || []).map((item: any) => ({
@@ -196,6 +196,7 @@ const previewSchema = computed<DesignerSchema>(() => {
     pageConfig: draggableConfig.pageConfig,
     dataSource,
     propBindModes: draggableConfig.propBindModes,
+    events: draggableConfig.events,
   }
 })
 

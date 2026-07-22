@@ -3,9 +3,15 @@
     <!-- 未接入组件：预览阶段跳过 -->
   </template>
 
+  <!-- render=false → 不创建；visible=false → 隐藏 -->
+  <div
+    v-else-if="isNodeRenderable"
+    class="grow-render-node"
+    :class="{ 'grow-render-node--hidden': !isNodeVisible }"
+  >
   <!-- 基础元素（叶子） -->
   <component
-    v-else-if="isBasicLeaf && basicTag"
+    v-if="isBasicLeaf && basicTag"
     :is="basicTag"
     v-bind="basicProps"
     :class="nodeClass"
@@ -17,6 +23,7 @@
   <!-- 容器：div -->
   <div
     v-else-if="isChild && tag === 'div'"
+    v-bind="runtimeEventProps"
     :class="nodeClass"
     :style="nodeStyle"
   >
@@ -296,6 +303,7 @@
     <span v-else-if="tag === 'GrowLink'">{{ rawProps.content }}</span>
     <template v-else-if="tag === 'GrowEllipsis'">{{ rawProps.content }}</template>
   </component>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -318,9 +326,11 @@ import {
 } from '../utils/normalizeProps'
 import {
   buildRuntimeState,
+  coerceBool,
   resolveBoundProps,
   writeModelBinding,
 } from '../utils/resolveBoundProps'
+import { buildRuntimeEventProps } from '../utils/runDesignerEvent'
 import RenderPageLayout from './RenderPageLayout.vue'
 import TableColumnNodes from '../../GrowDesigner/components/shared/TableColumnNodes.vue'
 import { tableColumnsSignature } from '../../GrowDesigner/static/tableColumnUtils'
@@ -354,6 +364,19 @@ const rawProps = computed(() =>
   resolveBoundProps(
     props.schema.props?.[uuid.value] || {},
     props.schema.propBindModes?.[uuid.value],
+    runtimeState.value,
+  ),
+)
+
+/** 渲染（v-if）：默认 true */
+const isNodeRenderable = computed(() => coerceBool(rawProps.value?.render, true))
+/** 显示（v-show）：默认 true */
+const isNodeVisible = computed(() => coerceBool(rawProps.value?.visible, true))
+
+/** enabled=true 的事件 → onXxx，合并进组件 props */
+const runtimeEventProps = computed(() =>
+  buildRuntimeEventProps(
+    props.schema.events?.[uuid.value] as any,
     runtimeState.value,
   ),
 )
@@ -399,7 +422,10 @@ if (nodeTagAtSetup === 'GrowLayout') {
 const layoutMainSize = inject<LayoutMainSize | null>(LAYOUT_MAIN_SIZE, null)
 
 const basicTag = computed(() => resolveBasicTag(tag.value, rawProps.value))
-const basicProps = computed(() => normalizeBasicProps(tag.value || '', rawProps.value))
+const basicProps = computed(() => ({
+  ...normalizeBasicProps(tag.value || '', rawProps.value),
+  ...runtimeEventProps.value,
+}))
 const basicText = computed(() => resolveBasicText(tag.value, rawProps.value))
 const moduleProps = computed(() => {
   const info = normalizeModuleProps(tag.value || '', rawProps.value)
@@ -407,29 +433,39 @@ const moduleProps = computed(() => {
     // 走本地 WatchBox 分支时不在这里写 height
     Reflect.deleteProperty(info, 'height')
   }
-  return info
+  return {
+    ...info,
+    ...runtimeEventProps.value,
+  }
 })
 /** 适应主区域时透传除 height 外的表格 props */
 const tableBaseProps = computed(() => {
   const info = normalizeModuleProps('GrowTable', rawProps.value)
   Reflect.deleteProperty(info, 'height')
   Reflect.deleteProperty(info, 'fitLayoutMainHeight')
-  return info
+  return {
+    ...info,
+    ...runtimeEventProps.value,
+  }
 })
 /** 列配置变化时强制重建表格，确保列属性生效 */
 const tableColumnsKey = computed(
   () => `cols:${tableColumnsSignature(rawProps.value?.columns)}`,
 )
-const scrollbarModuleProps = computed(() =>
-  normalizeModuleProps(tag.value || '', rawProps.value),
-)
+const scrollbarModuleProps = computed(() => ({
+  ...normalizeModuleProps(tag.value || '', rawProps.value),
+  ...runtimeEventProps.value,
+}))
 /** 有自定义内容插槽时，不再传 content，避免与 default slot 冲突 */
 const popoverModuleProps = computed(() => {
   const info = normalizeModuleProps(tag.value || '', rawProps.value)
   if (contentChildren.value.length) {
     Reflect.deleteProperty(info, 'content')
   }
-  return info
+  return {
+    ...info,
+    ...runtimeEventProps.value,
+  }
 })
 
 const nodeStyle = computed(() => resolveNodeStyle(rawStyles.value))
@@ -551,5 +587,14 @@ const isFormFullWidth = computed(() =>
   height: auto !important;
   min-width: 0;
   min-height: 0;
+}
+
+/* display:contents 不打断布局；hidden 等价 v-show=false */
+.grow-render-node {
+  display: contents;
+}
+
+.grow-render-node--hidden {
+  display: none !important;
 }
 </style>

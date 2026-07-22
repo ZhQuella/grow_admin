@@ -8,6 +8,8 @@ export function normalizeBasicProps(
   raw: Record<string, any> | undefined,
 ): Record<string, any> {
   const info = { ...(raw || {}) }
+  Reflect.deleteProperty(info, 'visible')
+  Reflect.deleteProperty(info, 'render')
   if (tag === 'BasicTitle' || ['p', 'span', 'div'].includes(tag)) {
     Reflect.deleteProperty(info, 'level')
     Reflect.deleteProperty(info, 'context')
@@ -47,8 +49,10 @@ export function normalizeModuleProps(
 ): Record<string, any> {
   const info = { ...(raw || {}) }
 
-  // 设计器表单字段名，不透传给底层组件
+  // 设计器控制字段，不透传给底层组件
   Reflect.deleteProperty(info, 'model')
+  Reflect.deleteProperty(info, 'visible')
+  Reflect.deleteProperty(info, 'render')
 
   if (TEXT_CONTENT_TAGS.has(tag)) {
     Reflect.deleteProperty(info, 'content')

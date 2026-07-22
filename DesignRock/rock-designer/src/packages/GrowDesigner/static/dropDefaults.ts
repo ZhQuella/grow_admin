@@ -360,6 +360,9 @@ export const resolveDefaultProps = (elTagName?: string): Record<string, any> => 
   if (elTagName && FORM_MODULE_FULL_WIDTH_TAGS.has(elTagName)) {
     props.class = 'w-full'
   }
+  // 显示 / 渲染默认开启
+  if (props.visible === undefined) props.visible = true
+  if (props.render === undefined) props.render = true
   return props
 }
 
