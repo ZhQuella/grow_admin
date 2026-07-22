@@ -1,6 +1,10 @@
 <template>
   <div class="column-edit-form">
-    <div class="column-edit-form__row">
+    <div v-if="isSpecial" class="column-edit-form__row">
+      <span class="column-edit-form__label">类型</span>
+      <span class="column-edit-form__type">{{ specialLabel }}</span>
+    </div>
+    <div v-if="!isSelection" class="column-edit-form__row">
       <span class="column-edit-form__label">标题</span>
       <GrowInput
         size="small"
@@ -9,7 +13,7 @@
         @update:model-value="(v) => patch({ title: String(v ?? '') })"
       />
     </div>
-    <div class="column-edit-form__row">
+    <div v-if="!isSpecial" class="column-edit-form__row">
       <span class="column-edit-form__label">字段</span>
       <GrowInput
         size="small"
@@ -28,7 +32,7 @@
         @update:model-value="(v) => patch({ width: normalizeSize(v) })"
       />
     </div>
-    <div class="column-edit-form__row">
+    <div v-if="!isSpecial" class="column-edit-form__row">
       <span class="column-edit-form__label">最小宽</span>
       <GrowInput
         size="small"
@@ -47,10 +51,13 @@
           :model-value="toOption(modelValue.align)"
           @update:model-value="(v) => patchAlign('align', v)"
         />
-        <p class="column-edit-form__tip">仅影响表体单元格，不联动表头</p>
+        <p v-if="!isSpecial" class="column-edit-form__tip">仅影响表体单元格，不联动表头</p>
       </div>
     </div>
-    <div class="column-edit-form__row column-edit-form__row--top">
+    <div
+      v-if="!isSelection"
+      class="column-edit-form__row column-edit-form__row--top"
+    >
       <span class="column-edit-form__label">表头对齐</span>
       <div class="column-edit-form__field">
         <GrowRadioButtonGroup
@@ -60,7 +67,7 @@
           :model-value="toOption(modelValue.headerAlign)"
           @update:model-value="(v) => patchAlign('headerAlign', v)"
         />
-        <p class="column-edit-form__tip">仅影响表头文字</p>
+        <p v-if="!isSpecial" class="column-edit-form__tip">仅影响表头文字</p>
       </div>
     </div>
     <div class="column-edit-form__row column-edit-form__row--top">
@@ -73,37 +80,39 @@
           :model-value="fixedOption"
           @update:model-value="onFixedChange"
         />
-        <p v-if="depth > 0" class="column-edit-form__tip">
+        <p v-if="depth > 0 && !isSpecial" class="column-edit-form__tip">
           多级表头下固定作用于整组一级列，子列设置会提升到所属分组
         </p>
       </div>
     </div>
-    <div class="column-edit-form__row">
-      <span class="column-edit-form__label">排序</span>
-      <GrowRadioButtonGroup
-        size="small"
-        class="column-edit-form__control"
-        :options="TABLE_COLUMN_SORTABLE_OPTIONS"
-        :model-value="sortableOption"
-        @update:model-value="onSortableChange"
-      />
-    </div>
-    <div class="column-edit-form__row">
-      <span class="column-edit-form__label">可拖拽列宽</span>
-      <GrowSwitch
-        size="small"
-        :model-value="Boolean(modelValue.resizable)"
-        @update:model-value="(v) => patch({ resizable: Boolean(v) })"
-      />
-    </div>
-    <div class="column-edit-form__row">
-      <span class="column-edit-form__label">溢出提示</span>
-      <GrowSwitch
-        size="small"
-        :model-value="Boolean(modelValue.showOverflowTooltip)"
-        @update:model-value="(v) => patch({ showOverflowTooltip: Boolean(v) })"
-      />
-    </div>
+    <template v-if="!isSpecial">
+      <div class="column-edit-form__row">
+        <span class="column-edit-form__label">排序</span>
+        <GrowRadioButtonGroup
+          size="small"
+          class="column-edit-form__control"
+          :options="TABLE_COLUMN_SORTABLE_OPTIONS"
+          :model-value="sortableOption"
+          @update:model-value="onSortableChange"
+        />
+      </div>
+      <div class="column-edit-form__row">
+        <span class="column-edit-form__label">可拖拽列宽</span>
+        <GrowSwitch
+          size="small"
+          :model-value="Boolean(modelValue.resizable)"
+          @update:model-value="(v) => patch({ resizable: Boolean(v) })"
+        />
+      </div>
+      <div class="column-edit-form__row">
+        <span class="column-edit-form__label">溢出提示</span>
+        <GrowSwitch
+          size="small"
+          :model-value="Boolean(modelValue.showOverflowTooltip)"
+          @update:model-value="(v) => patch({ showOverflowTooltip: Boolean(v) })"
+        />
+      </div>
+    </template>
     <div class="column-edit-form__row">
       <span class="column-edit-form__label">显示</span>
       <GrowSwitch
@@ -112,44 +121,49 @@
         @update:model-value="(v) => patch({ visible: Boolean(v) })"
       />
     </div>
-    <div class="column-edit-form__row">
-      <span class="column-edit-form__label">columnKey</span>
-      <GrowInput
-        size="small"
-        :model-value="modelValue.columnKey"
-        placeholder="可选"
-        @update:model-value="(v) => patch({ columnKey: String(v ?? '') })"
-      />
-    </div>
-    <div class="column-edit-form__row">
-      <span class="column-edit-form__label">class</span>
-      <GrowInput
-        size="small"
-        :model-value="modelValue.className"
-        placeholder="列 class"
-        @update:model-value="(v) => patch({ className: String(v ?? '') })"
-      />
-    </div>
-    <div class="column-edit-form__row">
-      <span class="column-edit-form__label">表头 class</span>
-      <GrowInput
-        size="small"
-        :model-value="modelValue.labelClassName"
-        placeholder="表头 class"
-        @update:model-value="(v) => patch({ labelClassName: String(v ?? '') })"
-      />
-    </div>
+    <template v-if="!isSpecial">
+      <div class="column-edit-form__row">
+        <span class="column-edit-form__label">columnKey</span>
+        <GrowInput
+          size="small"
+          :model-value="modelValue.columnKey"
+          placeholder="可选"
+          @update:model-value="(v) => patch({ columnKey: String(v ?? '') })"
+        />
+      </div>
+      <div class="column-edit-form__row">
+        <span class="column-edit-form__label">class</span>
+        <GrowInput
+          size="small"
+          :model-value="modelValue.className"
+          placeholder="列 class"
+          @update:model-value="(v) => patch({ className: String(v ?? '') })"
+        />
+      </div>
+      <div class="column-edit-form__row">
+        <span class="column-edit-form__label">表头 class</span>
+        <GrowInput
+          size="small"
+          :model-value="modelValue.labelClassName"
+          placeholder="表头 class"
+          @update:model-value="(v) => patch({ labelClassName: String(v ?? '') })"
+        />
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { DesignerTableColumn, TableColumnAlign } from '../../static/tableColumns'
 import {
+  isSpecialTableColumn,
   TABLE_COLUMN_ALIGN_OPTIONS,
   TABLE_COLUMN_FIXED_OPTIONS,
   TABLE_COLUMN_OPTION_NONE,
   TABLE_COLUMN_SORTABLE_OPTIONS,
+  TABLE_COLUMN_SPECIAL_LABEL,
+  type DesignerTableColumn,
+  type TableColumnAlign,
 } from '../../static/tableColumns'
 import {
   clearFixedDeep,
@@ -169,6 +183,11 @@ const emit = defineEmits<{
 
 const depth = computed(() => props.depth ?? 0)
 const hasChildren = computed(() => Boolean(props.modelValue.children?.length))
+const isSpecial = computed(() => isSpecialTableColumn(props.modelValue))
+const isSelection = computed(() => props.modelValue.type === 'selection')
+const specialLabel = computed(() =>
+  isSpecial.value ? TABLE_COLUMN_SPECIAL_LABEL[props.modelValue.type] : '',
+)
 
 const stringify = (value: unknown) =>
   value == null || value === '' ? '' : String(value)
@@ -277,6 +296,12 @@ const onSortableChange = (value: string | number | null | undefined) => {
   flex: 0 0 72px;
   font-size: 12px;
   color: var(--text-color-secondary, #909399);
+}
+
+.column-edit-form__type {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-color, #303133);
 }
 
 .column-edit-form__control {
