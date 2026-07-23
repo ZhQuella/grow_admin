@@ -274,6 +274,23 @@ export const writeModelBinding = (
   return false
 }
 
+/** 将任意 prop 的 bind 表达式写回 state（如 columns → state.xxx） */
+export const writeBoundPropValue = (
+  state: Record<string, unknown> | null | undefined,
+  rawProps: Record<string, any> | undefined,
+  bindModes: Record<string, string> | undefined,
+  modelKey: string,
+  value: unknown,
+): boolean => {
+  if (!state || !rawProps || !modelKey) return false
+  if (bindModes?.[modelKey] !== 'bind') return false
+  const raw = rawProps[modelKey]
+  if (raw == null || raw === '') return false
+  const expr = String(raw).trim()
+  if (!parseStatePath(expr)) return false
+  return setByStateExpression(state, expr, value)
+}
+
 /**
  * 按 propBindModes 解析 props：
  * - mode === 'bind'：求值表达式并写回展示值

@@ -5,16 +5,17 @@
     placement="top-end"
     trigger="click"
     persistent
+    :disabled="disabled"
   >
     <template #reference>
-      <GrowButton circle>
+      <GrowButton circle :disabled="disabled">
         <GrowIconify icon="ant-design:table-outlined" :size="18" />
       </GrowButton>
     </template>
     <div>
       <div class="flex justify-end border-b border-solid border-border px-[10px] py-[5px]">
         <GrowCheckbox
-          :indeterminate="state.catchTreeCheckedKeys.length !== allChild.length"
+          :indeterminate="isIndeterminate"
           :model-value="isAllChecked"
           @update:model-value="onAllSelectChange"
         >
@@ -49,7 +50,7 @@
 </template>
 
 <script lang="ts" setup>
-import { toRefs, ref } from 'vue'
+import { toRefs, ref, watch } from 'vue'
 import { useI18n } from '@grow-admin-rock/locale'
 import { RockComponent, useDriverComponent } from '#/index'
 import { useInitTree } from '../use/useInitTree'
@@ -67,10 +68,13 @@ const props = withDefaults(
   defineProps<{
     columns?: ColumnBarItem[]
     nodeKey?: string
+    /** 设计态禁用弹层交互 */
+    disabled?: boolean
   }>(),
   {
     columns: () => [],
     nodeKey: 'field',
+    disabled: false,
   },
 )
 
@@ -83,7 +87,15 @@ const visible = ref(false)
 const { columns, nodeKey } = toRefs(props)
 const Tree = useDriverComponent(RockComponent.Tree)
 
-const { renderLabel, treeRef, getTree, catchCheckedKeys, state, allChild, isAllChecked, getAllChild } =
+watch(
+  () => props.disabled,
+  (disabled) => {
+    if (disabled) visible.value = false
+  },
+  { immediate: true },
+)
+
+const { renderLabel, treeRef, getTree, catchCheckedKeys, state, allChild, isAllChecked, isIndeterminate, getAllChild } =
   useInitTree({
     columns,
     nodeKey,

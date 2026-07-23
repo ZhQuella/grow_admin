@@ -252,6 +252,16 @@ export const AtomicComponent = new Map([
           isAdd: false,
           childName: "",
           isInlineBlock: true
+        },
+        {
+          elName: "列设置",
+          elType: "eleModule",
+          elTagName: "GrowColumnBar",
+          elIcon: "ColumnBar",
+          isChild: false,
+          isAdd: false,
+          childName: "",
+          isInlineBlock: true
         }
       ]
     }

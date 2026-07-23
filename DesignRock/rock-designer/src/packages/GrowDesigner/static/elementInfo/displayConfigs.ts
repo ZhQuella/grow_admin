@@ -1,5 +1,6 @@
 import {
   boolSwitch,
+  columnBarColumnsInput,
   createConfig,
   functionBind,
   numberInput,
@@ -573,3 +574,9 @@ export const carouselItemConfig = createConfig([
 
 /** 高级搜索栏 SearchBar：字段由 props.search 配置，拖入后带示例条件 */
 export const searchBarConfig = createConfig([])
+
+/** 列设置 ColumnBar */
+export const columnBarConfig = createConfig([
+  columnBarColumnsInput(),
+  textInput('节点标识', 'nodeKey', '树节点唯一字段，默认 field', 'field'),
+])

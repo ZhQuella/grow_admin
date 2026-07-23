@@ -28,6 +28,7 @@ import {
   popoverConfig,
   tableConfig,
   searchBarConfig,
+  columnBarConfig,
   timeConfig,
   timelineConfig,
   timelineItemConfig,
@@ -83,6 +84,7 @@ export const elementPropsMap: Record<string, any[]> = {
   GrowPopover: popoverConfig.props,
   GrowTooltip: tooltipConfig.props,
   GrowSearchBar: searchBarConfig.props,
+  GrowColumnBar: columnBarConfig.props,
 
   // 表单
   GrowForm: formConfig.props,

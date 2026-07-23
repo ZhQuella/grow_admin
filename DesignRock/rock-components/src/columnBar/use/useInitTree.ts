@@ -69,10 +69,20 @@ export const useInitTree = ({ columns, nodeKey, visible }: InitProps) => {
 
   const setTreeNodeSelect = () => {
     const key = nodeKey.value
-    const visibleKeys = getAllChild(state.treeData)
-      .filter((el) => el.visible !== false && el[key] != null && el[key] !== '')
+    // 只恢复「可见叶子」的勾选；若带上父节点 key，Tree 父子联动会把子节点重新全选
+    const visibleLeafKeys = getAllChild(state.treeData)
+      .filter(
+        (el) =>
+          el.visible !== false &&
+          !el.children?.length &&
+          el[key] != null &&
+          el[key] !== '',
+      )
       .map((el) => el[key] as string | number)
-    getTree()?.setCheckedKeys(visibleKeys)
+    const tree = getTree()
+    if (!tree) return
+    tree.setCheckedKeys(visibleLeafKeys)
+    state.catchTreeCheckedKeys = [...visibleLeafKeys]
   }
 
   const setDisabled = () => {
@@ -86,8 +96,11 @@ export const useInitTree = ({ columns, nodeKey, visible }: InitProps) => {
 
   const catchCheckedKeys = async () => {
     await nextTick()
-    const keys = getTree()?.getCheckedKeys() ?? []
-    state.catchTreeCheckedKeys = keys.filter((el) => el !== undefined && el !== null && el !== '')
+    const tree = getTree()
+    const keys = tree?.getCheckedKeys(true) ?? tree?.getCheckedKeys() ?? []
+    state.catchTreeCheckedKeys = keys.filter(
+      (el) => el !== undefined && el !== null && el !== '',
+    )
   }
 
   /** 仅首次快照，供「系统默认」恢复 */
@@ -143,10 +156,16 @@ export const useInitTree = ({ columns, nodeKey, visible }: InitProps) => {
   })
 
   const isAllChecked = computed(() => {
+    const leaves = allChild.value.filter((el) => !el.children?.length)
     return (
-      allChild.value.length > 0 &&
-      state.catchTreeCheckedKeys.length === allChild.value.length
+      leaves.length > 0 && state.catchTreeCheckedKeys.length === leaves.length
     )
+  })
+
+  const isIndeterminate = computed(() => {
+    const leafCount = allChild.value.filter((el) => !el.children?.length).length
+    const checked = state.catchTreeCheckedKeys.length
+    return checked > 0 && checked < leafCount
   })
 
   return {
@@ -157,6 +176,7 @@ export const useInitTree = ({ columns, nodeKey, visible }: InitProps) => {
     state,
     allChild,
     isAllChecked,
+    isIndeterminate,
     getAllChild,
   }
 }

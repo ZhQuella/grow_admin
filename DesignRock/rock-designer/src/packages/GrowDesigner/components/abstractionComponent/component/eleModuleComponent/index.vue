@@ -87,6 +87,11 @@ const bindProps = computed(() => {
   Reflect.deleteProperty(info, 'model')
   Reflect.deleteProperty(info, 'visible')
   Reflect.deleteProperty(info, 'render')
+  if (config.value?.elTagName === 'GrowColumnBar') {
+    Reflect.deleteProperty(info, 'columnsSource')
+    Reflect.deleteProperty(info, 'tableUuid')
+    info.disabled = true
+  }
   if (['GrowButton', 'GrowLink', 'GrowEllipsis'].includes(config.value?.elTagName)) {
     Reflect.deleteProperty(info, 'content')
   }

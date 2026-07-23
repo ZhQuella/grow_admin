@@ -331,13 +331,18 @@ import {
   coerceBool,
   resolveBoundProps,
   resolveContainerActiveValue,
+  writeBoundPropValue,
   writeContainerActiveValue,
   writeModelBinding,
 } from '../utils/resolveBoundProps'
+import {
+  applyColumnBarVisibleToTableColumns,
+  tableColumnsSignature,
+  toColumnBarItems,
+} from '../../GrowDesigner/static/tableColumnUtils'
 import { buildRuntimeEventProps } from '../utils/runDesignerEvent'
 import RenderPageLayout from './RenderPageLayout.vue'
 import TableColumnNodes from '../../GrowDesigner/components/shared/TableColumnNodes.vue'
-import { tableColumnsSignature } from '../../GrowDesigner/static/tableColumnUtils'
 
 defineOptions({ name: 'RenderNode' })
 
@@ -400,6 +405,42 @@ const onModelUpdate = (value: unknown) => {
   writeModelBinding(injectedRuntimeState, raw, modes, value)
 }
 
+/** ColumnBar 确认：回写自身 columns，并同步关联表格可见列 */
+const onColumnBarConfirm = (columns: unknown) => {
+  const raw = props.schema.props?.[uuid.value]
+  if (!raw || !Array.isArray(columns)) return
+
+  const modes = props.schema.propBindModes?.[uuid.value]
+  const nextColumns = columns.map((item) =>
+    item && typeof item === 'object' ? { ...(item as object) } : item,
+  )
+
+  const written = writeBoundPropValue(
+    injectedRuntimeState,
+    raw,
+    modes,
+    'columns',
+    nextColumns,
+  )
+  if (!written) {
+    // 新引用，确保列设置组件重新按 visible 恢复勾选
+    raw.columns = nextColumns
+  }
+
+  if (raw.columnsSource === 'table' && raw.tableUuid) {
+    const tableProps = props.schema.props?.[String(raw.tableUuid)]
+    if (tableProps && Array.isArray(tableProps.columns)) {
+      tableProps.columns = applyColumnBarVisibleToTableColumns(
+        tableProps.columns,
+        nextColumns as any,
+        String(raw.nodeKey || 'field'),
+      )
+      // 与表格最终可见性对齐，避免列设置仍显示旧勾选
+      raw.columns = toColumnBarItems(tableProps.columns)
+    }
+  }
+}
+
 const isChild = computed(() => Boolean(config.value?.isChild))
 const isBasicLeaf = computed(
   () => config.value?.elType === 'basic' && !config.value?.isChild,
@@ -452,9 +493,17 @@ const moduleProps = computed(() => {
     // 走本地 WatchBox 分支时不在这里写 height
     Reflect.deleteProperty(info, 'height')
   }
+  const eventProps = { ...runtimeEventProps.value }
+  if (tag.value === 'GrowColumnBar') {
+    const userConfirm = eventProps.onConfirm
+    eventProps.onConfirm = (...args: unknown[]) => {
+      onColumnBarConfirm(args[0])
+      if (typeof userConfirm === 'function') userConfirm(...args)
+    }
+  }
   return {
     ...info,
-    ...runtimeEventProps.value,
+    ...eventProps,
   }
 })
 /** 适应主区域时透传除 height 外的表格 props */

@@ -54,6 +54,11 @@ export function normalizeModuleProps(
   Reflect.deleteProperty(info, 'visible')
   Reflect.deleteProperty(info, 'render')
 
+  if (tag === 'GrowColumnBar') {
+    Reflect.deleteProperty(info, 'columnsSource')
+    Reflect.deleteProperty(info, 'tableUuid')
+  }
+
   if (TEXT_CONTENT_TAGS.has(tag)) {
     Reflect.deleteProperty(info, 'content')
   }

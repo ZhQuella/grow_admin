@@ -21,6 +21,7 @@ const ICON_MAP: Record<string, string> = {
   TouchInteraction: 'carbon:touch-interaction',
   Link: 'carbon:link',
   SearchBar: 'ant-design:search-outlined',
+  ColumnBar: 'ant-design:table-outlined',
   Erase: 'carbon:erase',
   ListNumbered: 'carbon:list-numbered',
   StorageRequest: 'carbon:storage-request',

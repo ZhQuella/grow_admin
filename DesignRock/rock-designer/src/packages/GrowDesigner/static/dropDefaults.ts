@@ -1,5 +1,5 @@
 import { FORM_MODULE_FULL_WIDTH_TAGS } from './moduleMap'
-import { createDefaultTableColumns } from './tableColumnUtils'
+import { createDefaultTableColumns, createDefaultColumnBarColumns } from './tableColumnUtils'
 
 /** 行内块元素的默认画布样式 */
 export const INLINE_BLOCK_STYLES: Record<string, string> = {
@@ -91,6 +91,11 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
       },
     ],
     defaultData: {},
+  },
+  GrowColumnBar: {
+    nodeKey: 'field',
+    columnsSource: 'bind',
+    columns: createDefaultColumnBarColumns(),
   },
   img: {
     alt: '图片',
@@ -334,6 +339,7 @@ export const resolveDefaultStyles = (
     elTagName === 'GrowLink' ||
     elTagName === 'GrowButton' ||
     elTagName === 'GrowSearchBar' ||
+    elTagName === 'GrowColumnBar' ||
     elTagName === 'GrowSwitch' ||
     elTagName === 'GrowAvatar' ||
     elTagName === 'GrowIconify'

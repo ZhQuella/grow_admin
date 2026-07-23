@@ -117,6 +117,7 @@ const INLINE_FRAME_TAGS = new Set([
   'GrowTooltip',
   'GrowPopover',
   'GrowSearchBar',
+  'GrowColumnBar',
   'GrowUpload',
   'GrowAvatar',
   'GrowIconify',
