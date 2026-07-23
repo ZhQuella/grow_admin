@@ -35,6 +35,34 @@
     />
   </div>
 
+  <!-- GrowCondition：条件为真时渲染子节点 -->
+  <template v-else-if="isChild && tag === 'GrowCondition'">
+    <template v-if="conditionPassed">
+      <RenderNode
+        v-for="child in children"
+        :key="child.uuid"
+        :node="child"
+        :schema="schema"
+      />
+    </template>
+  </template>
+
+  <!-- GrowLoop：按列表重复渲染子节点，并向子树注入 item / index -->
+  <template v-else-if="isChild && tag === 'GrowLoop'">
+    <RenderScopedState
+      v-for="entry in loopEntries"
+      :key="entry.key"
+      :extra="entry.extra"
+    >
+      <RenderNode
+        v-for="child in children"
+        :key="`${entry.key}:${child.uuid}`"
+        :node="child"
+        :schema="schema"
+      />
+    </RenderScopedState>
+  </template>
+
   <!-- GrowCard：可选 header 操作区 + 正文 + 可选 footerSlot -->
   <component
     v-else-if="isChild && tag === 'GrowCard'"
@@ -331,13 +359,19 @@ import {
   coerceBool,
   resolveBoundProps,
   resolveContainerActiveValue,
+  writeBoundPropValue,
   writeContainerActiveValue,
   writeModelBinding,
 } from '../utils/resolveBoundProps'
+import {
+  applyColumnBarVisibleToTableColumns,
+  tableColumnsSignature,
+  toColumnBarItems,
+} from '../../GrowDesigner/static/tableColumnUtils'
 import { buildRuntimeEventProps } from '../utils/runDesignerEvent'
 import RenderPageLayout from './RenderPageLayout.vue'
+import RenderScopedState from './RenderScopedState.vue'
 import TableColumnNodes from '../../GrowDesigner/components/shared/TableColumnNodes.vue'
-import { tableColumnsSignature } from '../../GrowDesigner/static/tableColumnUtils'
 
 defineOptions({ name: 'RenderNode' })
 
@@ -361,7 +395,9 @@ const injectedRuntimeState = inject<Record<string, unknown> | null>(
   null,
 )
 const runtimeState = computed(
-  () => injectedRuntimeState ?? buildRuntimeState(props.schema.dataSource),
+  () =>
+    injectedRuntimeState ??
+    buildRuntimeState(props.schema.dataSource, props.schema.computedProps),
 )
 /** 按 propBindModes 求值后的 props（绑定字段已解析为展示值） */
 const rawProps = computed(() =>
@@ -398,6 +434,42 @@ const onModelUpdate = (value: unknown) => {
     return
   }
   writeModelBinding(injectedRuntimeState, raw, modes, value)
+}
+
+/** ColumnBar 确认：回写自身 columns，并同步关联表格可见列 */
+const onColumnBarConfirm = (columns: unknown) => {
+  const raw = props.schema.props?.[uuid.value]
+  if (!raw || !Array.isArray(columns)) return
+
+  const modes = props.schema.propBindModes?.[uuid.value]
+  const nextColumns = columns.map((item) =>
+    item && typeof item === 'object' ? { ...(item as object) } : item,
+  )
+
+  const written = writeBoundPropValue(
+    injectedRuntimeState,
+    raw,
+    modes,
+    'columns',
+    nextColumns,
+  )
+  if (!written) {
+    // 新引用，确保列设置组件重新按 visible 恢复勾选
+    raw.columns = nextColumns
+  }
+
+  if (raw.columnsSource === 'table' && raw.tableUuid) {
+    const tableProps = props.schema.props?.[String(raw.tableUuid)]
+    if (tableProps && Array.isArray(tableProps.columns)) {
+      tableProps.columns = applyColumnBarVisibleToTableColumns(
+        tableProps.columns,
+        nextColumns as any,
+        String(raw.nodeKey || 'field'),
+      )
+      // 与表格最终可见性对齐，避免列设置仍显示旧勾选
+      raw.columns = toColumnBarItems(tableProps.columns)
+    }
+  }
 }
 
 const isChild = computed(() => Boolean(config.value?.isChild))
@@ -452,9 +524,17 @@ const moduleProps = computed(() => {
     // 走本地 WatchBox 分支时不在这里写 height
     Reflect.deleteProperty(info, 'height')
   }
+  const eventProps = { ...runtimeEventProps.value }
+  if (tag.value === 'GrowColumnBar') {
+    const userConfirm = eventProps.onConfirm
+    eventProps.onConfirm = (...args: unknown[]) => {
+      onColumnBarConfirm(args[0])
+      if (typeof userConfirm === 'function') userConfirm(...args)
+    }
+  }
   return {
     ...info,
-    ...runtimeEventProps.value,
+    ...eventProps,
   }
 })
 /** 适应主区域时透传除 height 外的表格 props */
@@ -499,6 +579,24 @@ const scrollbarBodyStyle = computed(() => {
 const isFormFullWidth = computed(() =>
   Boolean(tag.value && FORM_MODULE_FULL_WIDTH_TAGS.has(tag.value)),
 )
+
+/** 判断：条件求值结果 */
+const conditionPassed = computed(() => coerceBool(rawProps.value?.when, false))
+
+/** 循环：规范化列表并生成带 item/index 的作用域 */
+const loopEntries = computed(() => {
+  const raw = rawProps.value?.data
+  const list = Array.isArray(raw) ? raw : []
+  const itemKey = String(rawProps.value?.itemKey || 'item').trim() || 'item'
+  const indexKey = String(rawProps.value?.indexKey || 'index').trim() || 'index'
+  return list.map((item, index) => ({
+    key: `${uuid.value}:${index}`,
+    extra: {
+      [itemKey]: item,
+      [indexKey]: index,
+    } as Record<string, unknown>,
+  }))
+})
 </script>
 
 <style scoped>

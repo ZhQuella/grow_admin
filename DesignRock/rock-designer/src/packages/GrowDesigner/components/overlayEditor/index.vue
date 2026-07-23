@@ -168,7 +168,10 @@ const resolvedPropsInfo = computed(() =>
     propsInfo.value,
     props.draggableConfig.propBindModes?.[props.uuid],
     injectedRuntimeState ??
-      buildRuntimeState(props.draggableConfig.dataSource),
+      buildRuntimeState(
+        props.draggableConfig.dataSource,
+        props.draggableConfig.computedProps,
+      ),
   ),
 )
 

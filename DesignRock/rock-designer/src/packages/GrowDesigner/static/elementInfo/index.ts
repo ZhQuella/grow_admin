@@ -28,6 +28,7 @@ import {
   popoverConfig,
   tableConfig,
   searchBarConfig,
+  columnBarConfig,
   timeConfig,
   timelineConfig,
   timelineItemConfig,
@@ -56,6 +57,7 @@ import {
   mentionConfig,
   uploadConfig,
 } from './formControlConfigs'
+import { conditionConfig, loopConfig } from './logicConfigs'
 
 /** 组件属性配置表：elTagName -> props 配置列表 */
 export const elementPropsMap: Record<string, any[]> = {
@@ -77,12 +79,17 @@ export const elementPropsMap: Record<string, any[]> = {
   GrowScrollbar: scrollbarConfig.props,
   GrowLayout: layoutConfig.props,
 
+  // 逻辑组件
+  GrowLoop: loopConfig.props,
+  GrowCondition: conditionConfig.props,
+
   // 反馈 / 浮层
   GrowModal: modalConfig.props,
   GrowDrawer: drawerConfig.props,
   GrowPopover: popoverConfig.props,
   GrowTooltip: tooltipConfig.props,
   GrowSearchBar: searchBarConfig.props,
+  GrowColumnBar: columnBarConfig.props,
 
   // 表单
   GrowForm: formConfig.props,

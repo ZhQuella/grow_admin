@@ -60,9 +60,15 @@ const structures = computed(() => resolvedSchema.value.structures || [])
 /** 预览态可写 runtime state：绑定展示 + 控件变更回写 */
 const runtimeState = reactive<Record<string, unknown>>({})
 watch(
-  () => resolvedSchema.value.dataSource,
-  (ds) => {
-    syncRuntimeState(runtimeState, buildRuntimeState(ds))
+  () => [resolvedSchema.value.dataSource, resolvedSchema.value.computedProps] as const,
+  () => {
+    syncRuntimeState(
+      runtimeState,
+      buildRuntimeState(
+        resolvedSchema.value.dataSource,
+        resolvedSchema.value.computedProps,
+      ),
+    )
   },
   { deep: true, immediate: true },
 )

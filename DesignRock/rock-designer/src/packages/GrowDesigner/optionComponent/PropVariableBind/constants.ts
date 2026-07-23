@@ -6,6 +6,9 @@ export const BIND_PREFIX = 'state.'
 
 /** 与数据源示例一致，并补充数据源引用写法 */
 export const BIND_EXAMPLE_CODE = `数据源: state.xxx
+计算属性: state.yyy
+循环当前项: state.item / state.item.name
+循环索引: state.index
 ${DATA_EXAMPLE_CODE}`
 
 export type VariableListItem = {

@@ -308,3 +308,78 @@ export const appendTableColumn = (
     return { ...col, children: appendTableColumn(col.children, parentId, column) }
   })
 }
+
+/** 表格表头 → ColumnBar 列树（过滤勾选/序号列） */
+export type ColumnBarItemLike = {
+  title?: string
+  field?: string
+  visible?: boolean
+  disabled?: boolean
+  children?: ColumnBarItemLike[]
+  [key: string]: unknown
+}
+
+export const toColumnBarItems = (
+  cols: DesignerTableColumn[] | undefined | null,
+): ColumnBarItemLike[] => {
+  if (!Array.isArray(cols) || !cols.length) return []
+  return cols
+    .filter((col) => !isSpecialTableColumn(col))
+    .map((col) => {
+      const children = col.children?.length
+        ? toColumnBarItems(col.children)
+        : undefined
+      return {
+        title: col.title,
+        field: col.field || col.id,
+        visible: col.visible !== false,
+        ...(children?.length ? { children } : {}),
+      }
+    })
+}
+
+/** 将 ColumnBar 确认后的 visible 写回表格表头树（按 field / id 匹配） */
+export const applyColumnBarVisibleToTableColumns = (
+  tableColumns: DesignerTableColumn[] | undefined | null,
+  barItems: ColumnBarItemLike[] | undefined | null,
+  nodeKey = 'field',
+): DesignerTableColumn[] => {
+  const list = Array.isArray(tableColumns) ? tableColumns : []
+  if (!list.length) return []
+
+  const visibility = new Map<string, boolean>()
+  const walkBar = (items: ColumnBarItemLike[]) => {
+    for (const item of items || []) {
+      const key = item?.[nodeKey] ?? item?.field
+      if (key != null && key !== '') {
+        visibility.set(String(key), item.visible !== false)
+      }
+      if (item?.children?.length) walkBar(item.children)
+    }
+  }
+  walkBar(Array.isArray(barItems) ? barItems : [])
+
+  const walkTable = (cols: DesignerTableColumn[]): DesignerTableColumn[] =>
+    cols.map((col) => {
+      const next: DesignerTableColumn = { ...col }
+      if (!isSpecialTableColumn(col)) {
+        const key = col.field || col.id
+        if (key != null && key !== '' && visibility.has(String(key))) {
+          next.visible = visibility.get(String(key))
+        }
+      }
+      if (col.children?.length) {
+        next.children = walkTable(col.children)
+      }
+      return next
+    })
+
+  return walkTable(list)
+}
+
+/** ColumnBar 默认示例列 */
+export const createDefaultColumnBarColumns = (): ColumnBarItemLike[] => [
+  { title: '姓名', field: 'name', visible: true },
+  { title: '状态', field: 'status', visible: true },
+  { title: '地址', field: 'address', visible: true },
+]

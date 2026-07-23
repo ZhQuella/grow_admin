@@ -16,6 +16,8 @@ export const useOption = () => {
     pageConfig: {},
     //  数据源
     dataSource: [],
+    //  计算属性（基于 state 派生）
+    computedProps: [],
     //  数据请求
     apiOutlined: [],
     //  结构
@@ -35,12 +37,15 @@ export const useOption = () => {
   const activeUUID = ref("");
   const overlayEditUUID = ref("");
 
-  /** 可写 runtime state：绑定展示 + 控件变更回写；dataSource 变更时同步 */
+  /** 可写 runtime state：绑定展示 + 控件变更回写；数据源/计算属性变更时同步 */
   const runtimeState = reactive<Record<string, unknown>>({});
   watch(
-    () => draggableConfig.dataSource,
-    (ds) => {
-      syncRuntimeState(runtimeState, buildRuntimeState(ds));
+    () => [draggableConfig.dataSource, draggableConfig.computedProps] as const,
+    () => {
+      syncRuntimeState(
+        runtimeState,
+        buildRuntimeState(draggableConfig.dataSource, draggableConfig.computedProps),
+      );
     },
     { deep: true, immediate: true },
   );
@@ -75,6 +80,14 @@ export const useOption = () => {
       title: "数据源",
       componentName: "dataSource"
     },
+    computedProps: {
+      title: "属性计算",
+      componentName: "computedProps"
+    },
+    pageWatchers: {
+      title: "数据监听",
+      componentName: "pageWatchers"
+    },
     apiOutlined: {
       title: "数据请求",
       componentName: "apiOutlined"
@@ -89,9 +102,11 @@ export const useOption = () => {
       optionConfig.type = "";
       return;
     }
+    const next = optionTypeMap[type as keyof typeof optionTypeMap];
+    if (!next) return;
     optionConfig.visible = true;
-    optionConfig.title = optionTypeMap[type].title;
-    optionConfig.componentName = optionTypeMap[type].componentName;
+    optionConfig.title = next.title;
+    optionConfig.componentName = next.componentName;
     optionConfig.type = type;
   };
 

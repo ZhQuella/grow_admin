@@ -117,6 +117,7 @@ const INLINE_FRAME_TAGS = new Set([
   'GrowTooltip',
   'GrowPopover',
   'GrowSearchBar',
+  'GrowColumnBar',
   'GrowUpload',
   'GrowAvatar',
   'GrowIconify',
@@ -154,7 +155,8 @@ const designVisibility = computed(() => {
     return { visible: true, render: true }
   }
   const state =
-    injectedRuntimeState ?? buildRuntimeState(draggableConfig.dataSource)
+    injectedRuntimeState ??
+    buildRuntimeState(draggableConfig.dataSource, draggableConfig.computedProps)
   const resolved = resolveBoundProps(
     draggableConfig.props?.[id] || {},
     draggableConfig.propBindModes?.[id],
@@ -468,6 +470,7 @@ const onCopyItem = () => {
   /* 投放区、子节点外框与工具栏需可点选 / 拖入 */
   :deep(.draggable-item),
   :deep(.draggable-grop-wrap),
+  :deep(.grow-logic-block),
   :deep(.draggable-item__toolbar),
   :deep(.draggable-item__toolbar *),
   :deep(.draggable-item__flags),

@@ -12,7 +12,7 @@
       class="prop-switch-bind__input"
       size="small"
       readonly
-      :model-value="modelValue == null ? '' : String(modelValue)"
+      :model-value="expressionText"
       placeholder="已绑定表达式"
     />
     <GrowButton
@@ -20,14 +20,14 @@
       size="small"
       :type="isBound ? 'primary' : 'default'"
       :title="isBound ? '已绑定，点击编辑表达式' : '绑定变量 / 表达式计算'"
-      @click="dialogVisible = true"
+      @click="openBindDialog"
     >
       <GrowIconify icon="carbon:function" :size="14" />
     </GrowButton>
 
     <VariableBindDialog
       v-model:visible="dialogVisible"
-      :model-value="isBound ? String(modelValue ?? '') : ''"
+      :model-value="expressionText"
       :bound="isBound"
       @confirm="onBindConfirm"
       @remove="onBindRemove"
@@ -68,10 +68,19 @@ const emit = defineEmits<{
 }>()
 
 const dialogVisible = ref(false)
+/** 绑定切换瞬间忽略 Switch 卸载时的残留事件，避免把表达式覆盖成布尔值 */
+const ignoreSwitch = ref(false)
 
 const isBound = computed(
   () => normalizePropBindMode(props.bindMode) === PROP_BIND_MODE_BIND,
 )
+
+/** 供展示 / 再次编辑：保留原始表达式字符串 */
+const expressionText = computed(() => {
+  if (!isBound.value) return ''
+  if (props.modelValue == null) return ''
+  return String(props.modelValue)
+})
 
 const switchValue = computed(() => {
   const raw = props.modelValue
@@ -84,7 +93,12 @@ const switchValue = computed(() => {
   return Boolean(raw)
 })
 
+const openBindDialog = () => {
+  dialogVisible.value = true
+}
+
 const onSwitch = (value: boolean | string | number) => {
+  if (isBound.value || ignoreSwitch.value) return
   emit('update:bindMode', PROP_BIND_MODE_TEXT)
   emit('update:modelValue', Boolean(value))
 }
@@ -92,17 +106,30 @@ const onSwitch = (value: boolean | string | number) => {
 const onBindConfirm = (value: string) => {
   const next = value == null ? '' : String(value)
   if (!next.trim()) {
+    ignoreSwitch.value = true
     emit('update:bindMode', PROP_BIND_MODE_TEXT)
     emit('update:modelValue', props.defaultValue)
+    queueMicrotask(() => {
+      ignoreSwitch.value = false
+    })
     return
   }
-  emit('update:bindMode', PROP_BIND_MODE_BIND)
+  // 先写表达式再切 bind，并忽略 Switch 卸载残留事件
+  ignoreSwitch.value = true
   emit('update:modelValue', next)
+  emit('update:bindMode', PROP_BIND_MODE_BIND)
+  queueMicrotask(() => {
+    ignoreSwitch.value = false
+  })
 }
 
 const onBindRemove = () => {
+  ignoreSwitch.value = true
   emit('update:bindMode', PROP_BIND_MODE_TEXT)
   emit('update:modelValue', props.defaultValue)
+  queueMicrotask(() => {
+    ignoreSwitch.value = false
+  })
 }
 </script>
 
@@ -120,29 +147,19 @@ const onBindRemove = () => {
 }
 
 .prop-switch-bind__input {
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
+}
+
+.prop-switch-bind__bind {
+  flex: 0 0 auto;
+  padding: 0 8px;
 }
 
 .prop-switch-bind.is-bound .prop-switch-bind__input {
   :deep(.el-input__wrapper),
-  :deep(.n-input),
-  :deep(.ant-input),
-  :deep(input) {
-    cursor: default;
-    background: var(--layout-background-color, #f5f7fa);
-  }
-}
-
-.prop-switch-bind__bind {
-  flex-shrink: 0;
-  padding: 0 8px;
-
-  :deep(.grow-iconify),
-  :deep(svg) {
-    display: block;
-    margin: auto;
-    line-height: 0;
+  :deep(.n-input) {
+    background: var(--color-primary-a04, rgba(64, 158, 255, 0.08));
   }
 }
 </style>

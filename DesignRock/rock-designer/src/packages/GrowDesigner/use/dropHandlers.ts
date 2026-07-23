@@ -57,7 +57,16 @@ export const bindDroppedNodeConfig = (
     ...(draggableConfig.props[uuid] || {}),
   }
   if (!draggableConfig.propBindModes) draggableConfig.propBindModes = {}
+  const defaultBindModes: Record<string, string> = {}
+  // 循环数据源、判断条件：与变量绑定输入框一致，默认走 bind
+  if (renderArgument.elTagName === 'GrowLoop') {
+    defaultBindModes.data = 'bind'
+  }
+  if (renderArgument.elTagName === 'GrowCondition') {
+    defaultBindModes.when = 'bind'
+  }
   draggableConfig.propBindModes[uuid] = {
+    ...defaultBindModes,
     ...(draggableConfig.propBindModes[uuid] || {}),
   }
 }

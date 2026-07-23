@@ -1,5 +1,5 @@
 import { FORM_MODULE_FULL_WIDTH_TAGS } from './moduleMap'
-import { createDefaultTableColumns } from './tableColumnUtils'
+import { createDefaultTableColumns, createDefaultColumnBarColumns } from './tableColumnUtils'
 
 /** 行内块元素的默认画布样式 */
 export const INLINE_BLOCK_STYLES: Record<string, string> = {
@@ -92,6 +92,11 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
     ],
     defaultData: {},
   },
+  GrowColumnBar: {
+    nodeKey: 'field',
+    columnsSource: 'bind',
+    columns: createDefaultColumnBarColumns(),
+  },
   img: {
     alt: '图片',
   },
@@ -112,6 +117,14 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
     headerHeight: '40px',
     asideWidth: '200px',
     footerHeight: '60px',
+  },
+  GrowLoop: {
+    data: '',
+    itemKey: 'item',
+    indexKey: 'index',
+  },
+  GrowCondition: {
+    when: '',
   },
   GrowTooltip: {
     content: '文字提示',
@@ -251,6 +264,8 @@ export const structureSlotsByTag: Record<string, string[]> = {
   // children → #reference；contentSlot → default 弹出内容
   GrowPopover: ['children', 'contentSlot'],
   GrowLayout: ['children', 'headerSlot', 'asideSlot', 'footerSlot'],
+  GrowLoop: ['children'],
+  GrowCondition: ['children'],
 }
 
 /** 结构上可能存放子节点的槽位键（复制时用于定位同级数组） */
@@ -334,6 +349,7 @@ export const resolveDefaultStyles = (
     elTagName === 'GrowLink' ||
     elTagName === 'GrowButton' ||
     elTagName === 'GrowSearchBar' ||
+    elTagName === 'GrowColumnBar' ||
     elTagName === 'GrowSwitch' ||
     elTagName === 'GrowAvatar' ||
     elTagName === 'GrowIconify'

@@ -5,7 +5,7 @@
         v-if="!list.length"
         class="px-2 py-6 text-center text-xs text-text-secondary"
       >
-        暂无数据源，点击右上角添加
+        {{ emptyText || '暂无数据，点击右上角添加' }}
       </div>
       <draggable
         v-else
@@ -64,18 +64,24 @@
 
 <script setup lang="ts">
 import draggable from 'vuedraggable'
-import type { DesignerDataSourceItem } from '../types'
 
 defineOptions({ name: 'DataSourceList' })
 
+type ListItem = {
+  id: string
+  name: string
+  description?: string
+}
+
 defineProps<{
-  list: DesignerDataSourceItem[]
+  list: ListItem[]
   activeId?: string
+  emptyText?: string
 }>()
 
 const emit = defineEmits<{
-  'update:list': [list: DesignerDataSourceItem[]]
-  edit: [item: DesignerDataSourceItem]
+  'update:list': [list: ListItem[]]
+  edit: [item: ListItem]
   remove: [id: string]
 }>()
 </script>

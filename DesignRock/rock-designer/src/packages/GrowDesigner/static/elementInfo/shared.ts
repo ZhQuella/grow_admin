@@ -220,6 +220,17 @@ export const tableColumnsInput = (
   modelKey: 'columns',
 })
 
+/** ColumnBar 列配置：关联数据源或关联表格表头 */
+export const columnBarColumnsInput = (
+  name = '列配置',
+  describe = '关联数据源或选择画布表格表头作为列设置数据',
+): PropConfigItem => ({
+  eleType: 'PropColumnBarColumns',
+  name,
+  describe,
+  modelKey: '__columnBarColumns__',
+})
+
 /** 函数绑定（纯 prop 回调，运行时编译为 Function） */
 export const functionBind = (
   name: string,

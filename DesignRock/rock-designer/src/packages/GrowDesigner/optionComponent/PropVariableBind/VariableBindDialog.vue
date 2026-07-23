@@ -33,8 +33,8 @@
               />
             </div>
             <GrowScrollbar class="variable-bind-dialog__scroll">
-              <div v-if="!sourceList.length" class="variable-bind-dialog__empty">
-                暂无数据源，请先在左侧「数据源」中添加
+              <div v-if="listEmpty" class="variable-bind-dialog__empty">
+                暂无变量，请先在左侧「数据源」中添加数据源或计算属性
               </div>
               <div v-else-if="!filteredVariables.length" class="variable-bind-dialog__empty">
                 暂无匹配变量
@@ -93,8 +93,9 @@
 <script setup lang="ts">
 import { computed, inject, ref, watch } from 'vue'
 import { GrowCodeEditor } from '@grow-admin-rock/code-sandbox'
-import { DRAGGABLE_CONGIG } from '../../config/designation'
+import { ACTIVE_UUID, DRAGGABLE_CONGIG } from '../../config/designation'
 import type { DesignerDataSourceItem } from '../../components/dataSource/types'
+import { collectAncestorLoopScopes } from '../../static/loopScope'
 import { BIND_EXAMPLE_CODE } from './constants'
 import { insertVariableExpression, useVariableList } from './use/useVariableList'
 
@@ -114,6 +115,7 @@ const emit = defineEmits<{
 }>()
 
 const draggableConfig = inject(DRAGGABLE_CONGIG, null) as Record<string, any> | null
+const activeUUID = inject(ACTIVE_UUID, null) as { value?: string } | null
 
 /** 变量列表数据来自设计器「数据源」 */
 const sourceList = computed<DesignerDataSourceItem[]>(() => {
@@ -121,18 +123,51 @@ const sourceList = computed<DesignerDataSourceItem[]>(() => {
   return Array.isArray(list) ? list : []
 })
 
+const computedList = computed(() => {
+  const list = draggableConfig?.computedProps
+  return Array.isArray(list) ? list : []
+})
+
+/** 当前选中节点所在的循环作用域（支持嵌套） */
+const loopScopes = computed(() =>
+  collectAncestorLoopScopes(
+    draggableConfig?.structures,
+    activeUUID?.value,
+    draggableConfig?.renderArgument,
+    draggableConfig?.props,
+  ),
+)
+
 const keyword = ref('')
 const draft = ref('')
 
-const { filteredVariables } = useVariableList(sourceList, keyword)
+const { filteredVariables } = useVariableList(
+  sourceList,
+  keyword,
+  loopScopes,
+  computedList,
+)
+
+const listEmpty = computed(
+  () =>
+    !sourceList.value.length &&
+    !computedList.value.length &&
+    !loopScopes.value.length,
+)
 
 watch(
   () => props.visible,
-  (open) => {
+  async (open) => {
     if (!open) return
-    // 仅已绑定才带回表达式；普通文本不带入绑定输入框
-    draft.value = props.bound ? props.modelValue || '' : ''
+    // 已绑定：带回表达式；用 String 避免 || 把合法值吃掉
+    const raw = props.modelValue == null ? '' : String(props.modelValue)
+    draft.value = props.bound ? raw : ''
     keyword.value = ''
+    // 等编辑器挂载后再写一次，避免再次打开时内容被空值覆盖
+    await Promise.resolve()
+    if (props.visible && props.bound) {
+      draft.value = props.modelValue == null ? '' : String(props.modelValue)
+    }
   },
 )
 

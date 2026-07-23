@@ -60,5 +60,7 @@ export type DesignerSchema = {
     immediate?: boolean
   }>>
   dataSource?: unknown[]
+  /** 页面计算属性：基于 dataSource 派生后写入 state */
+  computedProps?: unknown[]
   apiOutlined?: unknown[]
 }

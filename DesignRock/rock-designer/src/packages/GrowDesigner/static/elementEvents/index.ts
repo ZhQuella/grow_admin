@@ -97,6 +97,9 @@ export const elementEventsMap: Record<string, ComponentEventOption[]> = {
     { type: 'search', label: '搜索', describe: '触发搜索时触发' },
     { type: 'reset', label: '重置', describe: '重置时触发' },
   ],
+  GrowColumnBar: [
+    { type: 'confirm', label: '确认', describe: '确认列设置时触发，参数为更新后的列数据' },
+  ],
 
   // 表单
   GrowForm: [
