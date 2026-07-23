@@ -19,7 +19,7 @@
           v-if="!configuredList.length"
           class="px-2 py-6 text-center text-xs text-text-secondary"
         >
-          暂无监听，点击右上角添加
+          暂无数据监听，点击右上角添加
         </div>
 
         <div
@@ -89,7 +89,7 @@
         class="flex h-11 shrink-0 items-center justify-between gap-2 border-b border-solid border-border px-3"
       >
         <h4 class="m-0 text-sm font-medium text-text">
-          {{ editingSourceKey ? '修改监听' : '添加监听' }}
+          {{ editingSourceKey ? '修改数据监听' : '添加数据监听' }}
         </h4>
         <div class="flex shrink-0 items-center gap-2">
           <GrowButton

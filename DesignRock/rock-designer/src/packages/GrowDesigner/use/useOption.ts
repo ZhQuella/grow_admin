@@ -85,7 +85,7 @@ export const useOption = () => {
       componentName: "computedProps"
     },
     pageWatchers: {
-      title: "监听",
+      title: "数据监听",
       componentName: "pageWatchers"
     },
     apiOutlined: {

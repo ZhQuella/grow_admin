@@ -150,7 +150,7 @@ const railItems = [
   { type: 'tree', label: '结构树', icon: 'carbon:tree-view' },
   { type: 'dataBin', label: '数据源', icon: 'carbon:data-bin' },
   { type: 'computedProps', label: '属性计算', icon: 'carbon:function' },
-  { type: 'pageWatchers', label: '监听', icon: 'carbon:view' },
+  { type: 'pageWatchers', label: '数据监听', icon: 'carbon:view' },
   { type: 'apiOutlined', label: '数据请求', icon: 'carbon:api' },
 ] as const
 
