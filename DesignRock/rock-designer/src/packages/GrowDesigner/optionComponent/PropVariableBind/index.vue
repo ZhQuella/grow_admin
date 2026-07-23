@@ -6,7 +6,7 @@
       :clearable="!isBound"
       :readonly="isBound"
       :placeholder="placeholder"
-      :model-value="modelValue"
+      :model-value="displayValue"
       @update:model-value="onInput"
     />
     <GrowButton
@@ -21,7 +21,7 @@
 
     <VariableBindDialog
       v-model:visible="visible"
-      :model-value="modelValue"
+      :model-value="displayValue"
       :bound="isBound"
       @confirm="onBindConfirm"
       @remove="onBindRemove"
@@ -43,7 +43,7 @@ defineOptions({ name: 'PropVariableBind' })
 
 const props = withDefaults(
   defineProps<{
-    modelValue?: string
+    modelValue?: string | boolean | number | null
     placeholder?: string
     /** 持久化的输入模式：text | bind */
     bindMode?: PropBindMode | string
@@ -64,6 +64,10 @@ const visible = ref(false)
 
 const isBound = computed(
   () => normalizePropBindMode(props.bindMode) === PROP_BIND_MODE_BIND,
+)
+
+const displayValue = computed(() =>
+  props.modelValue == null ? '' : String(props.modelValue),
 )
 
 const onInput = (value: string | null) => {

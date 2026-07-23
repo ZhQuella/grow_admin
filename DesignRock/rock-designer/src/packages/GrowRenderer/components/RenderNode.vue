@@ -35,6 +35,34 @@
     />
   </div>
 
+  <!-- GrowCondition：条件为真时渲染子节点 -->
+  <template v-else-if="isChild && tag === 'GrowCondition'">
+    <template v-if="conditionPassed">
+      <RenderNode
+        v-for="child in children"
+        :key="child.uuid"
+        :node="child"
+        :schema="schema"
+      />
+    </template>
+  </template>
+
+  <!-- GrowLoop：按列表重复渲染子节点，并向子树注入 item / index -->
+  <template v-else-if="isChild && tag === 'GrowLoop'">
+    <RenderScopedState
+      v-for="entry in loopEntries"
+      :key="entry.key"
+      :extra="entry.extra"
+    >
+      <RenderNode
+        v-for="child in children"
+        :key="`${entry.key}:${child.uuid}`"
+        :node="child"
+        :schema="schema"
+      />
+    </RenderScopedState>
+  </template>
+
   <!-- GrowCard：可选 header 操作区 + 正文 + 可选 footerSlot -->
   <component
     v-else-if="isChild && tag === 'GrowCard'"
@@ -342,6 +370,7 @@ import {
 } from '../../GrowDesigner/static/tableColumnUtils'
 import { buildRuntimeEventProps } from '../utils/runDesignerEvent'
 import RenderPageLayout from './RenderPageLayout.vue'
+import RenderScopedState from './RenderScopedState.vue'
 import TableColumnNodes from '../../GrowDesigner/components/shared/TableColumnNodes.vue'
 
 defineOptions({ name: 'RenderNode' })
@@ -548,6 +577,24 @@ const scrollbarBodyStyle = computed(() => {
 const isFormFullWidth = computed(() =>
   Boolean(tag.value && FORM_MODULE_FULL_WIDTH_TAGS.has(tag.value)),
 )
+
+/** 判断：条件求值结果 */
+const conditionPassed = computed(() => coerceBool(rawProps.value?.when, false))
+
+/** 循环：规范化列表并生成带 item/index 的作用域 */
+const loopEntries = computed(() => {
+  const raw = rawProps.value?.data
+  const list = Array.isArray(raw) ? raw : []
+  const itemKey = String(rawProps.value?.itemKey || 'item').trim() || 'item'
+  const indexKey = String(rawProps.value?.indexKey || 'index').trim() || 'index'
+  return list.map((item, index) => ({
+    key: `${uuid.value}:${index}`,
+    extra: {
+      [itemKey]: item,
+      [indexKey]: index,
+    } as Record<string, unknown>,
+  }))
+})
 </script>
 
 <style scoped>

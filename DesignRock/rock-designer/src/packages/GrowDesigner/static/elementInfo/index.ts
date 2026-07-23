@@ -57,6 +57,7 @@ import {
   mentionConfig,
   uploadConfig,
 } from './formControlConfigs'
+import { conditionConfig, loopConfig } from './logicConfigs'
 
 /** 组件属性配置表：elTagName -> props 配置列表 */
 export const elementPropsMap: Record<string, any[]> = {
@@ -77,6 +78,10 @@ export const elementPropsMap: Record<string, any[]> = {
   GrowCollapseItem: collapseItemConfig.props,
   GrowScrollbar: scrollbarConfig.props,
   GrowLayout: layoutConfig.props,
+
+  // 逻辑组件
+  GrowLoop: loopConfig.props,
+  GrowCondition: conditionConfig.props,
 
   // 反馈 / 浮层
   GrowModal: modalConfig.props,

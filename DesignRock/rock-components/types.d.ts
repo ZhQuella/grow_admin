@@ -125,6 +125,8 @@ declare module 'vue' {
     GrowSearchBar: import('vue').Component;
     GrowColumnBar: import('vue').Component;
     GrowWatchBox: import('vue').Component;
+    GrowLoop: import('vue').Component;
+    GrowCondition: import('vue').Component;
   }
 }
 

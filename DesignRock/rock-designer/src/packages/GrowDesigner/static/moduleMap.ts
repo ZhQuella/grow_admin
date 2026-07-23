@@ -133,6 +133,32 @@ export const BaseComponent = new Map([
     }
   ],
   [
+    "logicElement",
+    {
+      title: "逻辑组件",
+      group: [
+        {
+          elName: "循环",
+          elType: "eleModule",
+          elTagName: "GrowLoop",
+          elIcon: "Loop",
+          isChild: true,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "判断",
+          elType: "eleModule",
+          elTagName: "GrowCondition",
+          elIcon: "Condition",
+          isChild: true,
+          isAdd: false,
+          childName: ""
+        }
+      ]
+    }
+  ],
+  [
     "interactionElement",
     {
       title: "交互组件",

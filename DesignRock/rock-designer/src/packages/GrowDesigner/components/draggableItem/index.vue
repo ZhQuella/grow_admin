@@ -469,6 +469,7 @@ const onCopyItem = () => {
   /* 投放区、子节点外框与工具栏需可点选 / 拖入 */
   :deep(.draggable-item),
   :deep(.draggable-grop-wrap),
+  :deep(.grow-logic-block),
   :deep(.draggable-item__toolbar),
   :deep(.draggable-item__toolbar *),
   :deep(.draggable-item__flags),

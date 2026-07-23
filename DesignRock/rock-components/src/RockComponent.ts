@@ -109,6 +109,8 @@ export enum RockComponent {
   SearchBar = 'SearchBar',
   ColumnBar = 'ColumnBar',
   WatchBox = 'WatchBox',
+  Loop = 'Loop',
+  Condition = 'Condition',
 }
 
 export type RockComponentType = keyof typeof RockComponent;

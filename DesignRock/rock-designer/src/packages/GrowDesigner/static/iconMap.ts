@@ -12,6 +12,8 @@ const ICON_MAP: Record<string, string> = {
   WatchBox: 'carbon:area-custom',
   Scrollbar: 'carbon:page-scroll',
   Container: 'carbon:area',
+  Loop: 'carbon:repeat',
+  Condition: 'carbon:branch',
   Chat: 'carbon:chat',
   Notebook: 'carbon:notebook',
   Popover: 'ant-design:message-outlined',

@@ -118,6 +118,14 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
     asideWidth: '200px',
     footerHeight: '60px',
   },
+  GrowLoop: {
+    data: '',
+    itemKey: 'item',
+    indexKey: 'index',
+  },
+  GrowCondition: {
+    when: '',
+  },
   GrowTooltip: {
     content: '文字提示',
     placement: 'top',
@@ -256,6 +264,8 @@ export const structureSlotsByTag: Record<string, string[]> = {
   // children → #reference；contentSlot → default 弹出内容
   GrowPopover: ['children', 'contentSlot'],
   GrowLayout: ['children', 'headerSlot', 'asideSlot', 'footerSlot'],
+  GrowLoop: ['children'],
+  GrowCondition: ['children'],
 }
 
 /** 结构上可能存放子节点的槽位键（复制时用于定位同级数组） */

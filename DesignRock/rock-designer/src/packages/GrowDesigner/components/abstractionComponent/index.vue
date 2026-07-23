@@ -66,8 +66,65 @@
       </div>
     </template>
 
-    <template v-if="['GrowForm','GrowFormItem','GrowTimeline','GrowTimelineItem'].includes(config.elTagName)">
-      <component :is="config.elTagName" v-bind="propsInfo" :style="styleInfo">
+    <template v-if="['GrowForm','GrowFormItem','GrowTimeline','GrowTimelineItem','GrowLoop','GrowCondition'].includes(config.elTagName)">
+      <div
+        v-if="config.elTagName === 'GrowLoop' || config.elTagName === 'GrowCondition'"
+        class="grow-logic-block"
+        :class="`is-${config.elTagName === 'GrowLoop' ? 'loop' : 'condition'}`"
+      >
+        <div class="grow-logic-block__label">
+          {{ config.elTagName === 'GrowLoop' ? '循环' : '判断' }}
+        </div>
+        <component :is="config.elTagName" v-bind="propsInfo" class="grow-logic-block__host" :style="styleInfo">
+          <draggable
+            group="draggable-group"
+            :animation="200"
+            item-key="uuid"
+            :component-data="{
+              tag: 'div',
+              type: 'transition-group',
+              name: 'draggable-group'
+            }"
+            :disabled="false"
+            ghostClass="ghost"
+            chosenClass="chosen-item"
+            dragClass="drag-item"
+            class="draggable-grop-wrap is-full"
+            handle=".draggable-content-bar"
+            v-model="structure.children"
+            @add="onChildAdd"
+          >
+            <template #item="{ element }">
+              <DraggableItem
+                :structure="element"
+                @active="onActive"
+                @delete="onSpecialDelete"
+                @copy="onCopyItem"
+                @special="onDraggableAdd"
+                class="is-full"
+              >
+                <abstractionComponent
+                  :config="draggableConfig.renderArgument[element.uuid]"
+                  :propsInfo="draggableConfig.props[element.uuid]"
+                  :structure="element"
+                  :drag="drag"
+                  @add="onAbstractionAdd"
+                  @special="onDraggableAdd"
+                  @delete="onSpecialDelete"
+                  @copy="onCopyItem"
+                  @active="onActive"
+                />
+              </DraggableItem>
+            </template>
+          </draggable>
+        </component>
+      </div>
+      <component
+        v-else
+        :is="config.elTagName"
+        v-bind="propsInfo"
+        :style="styleInfo"
+      >
         <draggable
             group="draggable-group"
             :animation="200"
@@ -781,7 +838,6 @@
         <div
           v-if="layoutShowFooter"
           class="grow-page-layout__region grow-page-layout__footer"
-          :style="{ height: layoutFooterHeight }"
         >
           <div class="grow-page-layout__label">底栏</div>
           <draggable
@@ -798,6 +854,7 @@
             chosenClass="chosen-item"
             dragClass="drag-item"
             class="draggable-grop-wrap grow-page-layout__drop"
+            :style="{ minHeight: layoutFooterHeight }"
             handle=".draggable-content-bar"
             v-model="structure.footerSlot"
             @add="onFooterChildAdd"
@@ -870,7 +927,7 @@
 
 <script lang="ts" setup>
 import { DRAGGABLE_CONGIG, GROW_RUNTIME_STATE } from "../../config/designation";
-import { computed, inject, toRefs } from "vue";
+import { computed, inject, provide, reactive, toRefs, watch } from "vue";
 import draggable from "vuedraggable";
 import basicComponent from "./component/basicComponent/index.vue";
 import eleModuleComponent from "./component/eleModuleComponent/index.vue";
@@ -888,6 +945,7 @@ import {
   resolveContainerActiveValue,
   writeContainerActiveValue,
 } from "../../../GrowRenderer/utils/resolveBoundProps";
+import { applyLoopScopeToState } from "../../static/loopScope";
 
 const draggableConfig: any = inject(DRAGGABLE_CONGIG);
 const injectedRuntimeState = inject<Record<string, unknown> | null>(
@@ -935,6 +993,50 @@ const resolvedPropsInfo = computed(() => {
   Reflect.deleteProperty(resolved, 'render')
   return resolved
 })
+
+/**
+ * 循环宿主：向子树注入 state.item / state.index（设计态取列表首项预览）
+ * 子组件绑定 state.item.xxx 才能读到每条数据
+ */
+const isLoopHost = props.config?.elTagName === 'GrowLoop'
+const loopScopedState = reactive<Record<string, unknown>>({})
+
+const syncLoopScopedState = () => {
+  if (!isLoopHost || !draggableConfig) return
+  const uuid = structure.value?.uuid
+  const parentState =
+    injectedRuntimeState ??
+    buildRuntimeState(draggableConfig.dataSource)
+  const resolved = resolveBoundProps(
+    propsInfo.value || {},
+    uuid ? draggableConfig.propBindModes?.[uuid] : undefined,
+    parentState,
+  )
+  const list = Array.isArray(resolved?.data) ? resolved.data : []
+  const itemKey = String(resolved?.itemKey || 'item').trim() || 'item'
+  const indexKey = String(resolved?.indexKey || 'index').trim() || 'index'
+  applyLoopScopeToState(loopScopedState, parentState, {
+    [itemKey]: list[0] ?? {},
+    [indexKey]: 0,
+  })
+}
+
+if (isLoopHost) {
+  watch(
+    () => [
+      injectedRuntimeState,
+      propsInfo.value,
+      structure.value?.uuid,
+      draggableConfig?.dataSource,
+      structure.value?.uuid
+        ? draggableConfig?.propBindModes?.[structure.value.uuid]
+        : undefined,
+    ],
+    () => syncLoopScopedState(),
+    { immediate: true, deep: true },
+  )
+  provide(GROW_RUNTIME_STATE, loopScopedState)
+}
 
 /** GrowCard：设计器开关不透传；启用操作区时 header 由 #header 插槽渲染 */
 const cardBindProps = computed(() => {
@@ -1091,6 +1193,14 @@ if (props.config?.elTagName === 'GrowLayout') {
   if (!Array.isArray(props.structure.footerSlot)) props.structure.footerSlot = []
 }
 
+/** 逻辑组件：确保可拖入子节点 */
+if (
+  props.config?.elTagName === 'GrowLoop' ||
+  props.config?.elTagName === 'GrowCondition'
+) {
+  if (!Array.isArray(props.structure.children)) props.structure.children = []
+}
+
 const layoutMode = computed(() => propsInfo.value?.layout || DEFAULT_PAGE_LAYOUT)
 const layoutShowHeader = computed(() => layoutHasHeader(layoutMode.value))
 const layoutShowAside = computed(() => layoutHasAside(layoutMode.value))
@@ -1144,6 +1254,9 @@ const onAbstractionAdd = (event) => {
 };
 
 const onChildAdd = (event) => {
+  if (!Array.isArray(props.structure.children)) {
+    props.structure.children = [];
+  }
   const list = props.structure.children;
   emit("add", { event, list });
 };
@@ -1246,7 +1359,7 @@ const onCopyItem = (event) => {
   &.is-header-main-footer {
     grid-template:
       "header" auto
-      "main" 1fr
+      "main" minmax(120px, 1fr)
       "footer" auto / 1fr;
   }
 
@@ -1263,7 +1376,7 @@ const onCopyItem = (event) => {
   &.is-header-aside-main-footer {
     grid-template:
       "header header" auto
-      "aside main" 1fr
+      "aside main" minmax(120px, 1fr)
       "aside footer" auto / auto 1fr;
   }
 
@@ -1276,7 +1389,7 @@ const onCopyItem = (event) => {
   &.is-aside-header-main-footer {
     grid-template:
       "aside header" auto
-      "aside main" 1fr
+      "aside main" minmax(120px, 1fr)
       "aside footer" auto / auto 1fr;
   }
 }
@@ -1322,6 +1435,16 @@ const onCopyItem = (event) => {
 .grow-page-layout__footer {
   grid-area: footer;
   border-top: 1px solid var(--layout-border-color);
+  /* 覆盖 region 的 min-height:0，避免底栏被压扁裁切 */
+  min-height: min-content;
+  overflow: visible;
+  flex: none;
+
+  .grow-page-layout__drop {
+    flex: 1 1 auto;
+    /* 投放区至少可拖入，具体高度由 footerHeight 的 minHeight 控制 */
+    min-height: 48px;
+  }
 }
 
 .grow-page-layout__label {
@@ -1347,6 +1470,51 @@ const onCopyItem = (event) => {
 .is-full {
   width: 100%;
   height: 100%;
+}
+
+.grow-logic-block {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 72px;
+  box-sizing: border-box;
+  border: 1px dashed var(--layout-border-color);
+  border-radius: 6px;
+  background: var(--component-background-color);
+  pointer-events: auto;
+  overflow: visible;
+
+  &.is-loop {
+    border-color: color-mix(in srgb, var(--color-primary) 45%, transparent);
+  }
+
+  &.is-condition {
+    border-color: color-mix(in srgb, var(--color-warning, #e6a23c) 55%, transparent);
+  }
+}
+
+.grow-logic-block__label {
+  flex: none;
+  padding: 2px 8px;
+  font-size: 11px;
+  line-height: 18px;
+  color: var(--text-color-secondary);
+  background: var(--color-primary-a04);
+  pointer-events: none;
+}
+
+.grow-logic-block__host {
+  display: block;
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 56px;
+  overflow: visible;
+}
+
+.grow-logic-block__host :deep(.draggable-grop-wrap) {
+  min-height: 56px;
+  height: auto !important;
+  overflow: visible;
 }
 
 .grow-scrollbar-host {
