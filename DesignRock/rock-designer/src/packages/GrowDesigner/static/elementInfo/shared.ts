@@ -231,6 +231,17 @@ export const columnBarColumnsInput = (
   modelKey: '__columnBarColumns__',
 })
 
+/** 分页 layout：勾选 + 拖拽排序 */
+export const paginationLayoutInput = (
+  name = '布局',
+  describe = '勾选并拖拽排序分页子组件：total / sizes / prev / pager / next / jumper / ->',
+): PropConfigItem => ({
+  eleType: 'PropPaginationLayout',
+  name,
+  describe,
+  modelKey: 'layout',
+})
+
 /** 函数绑定（纯 prop 回调，运行时编译为 Function） */
 export const functionBind = (
   name: string,

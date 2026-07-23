@@ -362,6 +362,7 @@ import {
   writeBoundPropValue,
   writeContainerActiveValue,
   writeModelBinding,
+  writePaginationProp,
 } from '../utils/resolveBoundProps'
 import {
   applyColumnBarVisibleToTableColumns,
@@ -434,6 +435,28 @@ const onModelUpdate = (value: unknown) => {
     return
   }
   writeModelBinding(injectedRuntimeState, raw, modes, value)
+}
+
+/** 分页受控字段回写（EP 要求配套 update 监听，否则不渲染） */
+const onPaginationCurrentPage = (value: number) => {
+  if (tag.value !== 'GrowPagination') return
+  writePaginationProp(
+    injectedRuntimeState,
+    props.schema.props?.[uuid.value],
+    props.schema.propBindModes?.[uuid.value],
+    'current-page',
+    value,
+  )
+}
+const onPaginationPageSize = (value: number) => {
+  if (tag.value !== 'GrowPagination') return
+  writePaginationProp(
+    injectedRuntimeState,
+    props.schema.props?.[uuid.value],
+    props.schema.propBindModes?.[uuid.value],
+    'page-size',
+    value,
+  )
 }
 
 /** ColumnBar 确认：回写自身 columns，并同步关联表格可见列 */
@@ -530,6 +553,18 @@ const moduleProps = computed(() => {
     eventProps.onConfirm = (...args: unknown[]) => {
       onColumnBarConfirm(args[0])
       if (typeof userConfirm === 'function') userConfirm(...args)
+    }
+  }
+  if (tag.value === 'GrowPagination') {
+    const userCurrent = eventProps['onUpdate:current-page']
+    const userSize = eventProps['onUpdate:page-size']
+    eventProps['onUpdate:current-page'] = (...args: unknown[]) => {
+      onPaginationCurrentPage(args[0] as number)
+      if (typeof userCurrent === 'function') userCurrent(...args)
+    }
+    eventProps['onUpdate:page-size'] = (...args: unknown[]) => {
+      onPaginationPageSize(args[0] as number)
+      if (typeof userSize === 'function') userSize(...args)
     }
   }
   return {

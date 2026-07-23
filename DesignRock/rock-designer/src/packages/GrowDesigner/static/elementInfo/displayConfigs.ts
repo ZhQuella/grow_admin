@@ -4,6 +4,7 @@ import {
   createConfig,
   functionBind,
   numberInput,
+  paginationLayoutInput,
   selectInput,
   sizeSelect,
   textInput,
@@ -570,6 +571,73 @@ export const carouselConfig = createConfig([
 export const carouselItemConfig = createConfig([
   textInput('标识', 'name', '幻灯片对应的 name，可用作 setActiveItem 参数'),
   textInput('标签', 'label', '幻灯片文本说明（用于指示器）'),
+])
+
+/** 分页（对齐 Element Plus ElPagination） */
+export const paginationConfig = createConfig([
+  variableBindInput(
+    '总条目数',
+    'total',
+    '总条目数；与「总页数」二选一，优先 total。支持变量绑定',
+    '请输入或绑定变量',
+  ),
+  variableBindInput(
+    '总页数',
+    'page-count',
+    '总页数；未设置 total 时生效。支持变量绑定',
+    '请输入或绑定变量',
+  ),
+  variableBindInput(
+    '当前页',
+    'current-page',
+    '当前页数，支持变量绑定；对应 v-model:current-page',
+    '请输入或绑定变量',
+  ),
+  numberInput(
+    '默认当前页',
+    'default-current-page',
+    '非受控初始页；若已绑定/设置 current-page 则忽略',
+  ),
+  variableBindInput(
+    '每页条数',
+    'page-size',
+    '每页显示条目个数，支持变量绑定；对应 v-model:page-size',
+    '请输入或绑定变量',
+  ),
+  numberInput(
+    '默认每页条数',
+    'default-page-size',
+    '非受控初始每页条数；若已绑定/设置 page-size 则忽略',
+  ),
+  variableBindInput(
+    '每页条数选项',
+    'page-sizes',
+    '每页显示个数选择器选项，如 [10, 20, 50, 100]，支持变量绑定',
+    '请输入数组或绑定变量',
+  ),
+  paginationLayoutInput(),
+  numberInput(
+    '页码按钮数',
+    'pager-count',
+    '页码按钮数量，总页数超过该值时折叠（奇数，5–21）',
+  ),
+  sizeSelect('组件尺寸'),
+  boolSwitch('小型分页', 'small', '是否使用小型分页样式（与 size 二选一，优先 size）'),
+  boolSwitch('背景色', 'background', '是否为分页按钮添加背景色'),
+  boolSwitch('禁用', 'disabled', '是否禁用分页'),
+  boolSwitch('单页隐藏', 'hide-on-single-page', '只有一页时是否隐藏'),
+  textInput('上一页文字', 'prev-text', '替代图标的上一页文字'),
+  textInput('下一页文字', 'next-text', '替代图标的下一页文字'),
+  textInput('上一页图标', 'prev-icon', '上一页图标（组件名或 Iconify，透传底层）'),
+  textInput('下一页图标', 'next-icon', '下一页图标（组件名或 Iconify，透传底层）'),
+  textInput('下拉 class', 'popper-class', '每页条数下拉框的类名'),
+  textInput('下拉 style', 'popper-style', '每页条数下拉框的 style'),
+  boolSwitch('下拉 teleport', 'teleported', '是否将下拉框插入至 body'),
+  textInput(
+    '下拉挂载目标',
+    'append-size-to',
+    '每页条数下拉挂载的 DOM 选择器（append-size-to）',
+  ),
 ])
 
 /** 高级搜索栏 SearchBar：字段由 props.search 配置，拖入后带示例条件 */

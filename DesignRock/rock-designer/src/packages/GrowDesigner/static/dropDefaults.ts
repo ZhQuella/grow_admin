@@ -163,6 +163,17 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
     stripe: false,
     'show-header': true,
   },
+  GrowPagination: {
+    total: 100,
+    'current-page': 1,
+    'page-size': 10,
+    // JSON 字符串，避免 PropVariableBind / Array.toString 变成 "10,20,50,100"
+    'page-sizes': '[10, 20, 50, 100]',
+    layout: 'total, sizes, prev, pager, next, jumper',
+    background: true,
+    'hide-on-single-page': false,
+    teleported: true,
+  },
   GrowSlider: {
     modelValue: 0,
     min: 0,

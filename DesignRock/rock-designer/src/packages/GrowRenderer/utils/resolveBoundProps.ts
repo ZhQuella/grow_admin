@@ -325,6 +325,29 @@ export const writeBoundPropValue = (
   return setByStateExpression(state, expr, value)
 }
 
+/** 分页 current-page / page-size 写回（支持 state 绑定；未绑定时写字面量） */
+export const writePaginationProp = (
+  state: Record<string, unknown> | null | undefined,
+  rawProps: Record<string, any> | undefined,
+  bindModes: Record<string, string> | undefined,
+  key: 'current-page' | 'page-size',
+  value: unknown,
+): boolean => {
+  if (!rawProps) return false
+  const mode = bindModes?.[key]
+  const expr = rawProps[key]
+  if (
+    mode === 'bind' &&
+    state &&
+    typeof expr === 'string' &&
+    parseStatePath(expr)
+  ) {
+    return setByStateExpression(state, expr, value)
+  }
+  rawProps[key] = value
+  return true
+}
+
 /**
  * 按 propBindModes 解析 props：
  * - mode === 'bind'：求值表达式并写回展示值

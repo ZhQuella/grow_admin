@@ -146,6 +146,43 @@ export const elementEventsMap: Record<string, ComponentEventOption[]> = {
     { type: 'sort-change', label: '排序变化' },
     { type: 'filter-change', label: '筛选变化' },
   ],
+  GrowPagination: [
+    {
+      type: 'current-change',
+      label: '当前页变化',
+      describe: 'current-page 改变时触发',
+    },
+    {
+      type: 'size-change',
+      label: '每页条数变化',
+      describe: 'page-size 改变时触发',
+    },
+    {
+      type: 'change',
+      label: '页码或条数变化',
+      describe: 'current-page 或 page-size 改变时触发',
+    },
+    {
+      type: 'prev-click',
+      label: '上一页点击',
+      describe: '用户点击上一页按钮时触发',
+    },
+    {
+      type: 'next-click',
+      label: '下一页点击',
+      describe: '用户点击下一页按钮时触发',
+    },
+    {
+      type: 'update:current-page',
+      label: '当前页更新',
+      describe: 'v-model:current-page 更新时触发',
+    },
+    {
+      type: 'update:page-size',
+      label: '每页条数更新',
+      describe: 'v-model:page-size 更新时触发',
+    },
+  ],
   GrowAvatar: [click],
   GrowBadge: [click],
   GrowTime: [],

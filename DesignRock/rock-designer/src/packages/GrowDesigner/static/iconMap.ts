@@ -19,6 +19,7 @@ const ICON_MAP: Record<string, string> = {
   Popover: 'ant-design:message-outlined',
   Tooltip: 'ant-design:info-circle-outlined',
   DataTable: 'carbon:data-table',
+  Pagination: 'carbon:page-number',
   UserMultiple: 'carbon:user-multiple',
   TouchInteraction: 'carbon:touch-interaction',
   Link: 'carbon:link',
