@@ -1,45 +1,53 @@
 import { computed, reactive, ref, type Ref } from 'vue'
 import { nanoid } from 'nanoid'
 import { useMsg } from '@grow-admin-rock/components'
-import type { DesignerDataSourceFormModel, DesignerDataSourceItem } from '../types'
+import type {
+  DesignerComputedPropFormModel,
+  DesignerComputedPropItem,
+  DesignerDataSourceItem,
+} from '../types'
 
-export const useDataSource = (data: Ref<Record<string, any>>) => {
+export const useComputedProps = (data: Ref<Record<string, any>>) => {
   const message = useMsg()
   const formRef = ref<{ validate?: () => Promise<void> } | null>(null)
   const drawerVisible = ref(false)
   const editingId = ref('')
-  const formData = reactive<DesignerDataSourceFormModel>({
+  const formData = reactive<DesignerComputedPropFormModel>({
     name: '',
     description: '',
-    data: '',
+    code: '',
   })
 
   const formRules = {
     name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
   }
 
-  const sourceList = computed(() => {
+  const computedList = computed(() => {
+    return (data.value.computedProps || []) as DesignerComputedPropItem[]
+  })
+
+  const dataSourceList = computed(() => {
     return (data.value.dataSource || []) as DesignerDataSourceItem[]
   })
 
-  const ensureDataSourceList = () => {
-    if (!Array.isArray(data.value.dataSource)) {
-      data.value.dataSource = []
+  const ensureList = () => {
+    if (!Array.isArray(data.value.computedProps)) {
+      data.value.computedProps = []
     }
-    return data.value.dataSource as DesignerDataSourceItem[]
+    return data.value.computedProps as DesignerComputedPropItem[]
   }
 
   const sortableList = computed({
-    get: () => ensureDataSourceList(),
-    set: (list: DesignerDataSourceItem[]) => {
-      data.value.dataSource = list
+    get: () => ensureList(),
+    set: (list: DesignerComputedPropItem[]) => {
+      data.value.computedProps = list
     },
   })
 
   const resetForm = () => {
     formData.name = ''
     formData.description = ''
-    formData.data = ''
+    formData.code = ''
     editingId.value = ''
   }
 
@@ -48,11 +56,11 @@ export const useDataSource = (data: Ref<Record<string, any>>) => {
     drawerVisible.value = true
   }
 
-  const onEdit = (item: DesignerDataSourceItem) => {
+  const onEdit = (item: DesignerComputedPropItem) => {
     editingId.value = item.id
     formData.name = item.name
     formData.description = item.description || ''
-    formData.data = item.data ?? ''
+    formData.code = item.code ?? ''
     drawerVisible.value = true
   }
 
@@ -62,12 +70,11 @@ export const useDataSource = (data: Ref<Record<string, any>>) => {
   }
 
   const isNameDuplicated = (name: string, excludeId?: string) => {
-    const inSource = sourceList.value.some(
+    const inComputed = computedList.value.some(
       (item) => item.name === name && item.id !== excludeId,
     )
-    const computedList = (data.value.computedProps || []) as { id?: string; name?: string }[]
-    const inComputed = computedList.some((item) => item.name === name)
-    return inSource || inComputed
+    const inDataSource = dataSourceList.value.some((item) => item.name === name)
+    return inComputed || inDataSource
   }
 
   const onSave = async () => {
@@ -83,16 +90,16 @@ export const useDataSource = (data: Ref<Record<string, any>>) => {
       return
     }
     if (isNameDuplicated(name, editingId.value || undefined)) {
-      message.warning('名称与计算属性或其它数据源重复')
+      message.warning('名称与数据源或其它计算属性重复')
       return
     }
 
-    const list = ensureDataSourceList()
-    const payload: DesignerDataSourceItem = {
+    const list = ensureList()
+    const payload: DesignerComputedPropItem = {
       id: editingId.value || nanoid(),
       name,
       description: formData.description.trim(),
-      data: formData.data,
+      code: formData.code,
     }
 
     const index = list.findIndex((item) => item.id === payload.id)
@@ -102,18 +109,15 @@ export const useDataSource = (data: Ref<Record<string, any>>) => {
     } else {
       next.push(payload)
     }
-    // 替换数组引用，确保绑定组件 / 预览跟随更新
-    data.value.dataSource = next
+    data.value.computedProps = next
 
     message.success(editingId.value ? '修改成功' : '添加成功')
     onClose()
   }
 
   const onRemove = (id: string) => {
-    const list = ensureDataSourceList()
-    const index = list.findIndex((item) => item.id === id)
-    if (index < 0) return
-    data.value.dataSource = list.filter((item) => item.id !== id)
+    const list = ensureList()
+    data.value.computedProps = list.filter((item) => item.id !== id)
     if (editingId.value === id) {
       onClose()
     }
@@ -126,7 +130,6 @@ export const useDataSource = (data: Ref<Record<string, any>>) => {
     formRules,
     drawerVisible,
     editingId,
-    sourceList,
     sortableList,
     onCreate,
     onEdit,

@@ -395,7 +395,9 @@ const injectedRuntimeState = inject<Record<string, unknown> | null>(
   null,
 )
 const runtimeState = computed(
-  () => injectedRuntimeState ?? buildRuntimeState(props.schema.dataSource),
+  () =>
+    injectedRuntimeState ??
+    buildRuntimeState(props.schema.dataSource, props.schema.computedProps),
 )
 /** 按 propBindModes 求值后的 props（绑定字段已解析为展示值） */
 const rawProps = computed(() =>

@@ -45,9 +45,10 @@
           :key="item.type"
           class="grow-designer__rail-item"
           :class="{ 'is-active': optionConfig.visible && optionConfig.type === item.type }"
-          :title="item.label"
+          :data-tip="item.label"
           role="button"
           tabindex="0"
+          :aria-label="item.label"
           @click="onLeftOptionClick(item.type)"
           @keydown.enter.prevent="onLeftOptionClick(item.type)"
           @keydown.space.prevent="onLeftOptionClick(item.type)"
@@ -148,6 +149,8 @@ const railItems = [
   { type: 'json', label: '查看数据', icon: 'carbon:data-base' },
   { type: 'tree', label: '结构树', icon: 'carbon:tree-view' },
   { type: 'dataBin', label: '数据源', icon: 'carbon:data-bin' },
+  { type: 'computedProps', label: '属性计算', icon: 'carbon:function' },
+  { type: 'pageWatchers', label: '监听', icon: 'carbon:view' },
   { type: 'apiOutlined', label: '数据请求', icon: 'carbon:api' },
 ] as const
 
@@ -188,6 +191,12 @@ const previewSchema = computed<DesignerSchema>(() => {
     description: item?.description,
     data: item?.data,
   }))
+  const computedProps = (draggableConfig.computedProps || []).map((item: any) => ({
+    id: item?.id,
+    name: item?.name,
+    description: item?.description,
+    code: item?.code,
+  }))
   return {
     structures: draggableConfig.structures,
     renderArgument: draggableConfig.renderArgument,
@@ -195,6 +204,7 @@ const previewSchema = computed<DesignerSchema>(() => {
     styles: draggableConfig.styles,
     pageConfig: draggableConfig.pageConfig,
     dataSource,
+    computedProps,
     propBindModes: draggableConfig.propBindModes,
     events: draggableConfig.events,
   }
@@ -213,6 +223,8 @@ import reviewTree from './components/reviewTree/index.vue'
 import EleOptions from './components/eleOptions/index.vue'
 import PageOptions from './components/pageOptions/index.vue'
 import dataSource from './components/dataSource/index.vue'
+import computedProps from './components/computedProps/index.vue'
+import pageWatchers from './components/pageWatchers/index.vue'
 import apiOutlined from './components/apiOutlined/index.vue'
 
 export default defineComponent({
@@ -224,6 +236,8 @@ export default defineComponent({
     reviewData,
     reviewTree,
     dataSource,
+    computedProps,
+    pageWatchers,
     apiOutlined,
   },
 })
@@ -298,12 +312,13 @@ export default defineComponent({
   padding: 5px;
   border-right: 1px solid var(--layout-border-color);
   background: var(--component-background-color);
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: visible;
+  z-index: 20;
 }
 
 .grow-designer__rail-item {
   box-sizing: border-box;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -323,6 +338,31 @@ export default defineComponent({
   &:hover,
   &.is-active {
     color: var(--primary-color);
+  }
+
+  /* 悬停 tips：不改动 DOM 结构，避免挤乱图标布局 */
+  &::after {
+    content: attr(data-tip);
+    position: absolute;
+    top: 50%;
+    left: calc(100% + 10px);
+    z-index: 40;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: rgba(48, 49, 51, 0.92);
+    color: #fff;
+    font-size: 12px;
+    line-height: 1.4;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-50%);
+    transition: opacity 0.12s ease;
+  }
+
+  &:hover::after,
+  &:focus-visible::after {
+    opacity: 1;
   }
 }
 

@@ -16,7 +16,7 @@
     <SourceList
       v-model:list="sortableList"
       :active-id="drawerVisible ? editingId : ''"
-      empty-text="暂无数据源，点击右上角添加"
+      empty-text="暂无计算属性，点击右上角添加"
       @edit="onEdit"
       @remove="onRemove"
     />
@@ -29,7 +29,7 @@
         class="flex h-11 shrink-0 items-center justify-between gap-2 border-b border-solid border-border px-3"
       >
         <h4 class="m-0 text-sm font-medium text-text">
-          {{ editingId ? '修改数据源' : '添加数据源' }}
+          {{ editingId ? '修改计算属性' : '添加计算属性' }}
         </h4>
         <div class="flex shrink-0 items-center gap-2">
           <GrowButton type="primary" size="small" @click.stop="onSave">保存</GrowButton>
@@ -37,20 +37,20 @@
         </div>
       </div>
 
-      <SourceForm ref="formRef" :model="formData" :rules="formRules" />
+      <ComputedForm ref="formRef" :model="formData" :rules="formRules" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { toRefs } from 'vue'
-import { useDataSource } from './use/useDataSource'
-import SourceList from './SourceList.vue'
-import SourceForm from './SourceForm.vue'
+import { useComputedProps } from '../dataSource/use/useComputedProps'
+import SourceList from '../dataSource/SourceList.vue'
+import ComputedForm from '../dataSource/ComputedForm.vue'
 
-defineOptions({ name: 'dataSource' })
+defineOptions({ name: 'computedProps' })
 
-export type { DesignerDataSourceItem } from './types'
+export type { DesignerComputedPropItem } from '../dataSource/types'
 
 const props = defineProps({
   data: {
@@ -73,5 +73,5 @@ const {
   onClose,
   onSave,
   onRemove,
-} = useDataSource(data)
+} = useComputedProps(data)
 </script>

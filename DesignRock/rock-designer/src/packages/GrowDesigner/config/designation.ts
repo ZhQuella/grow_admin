@@ -8,7 +8,7 @@ export const OVERLAY_EDIT_UUID = "__overlayEditUUID__";
 /** 布局容器主区域 WatchBox 尺寸（供表格等子组件适应高度） */
 export const LAYOUT_MAIN_SIZE = "__layoutMainSize__";
 
-/** 变量绑定运行时 state（由 dataSource 求值，随数据源变更） */
+/** 变量绑定运行时 state（由 dataSource / computedProps 求值） */
 export const GROW_RUNTIME_STATE = "__growRuntimeState__";
 
 export type LayoutMainSize = {

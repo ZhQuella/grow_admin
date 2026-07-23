@@ -8,7 +8,6 @@
       <GrowTabs v-model="tabModel" stretch>
         <GrowTabPane label="属性" name="props" />
         <GrowTabPane label="事件" name="events" />
-        <GrowTabPane label="监听" name="watchers" />
         <GrowTabPane label="高级" name="renderArgument" />
       </GrowTabs>
     </div>
@@ -20,12 +19,6 @@
         :event-options-override="PAGE_LIFECYCLE_EVENTS"
         @update:current-events-config="onUpdatePageEvents"
       />
-      <watchConfig
-        v-else-if="tabModel === 'watchers'"
-        :current-watchers-config="pageWatchers"
-        :data-source="dataSource"
-        @update:current-watchers-config="onUpdatePageWatchers"
-      />
       <p v-else class="page-options__placeholder">该面板建设中</p>
     </GrowScrollbar>
   </div>
@@ -35,11 +28,8 @@
 import { computed, ref } from 'vue'
 import configurationComponent from '../configurationComponent/index.vue'
 import eventConfig from '../eleOptions/eventConfig.vue'
-import watchConfig from './watchConfig.vue'
 import { PAGE_LIFECYCLE_EVENTS } from '../../static/elementEvents'
 import type { DesignerEventItem } from '../../static/elementEvents/types'
-import type { DesignerWatcherItem } from '../../static/pageWatchers'
-import type { DesignerDataSourceItem } from '../dataSource/types'
 
 defineOptions({ name: 'pageOptions' })
 
@@ -63,24 +53,8 @@ const pageEvents = computed(
   () => (props.config?.pageConfig?.events || {}) as Record<string, DesignerEventItem>,
 )
 
-const pageWatchers = computed(
-  () =>
-    (props.config?.pageConfig?.watchers || {}) as Record<
-      string,
-      DesignerWatcherItem
-    >,
-)
-
-const dataSource = computed(
-  () => (props.config?.dataSource || []) as DesignerDataSourceItem[],
-)
-
 const onUpdatePageEvents = (value: Record<string, DesignerEventItem>) => {
   ensurePageConfig().events = value
-}
-
-const onUpdatePageWatchers = (value: Record<string, DesignerWatcherItem>) => {
-  ensurePageConfig().watchers = value
 }
 </script>
 

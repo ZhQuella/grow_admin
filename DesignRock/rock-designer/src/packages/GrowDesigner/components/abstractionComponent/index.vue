@@ -982,7 +982,7 @@ const resolvedPropsInfo = computed(() => {
   if (!uuid || !draggableConfig) return raw
   const state =
     injectedRuntimeState ??
-    buildRuntimeState(draggableConfig.dataSource)
+    buildRuntimeState(draggableConfig.dataSource, draggableConfig.computedProps)
   const resolved = resolveBoundProps(
     raw,
     draggableConfig.propBindModes?.[uuid],
@@ -1006,7 +1006,7 @@ const syncLoopScopedState = () => {
   const uuid = structure.value?.uuid
   const parentState =
     injectedRuntimeState ??
-    buildRuntimeState(draggableConfig.dataSource)
+    buildRuntimeState(draggableConfig.dataSource, draggableConfig.computedProps)
   const resolved = resolveBoundProps(
     propsInfo.value || {},
     uuid ? draggableConfig.propBindModes?.[uuid] : undefined,
@@ -1070,7 +1070,9 @@ const containerBindModes = computed(() => {
 const containerRuntimeState = computed(
   () =>
     injectedRuntimeState ??
-    (draggableConfig ? buildRuntimeState(draggableConfig.dataSource) : {}),
+    (draggableConfig
+      ? buildRuntimeState(draggableConfig.dataSource, draggableConfig.computedProps)
+      : {}),
 )
 
 const tabsModelValue = computed(() =>
@@ -1084,7 +1086,9 @@ const tabsModelValue = computed(() =>
 const onTabsModelUpdate = (value: unknown) => {
   writeContainerActiveValue(
     injectedRuntimeState ??
-      (draggableConfig ? buildRuntimeState(draggableConfig.dataSource) : null),
+      (draggableConfig
+        ? buildRuntimeState(draggableConfig.dataSource, draggableConfig.computedProps)
+        : null),
     propsInfo.value,
     containerBindModes.value,
     value,

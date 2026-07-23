@@ -1,6 +1,9 @@
 import { computed, type Ref } from 'vue'
 import { BIND_PREFIX, type VariableListItem } from '../constants'
-import type { DesignerDataSourceItem } from '../../../components/dataSource/types'
+import type {
+  DesignerComputedPropItem,
+  DesignerDataSourceItem,
+} from '../../../components/dataSource/types'
 import type { LoopScopeInfo } from '../../../static/loopScope'
 
 /** 将「数据源」列表项映射为可绑定变量（仅顶层，避免对象属性展开导致列表杂乱） */
@@ -14,7 +17,23 @@ export const mapDataSourceToVariables = (
       return {
         key: item.id || name,
         label: name,
-        describe: item.description || '',
+        describe: item.description || '数据源',
+        expression: `${BIND_PREFIX}${name}`,
+      }
+    })
+
+/** 计算属性 → 变量列表 */
+export const mapComputedPropsToVariables = (
+  list: DesignerComputedPropItem[] = [],
+): VariableListItem[] =>
+  list
+    .filter((item) => item && String(item.name || '').trim())
+    .map((item) => {
+      const name = String(item.name).trim()
+      return {
+        key: `computed:${item.id || name}`,
+        label: name,
+        describe: item.description || '计算属性',
         expression: `${BIND_PREFIX}${name}`,
       }
     })
@@ -51,14 +70,16 @@ export const mapLoopScopesToVariables = (
   return result
 }
 
-/** 变量列表：数据源 + 当前节点所在循环作用域 */
+/** 变量列表：循环作用域 + 计算属性 + 数据源 */
 export const useVariableList = (
   sourceList: Ref<DesignerDataSourceItem[]>,
   keyword: Ref<string>,
   loopScopes?: Ref<LoopScopeInfo[]>,
+  computedList?: Ref<DesignerComputedPropItem[]>,
 ) => {
   const allVariables = computed(() => [
     ...mapLoopScopesToVariables(loopScopes?.value || []),
+    ...mapComputedPropsToVariables(computedList?.value || []),
     ...mapDataSourceToVariables(sourceList.value),
   ])
 

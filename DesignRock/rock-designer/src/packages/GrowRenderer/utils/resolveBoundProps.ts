@@ -1,4 +1,4 @@
-/** 变量绑定：由 dataSource 构建 state，并按 propBindModes 求值 */
+/** 变量绑定：由 dataSource / computedProps 构建 state，并按 propBindModes 求值 */
 
 import { compileDesignerPropFunction } from './runDesignerPropFunction'
 
@@ -6,6 +6,12 @@ export type DataSourceLike = {
   id?: string
   name?: string
   data?: string
+}
+
+export type ComputedPropLike = {
+  id?: string
+  name?: string
+  code?: string
 }
 
 /** 安全求值表达式字面量（如 `"x"` / `123` / `{ a: 1 }`） */
@@ -20,15 +26,43 @@ export const evaluateExpression = (code: string): unknown => {
   }
 }
 
-/** dataSource 列表 → state 对象（key 为数据源 name） */
-export const buildRuntimeState = (dataSource: unknown): Record<string, unknown> => {
+/** 在 state 上下文中求值计算属性表达式 */
+export const evaluateComputedExpression = (
+  code: string,
+  state: Record<string, unknown>,
+): unknown => {
+  const trimmed = String(code ?? '').trim()
+  if (!trimmed) return undefined
+  try {
+    // eslint-disable-next-line no-new-func
+    return new Function('state', `"use strict"; return (${trimmed});`)(state)
+  } catch (error) {
+    console.warn('[GrowComputedProp]', error)
+    return undefined
+  }
+}
+
+/** dataSource 列表 → state；再按顺序写入 computedProps */
+export const buildRuntimeState = (
+  dataSource: unknown,
+  computedProps?: unknown,
+): Record<string, unknown> => {
   const state: Record<string, unknown> = {}
-  if (!Array.isArray(dataSource)) return state
-  for (const item of dataSource as DataSourceLike[]) {
-    if (!item || typeof item !== 'object') continue
-    const name = String(item.name ?? '').trim()
-    if (!name) continue
-    state[name] = evaluateExpression(String(item.data ?? ''))
+  if (Array.isArray(dataSource)) {
+    for (const item of dataSource as DataSourceLike[]) {
+      if (!item || typeof item !== 'object') continue
+      const name = String(item.name ?? '').trim()
+      if (!name) continue
+      state[name] = evaluateExpression(String(item.data ?? ''))
+    }
+  }
+  if (Array.isArray(computedProps)) {
+    for (const item of computedProps as ComputedPropLike[]) {
+      if (!item || typeof item !== 'object') continue
+      const name = String(item.name ?? '').trim()
+      if (!name) continue
+      state[name] = evaluateComputedExpression(String(item.code ?? ''), state)
+    }
   }
   return state
 }

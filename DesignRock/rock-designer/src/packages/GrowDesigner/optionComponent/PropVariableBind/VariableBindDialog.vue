@@ -34,7 +34,7 @@
             </div>
             <GrowScrollbar class="variable-bind-dialog__scroll">
               <div v-if="listEmpty" class="variable-bind-dialog__empty">
-                暂无数据源，请先在左侧「数据源」中添加；循环内可选中子节点绑定 state.item
+                暂无变量，请先在左侧「数据源」中添加数据源或计算属性
               </div>
               <div v-else-if="!filteredVariables.length" class="variable-bind-dialog__empty">
                 暂无匹配变量
@@ -123,6 +123,11 @@ const sourceList = computed<DesignerDataSourceItem[]>(() => {
   return Array.isArray(list) ? list : []
 })
 
+const computedList = computed(() => {
+  const list = draggableConfig?.computedProps
+  return Array.isArray(list) ? list : []
+})
+
 /** 当前选中节点所在的循环作用域（支持嵌套） */
 const loopScopes = computed(() =>
   collectAncestorLoopScopes(
@@ -136,10 +141,18 @@ const loopScopes = computed(() =>
 const keyword = ref('')
 const draft = ref('')
 
-const { filteredVariables } = useVariableList(sourceList, keyword, loopScopes)
+const { filteredVariables } = useVariableList(
+  sourceList,
+  keyword,
+  loopScopes,
+  computedList,
+)
 
 const listEmpty = computed(
-  () => !sourceList.value.length && !loopScopes.value.length,
+  () =>
+    !sourceList.value.length &&
+    !computedList.value.length &&
+    !loopScopes.value.length,
 )
 
 watch(

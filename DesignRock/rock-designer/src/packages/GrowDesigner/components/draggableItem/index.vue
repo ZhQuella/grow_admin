@@ -155,7 +155,8 @@ const designVisibility = computed(() => {
     return { visible: true, render: true }
   }
   const state =
-    injectedRuntimeState ?? buildRuntimeState(draggableConfig.dataSource)
+    injectedRuntimeState ??
+    buildRuntimeState(draggableConfig.dataSource, draggableConfig.computedProps)
   const resolved = resolveBoundProps(
     draggableConfig.props?.[id] || {},
     draggableConfig.propBindModes?.[id],
