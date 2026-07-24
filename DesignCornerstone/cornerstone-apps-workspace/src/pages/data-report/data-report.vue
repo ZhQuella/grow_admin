@@ -100,6 +100,12 @@ const layout = [
   overflow: hidden;
 }
 
+.data-report-card :deep(.el-card__header) {
+  padding: 10px 12px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
 .data-report-card :deep(.el-card__body) {
   flex: 1;
   min-height: 0;

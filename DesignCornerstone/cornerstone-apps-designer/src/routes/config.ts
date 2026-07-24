@@ -47,6 +47,11 @@ export const DESIGNER_ROUTE_STRUCTURES: DesignerRouteStructure[] = [
         name: 'DesignerPlayground',
         componentKey: 'DesignerPlayground',
       },
+      {
+        path: 'report-designer-playground',
+        name: 'ReportDesignerPlayground',
+        componentKey: 'ReportDesignerPlayground',
+      },
     ],
   },
 ]
@@ -116,10 +121,12 @@ export function toDesignerRouteConfigs(
 
 export const DESIGNER_COMPONENT_KEYS = new Set([
   'DesignerPlayground',
+  'ReportDesignerPlayground',
 ])
 
 export const DESIGNER_COMPONENT_PAGE_NAMES: Record<string, string> = {
   DesignerPlayground: 'DesignerPlaygroundPage',
+  ReportDesignerPlayground: 'ReportDesignerPlaygroundPage',
 }
 
 export function resolveDesignerPageComponentName(componentKey: string): string {

@@ -29,6 +29,8 @@ export {
 
 const DESIGNER_COMPONENTS: Record<string, GrowRouteComponent> = {
   DesignerPlayground: () => import('../pages/designer-playground/designer-playground.vue'),
+  ReportDesignerPlayground: () =>
+    import('../pages/report-designer-playground/report-designer-playground.vue'),
 }
 
 function resolveDesignerComponent(config: DesignerRouteConfig): GrowRouteComponent {

@@ -1,0 +1,24 @@
+{
+  "name": "@grow-admin-rock/report-designer",
+  "version": "0.0.0",
+  "main": "./index.ts",
+  "module": "./index.ts",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "license": "MIT",
+  "description": "Grow Admin 报表设计器与渲染器（基于 ECharts）",
+  "scripts": {
+    "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
+  },
+  "dependencies": {
+    "@grow-admin-rock/components": "workspace:*",
+    "@grow-admin-rock/hooks": "workspace:*",
+    "@grow-admin-rock/utils": "workspace:*",
+    "echarts": "^5.4.2",
+    "vue3-grid-layout": "^1.0.0"
+  },
+  "peerDependencies": {
+    "vue": "~3.3.4"
+  }
+}
