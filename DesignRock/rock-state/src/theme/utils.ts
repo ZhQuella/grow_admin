@@ -62,8 +62,29 @@ export function getDarkColor(color: string, level: number) {
   return mixColor(color, '#000000', level / 10)
 }
 
-export function generateThemeColorPalette(color: string): ThemeColorPalette {
+/** Element Plus 暗色模式混色底色（与 theme-chalk/dark 中 --el-bg-color 一致） */
+const EL_DARK_BG = '#141414'
+
+/**
+ * 生成主题色阶。
+ * isDark 时按 Element Plus 暗色算法：light-* 与背景色混色，dark-2 与白色混色。
+ */
+export function generateThemeColorPalette(color: string, isDark = false): ThemeColorPalette {
   const primary = color.startsWith('#') ? color : `#${color}`
+  if (isDark) {
+    return {
+      primary,
+      hover: mixColor(primary, '#ffffff', 0.2),
+      active: mixColor(primary, EL_DARK_BG, 0.2),
+      suppl: mixColor(primary, EL_DARK_BG, 0.5),
+      light3: mixColor(primary, EL_DARK_BG, 0.3),
+      light5: mixColor(primary, EL_DARK_BG, 0.5),
+      light7: mixColor(primary, EL_DARK_BG, 0.7),
+      light8: mixColor(primary, EL_DARK_BG, 0.8),
+      light9: mixColor(primary, EL_DARK_BG, 0.9),
+      dark2: mixColor(primary, '#ffffff', 0.2),
+    }
+  }
   return {
     primary,
     hover: getLightColor(primary, 2),
@@ -95,23 +116,30 @@ export function hexToRgbChannels(hex: string): string {
   return `${r}, ${g}, ${b}`
 }
 
-export function applyThemeColor(color: string, el: HTMLElement = document.documentElement) {
+export function applyThemeColor(
+  color: string,
+  el: HTMLElement = document.documentElement,
+  isDark = false,
+) {
   if (!color) return
-  const palette = generateThemeColorPalette(color)
+  // 应用层 token 始终用浅色混色，避免暗色算法影响业务变量语义
+  const appPalette = generateThemeColorPalette(color)
+  // Element Plus light-* / dark-2 需跟随暗色算法，否则菜单 hover 等会变成近白色
+  const elPalette = generateThemeColorPalette(color, isDark)
 
-  el.style.setProperty('--primary-color', palette.primary)
-  el.style.setProperty('--primary-color-hover', palette.hover)
-  el.style.setProperty('--primary-color-active', palette.active)
-  el.style.setProperty('--primary-color-suppl', palette.suppl)
-  el.style.setProperty('--primary-color-rgb', hexToRgbChannels(palette.primary))
+  el.style.setProperty('--primary-color', appPalette.primary)
+  el.style.setProperty('--primary-color-hover', appPalette.hover)
+  el.style.setProperty('--primary-color-active', appPalette.active)
+  el.style.setProperty('--primary-color-suppl', appPalette.suppl)
+  el.style.setProperty('--primary-color-rgb', hexToRgbChannels(appPalette.primary))
 
-  el.style.setProperty('--el-color-primary', palette.primary)
-  el.style.setProperty('--el-color-primary-light-3', palette.light3)
-  el.style.setProperty('--el-color-primary-light-5', palette.light5)
-  el.style.setProperty('--el-color-primary-light-7', palette.light7)
-  el.style.setProperty('--el-color-primary-light-8', palette.light8)
-  el.style.setProperty('--el-color-primary-light-9', palette.light9)
-  el.style.setProperty('--el-color-primary-dark-2', palette.dark2)
+  el.style.setProperty('--el-color-primary', elPalette.primary)
+  el.style.setProperty('--el-color-primary-light-3', elPalette.light3)
+  el.style.setProperty('--el-color-primary-light-5', elPalette.light5)
+  el.style.setProperty('--el-color-primary-light-7', elPalette.light7)
+  el.style.setProperty('--el-color-primary-light-8', elPalette.light8)
+  el.style.setProperty('--el-color-primary-light-9', elPalette.light9)
+  el.style.setProperty('--el-color-primary-dark-2', elPalette.dark2)
 }
 
 export function applyDarkClass(isDark: boolean, el: HTMLElement = document.documentElement) {
