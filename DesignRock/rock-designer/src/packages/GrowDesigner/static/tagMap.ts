@@ -18,6 +18,7 @@ export const EL_TO_GROW_TAG: Record<string, { tag: string; unsupported?: boolean
   'el-popover': { tag: 'GrowPopover' },
   'el-tooltip': { tag: 'GrowTooltip' },
   'el-table': { tag: 'GrowTable' },
+  'el-pagination': { tag: 'GrowPagination' },
   'el-select': { tag: 'GrowSelect' },
   'el-button': { tag: 'GrowButton' },
   'el-link': { tag: 'GrowLink' },

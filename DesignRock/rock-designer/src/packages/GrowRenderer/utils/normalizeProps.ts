@@ -1,5 +1,7 @@
 /** 运行时 props 兼容（对齐设计器 eleModuleComponent / basicComponent） */
 
+import { normalizePaginationBindProps } from '../../GrowDesigner/static/paginationProps'
+
 const TEXT_CONTENT_TAGS = new Set(['GrowButton', 'GrowLink', 'GrowEllipsis'])
 const BASIC_TEXT_TAGS = new Set(['p', 'span', 'div', 'BasicTitle'])
 
@@ -107,6 +109,10 @@ export function normalizeModuleProps(
     if (info.height === 'layout-main') {
       Reflect.deleteProperty(info, 'height')
     }
+  }
+
+  if (tag === 'GrowPagination') {
+    return normalizePaginationBindProps(info, { uncontrolled: false })
   }
 
   if (tag === 'GrowEllipsis') {

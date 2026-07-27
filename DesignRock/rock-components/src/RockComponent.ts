@@ -77,6 +77,7 @@ export enum RockComponent {
   Cascader = 'Cascader',
   DatePicker = 'DatePicker',
   TimePicker = 'TimePicker',
+  ColorPicker = 'ColorPicker',
   FormItemGi = 'FormItemGi',
   Tree = 'Tree',
   Table = 'Table',

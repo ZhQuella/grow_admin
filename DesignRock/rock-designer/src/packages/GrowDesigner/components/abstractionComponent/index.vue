@@ -13,6 +13,8 @@
     <eleModuleComponent
       :config="config"
       :propsInfo="resolvedPropsInfo"
+      :raw-props-info="propsInfo"
+      :bind-modes="structure?.uuid ? draggableConfig?.propBindModes?.[structure.uuid] : undefined"
       :styleInfo="styleInfo"
     />
   </template>

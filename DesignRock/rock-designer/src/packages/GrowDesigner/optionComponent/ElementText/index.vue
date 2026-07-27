@@ -1,40 +1,14 @@
 <template>
   <div class="element-text">
-    <!-- 颜色 + 透明度 -->
+    <!-- 颜色 -->
     <div class="element-text__row">
-      <label class="element-text__color">
-        <span class="element-text__swatch-wrap">
-          <span
-            class="element-text__swatch-fill"
-            :style="{ backgroundColor: cssColor || DEFAULT_TEXT_COLOR }"
-          />
-          <input
-            class="element-text__swatch"
-            type="color"
-            :value="hexValue"
-            @input="onColorPick"
-          />
-        </span>
-        <GrowInput
-          class="element-text__hex"
-          size="small"
-          placeholder="101010"
-          :model-value="hexText"
-          @update:model-value="onColorText"
-        />
-      </label>
-      <label class="element-text__alpha">
-        <GrowInputNumber
-          class="element-text__alpha-input"
-          size="small"
-          :min="0"
-          :max="100"
-          :controls="false"
-          :model-value="alphaPercent"
-          @update:model-value="onAlphaChange"
-        />
-        <span class="element-text__unit">%</span>
-      </label>
+      <GrowColorPicker
+        class="element-text__picker"
+        size="small"
+        show-alpha
+        :model-value="cssColor || null"
+        @update:model-value="onColorChange"
+      />
     </div>
 
     <!-- 字号 + B/I/U/S -->
@@ -151,7 +125,6 @@
 import { ref, toRefs } from 'vue'
 import TextMorePanel from './TextMorePanel.vue'
 import {
-  DEFAULT_TEXT_COLOR,
   FONT_STYLE_TOGGLES,
   TEXT_ALIGN_OPTIONS,
   VERTICAL_ALIGN_OPTIONS,
@@ -174,12 +147,7 @@ const moreVisible = ref(false)
 
 const {
   cssColor,
-  hexValue,
-  hexText,
-  alphaPercent,
-  onColorPick,
-  onColorText,
-  onAlphaChange,
+  onColorChange,
   fontSize,
   onFontSizeChange,
   isStyleActive,
@@ -213,64 +181,13 @@ const {
   }
 }
 
-.element-text__color {
-  display: flex;
-  flex: 1;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-  margin: 0;
-}
-
-.element-text__swatch-wrap {
-  position: relative;
-  flex-shrink: 0;
-  width: 28px;
-  height: 28px;
-  overflow: hidden;
-  border: 1px solid var(--layout-border-color, #e4e7ed);
-  border-radius: 4px;
-}
-
-.element-text__swatch-fill {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.element-text__swatch {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  border: none;
-  cursor: pointer;
-  opacity: 0;
-}
-
-.element-text__hex {
+.element-text__picker {
   flex: 1;
   min-width: 0;
 }
 
-.element-text__alpha {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: 2px;
-  width: 72px;
-  margin: 0;
-}
-
-.element-text__alpha-input,
 .element-text__size {
   width: 56px;
-}
-
-.element-text__unit {
-  font-size: 12px;
-  color: var(--text-color-secondary, #909399);
 }
 
 .element-text__group {

@@ -25,6 +25,7 @@ import {
   ellipsisConfig,
   iconifyConfig,
   modalConfig,
+  paginationConfig,
   popoverConfig,
   tableConfig,
   searchBarConfig,
@@ -115,6 +116,7 @@ export const elementPropsMap: Record<string, any[]> = {
 
   // 数据展示
   GrowTable: tableConfig.props,
+  GrowPagination: paginationConfig.props,
   GrowAvatar: avatarConfig.props,
   GrowBadge: badgeConfig.props,
   GrowTime: timeConfig.props,

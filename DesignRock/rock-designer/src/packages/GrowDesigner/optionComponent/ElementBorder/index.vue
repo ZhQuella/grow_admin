@@ -1,41 +1,15 @@
 <template>
   <div class="element-border">
     <div class="element-border__body">
-      <!-- 颜色 + 透明度 -->
+      <!-- 颜色 -->
       <div class="element-border__row">
-        <label class="element-border__color">
-          <span class="element-border__swatch-wrap">
-            <span
-              class="element-border__swatch-fill"
-              :style="{ backgroundColor: cssColor }"
-            />
-            <input
-              class="element-border__swatch"
-              type="color"
-              :value="hexValue"
-              @input="onColorPick"
-            />
-          </span>
-          <input
-            class="element-border__hex"
-            type="text"
-            maxlength="7"
-            autocomplete="off"
-            :value="hexText"
-            @input="onColorText"
-          />
-        </label>
-        <label class="element-border__alpha" title="透明度">
-          <input
-            class="element-border__alpha-input"
-            type="text"
-            inputmode="numeric"
-            maxlength="3"
-            :value="alphaPercent"
-            @input="onAlphaInput"
-          />
-          <span>%</span>
-        </label>
+        <GrowColorPicker
+          class="element-border__picker"
+          size="small"
+          show-alpha
+          :model-value="cssColor || null"
+          @update:model-value="onColorChange"
+        />
       </div>
 
       <!-- 线型 + 宽度 -->
@@ -212,10 +186,11 @@ const colorParsed = computed(() => {
   return parseColor(raw) || { hex: DEFAULT_HEX, alpha: 1 }
 })
 
-const hexValue = computed(() => colorParsed.value.hex)
-const hexText = computed(() => colorParsed.value.hex.replace('#', ''))
-const alphaPercent = computed(() => Math.round(colorParsed.value.alpha * 100))
-const cssColor = computed(() => toCssColor(colorParsed.value.hex, colorParsed.value.alpha))
+const cssColor = computed(() => {
+  const raw = styles.value['border-color'] || styles.value['border-top-color'] || ''
+  if (raw) return String(raw)
+  return toCssColor(colorParsed.value.hex, colorParsed.value.alpha)
+})
 
 const unifiedWidth = computed(() => {
   if (styles.value['border-width'] != null) return parseWidth(styles.value['border-width'])
@@ -264,30 +239,11 @@ const ensureBorderBasics = (result: Record<string, any>) => {
   }
 }
 
-const onColorPick = (event: Event) => {
-  const hex = expandHex((event.target as HTMLInputElement).value).slice(0, 7)
+const onColorChange = (value: string | null) => {
+  const next = String(value || '').trim() || DEFAULT_HEX
   const result = { ...styleOption.value }
   ensureBorderBasics(result)
-  result['border-color'] = toCssColor(hex, colorParsed.value.alpha)
-  emit('update:styleOption', result)
-}
-
-const onColorText = (event: Event) => {
-  const raw = (event.target as HTMLInputElement).value.trim()
-  const parsed = parseColor(raw.startsWith('#') ? raw : `#${raw}`)
-  if (!parsed) return
-  const result = { ...styleOption.value }
-  ensureBorderBasics(result)
-  result['border-color'] = toCssColor(parsed.hex, colorParsed.value.alpha)
-  emit('update:styleOption', result)
-}
-
-const onAlphaInput = (event: Event) => {
-  const raw = (event.target as HTMLInputElement).value.replace(/[^\d]/g, '')
-  const percent = raw === '' ? 100 : Math.min(100, Number(raw))
-  const result = { ...styleOption.value }
-  ensureBorderBasics(result)
-  result['border-color'] = toCssColor(colorParsed.value.hex, percent / 100)
+  result['border-color'] = next
   emit('update:styleOption', result)
 }
 
@@ -375,83 +331,9 @@ const toggleLinked = () => {
   min-width: 0;
 }
 
-.element-border__color {
-  display: flex;
-  flex: 1;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-  height: 32px;
-  padding: 0 10px 0 6px;
-  border-radius: 4px;
-  background: transparent;
-  box-sizing: border-box;
-}
-
-.element-border__swatch-wrap {
-  position: relative;
-  flex-shrink: 0;
-  width: 16px;
-  height: 16px;
-  overflow: hidden;
-  border-radius: 3px;
-  border: 1px solid var(--layout-border-color, #e4e7ed);
-  background:
-    linear-gradient(45deg, #eee 25%, transparent 25%) 0 0 / 6px 6px,
-    linear-gradient(-45deg, #eee 25%, transparent 25%) 0 3px / 6px 6px,
-    #fff;
-}
-
-.element-border__swatch-fill {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.element-border__swatch {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
-  border: none;
-  padding: 0;
-}
-
-.element-border__hex {
+.element-border__picker {
   flex: 1;
   min-width: 0;
-  height: 100%;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: 13px;
-  letter-spacing: 0.02em;
-  color: var(--text-color-secondary, #909399);
-  font-variant-numeric: tabular-nums;
-  text-transform: uppercase;
-}
-
-.element-border__alpha {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  flex-shrink: 0;
-  height: 32px;
-  padding: 0 4px;
-  font-size: 12px;
-  color: var(--text-color-secondary, #909399);
-  box-sizing: border-box;
-}
-
-.element-border__alpha-input {
-  width: 28px;
-  border: none;
-  outline: none;
-  background: transparent;
-  text-align: right;
-  font-size: 13px;
-  color: var(--text-color-secondary, #909399);
-  font-variant-numeric: tabular-nums;
 }
 
 .element-border__style {

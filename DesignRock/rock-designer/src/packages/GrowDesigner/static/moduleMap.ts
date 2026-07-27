@@ -12,6 +12,7 @@ export const FORM_MODULE_FULL_WIDTH_TAGS = new Set([
   'GrowTransfer',
   'GrowRadioGroup',
   'GrowCheckboxGroup',
+  'GrowPagination',
 ])
 
 export const BaseComponent = new Map([
@@ -214,6 +215,15 @@ export const BaseComponent = new Map([
           elType: "eleModule",
           elTagName: "GrowTable",
           elIcon: "DataTable",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "分页",
+          elType: "eleModule",
+          elTagName: "GrowPagination",
+          elIcon: "Pagination",
           isChild: false,
           isAdd: false,
           childName: ""
