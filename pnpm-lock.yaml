@@ -784,6 +784,12 @@ importers:
 
   DesignRock/rock-report-designer:
     dependencies:
+      '@esmjs/geo':
+        specifier: ^1.0.0
+        version: 1.0.0
+      '@grow-admin-rock/code-sandbox':
+        specifier: workspace:*
+        version: link:../rock-code-sandbox
       '@grow-admin-rock/components':
         specifier: workspace:*
         version: link:../rock-components
@@ -802,6 +808,9 @@ importers:
       vue3-grid-layout:
         specifier: ^1.0.0
         version: 1.0.0(@interactjs/core@1.10.27(@interactjs/utils@1.10.27))(@interactjs/utils@1.10.27)(typescript@5.9.3)
+      vuedraggable:
+        specifier: ^4.1.0
+        version: 4.1.0(vue@3.3.13(typescript@5.9.3))
 
   DesignRock/rock-settings:
     dependencies:
@@ -2484,6 +2493,9 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@esmjs/geo@1.0.0':
+    resolution: {integrity: sha512-3SCq3raFmWmiUO/3Gq3F5klIJkQvFI/XcoXFHOutgTItkIaEVBG7l/UHVV8eZeW03GHoG1LrsK4LGSS3APhQEA==}
 
   '@fast-csv/format@4.3.5':
     resolution: {integrity: sha512-8iRn6QF3I8Ak78lNAa+Gdl5MJJBM5vRHivFtMRUWINdevNo00K7OXxS2PshawLKTejVwieIlPmK5YlLu6w4u8A==}
@@ -9009,6 +9021,8 @@ snapshots:
 
   '@esbuild/win32-x64@0.24.2':
     optional: true
+
+  '@esmjs/geo@1.0.0': {}
 
   '@fast-csv/format@4.3.5':
     dependencies:

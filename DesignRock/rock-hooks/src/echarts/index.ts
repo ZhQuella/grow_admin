@@ -9,6 +9,16 @@ import {
   ScatterChart,
   ThemeRiverChart,
   EffectScatterChart,
+  CandlestickChart,
+  BoxplotChart,
+  HeatmapChart,
+  GraphChart,
+  TreeChart,
+  TreemapChart,
+  SunburstChart,
+  SankeyChart,
+  FunnelChart,
+  GaugeChart,
 } from 'echarts/charts'
 import {
   TitleComponent,
@@ -26,6 +36,9 @@ import {
   CalendarComponent,
   GraphicComponent,
   SingleAxisComponent,
+  GeoComponent,
+  MarkPointComponent,
+  MarkLineComponent,
 } from 'echarts/components'
 import { SVGRenderer } from 'echarts/renderers'
 
@@ -55,6 +68,19 @@ echarts.use([
   ThemeRiverChart,
   SingleAxisComponent,
   EffectScatterChart,
+  CandlestickChart,
+  BoxplotChart,
+  HeatmapChart,
+  GraphChart,
+  TreeChart,
+  TreemapChart,
+  SunburstChart,
+  SankeyChart,
+  FunnelChart,
+  GaugeChart,
+  GeoComponent,
+  MarkPointComponent,
+  MarkLineComponent,
 ])
 
 export default echarts

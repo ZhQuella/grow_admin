@@ -1,18 +1,25 @@
 import type { ReportChartType } from './chartTypes'
+import type { ReportChartConfig } from './chartConfig'
 
 /** 设计器 / 运行时共用的报表 schema */
 
 export const REPORT_GRID_COL_NUM = 24
 export const REPORT_GRID_ROW_HEIGHT = 30
 
-export type { ReportChartType } from './chartTypes'
+export type { ReportChartType, CartesianSeriesType, ReportChartTypeOption } from './chartTypes'
 export {
   REPORT_CHART_TYPE_OPTIONS,
+  CARTESIAN_SERIES_TYPE_OPTIONS,
   DEFAULT_REPORT_CHART_TYPE,
   getReportChartTypeOption,
   toChartTypeSoftBg,
 } from './chartTypes'
-export type { ReportChartTypeOption } from './chartTypes'
+export type { ReportChartConfig } from './chartConfig'
+export {
+  createDefaultChartConfig,
+  getChartOptionFields,
+  buildEChartsOption,
+} from './chartConfig'
 
 export type ReportLayoutItem = {
   i: string
@@ -25,6 +32,8 @@ export type ReportLayoutItem = {
   showTitle: boolean
   /** 报表图表类型 */
   chartType: ReportChartType
+  /** 图表视觉配置（对齐 ECharts，不含数据） */
+  chartConfig?: ReportChartConfig
 }
 
 export type ReportPageConfig = {

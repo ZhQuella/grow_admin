@@ -1,10 +1,7 @@
-/** 报表图表类型（对齐 ECharts 常见系列） */
+/** 报表图表类型（对齐 ECharts；笛卡尔可组合类型统一为 cartesian） */
 export type ReportChartType =
-  | 'line'
-  | 'bar'
-  | 'scatter'
+  | 'cartesian'
   | 'map'
-  | 'candlestick'
   | 'radar'
   | 'boxplot'
   | 'heatmap'
@@ -21,6 +18,9 @@ export type ReportChartType =
   | 'matrix'
   | 'chord'
 
+/** 直角坐标系内可组合的系列类型 */
+export type CartesianSeriesType = 'line' | 'bar' | 'scatter' | 'candlestick'
+
 export type ReportChartTypeOption = {
   value: ReportChartType
   /** 完整名称 */
@@ -32,12 +32,25 @@ export type ReportChartTypeOption = {
   color: string
 }
 
+export const CARTESIAN_SERIES_TYPE_OPTIONS: Array<{
+  label: string
+  value: CartesianSeriesType
+}> = [
+  { label: '折线', value: 'line' },
+  { label: '柱状', value: 'bar' },
+  { label: '散点', value: 'scatter' },
+  { label: 'K线', value: 'candlestick' },
+]
+
 export const REPORT_CHART_TYPE_OPTIONS: ReportChartTypeOption[] = [
-  { value: 'line', label: '折线图', shortLabel: '折线', icon: 'carbon:chart-line', color: '#2563EB' },
-  { value: 'bar', label: '柱状图', shortLabel: '柱状', icon: 'carbon:chart-bar', color: '#D97706' },
-  { value: 'scatter', label: '散点图', shortLabel: '散点', icon: 'carbon:chart-scatter', color: '#059669' },
+  {
+    value: 'cartesian',
+    label: '直角坐标系',
+    shortLabel: '直角',
+    icon: 'carbon:chart-combo',
+    color: '#0F766E',
+  },
   { value: 'map', label: '地理坐标/地图', shortLabel: '地图', icon: 'carbon:map', color: '#0891B2' },
-  { value: 'candlestick', label: 'K线图', shortLabel: 'K线', icon: 'carbon:chart-candlestick', color: '#DC2626' },
   { value: 'radar', label: '雷达图', shortLabel: '雷达', icon: 'carbon:chart-radar', color: '#7C3AED' },
   { value: 'boxplot', label: '盒须图', shortLabel: '盒须', icon: 'carbon:box-plot', color: '#DB2777' },
   { value: 'heatmap', label: '热力图', shortLabel: '热力', icon: 'carbon:heat-map-02', color: '#EA580C' },
@@ -55,7 +68,7 @@ export const REPORT_CHART_TYPE_OPTIONS: ReportChartTypeOption[] = [
   { value: 'chord', label: '和弦图', shortLabel: '和弦', icon: 'carbon:chart-relationship', color: '#7E22CE' },
 ]
 
-export const DEFAULT_REPORT_CHART_TYPE: ReportChartType = 'line'
+export const DEFAULT_REPORT_CHART_TYPE: ReportChartType = 'cartesian'
 
 export function getReportChartTypeOption(type: ReportChartType): ReportChartTypeOption {
   return (

@@ -12,11 +12,14 @@
     "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
   },
   "dependencies": {
+    "@esmjs/geo": "^1.0.0",
+    "@grow-admin-rock/code-sandbox": "workspace:*",
     "@grow-admin-rock/components": "workspace:*",
     "@grow-admin-rock/hooks": "workspace:*",
     "@grow-admin-rock/utils": "workspace:*",
     "echarts": "^5.4.2",
-    "vue3-grid-layout": "^1.0.0"
+    "vue3-grid-layout": "^1.0.0",
+    "vuedraggable": "^4.1.0"
   },
   "peerDependencies": {
     "vue": "~3.3.4"

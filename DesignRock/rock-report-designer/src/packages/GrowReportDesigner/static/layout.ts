@@ -1,5 +1,10 @@
+import { cloneDeep } from '@grow-admin-rock/utils'
 import type { ReportLayoutItem } from '../../GrowReportRenderer/types'
-import { REPORT_GRID_COL_NUM, DEFAULT_REPORT_CHART_TYPE } from '../../GrowReportRenderer/types'
+import {
+  REPORT_GRID_COL_NUM,
+  DEFAULT_REPORT_CHART_TYPE,
+  createDefaultChartConfig,
+} from '../../GrowReportRenderer/types'
 
 export {
   REPORT_GRID_COL_NUM,
@@ -8,7 +13,7 @@ export {
 } from '../../GrowReportRenderer/types'
 export type { ReportLayoutItem, ReportChartType } from '../../GrowReportRenderer/types'
 
-export const REPORT_BLOCK_DEFAULT_W = 4
+export const REPORT_BLOCK_DEFAULT_W = REPORT_GRID_COL_NUM
 export const REPORT_BLOCK_DEFAULT_H = 4
 
 function collides(
@@ -64,6 +69,7 @@ export function createLayoutItem(
     title: `区块 ${index}`,
     showTitle: true,
     chartType: DEFAULT_REPORT_CHART_TYPE,
+    chartConfig: createDefaultChartConfig(DEFAULT_REPORT_CHART_TYPE),
   }
 }
 
@@ -80,5 +86,8 @@ export function copyLayoutItem(
     x,
     y,
     title: `${source.title} 副本`,
+    chartConfig: cloneDeep(
+      source.chartConfig ?? createDefaultChartConfig(source.chartType),
+    ),
   }
 }

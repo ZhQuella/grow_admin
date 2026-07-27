@@ -32,7 +32,7 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-  change: [patch: Partial<Pick<ReportLayoutItem, 'title' | 'showTitle' | 'chartType'>>]
+  change: [patch: Partial<Pick<ReportLayoutItem, 'title' | 'showTitle' | 'chartType' | 'chartConfig'>>]
 }>()
 
 const activeTab = ref('report')
@@ -45,7 +45,7 @@ const panelMap = {
 const activePanel = computed(() => panelMap[activeTab.value as keyof typeof panelMap])
 
 const onPanelChange = (
-  patch: Partial<Pick<ReportLayoutItem, 'title' | 'showTitle' | 'chartType'>>,
+  patch: Partial<Pick<ReportLayoutItem, 'title' | 'showTitle' | 'chartType' | 'chartConfig'>>,
 ) => {
   emit('change', patch)
 }

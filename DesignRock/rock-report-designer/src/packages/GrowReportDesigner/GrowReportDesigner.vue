@@ -126,7 +126,11 @@
                 <template v-if="item.showTitle" #header>
                   <span>{{ item.title }}</span>
                 </template>
-                <div class="box-border h-full min-h-0 w-full" />
+                <ReportBlockChart
+                  class="min-h-0 flex-1"
+                  :chart-type="item.chartType"
+                  :chart-config="item.chartConfig"
+                />
               </GrowCard>
             </div>
           </GridItem>
@@ -178,6 +182,7 @@ import {
   createReportSchema,
   type ReportSchema,
 } from '../GrowReportRenderer'
+import ReportBlockChart from '../GrowReportRenderer/components/ReportBlockChart.vue'
 import BlockConfigPanel from './components/BlockConfigPanel.vue'
 import {
   REPORT_GRID_COL_NUM,
@@ -269,7 +274,7 @@ const onCloseConfig = () => {
 }
 
 const onConfigChange = (
-  patch: Partial<Pick<ReportLayoutItem, 'title' | 'showTitle' | 'chartType'>>,
+  patch: Partial<Pick<ReportLayoutItem, 'title' | 'showTitle' | 'chartType' | 'chartConfig'>>,
 ) => {
   if (!configId.value) return
   layout.value = layout.value.map((item) =>
@@ -323,7 +328,9 @@ const onPreview = () => {
 .report-block-card :deep(.el-card__body),
 .report-block-card :deep(.n-card__content),
 .report-block-card :deep(.ant-card-body) {
+  display: flex;
   flex: 1;
+  flex-direction: column;
   min-height: 0;
   overflow: hidden;
   padding: 10px;

@@ -1,5 +1,5 @@
 <template>
-  <div class="box-border w-full px-3 py-3">
+  <div class="box-border flex w-full flex-col gap-3 px-3 py-3">
     <GrowForm
       class="w-full"
       label-position="top"
@@ -45,18 +45,36 @@
         </div>
       </GrowFormItem>
     </GrowForm>
+
+    <div class="border-t border-solid border-border pt-3">
+      <div class="mb-2 text-xs font-medium text-text">
+        {{ currentTypeLabel }} · 图表配置
+      </div>
+      <ChartOptionFields
+        :chart-type="item.chartType"
+        :model-value="resolvedChartConfig"
+        @update:model-value="onChartConfigChange"
+      />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import {
+  createDefaultChartConfig,
+  type ReportChartConfig,
+} from '../../GrowReportRenderer/chartConfig'
 import {
   REPORT_CHART_TYPE_OPTIONS,
+  getReportChartTypeOption,
   toChartTypeSoftBg,
   type ReportChartType,
   type ReportChartTypeOption,
   type ReportLayoutItem,
 } from '../../GrowReportRenderer/types'
+import { confirmClearChartConfig } from '../static/confirmClearChartConfig'
+import ChartOptionFields from './ChartOptionFields.vue'
 
 defineOptions({
   name: 'ReportConfigPanel',
@@ -67,10 +85,18 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  change: [patch: Partial<Pick<ReportLayoutItem, 'chartType'>>]
+  change: [patch: Partial<Pick<ReportLayoutItem, 'chartType' | 'chartConfig'>>]
 }>()
 
 const hoveredType = ref<ReportChartType | null>(null)
+
+const currentTypeLabel = computed(
+  () => getReportChartTypeOption(props.item.chartType).label,
+)
+
+const resolvedChartConfig = computed<ReportChartConfig>(
+  () => props.item.chartConfig ?? createDefaultChartConfig(props.item.chartType),
+)
 
 const resolveIconColor = (option: ReportChartTypeOption) => {
   if (props.item.chartType === option.value || hoveredType.value === option.value) {
@@ -89,8 +115,22 @@ const resolveCellStyle = (option: ReportChartTypeOption) => {
   return { backgroundColor: 'transparent' }
 }
 
-const onSelectType = (chartType: ReportChartType) => {
-  emit('change', { chartType })
+const onChartConfigChange = (chartConfig: ReportChartConfig) => {
+  emit('change', { chartConfig })
+}
+
+const onSelectType = async (chartType: ReportChartType) => {
+  if (chartType === props.item.chartType) return
+
+  const fromLabel = getReportChartTypeOption(props.item.chartType).label
+  const toLabel = getReportChartTypeOption(chartType).label
+  const ok = await confirmClearChartConfig({ fromLabel, toLabel })
+  if (!ok) return
+
+  emit('change', {
+    chartType,
+    chartConfig: createDefaultChartConfig(chartType),
+  })
 }
 </script>
 

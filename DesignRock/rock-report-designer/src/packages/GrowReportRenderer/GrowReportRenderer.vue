@@ -15,7 +15,11 @@
           <template v-if="item.showTitle" #header>
             <span>{{ item.title }}</span>
           </template>
-          <div class="box-border h-full min-h-0 w-full" />
+          <ReportBlockChart
+            class="min-h-0 flex-1"
+            :chart-type="item.chartType"
+            :chart-config="item.chartConfig"
+          />
         </GrowCard>
       </div>
     </div>
@@ -29,6 +33,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import ReportBlockChart from './components/ReportBlockChart.vue'
 import {
   REPORT_GRID_COL_NUM,
   REPORT_GRID_ROW_HEIGHT,
@@ -80,7 +85,9 @@ const boardHeight = computed(() =>
 .report-block-card :deep(.el-card__body),
 .report-block-card :deep(.n-card__content),
 .report-block-card :deep(.ant-card-body) {
+  display: flex;
   flex: 1;
+  flex-direction: column;
   min-height: 0;
   overflow: hidden;
   padding: 10px;

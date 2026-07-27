@@ -6,7 +6,9 @@ export type {
   ReportLayoutItem,
   ReportPageConfig,
   ReportChartType,
+  CartesianSeriesType,
   ReportChartTypeOption,
+  ReportChartConfig,
 } from './types'
 export {
   REPORT_GRID_COL_NUM,
@@ -15,7 +17,11 @@ export {
   getPreviewBoardHeight,
   toPreviewItemStyle,
   REPORT_CHART_TYPE_OPTIONS,
+  CARTESIAN_SERIES_TYPE_OPTIONS,
   DEFAULT_REPORT_CHART_TYPE,
   getReportChartTypeOption,
   toChartTypeSoftBg,
+  createDefaultChartConfig,
+  getChartOptionFields,
+  buildEChartsOption,
 } from './types'

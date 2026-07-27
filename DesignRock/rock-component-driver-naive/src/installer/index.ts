@@ -182,6 +182,7 @@ const allComponents = {
   [RockComponent.Cascader]: NCascader,
   [RockComponent.DatePicker]: NDatePicker,
   [RockComponent.TimePicker]: NTimePicker,
+  [RockComponent.ColorPicker]: NColorPicker,
   [RockComponent.FormItemGi]: NFormItemGi,
   [RockComponent.Tree]: NTree,
   [RockComponent.Table]: NDataTable,

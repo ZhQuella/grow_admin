@@ -54,6 +54,7 @@ import {
 } from 'ant-design-vue';
 import ButtonGroup from '#/components/ButtonGroup.vue'
 import CarouselItem from '#/components/CarouselItem.vue'
+import ColorPicker from '#/components/ColorPicker.vue'
 import Config from '#/components/Config.vue'
 import Dialog from '#/components/Dialog.vue'
 import DialogProvider from '#/components/DialogProvider.vue'
@@ -109,6 +110,7 @@ const allComponents: Partial<Record<RockComponent, any>> = {
   [RockComponent.CarouselItem]: CarouselItem,
   [RockComponent.Config]: Config,
   [RockComponent.DatePicker]: DatePicker,
+  [RockComponent.ColorPicker]: ColorPicker,
   [RockComponent.TimePicker]: TimePicker,
   [RockComponent.Descriptions]: Descriptions,
   [RockComponent.DescriptionsItem]: Descriptions.Item,
