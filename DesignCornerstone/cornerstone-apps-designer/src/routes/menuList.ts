@@ -28,6 +28,15 @@ export const DESIGNER_MENU_LIST: DesignerMenuApiItem[] = [
         isKeepAlive: true,
         sort: 20,
       },
+      {
+        name: 'SchemaDesignerPlayground',
+        title: '数据库建模',
+        icon: 'ant-design:database-outlined',
+        menuType: MenuTypeEnum.MENU,
+        isVisible: true,
+        isKeepAlive: true,
+        sort: 30,
+      },
     ],
   },
 ]
