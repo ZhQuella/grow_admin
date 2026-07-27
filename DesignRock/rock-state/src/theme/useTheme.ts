@@ -38,7 +38,7 @@ export function useTheme() {
 
   function applyThemeToDom() {
     applyDarkClass(isDark.value)
-    applyThemeColor(themeColor.value)
+    applyThemeColor(themeColor.value, document.documentElement, isDark.value)
   }
 
   function syncThemeToDom() {
