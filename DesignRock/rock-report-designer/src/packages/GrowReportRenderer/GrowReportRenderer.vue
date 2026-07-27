@@ -19,8 +19,10 @@
         </GrowCard>
       </div>
     </div>
-    <div v-else class="flex-center h-full min-h-60 w-full text-sm text-text-secondary">
-      <slot name="empty">暂无内容</slot>
+    <div v-else class="flex-center h-full min-h-60 w-full">
+      <GrowEmpty>
+        <slot name="empty">暂无内容</slot>
+      </GrowEmpty>
     </div>
   </div>
 </template>

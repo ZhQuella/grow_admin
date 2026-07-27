@@ -66,3 +66,19 @@ export function createLayoutItem(
     chartType: DEFAULT_REPORT_CHART_TYPE,
   }
 }
+
+/** 复制区块：保留尺寸与配置，放到下一个空位 */
+export function copyLayoutItem(
+  layout: ReportLayoutItem[],
+  source: ReportLayoutItem,
+  id: string,
+): ReportLayoutItem {
+  const { x, y } = findNextPosition(layout, source.w, source.h)
+  return {
+    ...source,
+    i: id,
+    x,
+    y,
+    title: `${source.title} 副本`,
+  }
+}

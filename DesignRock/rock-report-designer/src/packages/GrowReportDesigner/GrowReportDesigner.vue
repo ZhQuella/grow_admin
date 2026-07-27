@@ -17,7 +17,7 @@
           清空
         </GrowButton>
         <span class="ml-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs text-text-secondary">
-          悬停区块可删除，拖拽可调整位置与大小
+          悬停区块可配置、复制或删除，拖拽可调整位置与大小
         </span>
       </div>
       <GrowButton size="small" type="primary" @click="onPreview">
@@ -67,6 +67,10 @@
             :h="item.h"
             :i="item.i"
             @click.stop="onSelect(item.i)"
+            @move="onItemMove"
+            @moved="onItemInteractEnd"
+            @resize="onItemResize"
+            @resized="onItemInteractEnd"
           >
             <div
               class="group relative box-border h-full w-full cursor-pointer select-none"
@@ -75,24 +79,48 @@
               <div
                 class="absolute right-0 top-0 z-20 hidden h-[26px] items-center gap-0.5 rounded-bl-lg rounded-tr bg-primary px-1 py-0 pl-0.5 text-white group-hover:inline-flex group-[.is-active]:inline-flex"
               >
-                <button
-                  type="button"
-                  class="m-0 inline-flex h-[22px] w-[22px] cursor-pointer items-center justify-center rounded border-none bg-transparent p-0 leading-none text-white opacity-90 hover:bg-white/18 hover:opacity-100"
+                <GrowIconify
+                  class="inline-flex h-[22px] w-[22px] items-center justify-center rounded text-white opacity-90 hover:bg-white/18 hover:opacity-100"
+                  icon="carbon:settings"
+                  :size="13"
+                  hover-pointer
                   title="报表配置"
                   @click.stop="onOpenConfig(item.i)"
                   @mousedown.stop
-                >
-                  <GrowIconify icon="carbon:settings" :size="13" class="flex-center h-[13px] w-[13px]" />
-                </button>
-                <button
-                  type="button"
-                  class="m-0 inline-flex h-[22px] w-[22px] cursor-pointer items-center justify-center rounded border-none bg-transparent p-0 leading-none text-white opacity-90 hover:bg-[rgba(237,111,111,0.45)] hover:opacity-100"
+                />
+                <GrowIconify
+                  class="inline-flex h-[22px] w-[22px] items-center justify-center rounded text-white opacity-90 hover:bg-white/18 hover:opacity-100"
+                  icon="carbon:copy"
+                  :size="13"
+                  hover-pointer
+                  title="复制区块"
+                  @click.stop="onCopyBlock(item.i)"
+                  @mousedown.stop
+                />
+                <GrowIconify
+                  class="inline-flex h-[22px] w-[22px] items-center justify-center rounded text-white opacity-90 hover:bg-[rgba(237,111,111,0.45)] hover:opacity-100"
+                  icon="carbon:trash-can"
+                  :size="13"
+                  hover-pointer
                   title="删除区块"
                   @click.stop="onDeleteBlock(item.i)"
                   @mousedown.stop
+                />
+              </div>
+              <div
+                v-if="dragHint?.i === item.i"
+                class="pointer-events-none absolute inset-0 z-10 flex items-center justify-center"
+              >
+                <div
+                  class="rounded-md bg-[rgba(0,0,0,0.62)] px-2.5 py-1.5 text-center text-white shadow-sm backdrop-blur-[2px]"
                 >
-                  <GrowIconify icon="carbon:trash-can" :size="13" class="flex-center h-[13px] w-[13px]" />
-                </button>
+                  <div class="text-sm font-semibold leading-tight tracking-wide">
+                    {{ dragHint.shareText }}
+                  </div>
+                  <div class="mt-0.5 text-[11px] leading-tight opacity-85">
+                    {{ dragHint.sizeText }}
+                  </div>
+                </div>
               </div>
               <GrowCard class="report-block-card flex h-full flex-col overflow-hidden">
                 <template v-if="item.showTitle" #header>
@@ -105,10 +133,7 @@
         </GridLayout>
 
         <div v-else class="flex-center h-full min-h-60 w-full">
-          <div class="text-center text-text-secondary">
-            <GrowIconify icon="carbon:grid" :size="56" class="mb-3 opacity-45" />
-            <p class="m-0 text-sm">点击上方「添加区块」开始设计</p>
-          </div>
+          <GrowEmpty description="点击上方「添加区块」开始设计" />
         </div>
       </div>
 
@@ -126,14 +151,15 @@
             {{ configPanelTitle }}
           </h4>
           <div class="ml-auto flex w-auto shrink-0 flex-nowrap items-center justify-end p-0">
-            <button
-              type="button"
-              class="m-0 inline-flex h-7 max-w-7 min-w-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded border-none bg-transparent p-0 leading-none text-text-secondary hover:bg-layout hover:text-text"
+            <GrowButton
+              text
+              size="small"
+              class="!h-7 !max-w-7 !min-w-7 !w-7 !shrink-0 !p-0 text-text-secondary"
               title="关闭"
               @click="onCloseConfig"
             >
-              <GrowIconify icon="carbon:close" :size="15" class="flex-center h-[15px] w-[15px]" />
-            </button>
+              <GrowIconify icon="carbon:close" :size="15" />
+            </GrowButton>
           </div>
         </div>
         <div class="min-h-0 flex-1 overflow-auto">
@@ -156,6 +182,7 @@ import BlockConfigPanel from './components/BlockConfigPanel.vue'
 import {
   REPORT_GRID_COL_NUM,
   REPORT_GRID_ROW_HEIGHT,
+  copyLayoutItem,
   createLayoutItem,
   type ReportLayoutItem,
 } from './static/layout'
@@ -170,6 +197,12 @@ const previewVisible = ref(false)
 const previewSchema = ref<ReportSchema | null>(null)
 const configVisible = ref(false)
 const configId = ref('')
+/** 拖拽 / 缩放时展示的区域占比提示 */
+const dragHint = ref<{
+  i: string
+  shareText: string
+  sizeText: string
+} | null>(null)
 let blockSeq = 0
 
 const configItem = computed(() =>
@@ -179,6 +212,35 @@ const configItem = computed(() =>
 const configPanelTitle = computed(() =>
   configItem.value ? `报表配置 · ${configItem.value.title}` : '报表配置',
 )
+
+const formatDragHint = (i: string, w: number, h: number) => {
+  // 占比 = 当前所占格数 / 总格数（总格数 = 网格列数）
+  const share = (Math.max(w, 0) / REPORT_GRID_COL_NUM) * 100
+  return {
+    i,
+    shareText: Number.isInteger(share) ? `${share}%` : `${share.toFixed(1)}%`,
+    sizeText: `${w} × ${h}`,
+  }
+}
+
+const showDragHint = (i: string, w: number, h: number) => {
+  dragHint.value = formatDragHint(i, w, h)
+}
+
+const onItemMove = (i: string | number) => {
+  const id = String(i)
+  const item = layout.value.find((entry) => entry.i === id)
+  if (!item) return
+  showDragHint(id, item.w, item.h)
+}
+
+const onItemResize = (i: string | number, h: number, w: number) => {
+  showDragHint(String(i), w, h)
+}
+
+const onItemInteractEnd = () => {
+  dragHint.value = null
+}
 
 const onSelect = (id: string) => {
   activeId.value = id
@@ -222,6 +284,16 @@ const onDeleteBlock = (id: string) => {
     configId.value = ''
     configVisible.value = false
   }
+}
+
+const onCopyBlock = (id: string) => {
+  const source = layout.value.find((item) => item.i === id)
+  if (!source) return
+  blockSeq += 1
+  const nextId = `block-${blockSeq}`
+  const copied = copyLayoutItem(layout.value, source, nextId)
+  layout.value = [...layout.value, copied]
+  activeId.value = nextId
 }
 
 const onClearCanvas = () => {
