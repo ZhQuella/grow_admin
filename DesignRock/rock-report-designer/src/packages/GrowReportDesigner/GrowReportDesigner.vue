@@ -12,7 +12,7 @@
           <GrowIconify icon="carbon:add" :size="14" class="mr-1 align-[-2px]" />
           添加区块
         </GrowButton>
-        <GrowButton size="small" :disabled="!layout.length" @click="onClearCanvas">
+        <GrowButton class="!ml-0" size="small" :disabled="!layout.length" @click="onClearCanvas">
           <GrowIconify icon="carbon:erase" :size="14" class="mr-1 align-[-2px]" />
           清空
         </GrowButton>
