@@ -95,14 +95,7 @@ export function createDefaultChartConfig(chartType: ReportChartType): ReportChar
           name: '',
           scale: false,
         },
-        seriesList: [
-          {
-            name: '系列1',
-            type: 'bar',
-            yAxisIndex: 0,
-            barWidth: '',
-          },
-        ],
+        seriesList: [],
       }
     case 'boxplot':
       return {
@@ -116,6 +109,18 @@ export function createDefaultChartConfig(chartType: ReportChartType): ReportChar
       return {
         ...cartesianBase(),
         tooltip: { show: true, trigger: 'item', confine: true },
+        xAxis: {
+          show: true,
+          type: 'category',
+          name: '',
+          boundaryGap: true,
+        },
+        yAxis: {
+          show: true,
+          type: 'category',
+          name: '',
+          scale: false,
+        },
         visualMap: {
           show: true,
           calculable: true,
@@ -139,22 +144,11 @@ export function createDefaultChartConfig(chartType: ReportChartType): ReportChar
           radius: '65%',
           center: ['50%', '50%'],
           startAngle: 90,
-          indicator: [
-            { name: '销售', max: 100 },
-            { name: '管理', max: 100 },
-            { name: '信息技术', max: 100 },
-            { name: '客服', max: 100 },
-            { name: '研发', max: 100 },
-          ],
+          indicator: [],
           /** 分割区填充色，由外到内 */
-          splitAreaColors: ['#77EADF', '#26C3BE', '#64AFE9', '#428BD4'],
+          splitAreaColors: [],
           /** 圆环轮廓线颜色，由外到内 */
-          splitLineColors: [
-            'rgba(211, 253, 250, 0.8)',
-            'rgba(211, 253, 250, 0.8)',
-            'rgba(211, 253, 250, 0.8)',
-            'rgba(211, 253, 250, 0.8)',
-          ],
+          splitLineColors: [],
           axisName: {
             show: true,
             /** none | custom；custom 时用 axisName.formatter */
@@ -184,30 +178,7 @@ export function createDefaultChartConfig(chartType: ReportChartType): ReportChar
             },
           },
         },
-        radarSeriesList: [
-          {
-            name: '预算',
-            areaFill: 'solid',
-            areaColor: 'rgba(103, 249, 216, 0.45)',
-            gradientFrom: 'rgba(103, 249, 216, 0.1)',
-            gradientTo: 'rgba(103, 249, 216, 0.85)',
-            lineType: 'solid',
-            symbol: 'circle',
-            symbolSize: 6,
-            showLabel: false,
-          },
-          {
-            name: '实际',
-            areaFill: 'solid',
-            areaColor: 'rgba(255, 228, 52, 0.55)',
-            gradientFrom: 'rgba(255, 145, 124, 0.1)',
-            gradientTo: 'rgba(255, 145, 124, 0.9)',
-            lineType: 'solid',
-            symbol: 'circle',
-            symbolSize: 6,
-            showLabel: false,
-          },
-        ],
+        radarSeriesList: [],
         seriesStyle: {
           type: 'radar',
         },
@@ -393,6 +364,18 @@ export function createDefaultChartConfig(chartType: ReportChartType): ReportChar
       return {
         ...cartesianBase(),
         tooltip: { show: true, trigger: 'item', confine: true },
+        xAxis: {
+          show: true,
+          type: 'category',
+          name: '',
+          boundaryGap: true,
+        },
+        yAxis: {
+          show: true,
+          type: 'category',
+          name: '',
+          scale: false,
+        },
         seriesStyle: {
           type: 'heatmap',
         },

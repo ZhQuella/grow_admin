@@ -3,12 +3,20 @@
     <div class="shrink-0 px-1">
       <GrowTabs v-model="activeTab" size="small" stretch>
         <GrowTabPane label="报表配置" name="report" />
+        <GrowTabPane label="数据绑定" name="data" />
         <GrowTabPane label="基础信息" name="basic" />
       </GrowTabs>
     </div>
 
     <GrowScrollbar class="min-h-0 flex-1">
+      <BlockDataBindingPanel
+        v-if="activeTab === 'data'"
+        :item="item"
+        :variable-options="variableOptions"
+        @change="onPanelChange"
+      />
       <component
+        v-else
         :is="activePanel"
         :item="item"
         @change="onPanelChange"
@@ -22,17 +30,28 @@ import { computed, ref } from 'vue'
 import type { ReportLayoutItem } from '../static/layout'
 import BasicConfigPanel from './BasicConfigPanel.vue'
 import ReportConfigPanel from './ReportConfigPanel.vue'
+import BlockDataBindingPanel from './BlockDataBindingPanel.vue'
 
 defineOptions({
   name: 'BlockConfigPanel',
 })
 
-defineProps<{
-  item: ReportLayoutItem
-}>()
+withDefaults(
+  defineProps<{
+    item: ReportLayoutItem
+    variableOptions?: Array<{ label: string; value: string }>
+  }>(),
+  {
+    variableOptions: () => [],
+  },
+)
 
 const emit = defineEmits<{
-  change: [patch: Partial<Pick<ReportLayoutItem, 'title' | 'showTitle' | 'chartType' | 'chartConfig'>>]
+  change: [
+    patch: Partial<
+      Pick<ReportLayoutItem, 'title' | 'showTitle' | 'chartType' | 'chartConfig' | 'dataBinding'>
+    >,
+  ]
 }>()
 
 const activeTab = ref('report')
@@ -45,7 +64,9 @@ const panelMap = {
 const activePanel = computed(() => panelMap[activeTab.value as keyof typeof panelMap])
 
 const onPanelChange = (
-  patch: Partial<Pick<ReportLayoutItem, 'title' | 'showTitle' | 'chartType' | 'chartConfig'>>,
+  patch: Partial<
+    Pick<ReportLayoutItem, 'title' | 'showTitle' | 'chartType' | 'chartConfig' | 'dataBinding'>
+  >,
 ) => {
   emit('change', patch)
 }

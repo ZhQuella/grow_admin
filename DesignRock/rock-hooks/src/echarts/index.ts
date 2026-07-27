@@ -19,6 +19,7 @@ import {
   SankeyChart,
   FunnelChart,
   GaugeChart,
+  ParallelChart,
 } from 'echarts/charts'
 import {
   TitleComponent,
@@ -78,6 +79,7 @@ echarts.use([
   SankeyChart,
   FunnelChart,
   GaugeChart,
+  ParallelChart,
   GeoComponent,
   MarkPointComponent,
   MarkLineComponent,

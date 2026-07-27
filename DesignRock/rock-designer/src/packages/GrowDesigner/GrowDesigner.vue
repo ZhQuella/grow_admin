@@ -197,6 +197,19 @@ const previewSchema = computed<DesignerSchema>(() => {
     description: item?.description,
     code: item?.code,
   }))
+  const apiOutlined = (draggableConfig.apiOutlined || []).map((item: any) => ({
+    id: item?.id,
+    name: item?.name,
+    description: item?.description,
+    autoLoad: item?.autoLoad,
+    loadType: item?.loadType,
+    url: item?.url,
+    method: item?.method,
+    params: item?.params,
+    shouldFetch: item?.shouldFetch,
+    processors: item?.processors,
+    defaultData: item?.defaultData,
+  }))
   return {
     structures: draggableConfig.structures,
     renderArgument: draggableConfig.renderArgument,
@@ -205,6 +218,7 @@ const previewSchema = computed<DesignerSchema>(() => {
     pageConfig: draggableConfig.pageConfig,
     dataSource,
     computedProps,
+    apiOutlined,
     propBindModes: draggableConfig.propBindModes,
     events: draggableConfig.events,
   }

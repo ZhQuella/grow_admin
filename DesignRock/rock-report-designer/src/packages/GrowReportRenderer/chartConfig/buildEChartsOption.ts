@@ -4,6 +4,7 @@ import { echarts } from '@grow-admin-rock/hooks'
 import type { ReportChartType } from '../chartTypes'
 import { createDefaultChartConfig } from './defaults'
 import { DEFAULT_REPORT_MAP_NAME, ensureReportMapsRegistered } from './registerMaps'
+import { compileCartesianSeriesList } from './compileCartesianSeries'
 import type { ReportChartConfig } from './types'
 
 ensureReportMapsRegistered()
@@ -80,32 +81,14 @@ function normalizeSeriesStyle(style: Record<string, any> = {}) {
   return next
 }
 
-function resolveCartesianSeriesType(type: unknown) {
-  if (type === 'scatter' || type === 'bar' || type === 'candlestick') return type
-  return 'line'
-}
-
 /** 仅构建系列结构，不含演示数据（真实数据源后续接入） */
 function buildSeries(chartType: ReportChartType, seriesStyle: Record<string, any>) {
   const style = normalizeSeriesStyle(seriesStyle)
 
   switch (chartType) {
     case 'cartesian': {
-      const list = Array.isArray(seriesStyle.__seriesList)
-        ? seriesStyle.__seriesList
-        : [{ name: '系列1', type: 'bar', yAxisIndex: 0 }]
-      return list.map((item: Record<string, any>, index: number) => {
-        const itemStyle = normalizeSeriesStyle({ ...item })
-        delete itemStyle.__seriesList
-        const type = resolveCartesianSeriesType(itemStyle.type)
-        return {
-          ...itemStyle,
-          name: itemStyle.name || `系列${index + 1}`,
-          type,
-          yAxisIndex: Number(itemStyle.yAxisIndex) === 1 ? 1 : 0,
-          data: [],
-        }
-      })
+      const list = Array.isArray(seriesStyle.__seriesList) ? seriesStyle.__seriesList : []
+      return compileCartesianSeriesList(list)
     }
     case 'boxplot':
       return [{ name: '盒须', ...style, type: 'boxplot', data: [] }]
@@ -143,9 +126,15 @@ function buildSeries(chartType: ReportChartType, seriesStyle: Record<string, any
 }
 
 function buildCartesianAxes(config: ReportChartConfig, chartType: ReportChartType) {
+  // 笛卡尔热力/矩阵：ECharts 要求双类目轴，否则报
+  // 「Heatmap on cartesian must have two category axes」
+  const forceCategoryPair = chartType === 'heatmap' || chartType === 'matrix'
+
   const leftAxis = {
     ...config.yAxis,
-    data: config.yAxis?.type === 'category' ? [] : undefined,
+    ...(forceCategoryPair ? { type: 'category' as const } : {}),
+    data:
+      forceCategoryPair || config.yAxis?.type === 'category' ? [] : undefined,
   }
 
   if (chartType === 'cartesian') {
@@ -180,7 +169,9 @@ function buildCartesianAxes(config: ReportChartConfig, chartType: ReportChartTyp
   return {
     xAxis: {
       ...config.xAxis,
-      data: config.xAxis?.type !== 'value' ? [] : undefined,
+      ...(forceCategoryPair ? { type: 'category' as const } : {}),
+      data:
+        forceCategoryPair || config.xAxis?.type !== 'value' ? [] : undefined,
     },
     yAxis: leftAxis,
   }
@@ -328,15 +319,18 @@ function buildRadarAxisName(axisName: Record<string, any> = {}) {
 
 function resolveRadarIndicators(config: ReportChartConfig) {
   const raw = config.radar?.indicator
-  if (Array.isArray(raw) && raw.length) {
+  // 已配置过 indicator（含空数组）时不再回退旧默认
+  if (Array.isArray(raw)) {
     return raw.map((item: any, index: number) => ({
       name: String(item?.name || item?.text || `指标${index + 1}`),
       max: Number(item?.max) > 0 ? Number(item.max) : 100,
     }))
   }
 
-  // 兼容旧配置：indicatorNames + indicatorMax
-  const names = splitCsvColors(config.radar?.indicatorNames || '销售,管理,信息技术,客服,研发')
+  // 兼容旧配置：仅当显式配置了 indicatorNames 时解析
+  const namesCsv = config.radar?.indicatorNames
+  if (!namesCsv) return []
+  const names = splitCsvColors(namesCsv)
   const max = Number(config.radar?.indicatorMax) > 0 ? Number(config.radar?.indicatorMax) : 100
   return names.map((name) => ({ name, max }))
 }
@@ -455,9 +449,12 @@ function buildRadarOption(config: ReportChartConfig): EChartsOption['radar'] {
 
 function buildRadarAreaStyle(item: NonNullable<ReportChartConfig['radarSeriesList']>[number]) {
   if (item.areaFill === 'solid') {
-    return { color: item.areaColor || 'rgba(103, 249, 216, 0.45)' }
+    return item.areaColor ? { color: item.areaColor } : {}
   }
   if (item.areaFill === 'radial') {
+    const from = item.gradientFrom
+    const to = item.gradientTo
+    if (!from && !to) return {}
     return {
       color: {
         type: 'radial',
@@ -465,8 +462,8 @@ function buildRadarAreaStyle(item: NonNullable<ReportChartConfig['radarSeriesLis
         y: 0.6,
         r: 1,
         colorStops: [
-          { offset: 0, color: item.gradientFrom || 'rgba(255, 145, 124, 0.1)' },
-          { offset: 1, color: item.gradientTo || 'rgba(255, 145, 124, 0.9)' },
+          ...(from ? [{ offset: 0, color: from }] : []),
+          ...(to ? [{ offset: 1, color: to }] : []),
         ],
       },
     }
@@ -475,29 +472,7 @@ function buildRadarAreaStyle(item: NonNullable<ReportChartConfig['radarSeriesLis
 }
 
 function buildRadarSeries(config: ReportChartConfig) {
-  const list =
-    config.radarSeriesList?.length
-      ? config.radarSeriesList
-      : [
-          {
-            name: '预算',
-            areaFill: 'solid' as const,
-            areaColor: 'rgba(103, 249, 216, 0.45)',
-            lineType: 'solid' as const,
-            symbol: 'circle',
-            symbolSize: 6,
-            showLabel: false,
-          },
-          {
-            name: '实际',
-            areaFill: 'solid' as const,
-            areaColor: 'rgba(255, 228, 52, 0.55)',
-            lineType: 'solid' as const,
-            symbol: 'circle',
-            symbolSize: 6,
-            showLabel: false,
-          },
-        ]
+  const list = Array.isArray(config.radarSeriesList) ? config.radarSeriesList : []
 
   const data = list.map((item, index) => {
     const areaStyle = buildRadarAreaStyle(item)
@@ -532,12 +507,124 @@ function buildRadarSeries(config: ReportChartConfig) {
   ]
 }
 
-/** 将报表视觉配置编译为 ECharts option（系列/轴不含演示数据，待数据源接入） */
+/** 将绑定解析后的数据注入已编译的 option */
+function injectChartData(
+  chartType: ReportChartType,
+  option: EChartsOption,
+  chartData?: {
+    xAxisData?: unknown
+    yAxisData?: unknown
+    seriesData?: unknown[]
+    chartData?: unknown
+    radarIndicator?: unknown
+  } | null,
+): EChartsOption {
+  if (!chartData) return option
+  const next = { ...option } as EChartsOption & Record<string, any>
+
+  if (Array.isArray(chartData.radarIndicator) && next.radar) {
+    next.radar = {
+      ...(next.radar as object),
+      indicator: chartData.radarIndicator,
+    }
+  }
+
+  if (Array.isArray(chartData.xAxisData) && next.xAxis) {
+    const xAxis = next.xAxis as any
+    next.xAxis = Array.isArray(xAxis)
+      ? [{ ...xAxis[0], data: chartData.xAxisData }, ...xAxis.slice(1)]
+      : { ...xAxis, data: chartData.xAxisData }
+  }
+
+  if (Array.isArray(chartData.yAxisData) && next.yAxis) {
+    const yAxis = next.yAxis as any
+    next.yAxis = Array.isArray(yAxis)
+      ? [{ ...yAxis[0], data: chartData.yAxisData }, ...yAxis.slice(1)]
+      : { ...yAxis, data: chartData.yAxisData }
+  }
+
+  const series = Array.isArray(next.series) ? [...(next.series as any[])] : []
+  if (!series.length) return next
+
+  if (chartType === 'cartesian' && Array.isArray(chartData.seriesData)) {
+    next.series = series.map((item, index) => ({
+      ...item,
+      data: chartData.seriesData![index] ?? item.data ?? [],
+    }))
+    return next
+  }
+
+  if (chartType === 'radar') {
+    if (Array.isArray(chartData.seriesData)) {
+      next.series = [
+        {
+          ...series[0],
+          data: (series[0]?.data || []).map((row: any, index: number) => ({
+            ...row,
+            value: chartData.seriesData![index] ?? row.value,
+          })),
+        },
+        ...series.slice(1),
+      ]
+      return next
+    }
+    if (chartData.chartData != null) {
+      const payload = chartData.chartData
+      if (Array.isArray(payload) && payload.length && typeof payload[0] === 'object') {
+        next.series = [{ ...series[0], data: payload }, ...series.slice(1)]
+      }
+      return next
+    }
+  }
+
+  if (
+    (chartType === 'graph' || chartType === 'chord' || chartType === 'sankey') &&
+    chartData.chartData != null
+  ) {
+    const payload = chartData.chartData as any
+    if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+      next.series = [
+        {
+          ...series[0],
+          data: payload.data ?? series[0].data,
+          links: payload.links ?? series[0].links,
+        },
+        ...series.slice(1),
+      ]
+    } else {
+      next.series = [{ ...series[0], data: payload }, ...series.slice(1)]
+    }
+    return next
+  }
+
+  if (chartData.chartData != null) {
+    next.series = [{ ...series[0], data: chartData.chartData }, ...series.slice(1)]
+  }
+
+  return next
+}
+
+/** 将报表视觉配置编译为 ECharts option；chartData 为绑定解析后的数据载荷 */
 export function buildEChartsOption(
   chartType: ReportChartType,
   chartConfig?: ReportChartConfig | null,
+  chartData?: {
+    xAxisData?: unknown
+    yAxisData?: unknown
+    seriesData?: unknown[]
+    chartData?: unknown
+    radarIndicator?: unknown
+  } | null,
 ): EChartsOption {
   const config = mergeChartConfig(chartType, chartConfig)
+
+  // 雷达指示器可被绑定覆盖（在编译 radar 前写入）
+  if (Array.isArray(chartData?.radarIndicator)) {
+    config.radar = {
+      ...(config.radar || {}),
+      indicator: chartData!.radarIndicator as any[],
+    }
+  }
 
   const toolboxFeature = toToolboxFeature(config.toolbox?.feature)
   const base: EChartsOption = {
@@ -589,10 +676,19 @@ export function buildEChartsOption(
       series: buildSeries(chartType, seriesPayload),
     }
   } else if (chartType === 'radar') {
-    option = {
-      ...option,
-      radar: buildRadarOption(config),
-      series: buildRadarSeries(config),
+    const indicators = resolveRadarIndicators(config)
+    // ECharts 在 indicator 为空时会于 radarLayout 报错；无指示器时不挂 radar / series
+    if (!indicators.length) {
+      option = {
+        ...option,
+        series: [],
+      }
+    } else {
+      option = {
+        ...option,
+        radar: buildRadarOption(config),
+        series: buildRadarSeries(config),
+      }
     }
   } else if (chartType === 'parallel') {
     option = {
@@ -691,5 +787,5 @@ export function buildEChartsOption(
     }
   }
 
-  return option
+  return injectChartData(chartType, option, chartData)
 }

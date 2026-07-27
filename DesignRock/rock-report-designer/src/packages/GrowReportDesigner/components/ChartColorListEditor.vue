@@ -23,15 +23,14 @@
             :model-value="element.color || null"
             @update:model-value="(v) => onPatch(element._dragKey, String(v ?? ''))"
           />
-          <GrowButton
-            text
-            size="small"
-            type="danger"
-            class="!px-1"
-            :disabled="dragList.length <= 1"
-            title="删除颜色"
-            @click="onRemove(element._dragKey)"
-          >
+            <GrowButton
+              text
+              size="small"
+              type="danger"
+              class="!px-1"
+              title="删除颜色"
+              @click="onRemove(element._dragKey)"
+            >
             <GrowIconify icon="carbon:trash-can" :size="14" />
           </GrowButton>
         </div>
@@ -71,13 +70,11 @@ const emit = defineEmits<{
   'update:modelValue': [value: string[]]
 }>()
 
-const DEFAULT_COLORS = ['#77EADF', '#26C3BE', '#64AFE9', '#428BD4']
-
 const createDragKey = () =>
   `color-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
 
 const normalizeIncoming = (value?: string[] | string | null): string[] => {
-  if (Array.isArray(value) && value.length) {
+  if (Array.isArray(value)) {
     return value.map((item) => String(item || '').trim()).filter(Boolean)
   }
   if (typeof value === 'string' && value.trim()) {
@@ -86,12 +83,10 @@ const normalizeIncoming = (value?: string[] | string | null): string[] => {
       .map((item) => item.trim())
       .filter(Boolean)
   }
-  return [...DEFAULT_COLORS]
+  return []
 }
 
-const dragList = ref<DragColorItem[]>(
-  DEFAULT_COLORS.map((color) => ({ _dragKey: createDragKey(), color })),
-)
+const dragList = ref<DragColorItem[]>([])
 
 const toPlainList = (list: DragColorItem[]) => list.map((item) => item.color)
 
@@ -127,7 +122,6 @@ const onPatch = (dragKey: string, color: string) => {
 }
 
 const onRemove = (dragKey: string) => {
-  if (dragList.value.length <= 1) return
   dragList.value = dragList.value.filter((item) => item._dragKey !== dragKey)
   emitList()
 }

@@ -24,7 +24,6 @@
               size="small"
               type="danger"
               class="!px-1"
-              :disabled="dragList.length <= 3"
               title="删除指示器"
               @click="onRemove(element._dragKey)"
             >
@@ -94,26 +93,16 @@ const emit = defineEmits<{
   'update:modelValue': [value: IndicatorItem[]]
 }>()
 
-const DEFAULT_INDICATORS: IndicatorItem[] = [
-  { name: '销售', max: 100 },
-  { name: '管理', max: 100 },
-  { name: '信息技术', max: 100 },
-  { name: '客服', max: 100 },
-  { name: '研发', max: 100 },
-]
-
 const createDragKey = () =>
   `radar-indicator-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
 
-const dragList = ref<DragIndicatorItem[]>(
-  DEFAULT_INDICATORS.map((item) => ({ ...item, _dragKey: createDragKey() })),
-)
+const dragList = ref<DragIndicatorItem[]>([])
 
 const toPlainList = (list: DragIndicatorItem[]): IndicatorItem[] =>
   list.map(({ _dragKey, ...item }) => item)
 
 const syncFromProps = (value?: IndicatorItem[] | null) => {
-  const incoming = value?.length ? value : DEFAULT_INDICATORS
+  const incoming = Array.isArray(value) ? value : []
   const prevKeys = dragList.value.map((item) => item._dragKey)
   dragList.value = incoming.map((item, index) => ({
     ...item,
@@ -125,7 +114,7 @@ watch(
   () => props.modelValue,
   (value) => {
     const current = toPlainList(dragList.value)
-    const incoming = value?.length ? value : DEFAULT_INDICATORS
+    const incoming = Array.isArray(value) ? value : []
     if (JSON.stringify(current) === JSON.stringify(incoming)) return
     syncFromProps(value)
   },
@@ -144,7 +133,6 @@ const onPatch = (dragKey: string, patch: Partial<IndicatorItem>) => {
 }
 
 const onRemove = (dragKey: string) => {
-  if (dragList.value.length <= 3) return
   dragList.value = dragList.value.filter((item) => item._dragKey !== dragKey)
   emitList()
 }

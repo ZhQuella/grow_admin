@@ -36,6 +36,11 @@ import RenderNode from './components/RenderNode.vue'
 import type { DesignerSchema } from './types'
 import { GROW_RUNTIME_STATE } from '../GrowDesigner/config/designation'
 import { buildRuntimeState, syncRuntimeState } from './utils/resolveBoundProps'
+import {
+  recomputeComputedProps,
+  runApiOutlinedList,
+  type ReportHttpClient,
+} from './utils/runApiOutlined'
 import { runDesignerEvent } from './utils/runDesignerEvent'
 import { setupPageWatchers } from './utils/runDesignerWatcher'
 import type { DesignerEventItem } from '../GrowDesigner/static/elementEvents/types'
@@ -47,9 +52,12 @@ const props = withDefaults(
   defineProps<{
     /** 设计器导出的页面 schema（structures + renderArgument + props + styles） */
     schema?: DesignerSchema | null
+    /** 宿主注入的 HTTP 客户端（数据请求用）；缺省原生 fetch */
+    httpClient?: ReportHttpClient | null
   }>(),
   {
     schema: null,
+    httpClient: null,
   },
 )
 
@@ -59,16 +67,35 @@ const structures = computed(() => resolvedSchema.value.structures || [])
 
 /** 预览态可写 runtime state：绑定展示 + 控件变更回写 */
 const runtimeState = reactive<Record<string, unknown>>({})
+
+let apiRunToken = 0
+
+const rebuildRuntimeState = async () => {
+  const token = ++apiRunToken
+  syncRuntimeState(
+    runtimeState,
+    buildRuntimeState(
+      resolvedSchema.value.dataSource,
+      resolvedSchema.value.computedProps,
+    ),
+  )
+  await runApiOutlinedList(resolvedSchema.value.apiOutlined, runtimeState, {
+    httpClient: props.httpClient || undefined,
+    autoLoadOnly: true,
+  })
+  if (token !== apiRunToken) return
+  recomputeComputedProps(resolvedSchema.value.computedProps, runtimeState)
+}
+
 watch(
-  () => [resolvedSchema.value.dataSource, resolvedSchema.value.computedProps] as const,
+  () =>
+    [
+      resolvedSchema.value.dataSource,
+      resolvedSchema.value.computedProps,
+      resolvedSchema.value.apiOutlined,
+    ] as const,
   () => {
-    syncRuntimeState(
-      runtimeState,
-      buildRuntimeState(
-        resolvedSchema.value.dataSource,
-        resolvedSchema.value.computedProps,
-      ),
-    )
+    void rebuildRuntimeState()
   },
   { deep: true, immediate: true },
 )
@@ -77,9 +104,13 @@ provide(GROW_RUNTIME_STATE, runtimeState)
 /** 供宿主读取表单双向绑定后的最新 state */
 const getRuntimeState = () => runtimeState
 
+/** 手动刷新全部 autoLoad 数据请求 */
+const refreshApiOutlined = () => rebuildRuntimeState()
+
 defineExpose({
   runtimeState,
   getRuntimeState,
+  refreshApiOutlined,
 })
 
 const pageStyle = computed(() => {
