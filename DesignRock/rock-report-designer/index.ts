@@ -8,6 +8,9 @@ export type {
   CartesianSeriesType,
   ReportChartTypeOption,
   ReportChartConfig,
+  ReportBlockDataBinding,
+  ReportDataBindRef,
+  ReportDataBindMode,
 } from './src/packages/GrowReportRenderer'
 export {
   createReportSchema,

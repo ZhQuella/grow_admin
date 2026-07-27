@@ -17,14 +17,18 @@
               <span class="series-drag-handle" title="拖拽排序">
                 <GrowIconify icon="carbon:draggable" :size="14" />
               </span>
-              <span class="text-xs font-medium text-text">系列 {{ index + 1 }}</span>
+              <span class="text-xs font-medium text-text">
+                系列 {{ index + 1 }}
+                <span v-if="element.name" class="ml-1 font-normal text-text-secondary">
+                  · {{ element.name }}
+                </span>
+              </span>
             </div>
             <GrowButton
               text
               size="small"
               type="danger"
               class="!px-1"
-              :disabled="dragList.length <= 1"
               title="删除系列"
               @click="onRemove(element._dragKey)"
             >
@@ -32,127 +36,11 @@
             </GrowButton>
           </div>
 
-          <div class="flex flex-col gap-2">
-            <div class="flex items-center gap-2">
-              <span class="w-14 shrink-0 text-xs text-text-secondary">名称</span>
-              <GrowInput
-                class="min-w-0 flex-1"
-                size="small"
-                clearable
-                :model-value="element.name"
-                placeholder="系列名称"
-                @update:model-value="(v) => onPatch(element._dragKey, { name: String(v ?? '') })"
-              />
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="w-14 shrink-0 text-xs text-text-secondary">类型</span>
-              <GrowSelect
-                class="min-w-0 flex-1"
-                size="small"
-                :options="CARTESIAN_SERIES_TYPE_OPTIONS"
-                :model-value="element.type || 'line'"
-                @update:model-value="(v) => onPatch(element._dragKey, { type: v as CartesianSeriesType })"
-              />
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="w-14 shrink-0 text-xs text-text-secondary">坐标轴</span>
-              <GrowSelect
-                class="min-w-0 flex-1"
-                size="small"
-                :options="yAxisIndexOptions"
-                :model-value="element.yAxisIndex ?? 0"
-                @update:model-value="(v) => onPatch(element._dragKey, { yAxisIndex: Number(v) || 0 })"
-              />
-            </div>
-
-            <template v-if="element.type === 'line'">
-              <div class="flex items-center gap-2">
-                <span class="w-14 shrink-0 text-xs text-text-secondary">平滑</span>
-                <GrowSwitch
-                  size="small"
-                  :model-value="!!element.smooth"
-                  @update:model-value="(v) => onPatch(element._dragKey, { smooth: !!v })"
-                />
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="w-14 shrink-0 text-xs text-text-secondary">拐点</span>
-                <GrowSwitch
-                  size="small"
-                  :model-value="element.showSymbol !== false"
-                  @update:model-value="(v) => onPatch(element._dragKey, { showSymbol: !!v })"
-                />
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="w-14 shrink-0 text-xs text-text-secondary">面积</span>
-                <GrowSwitch
-                  size="small"
-                  :model-value="!!element.areaStyle"
-                  @update:model-value="(v) => onPatch(element._dragKey, { areaStyle: !!v })"
-                />
-              </div>
-            </template>
-
-            <template v-else-if="element.type === 'bar'">
-              <div class="flex items-center gap-2">
-                <span class="w-14 shrink-0 text-xs text-text-secondary">柱宽</span>
-                <GrowInput
-                  class="min-w-0 flex-1"
-                  size="small"
-                  clearable
-                  :model-value="stringify(element.barWidth)"
-                  placeholder="如 20 或 40%"
-                  @update:model-value="(v) => onPatch(element._dragKey, { barWidth: v as string })"
-                />
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="w-14 shrink-0 text-xs text-text-secondary">堆叠</span>
-                <GrowInput
-                  class="min-w-0 flex-1"
-                  size="small"
-                  clearable
-                  :model-value="element.stack"
-                  placeholder="同名堆叠"
-                  @update:model-value="(v) => onPatch(element._dragKey, { stack: String(v ?? '') })"
-                />
-              </div>
-            </template>
-
-            <template v-else-if="element.type === 'candlestick'">
-              <div class="flex items-center gap-2">
-                <span class="w-14 shrink-0 text-xs text-text-secondary">最大柱宽</span>
-                <GrowInputNumber
-                  class="min-w-0 flex-1"
-                  size="small"
-                  :controls="false"
-                  :model-value="element.barMaxWidth ?? 20"
-                  @update:model-value="(v) => onPatch(element._dragKey, { barMaxWidth: Number(v) || 20 })"
-                />
-              </div>
-            </template>
-
-            <template v-else>
-              <div class="flex items-center gap-2">
-                <span class="w-14 shrink-0 text-xs text-text-secondary">标记</span>
-                <GrowSelect
-                  class="min-w-0 flex-1"
-                  size="small"
-                  :options="symbolOptions"
-                  :model-value="element.symbol || 'circle'"
-                  @update:model-value="(v) => onPatch(element._dragKey, { symbol: String(v) })"
-                />
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="w-14 shrink-0 text-xs text-text-secondary">大小</span>
-                <GrowInputNumber
-                  class="min-w-0 flex-1"
-                  size="small"
-                  :controls="false"
-                  :model-value="element.symbolSize ?? 10"
-                  @update:model-value="(v) => onPatch(element._dragKey, { symbolSize: Number(v) || 10 })"
-                />
-              </div>
-            </template>
-          </div>
+          <ChartSeriesItemFields
+            :model="element"
+            @patch="(p) => onPatch(element._dragKey, p)"
+            @patch-nested="(path, value) => onPatchNested(element._dragKey, path, value)"
+          />
         </div>
       </template>
     </draggable>
@@ -167,11 +55,9 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import draggable from 'vuedraggable'
-import {
-  CARTESIAN_SERIES_TYPE_OPTIONS,
-  type CartesianSeriesType,
-} from '../../GrowReportRenderer/chartTypes'
+import { cloneDeep } from '@grow-admin-rock/utils'
 import type { ReportChartConfig } from '../../GrowReportRenderer/chartConfig'
+import ChartSeriesItemFields from './ChartSeriesItemFields.vue'
 
 defineOptions({
   name: 'ChartSeriesListEditor',
@@ -193,43 +79,19 @@ const emit = defineEmits<{
   'update:modelValue': [value: SeriesItem[]]
 }>()
 
-const yAxisIndexOptions = [
-  { label: '左轴', value: 0 },
-  { label: '右轴', value: 1 },
-]
-
-const symbolOptions = [
-  { label: '圆形', value: 'circle' },
-  { label: '矩形', value: 'rect' },
-  { label: '圆角矩形', value: 'roundRect' },
-  { label: '三角形', value: 'triangle' },
-  { label: '菱形', value: 'diamond' },
-  { label: '图钉', value: 'pin' },
-  { label: '箭头', value: 'arrow' },
-]
-
 const createDragKey = () =>
   `series-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
 
-const createDefaultItem = (): DragSeriesItem => ({
-  _dragKey: createDragKey(),
-  name: '系列1',
-  type: 'line',
-  yAxisIndex: 0,
-})
-
-const dragList = ref<DragSeriesItem[]>([createDefaultItem()])
+const dragList = ref<DragSeriesItem[]>([])
 
 const toPlainList = (list: DragSeriesItem[]): SeriesItem[] =>
   list.map(({ _dragKey, ...item }) => item)
 
 const syncFromProps = (value?: SeriesItem[] | null) => {
-  const incoming = value?.length
-    ? value
-    : [{ name: '系列1', type: 'line' as const, yAxisIndex: 0 }]
+  const incoming = Array.isArray(value) ? value : []
   const prevKeys = dragList.value.map((item) => item._dragKey)
   dragList.value = incoming.map((item, index) => ({
-    ...item,
+    ...cloneDeep(item),
     _dragKey: prevKeys[index] ?? createDragKey(),
   }))
 }
@@ -238,33 +100,53 @@ watch(
   () => props.modelValue,
   (value) => {
     const current = toPlainList(dragList.value)
-    const incoming = value?.length
-      ? value
-      : [{ name: '系列1', type: 'line' as const, yAxisIndex: 0 }]
+    const incoming = Array.isArray(value) ? value : []
     if (JSON.stringify(current) === JSON.stringify(incoming)) return
     syncFromProps(value)
   },
   { immediate: true, deep: true },
 )
 
-const stringify = (value: unknown) => {
-  if (value == null) return ''
-  return String(value)
-}
-
 const emitList = () => {
   emit('update:modelValue', toPlainList(dragList.value))
 }
 
 const onPatch = (dragKey: string, patch: Partial<SeriesItem>) => {
-  dragList.value = dragList.value.map((item) =>
-    item._dragKey === dragKey ? { ...item, ...patch } : item,
-  )
+  dragList.value = dragList.value.map((item) => {
+    if (item._dragKey !== dragKey) return item
+    const next = { ...item, ...patch }
+    Object.keys(patch).forEach((key) => {
+      if ((patch as any)[key] === undefined) delete (next as any)[key]
+    })
+    return next
+  })
+  emitList()
+}
+
+const setByPath = (target: Record<string, any>, path: string, value: unknown) => {
+  const keys = path.split('.')
+  let cursor = target
+  for (let i = 0; i < keys.length - 1; i++) {
+    const key = keys[i]
+    if (!cursor[key] || typeof cursor[key] !== 'object') cursor[key] = {}
+    cursor = cursor[key]
+  }
+  const last = keys[keys.length - 1]
+  if (value === undefined) delete cursor[last]
+  else cursor[last] = value
+}
+
+const onPatchNested = (dragKey: string, path: string, value: unknown) => {
+  dragList.value = dragList.value.map((item) => {
+    if (item._dragKey !== dragKey) return item
+    const next = cloneDeep(item)
+    setByPath(next, path, value)
+    return next
+  })
   emitList()
 }
 
 const onRemove = (dragKey: string) => {
-  if (dragList.value.length <= 1) return
   dragList.value = dragList.value.filter((item) => item._dragKey !== dragKey)
   emitList()
 }
@@ -278,8 +160,7 @@ const onAdd = () => {
       name: `系列${idx}`,
       type: 'line',
       yAxisIndex: 0,
-      smooth: false,
-      showSymbol: true,
+      xAxisIndex: 0,
     },
   ]
   emitList()

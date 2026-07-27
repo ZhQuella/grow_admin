@@ -89,5 +89,6 @@ export function copyLayoutItem(
     chartConfig: cloneDeep(
       source.chartConfig ?? createDefaultChartConfig(source.chartType),
     ),
+    dataBinding: source.dataBinding ? cloneDeep(source.dataBinding) : undefined,
   }
 }

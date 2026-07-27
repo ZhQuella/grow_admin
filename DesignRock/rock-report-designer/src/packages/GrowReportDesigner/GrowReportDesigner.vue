@@ -17,7 +17,7 @@
           清空
         </GrowButton>
         <span class="ml-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs text-text-secondary">
-          悬停区块可配置、复制或删除，拖拽可调整位置与大小
+          左侧配置页面数据；悬停区块可配置、复制或删除
         </span>
       </div>
       <GrowButton size="small" type="primary" @click="onPreview">
@@ -45,8 +45,44 @@
       </div>
     </GrowDrawer>
 
-    <div class="relative min-h-0 flex-1 overflow-hidden">
-      <div class="report-designer-canvas relative box-border h-full min-h-0 w-full overflow-auto p-3">
+    <div class="relative flex min-h-0 flex-1 overflow-hidden">
+      <aside class="report-rail" @click.stop>
+        <div
+          v-for="item in railItems"
+          :key="item.type"
+          class="report-rail-item"
+          :class="{
+            'is-active': pagePanel.visible && pagePanel.type === item.type,
+          }"
+          :data-tip="item.label"
+          :title="item.label"
+          role="button"
+          tabindex="0"
+          @click="onRailClick(item.type)"
+        >
+          <GrowIconify :icon="item.icon" :size="18" class="report-rail-icon" />
+        </div>
+      </aside>
+
+      <div
+        v-if="pagePanel.visible"
+        class="relative z-20 w-[300px] shrink-0 border-r border-solid border-border bg-component"
+        @click.stop
+      >
+        <div
+          class="box-border flex h-10 items-center justify-between border-b border-solid border-border px-3"
+        >
+          <h4 class="m-0 text-[13px] font-semibold text-text">{{ pagePanel.title }}</h4>
+          <GrowButton text size="small" class="!px-1" title="关闭" @click="onClosePagePanel">
+            <GrowIconify icon="carbon:close" :size="15" />
+          </GrowButton>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 top-10 overflow-visible">
+          <component :is="pagePanel.componentName" :data="pageData" class="h-full" />
+        </div>
+      </div>
+
+      <div class="report-designer-canvas relative box-border min-h-0 min-w-0 flex-1 overflow-auto p-3">
         <GridLayout
           v-if="layout.length"
           v-model:layout="layout"
@@ -74,7 +110,10 @@
           >
             <div
               class="group relative box-border h-full w-full cursor-pointer select-none"
-              :class="{ 'is-active outline outline-1 -outline-offset-1 outline-primary': activeId === item.i }"
+              :class="{
+                'is-active outline outline-1 -outline-offset-1 outline-primary':
+                  activeId === item.i,
+              }"
             >
               <div
                 class="absolute right-0 top-0 z-20 hidden h-[26px] items-center gap-0.5 rounded-bl-lg rounded-tr bg-primary px-1 py-0 pl-0.5 text-white group-hover:inline-flex group-[.is-active]:inline-flex"
@@ -130,6 +169,7 @@
                   class="min-h-0 flex-1"
                   :chart-type="item.chartType"
                   :chart-config="item.chartConfig"
+                  :data-binding="item.dataBinding"
                 />
               </GrowCard>
             </div>
@@ -167,7 +207,11 @@
           </div>
         </div>
         <div class="min-h-0 flex-1 overflow-auto">
-          <BlockConfigPanel :item="configItem" @change="onConfigChange" />
+          <BlockConfigPanel
+            :item="configItem"
+            :variable-options="variableOptions"
+            @change="onConfigChange"
+          />
         </div>
       </aside>
     </div>
@@ -175,8 +219,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, defineComponent, provide, reactive, ref, watch } from 'vue'
 import { GridItem, GridLayout } from 'vue3-grid-layout'
+import {
+  DesignerDataSourcePanel,
+  DesignerComputedPropsPanel,
+  DesignerApiOutlinedPanel,
+  GROW_RUNTIME_STATE,
+  buildRuntimeState,
+  syncRuntimeState,
+  runApiOutlinedList,
+  recomputeComputedProps,
+} from '@grow-admin-rock/designer'
 import {
   GrowReportRenderer,
   createReportSchema,
@@ -202,7 +256,6 @@ const previewVisible = ref(false)
 const previewSchema = ref<ReportSchema | null>(null)
 const configVisible = ref(false)
 const configId = ref('')
-/** 拖拽 / 缩放时展示的区域占比提示 */
 const dragHint = ref<{
   i: string
   shareText: string
@@ -210,8 +263,104 @@ const dragHint = ref<{
 } | null>(null)
 let blockSeq = 0
 
-const configItem = computed(() =>
-  layout.value.find((item) => item.i === configId.value) ?? null,
+const pageData = reactive({
+  dataSource: [] as any[],
+  computedProps: [] as any[],
+  apiOutlined: [] as any[],
+})
+
+const railItems = [
+  {
+    type: 'dataBin',
+    label: '数据源',
+    icon: 'carbon:data-bin',
+    componentName: 'DesignerDataSourcePanel',
+    title: '数据源',
+  },
+  {
+    type: 'computedProps',
+    label: '属性计算',
+    icon: 'carbon:function',
+    componentName: 'DesignerComputedPropsPanel',
+    title: '属性计算',
+  },
+  {
+    type: 'apiOutlined',
+    label: '数据请求',
+    icon: 'carbon:api',
+    componentName: 'DesignerApiOutlinedPanel',
+    title: '数据请求',
+  },
+] as const
+
+const pagePanel = reactive({
+  visible: false,
+  type: '' as string,
+  title: '',
+  componentName: '' as string,
+})
+
+const onRailClick = (type: string) => {
+  const target = railItems.find((item) => item.type === type)
+  if (!target) return
+  if (pagePanel.visible && pagePanel.type === type) {
+    pagePanel.visible = false
+    pagePanel.type = ''
+    return
+  }
+  pagePanel.visible = true
+  pagePanel.type = target.type
+  pagePanel.title = target.title
+  pagePanel.componentName = target.componentName
+}
+
+const onClosePagePanel = () => {
+  pagePanel.visible = false
+  pagePanel.type = ''
+}
+
+const runtimeState = reactive<Record<string, unknown>>({})
+let apiRunToken = 0
+
+const rebuildRuntimeState = async () => {
+  const token = ++apiRunToken
+  syncRuntimeState(
+    runtimeState,
+    buildRuntimeState(pageData.dataSource, pageData.computedProps),
+  )
+  await runApiOutlinedList(pageData.apiOutlined, runtimeState, { autoLoadOnly: true })
+  if (token !== apiRunToken) return
+  recomputeComputedProps(pageData.computedProps, runtimeState)
+}
+
+watch(
+  () => [pageData.dataSource, pageData.computedProps, pageData.apiOutlined] as const,
+  () => {
+    void rebuildRuntimeState()
+  },
+  { deep: true, immediate: true },
+)
+
+provide(GROW_RUNTIME_STATE, runtimeState)
+
+const variableOptions = computed(() => {
+  const names = new Set<string>()
+  ;[
+    ...(pageData.dataSource || []),
+    ...(pageData.computedProps || []),
+    ...(pageData.apiOutlined || []),
+  ].forEach((item: any) => {
+    const name = String(item?.name ?? '').trim()
+    if (name) names.add(name)
+  })
+  return [...names].map((name) => ({
+    label: `state.${name}`,
+    value: `state.${name}`,
+  }))
+})
+
+const configItem = computed(
+  () => layout.value.find((item) => item.i === configId.value) ?? null,
 )
 
 const configPanelTitle = computed(() =>
@@ -219,7 +368,6 @@ const configPanelTitle = computed(() =>
 )
 
 const formatDragHint = (i: string, w: number, h: number) => {
-  // 占比 = 当前所占格数 / 总格数（总格数 = 网格列数）
   const share = (Math.max(w, 0) / REPORT_GRID_COL_NUM) * 100
   return {
     i,
@@ -274,7 +422,9 @@ const onCloseConfig = () => {
 }
 
 const onConfigChange = (
-  patch: Partial<Pick<ReportLayoutItem, 'title' | 'showTitle' | 'chartType' | 'chartConfig'>>,
+  patch: Partial<
+    Pick<ReportLayoutItem, 'title' | 'showTitle' | 'chartType' | 'chartConfig' | 'dataBinding'>
+  >,
 ) => {
   if (!configId.value) return
   layout.value = layout.value.map((item) =>
@@ -309,14 +459,99 @@ const onClearCanvas = () => {
   configVisible.value = false
 }
 
+const buildSchema = () =>
+  createReportSchema(layout.value, undefined, {
+    dataSource: pageData.dataSource,
+    apiOutlined: pageData.apiOutlined,
+    computedProps: pageData.computedProps,
+  })
+
 const onPreview = () => {
-  previewSchema.value = createReportSchema(layout.value)
+  previewSchema.value = buildSchema()
   previewVisible.value = true
 }
+
+defineExpose({
+  getSchema: buildSchema,
+  runtimeState,
+  refreshApiOutlined: rebuildRuntimeState,
+})
+</script>
+
+<script lang="ts">
+export default defineComponent({
+  name: 'GrowReportDesigner',
+  components: {
+    DesignerDataSourcePanel,
+    DesignerComputedPropsPanel,
+    DesignerApiOutlinedPanel,
+  },
+})
 </script>
 
 <style scoped>
-/* 第三方组件内部结构，保留最小深度选择器 */
+.report-rail {
+  box-sizing: border-box;
+  flex: 0 0 50px;
+  width: 50px;
+  min-width: 50px;
+  height: 100%;
+  padding: 5px;
+  border-right: 1px solid var(--layout-border-color, var(--border-color));
+  background: var(--component-background-color);
+  overflow: visible;
+  z-index: 20;
+}
+
+.report-rail-item {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 5px;
+  border-radius: 4px;
+  color: var(--text-color-secondary);
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s ease;
+}
+
+.report-rail-item:last-child {
+  margin-bottom: 0;
+}
+
+.report-rail-item:hover,
+.report-rail-item.is-active {
+  color: var(--primary-color);
+}
+
+.report-rail-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.report-rail-item :deep(.grow-iconify) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  line-height: 0;
+  color: inherit;
+}
+
+.report-rail-item :deep(.grow-iconify svg) {
+  display: block;
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
 .report-block-card :deep(.el-card__header),
 .report-block-card :deep(.n-card-header),
 .report-block-card :deep(.ant-card-head) {

@@ -793,6 +793,9 @@ importers:
       '@grow-admin-rock/components':
         specifier: workspace:*
         version: link:../rock-components
+      '@grow-admin-rock/designer':
+        specifier: workspace:*
+        version: link:../rock-designer
       '@grow-admin-rock/hooks':
         specifier: workspace:*
         version: link:../rock-hooks

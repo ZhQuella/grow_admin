@@ -24,7 +24,6 @@
               size="small"
               type="danger"
               class="!px-1"
-              :disabled="dragList.length <= 1"
               title="删除系列"
               @click="onRemove(element._dragKey)"
             >
@@ -201,26 +200,13 @@ const symbolOptions = [
 const createDragKey = () =>
   `radar-series-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
 
-const createDefaultItem = (): DragRadarSeriesItem => ({
-  _dragKey: createDragKey(),
-  name: '系列1',
-  areaFill: 'solid',
-  areaColor: 'rgba(103, 249, 216, 0.45)',
-  gradientFrom: 'rgba(255, 145, 124, 0.1)',
-  gradientTo: 'rgba(255, 145, 124, 0.9)',
-  lineType: 'solid',
-  symbol: 'circle',
-  symbolSize: 6,
-  showLabel: false,
-})
-
-const dragList = ref<DragRadarSeriesItem[]>([createDefaultItem()])
+const dragList = ref<DragRadarSeriesItem[]>([])
 
 const toPlainList = (list: DragRadarSeriesItem[]): RadarSeriesItem[] =>
   list.map(({ _dragKey, ...item }) => item)
 
 const syncFromProps = (value?: RadarSeriesItem[] | null) => {
-  const incoming = value?.length ? value : [createDefaultItem()]
+  const incoming = Array.isArray(value) ? value : []
   const prevKeys = dragList.value.map((item) => item._dragKey)
   dragList.value = incoming.map((item, index) => ({
     ...item,
@@ -232,19 +218,7 @@ watch(
   () => props.modelValue,
   (value) => {
     const current = toPlainList(dragList.value)
-    const incoming = value?.length
-      ? value
-      : [
-          {
-            name: '系列1',
-            areaFill: 'solid' as const,
-            areaColor: 'rgba(103, 249, 216, 0.45)',
-            lineType: 'solid' as const,
-            symbol: 'circle',
-            symbolSize: 6,
-            showLabel: false,
-          },
-        ]
+    const incoming = Array.isArray(value) ? value : []
     if (JSON.stringify(current) === JSON.stringify(incoming)) return
     syncFromProps(value)
   },
@@ -263,7 +237,6 @@ const onPatch = (dragKey: string, patch: Partial<RadarSeriesItem>) => {
 }
 
 const onRemove = (dragKey: string) => {
-  if (dragList.value.length <= 1) return
   dragList.value = dragList.value.filter((item) => item._dragKey !== dragKey)
   emitList()
 }
@@ -276,9 +249,9 @@ const onAdd = () => {
       _dragKey: createDragKey(),
       name: `系列${idx}`,
       areaFill: 'none',
-      areaColor: 'rgba(86, 163, 241, 0.45)',
-      gradientFrom: 'rgba(86, 163, 241, 0.1)',
-      gradientTo: 'rgba(86, 163, 241, 0.85)',
+      areaColor: '',
+      gradientFrom: '',
+      gradientTo: '',
       lineType: 'solid',
       symbol: 'circle',
       symbolSize: 6,

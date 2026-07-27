@@ -19,6 +19,7 @@
             class="min-h-0 flex-1"
             :chart-type="item.chartType"
             :chart-config="item.chartConfig"
+            :data-binding="item.dataBinding"
           />
         </GrowCard>
       </div>
@@ -32,7 +33,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, provide, reactive, watch } from 'vue'
+import {
+  GROW_RUNTIME_STATE,
+  buildRuntimeState,
+  syncRuntimeState,
+  runApiOutlinedList,
+  recomputeComputedProps,
+  type ReportHttpClient,
+} from '@grow-admin-rock/designer'
 import ReportBlockChart from './components/ReportBlockChart.vue'
 import {
   REPORT_GRID_COL_NUM,
@@ -48,11 +57,14 @@ defineOptions({
 
 const props = withDefaults(
   defineProps<{
-    /** 设计器导出的报表 schema（layout + pageConfig） */
+    /** 设计器导出的报表 schema（layout + pageConfig + 页面数据） */
     schema?: ReportSchema | null
+    /** 宿主注入的 HTTP 客户端；缺省原生 fetch */
+    httpClient?: ReportHttpClient | null
   }>(),
   {
     schema: null,
+    httpClient: null,
   },
 )
 
@@ -71,6 +83,46 @@ const rowHeight = computed(
 const boardHeight = computed(() =>
   getPreviewBoardHeight(layout.value, rowHeight.value),
 )
+
+const runtimeState = reactive<Record<string, unknown>>({})
+let apiRunToken = 0
+
+const rebuildRuntimeState = async () => {
+  const token = ++apiRunToken
+  syncRuntimeState(
+    runtimeState,
+    buildRuntimeState(
+      resolvedSchema.value.dataSource,
+      resolvedSchema.value.computedProps,
+    ),
+  )
+  await runApiOutlinedList(resolvedSchema.value.apiOutlined, runtimeState, {
+    httpClient: props.httpClient || undefined,
+    autoLoadOnly: true,
+  })
+  if (token !== apiRunToken) return
+  recomputeComputedProps(resolvedSchema.value.computedProps, runtimeState)
+}
+
+watch(
+  () =>
+    [
+      resolvedSchema.value.dataSource,
+      resolvedSchema.value.computedProps,
+      resolvedSchema.value.apiOutlined,
+    ] as const,
+  () => {
+    void rebuildRuntimeState()
+  },
+  { deep: true, immediate: true },
+)
+
+provide(GROW_RUNTIME_STATE, runtimeState)
+
+defineExpose({
+  runtimeState,
+  refreshApiOutlined: rebuildRuntimeState,
+})
 </script>
 
 <style scoped>

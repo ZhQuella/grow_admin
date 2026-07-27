@@ -5,14 +5,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, type Ref } from 'vue'
+import { computed, inject, ref, watch, type Ref } from 'vue'
 import { useEcharts } from '@grow-admin-rock/hooks'
+import { GROW_RUNTIME_STATE } from '@grow-admin-rock/designer'
 import {
   buildEChartsOption,
   createDefaultChartConfig,
   type ReportChartConfig,
   type ReportChartType,
 } from '../chartConfig'
+import {
+  resolveBlockDataBinding,
+  type ReportBlockDataBinding,
+} from '../dataBinding'
 
 defineOptions({
   name: 'ReportBlockChart',
@@ -21,27 +26,35 @@ defineOptions({
 const props = defineProps<{
   chartType: ReportChartType
   chartConfig?: ReportChartConfig | null
+  dataBinding?: ReportBlockDataBinding | null
 }>()
 
 const chartRef = ref<HTMLDivElement | null>(null)
 const { setOptions } = useEcharts(chartRef as Ref<HTMLDivElement>)
 
+const runtimeState = inject<Record<string, unknown>>(GROW_RUNTIME_STATE, {})
+
 const resolvedConfig = computed(
   () => props.chartConfig ?? createDefaultChartConfig(props.chartType),
 )
 
+const resolvedChartData = computed(() =>
+  resolveBlockDataBinding(props.dataBinding, runtimeState || {}),
+)
+
 const renderChart = async () => {
-  const option = buildEChartsOption(props.chartType, resolvedConfig.value)
+  const option = buildEChartsOption(
+    props.chartType,
+    resolvedConfig.value,
+    resolvedChartData.value,
+  )
   // setOptions 内部异步执行 setOption；勿紧跟 resize，否则会触发
   //「resize should not be called during main process」
   await setOptions(option)
 }
 
 watch(
-  () => ({
-    chartType: props.chartType,
-    chartConfig: props.chartConfig,
-  }),
+  [() => props.chartType, () => props.chartConfig, () => props.dataBinding, runtimeState],
   () => {
     void renderChart()
   },

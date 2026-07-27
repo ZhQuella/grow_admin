@@ -9,6 +9,9 @@ export type {
   CartesianSeriesType,
   ReportChartTypeOption,
   ReportChartConfig,
+  ReportBlockDataBinding,
+  ReportDataBindRef,
+  ReportDataBindMode,
 } from './types'
 export {
   REPORT_GRID_COL_NUM,
@@ -25,3 +28,7 @@ export {
   getChartOptionFields,
   buildEChartsOption,
 } from './types'
+export {
+  resolveBlockDataBinding,
+  resolveDataBindRef,
+} from './dataBinding'

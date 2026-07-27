@@ -67,21 +67,9 @@ export type ReportChartConfig = {
   seriesStyle?: Record<string, any>
   /**
    * 多系列配置（直角坐标系）
-   * type: line | bar | scatter | candlestick；yAxisIndex: 0 左轴 / 1 右轴
+   * 对齐 ECharts series-line / bar / scatter / candlestick 视觉字段（不含 data）
    */
-  seriesList?: Array<{
-    name?: string
-    type?: 'line' | 'bar' | 'scatter' | 'candlestick'
-    yAxisIndex?: number
-    smooth?: boolean
-    showSymbol?: boolean
-    areaStyle?: boolean
-    stack?: string
-    barWidth?: string | number
-    barMaxWidth?: number
-    symbol?: string
-    symbolSize?: number
-  }>
+  seriesList?: Array<Record<string, any>>
   /**
    * 雷达系列（对应 series.data 多项）
    * areaFill: none | solid | radial（径向渐变用起止色简化配置）

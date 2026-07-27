@@ -1,5 +1,6 @@
 import type { ReportChartType } from './chartTypes'
 import type { ReportChartConfig } from './chartConfig'
+import type { ReportBlockDataBinding } from './dataBinding'
 
 /** 设计器 / 运行时共用的报表 schema */
 
@@ -20,6 +21,11 @@ export {
   getChartOptionFields,
   buildEChartsOption,
 } from './chartConfig'
+export type {
+  ReportBlockDataBinding,
+  ReportDataBindRef,
+  ReportDataBindMode,
+} from './dataBinding'
 
 export type ReportLayoutItem = {
   i: string
@@ -34,6 +40,8 @@ export type ReportLayoutItem = {
   chartType: ReportChartType
   /** 图表视觉配置（对齐 ECharts，不含数据） */
   chartConfig?: ReportChartConfig
+  /** 区块数据绑定（引用页面 state） */
+  dataBinding?: ReportBlockDataBinding
 }
 
 export type ReportPageConfig = {
@@ -41,10 +49,16 @@ export type ReportPageConfig = {
   rowHeight?: number
 }
 
-/** 报表设计器导出的 JSON schema，供 GrowReportRenderer 渲染 */
+/**
+ * 报表设计器导出的 JSON schema
+ * 页面级 dataSource / apiOutlined / computedProps 对齐 GrowDesigner
+ */
 export type ReportSchema = {
   layout?: ReportLayoutItem[]
   pageConfig?: ReportPageConfig
+  dataSource?: unknown[]
+  apiOutlined?: unknown[]
+  computedProps?: unknown[]
 }
 
 export function toPreviewItemStyle(
@@ -72,6 +86,7 @@ export function getPreviewBoardHeight(
 export function createReportSchema(
   layout: ReportLayoutItem[],
   pageConfig?: ReportPageConfig,
+  pageData?: Pick<ReportSchema, 'dataSource' | 'apiOutlined' | 'computedProps'>,
 ): ReportSchema {
   return {
     layout: layout.map((item) => ({ ...item })),
@@ -80,5 +95,8 @@ export function createReportSchema(
       rowHeight: REPORT_GRID_ROW_HEIGHT,
       ...pageConfig,
     },
+    dataSource: pageData?.dataSource ? [...pageData.dataSource] : [],
+    apiOutlined: pageData?.apiOutlined ? [...pageData.apiOutlined] : [],
+    computedProps: pageData?.computedProps ? [...pageData.computedProps] : [],
   }
 }

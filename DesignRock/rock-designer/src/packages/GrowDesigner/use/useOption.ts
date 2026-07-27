@@ -9,6 +9,11 @@ import {
   buildRuntimeState,
   syncRuntimeState,
 } from "../../GrowRenderer/utils/resolveBoundProps";
+import {
+  applyApiDefaultData,
+  recomputeComputedProps,
+  runApiOutlinedList,
+} from "../../GrowRenderer/utils/runApiOutlined";
 
 export const useOption = () => {
   const draggableConfig = reactive({
@@ -37,15 +42,34 @@ export const useOption = () => {
   const activeUUID = ref("");
   const overlayEditUUID = ref("");
 
-  /** 可写 runtime state：绑定展示 + 控件变更回写；数据源/计算属性变更时同步 */
+  /** 可写 runtime state：绑定展示 + 控件变更回写；数据源/计算属性/请求变更时同步 */
   const runtimeState = reactive<Record<string, unknown>>({});
+  let apiRunToken = 0;
+
+  const rebuildRuntimeState = async () => {
+    const token = ++apiRunToken;
+    syncRuntimeState(
+      runtimeState,
+      buildRuntimeState(draggableConfig.dataSource, draggableConfig.computedProps),
+    );
+    // 设计态：先写入 defaultData，再发 autoLoad 真实请求
+    applyApiDefaultData(draggableConfig.apiOutlined, runtimeState);
+    await runApiOutlinedList(draggableConfig.apiOutlined, runtimeState, {
+      autoLoadOnly: true,
+    });
+    if (token !== apiRunToken) return;
+    recomputeComputedProps(draggableConfig.computedProps, runtimeState);
+  };
+
   watch(
-    () => [draggableConfig.dataSource, draggableConfig.computedProps] as const,
+    () =>
+      [
+        draggableConfig.dataSource,
+        draggableConfig.computedProps,
+        draggableConfig.apiOutlined,
+      ] as const,
     () => {
-      syncRuntimeState(
-        runtimeState,
-        buildRuntimeState(draggableConfig.dataSource, draggableConfig.computedProps),
-      );
+      void rebuildRuntimeState();
     },
     { deep: true, immediate: true },
   );
