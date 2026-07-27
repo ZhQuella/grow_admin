@@ -256,7 +256,7 @@ const onRemove = (eventType: string) => {
   border: 1px solid var(--layout-border-color);
   border-radius: 8px;
   overflow: hidden;
-  background: var(--layout-container-background-color, #fff);
+  background: var(--component-background-color);
 }
 
 .event-config__card-head {
@@ -266,7 +266,7 @@ const onRemove = (eventType: string) => {
   gap: 8px;
   padding: 8px 10px;
   border-bottom: 1px solid var(--layout-border-color);
-  background: var(--layout-background-color, #f5f7fa);
+  background: var(--layout-container-background-color);
 }
 
 .event-config__card-meta {
@@ -307,6 +307,7 @@ const onRemove = (eventType: string) => {
   font-size: 12px;
   line-height: 1.5;
   color: var(--text-color-secondary);
+  background: color-mix(in srgb, var(--component-background-color) 88%, var(--text-color) 12%);
   white-space: pre-wrap;
   word-break: break-word;
 }

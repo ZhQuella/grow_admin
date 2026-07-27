@@ -1,93 +1,86 @@
 <template>
-  <Teleport to="body">
-    <div v-if="visible" class="variable-bind-dialog" @click.stop>
-      <div class="variable-bind-dialog__mask" @click="onCancel" />
-      <div class="variable-bind-dialog__panel" role="dialog" aria-modal="true">
-        <header class="variable-bind-dialog__header">
-          <h3 class="variable-bind-dialog__title">变量绑定</h3>
-          <button
-            type="button"
-            class="variable-bind-dialog__close"
-            title="关闭"
-            @click="onCancel"
-          >
-            <GrowIconify icon="carbon:close" :size="16" />
-          </button>
-        </header>
-
-        <div class="variable-bind-dialog__body">
-          <!-- 变量列表：仅搜索 + 列表，无左侧分类栏 -->
-          <section class="variable-bind-dialog__list-pane">
-            <h4 class="variable-bind-dialog__pane-title">变量列表</h4>
-            <div class="variable-bind-dialog__search">
-              <GrowInput
-                v-model="keyword"
-                size="small"
-                clearable
-                placeholder="请输入"
-              />
-              <GrowIconify
-                class="variable-bind-dialog__search-icon"
-                icon="carbon:search"
-                :size="14"
-              />
-            </div>
-            <GrowScrollbar class="variable-bind-dialog__scroll">
-              <div v-if="listEmpty" class="variable-bind-dialog__empty">
-                暂无变量，请先在左侧「数据源」中添加数据源或计算属性
-              </div>
-              <div v-else-if="!filteredVariables.length" class="variable-bind-dialog__empty">
-                暂无匹配变量
-              </div>
-              <button
-                v-for="item in filteredVariables"
-                :key="item.key"
-                type="button"
-                class="variable-bind-dialog__item"
-                :class="{ 'is-active': draft === item.expression }"
-                :title="item.expression"
-                @click="onPickVariable(item.expression)"
-              >
-                <span class="variable-bind-dialog__item-name">{{ item.label }}</span>
-                <span class="variable-bind-dialog__item-expr">{{ item.expression }}</span>
-                <span v-if="item.describe" class="variable-bind-dialog__item-desc">
-                  {{ item.describe }}
-                </span>
-              </button>
-            </GrowScrollbar>
-          </section>
-
-          <!-- 变量编辑：与数据源一致，使用 GrowCodeEditor -->
-          <section class="variable-bind-dialog__editor-pane">
-            <h4 class="variable-bind-dialog__pane-title">变量</h4>
-            <p class="variable-bind-dialog__editor-tip">
-              输入框内默认支持变量，写法和 JS 写法完全一致。
-            </p>
-            <div class="variable-bind-dialog__editor">
-              <GrowCodeEditor
-                v-model="draft"
-                class="h-full"
-                default-language="expression"
-                :language-switchable="false"
-              />
-            </div>
-            <div class="variable-bind-dialog__example">
-              <p class="variable-bind-dialog__example-title">示例</p>
-              <pre class="variable-bind-dialog__example-code">{{ BIND_EXAMPLE_CODE }}</pre>
-            </div>
-          </section>
+  <GrowDialog
+    :model-value="visible"
+    title="变量绑定"
+    width="720px"
+    append-to-body
+    destroy-on-close
+    class="variable-bind-dialog"
+    @update:model-value="onVisibleChange"
+  >
+    <div class="variable-bind-dialog__body" @click.stop>
+      <!-- 变量列表：仅搜索 + 列表，无左侧分类栏 -->
+      <section class="variable-bind-dialog__list-pane">
+        <h4 class="variable-bind-dialog__pane-title">变量列表</h4>
+        <div class="variable-bind-dialog__search">
+          <GrowInput
+            v-model="keyword"
+            size="small"
+            clearable
+            placeholder="请输入"
+          />
+          <GrowIconify
+            class="variable-bind-dialog__search-icon"
+            icon="carbon:search"
+            :size="14"
+          />
         </div>
-
-        <footer class="variable-bind-dialog__footer">
-          <GrowButton type="warning" plain @click="onRemove">移除绑定</GrowButton>
-          <div class="variable-bind-dialog__footer-right">
-            <GrowButton @click="onCancel">取消</GrowButton>
-            <GrowButton type="primary" @click="onConfirm">确定</GrowButton>
+        <GrowScrollbar class="variable-bind-dialog__scroll">
+          <div v-if="listEmpty" class="variable-bind-dialog__empty">
+            暂无变量，请先在左侧「数据源」中添加数据源或计算属性
           </div>
-        </footer>
-      </div>
+          <div v-else-if="!filteredVariables.length" class="variable-bind-dialog__empty">
+            暂无匹配变量
+          </div>
+          <button
+            v-for="item in filteredVariables"
+            :key="item.key"
+            type="button"
+            class="variable-bind-dialog__item"
+            :class="{ 'is-active': draft === item.expression }"
+            :title="item.expression"
+            @click="onPickVariable(item.expression)"
+          >
+            <span class="variable-bind-dialog__item-name">{{ item.label }}</span>
+            <span class="variable-bind-dialog__item-expr">{{ item.expression }}</span>
+            <span v-if="item.describe" class="variable-bind-dialog__item-desc">
+              {{ item.describe }}
+            </span>
+          </button>
+        </GrowScrollbar>
+      </section>
+
+      <!-- 变量编辑：与数据源一致，使用 GrowCodeEditor -->
+      <section class="variable-bind-dialog__editor-pane">
+        <h4 class="variable-bind-dialog__pane-title">变量</h4>
+        <p class="variable-bind-dialog__editor-tip">
+          输入框内默认支持变量，写法和 JS 写法完全一致。
+        </p>
+        <div class="variable-bind-dialog__editor">
+          <GrowCodeEditor
+            v-model="draft"
+            class="h-full"
+            default-language="expression"
+            :language-switchable="false"
+          />
+        </div>
+        <div class="variable-bind-dialog__example">
+          <p class="variable-bind-dialog__example-title">示例</p>
+          <pre class="variable-bind-dialog__example-code">{{ BIND_EXAMPLE_CODE }}</pre>
+        </div>
+      </section>
     </div>
-  </Teleport>
+
+    <template #footer>
+      <div class="variable-bind-dialog__footer">
+        <GrowButton type="warning" plain @click="onRemove">移除绑定</GrowButton>
+        <div class="variable-bind-dialog__footer-right">
+          <GrowButton @click="onCancel">取消</GrowButton>
+          <GrowButton type="primary" @click="onConfirm">确定</GrowButton>
+        </div>
+      </div>
+    </template>
+  </GrowDialog>
 </template>
 
 <script setup lang="ts">
@@ -171,6 +164,10 @@ watch(
   },
 )
 
+const onVisibleChange = (open: boolean) => {
+  emit('update:visible', open)
+}
+
 const onPickVariable = (expression: string) => {
   draft.value = insertVariableExpression(draft.value, expression)
 }
@@ -190,84 +187,14 @@ const onRemove = () => {
 </script>
 
 <style scoped lang="scss">
-.variable-bind-dialog {
-  position: fixed;
-  inset: 0;
-  z-index: 4000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.variable-bind-dialog__mask {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-}
-
-.variable-bind-dialog__panel {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  width: min(720px, calc(100vw - 48px));
-  max-height: min(560px, calc(100vh - 48px));
-  overflow: hidden;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
-}
-
-.variable-bind-dialog__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--layout-border-color, #ebeef5);
-}
-
-.variable-bind-dialog__title {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-color, #303133);
-}
-
-.variable-bind-dialog__close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  margin: 0;
-  padding: 0;
-  border: none;
-  border-radius: 4px;
-  background: transparent;
-  color: var(--text-color-secondary, #909399);
-  line-height: 0;
-  cursor: pointer;
-
-  :deep(.grow-iconify),
-  :deep(svg) {
-    display: block;
-    margin: auto;
-    line-height: 0;
-  }
-
-  &:hover {
-    background: #f2f3f5;
-    color: var(--text-color, #303133);
-  }
-}
-
 .variable-bind-dialog__body {
   display: grid;
   grid-template-columns: minmax(180px, 28%) 1fr;
   gap: 0;
-  min-height: 0;
-  flex: 1;
+  height: min(420px, calc(100vh - 220px));
+  min-height: 320px;
   overflow: hidden;
+  margin: -4px -4px 0;
 }
 
 .variable-bind-dialog__list-pane,
@@ -275,16 +202,17 @@ const onRemove = () => {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  padding: 12px 16px;
+  padding: 4px 12px 0;
 }
 
 .variable-bind-dialog__list-pane {
   border-right: 1px solid var(--layout-border-color, #ebeef5);
+  padding-left: 0;
   padding-right: 12px;
 }
 
 .variable-bind-dialog__editor-pane {
-  padding-left: 16px;
+  padding-right: 0;
 }
 
 .variable-bind-dialog__editor-tip {
@@ -379,7 +307,7 @@ const onRemove = () => {
 
   &:hover,
   &.is-active {
-    background: #f2f3f5;
+    background: var(--layout-background-color, #f2f3f5);
   }
 }
 
@@ -407,8 +335,7 @@ const onRemove = () => {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 12px 16px;
-  border-top: 1px solid var(--layout-border-color, #ebeef5);
+  width: 100%;
 }
 
 .variable-bind-dialog__footer-right {
