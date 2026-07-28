@@ -57,10 +57,21 @@
         @click.stop
       >
         <div
-          class="box-border flex h-10 items-center justify-between border-b border-solid border-border px-3"
+          class="box-border flex h-10 min-w-0 items-center justify-between gap-2 border-b border-solid border-border px-3"
         >
-          <h4 class="m-0 text-[13px] font-semibold text-text">{{ sidePanelTitle }}</h4>
-          <GrowButton text size="small" class="!px-1" title="关闭" @click="sidePanel = null">
+          <h4
+            class="schema-side-panel-title m-0 min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-[13px] font-semibold text-text"
+            :title="sidePanelTitle"
+          >
+            {{ sidePanelTitle }}
+          </h4>
+          <GrowButton
+            text
+            size="small"
+            class="!shrink-0 !px-1"
+            title="关闭"
+            @click="sidePanel = null"
+          >
             <GrowIconify icon="carbon:close" :size="15" />
           </GrowButton>
         </div>
@@ -177,6 +188,12 @@ import {
   nextColumnName,
   nextTableName,
 } from './factories'
+import {
+  clampIdentifier,
+  MAX_COLUMN_NAME_LENGTH,
+  MAX_DATABASE_NAME_LENGTH,
+  MAX_TABLE_NAME_LENGTH,
+} from './mysqlTypes'
 import {
   findRelationByEdgeId,
   relationsToEdges,
@@ -365,7 +382,13 @@ function onSelectTable(tableId: string) {
 }
 
 function onMetaChange(patch: Partial<Pick<DatabaseSchema, 'name' | 'comment'>>) {
-  schema.value = { ...schema.value, ...patch }
+  const next = {
+    ...patch,
+    ...(patch.name != null
+      ? { name: clampIdentifier(patch.name, MAX_DATABASE_NAME_LENGTH) }
+      : null),
+  }
+  schema.value = { ...schema.value, ...next }
   commit()
 }
 
@@ -416,10 +439,16 @@ async function onClear() {
 
 function onUpdateTable(patch: Partial<Pick<SchemaTable, 'name' | 'comment'>>) {
   if (!activeTableId.value) return
+  const next = {
+    ...patch,
+    ...(patch.name != null
+      ? { name: clampIdentifier(patch.name, MAX_TABLE_NAME_LENGTH) }
+      : null),
+  }
   schema.value = {
     ...schema.value,
     tables: schema.value.tables.map((t) =>
-      t.id === activeTableId.value ? { ...t, ...patch } : t,
+      t.id === activeTableId.value ? { ...t, ...next } : t,
     ),
   }
   commit()
@@ -427,12 +456,18 @@ function onUpdateTable(patch: Partial<Pick<SchemaTable, 'name' | 'comment'>>) {
 
 function onUpdateColumn(columnId: string, patch: Partial<SchemaColumn>) {
   if (!activeTableId.value) return
+  const next = {
+    ...patch,
+    ...(patch.name != null
+      ? { name: clampIdentifier(patch.name, MAX_COLUMN_NAME_LENGTH) }
+      : null),
+  }
   schema.value = {
     ...schema.value,
     tables: schema.value.tables.map((t) => {
       if (t.id !== activeTableId.value) return t
-      let columns = t.columns.map((c) => (c.id === columnId ? { ...c, ...patch } : c))
-      if (patch.primaryKey) {
+      let columns = t.columns.map((c) => (c.id === columnId ? { ...c, ...next } : c))
+      if (next.primaryKey) {
         columns = columns.map((c) =>
           c.id === columnId
             ? { ...c, primaryKey: true, nullable: false }
@@ -807,6 +842,15 @@ defineExpose({
   --vf-connection-path: var(--primary-color);
   --vf-handle: var(--primary-color);
   background: var(--layout-container-background-color);
+}
+
+.schema-flow :deep(.vue-flow__node-schema-table) {
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  text-align: left;
 }
 
 .schema-flow :deep(.vue-flow__edge-text) {

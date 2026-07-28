@@ -1,4 +1,5 @@
 import { nanoid } from 'nanoid'
+import { clampIdentifier, MAX_COLUMN_NAME_LENGTH, MAX_DATABASE_NAME_LENGTH, MAX_TABLE_NAME_LENGTH } from './mysqlTypes'
 import type {
   DatabaseSchema,
   MysqlColumnType,
@@ -14,7 +15,7 @@ export function createSchemaColumn(
   const type: MysqlColumnType = patch.type ?? 'VARCHAR'
   return {
     id: patch.id ?? nanoid(10),
-    name: patch.name,
+    name: clampIdentifier(patch.name, MAX_COLUMN_NAME_LENGTH),
     type,
     length: patch.length ?? (type === 'VARCHAR' ? 255 : type === 'DECIMAL' ? 10 : null),
     scale: patch.scale ?? (type === 'DECIMAL' ? 2 : null),
@@ -47,7 +48,7 @@ export function createSchemaTable(
 ): SchemaTable {
   return {
     id: patch.id ?? nanoid(10),
-    name: patch.name,
+    name: clampIdentifier(patch.name, MAX_TABLE_NAME_LENGTH),
     comment: patch.comment ?? '',
     columns: patch.columns ?? [createIdColumn()],
     position: patch.position ?? { x: 80, y: 80 },
@@ -83,7 +84,7 @@ export function createDatabaseSchema(
   return {
     version: 1,
     dialect: 'mysql',
-    name: patch.name ?? 'untitled_db',
+    name: clampIdentifier(patch.name ?? 'untitled_db', MAX_DATABASE_NAME_LENGTH),
     comment: patch.comment ?? '',
     tables: patch.tables ?? [],
     relations: patch.relations ?? [],

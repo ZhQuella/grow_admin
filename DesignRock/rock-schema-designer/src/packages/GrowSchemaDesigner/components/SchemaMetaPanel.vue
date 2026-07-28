@@ -6,7 +6,9 @@
           :model-value="schema.name"
           size="small"
           placeholder="database_name"
-          @update:model-value="(v) => emit('change', { name: String(v ?? '') })"
+          :maxlength="MAX_DATABASE_NAME_LENGTH"
+          show-word-limit
+          @update:model-value="onNameChange"
         />
       </GrowFormItem>
       <GrowFormItem label="注释">
@@ -30,6 +32,7 @@
 </template>
 
 <script setup lang="ts">
+import { MAX_DATABASE_NAME_LENGTH, clampIdentifier } from '../mysqlTypes'
 import type { DatabaseSchema } from '../types'
 
 defineOptions({
@@ -43,4 +46,8 @@ defineProps<{
 const emit = defineEmits<{
   change: [patch: Partial<Pick<DatabaseSchema, 'name' | 'comment'>>]
 }>()
+
+const onNameChange = (value: string | number | null) => {
+  emit('change', { name: clampIdentifier(String(value ?? ''), MAX_DATABASE_NAME_LENGTH) })
+}
 </script>

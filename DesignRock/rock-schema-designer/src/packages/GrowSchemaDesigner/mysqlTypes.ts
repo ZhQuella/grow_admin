@@ -1,5 +1,14 @@
 import type { MysqlColumnType, SchemaRelationType, SchemaReferentialAction } from './types'
 
+/** MySQL 标识符最大长度 */
+export const MAX_TABLE_NAME_LENGTH = 64
+export const MAX_COLUMN_NAME_LENGTH = 64
+export const MAX_DATABASE_NAME_LENGTH = 64
+
+export function clampIdentifier(value: string, maxLength: number): string {
+  return String(value ?? '').slice(0, maxLength)
+}
+
 export const MYSQL_COLUMN_TYPE_OPTIONS: { label: string; value: MysqlColumnType }[] = [
   { label: 'TINYINT', value: 'TINYINT' },
   { label: 'SMALLINT', value: 'SMALLINT' },

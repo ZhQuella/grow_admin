@@ -7,6 +7,8 @@
             :model-value="table.name"
             size="small"
             placeholder="table_name"
+            :maxlength="MAX_TABLE_NAME_LENGTH"
+            show-word-limit
             @update:model-value="onNameChange"
           />
         </GrowFormItem>
@@ -39,9 +41,19 @@
         :class="{ 'is-active': activeColumnId === col.id }"
         @click="$emit('select-column', col.id)"
       >
-        <div class="mb-2 flex items-center justify-between gap-2">
-          <span class="text-xs font-semibold text-text">#{{ index + 1 }} {{ col.name }}</span>
-          <GrowButton text size="small" class="!px-1" title="删除字段" @click.stop="$emit('remove-column', col.id)">
+        <div class="field-card__head mb-2">
+          <span class="field-card__title" :title="`#${index + 1} ${col.name}`">
+            <span class="field-card__index">#{{ index + 1 }}</span>
+            <span class="field-card__name">{{ col.name }}</span>
+          </span>
+          <GrowButton
+            type="danger"
+            text
+            size="small"
+            class="field-card__delete !px-1"
+            title="删除字段"
+            @click.stop="$emit('remove-column', col.id)"
+          >
             <GrowIconify icon="carbon:trash-can" :size="14" />
           </GrowButton>
         </div>
@@ -51,7 +63,9 @@
             <GrowInput
               :model-value="col.name"
               size="small"
-              @update:model-value="(v) => patchColumn(col.id, { name: String(v ?? '') })"
+              :maxlength="MAX_COLUMN_NAME_LENGTH"
+              show-word-limit
+              @update:model-value="(v) => patchColumn(col.id, { name: clampIdentifier(String(v ?? ''), MAX_COLUMN_NAME_LENGTH) })"
             />
           </GrowFormItem>
           <GrowFormItem label="类型">
@@ -145,6 +159,9 @@
 <script setup lang="ts">
 import {
   MYSQL_COLUMN_TYPE_OPTIONS,
+  MAX_TABLE_NAME_LENGTH,
+  MAX_COLUMN_NAME_LENGTH,
+  clampIdentifier,
   typeNeedsLength,
   typeNeedsScale,
 } from '../mysqlTypes'
@@ -168,7 +185,7 @@ const emit = defineEmits<{
 }>()
 
 const onNameChange = (value: string | number | null) => {
-  emit('update-table', { name: String(value ?? '') })
+  emit('update-table', { name: clampIdentifier(String(value ?? ''), MAX_TABLE_NAME_LENGTH) })
 }
 
 const onCommentChange = (value: string | number | null) => {
@@ -217,5 +234,40 @@ const onPrimaryKey = (columnId: string, primaryKey: boolean) => {
 
 .field-card.is-active {
   border-color: var(--primary-color);
+}
+
+.field-card__head {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.field-card__title {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.field-card__index {
+  flex-shrink: 0;
+}
+
+.field-card__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.field-card__delete {
+  flex-shrink: 0 !important;
 }
 </style>
