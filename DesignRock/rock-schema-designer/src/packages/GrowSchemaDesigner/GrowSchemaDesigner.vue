@@ -19,7 +19,7 @@
           清空
         </GrowButton>
         <span class="ml-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs text-text-secondary">
-          拖拽字段圆点连线创建关联；点击关联线后可按 Delete 删除，或在左侧点「删除关联」
+          拖拽字段圆点连线创建关联；悬停关联线可点垃圾桶删除
         </span>
       </div>
       <div class="flex shrink-0 items-center gap-2">
@@ -79,14 +79,12 @@
             @add-column="onAddColumn"
             @remove-column="onRemoveColumn"
             @select-column="(id) => (activeColumnId = id)"
-            @remove-table="onRemoveTable"
           />
           <RelationConfigPanel
             v-else-if="sidePanel === 'relation' && activeRelation"
             :relation="activeRelation"
             :schema="schema"
             @change="onUpdateRelation"
-            @remove="onRemoveRelation"
           />
           <div v-else class="px-3 py-8 text-center text-xs text-text-secondary">
             {{ emptyPanelHint }}
@@ -100,6 +98,7 @@
           v-model:nodes="nodes"
           :edges="edges"
           :node-types="nodeTypes"
+          :edge-types="edgeTypes"
           :default-viewport="DEFAULT_VIEWPORT"
           :min-zoom="0.2"
           :max-zoom="1.25"
@@ -160,6 +159,7 @@ import '@vue-flow/controls/dist/style.css'
 import '@vue-flow/minimap/dist/style.css'
 
 import TableNode from './components/TableNode.vue'
+import RelationEdge from './components/RelationEdge.vue'
 import TableConfigPanel from './components/TableConfigPanel.vue'
 import RelationConfigPanel from './components/RelationConfigPanel.vue'
 import SchemaMetaPanel from './components/SchemaMetaPanel.vue'
@@ -254,12 +254,17 @@ const TableNodeWrapper = defineComponent({
       h(TableNode, {
         data: p.data,
         onSelect: (tableId: string) => onSelectTable(tableId),
+        onRemove: (tableId: string) => onRemoveTable(tableId),
       })
   },
 })
 
 const nodeTypes = {
   'schema-table': markRaw(TableNodeWrapper),
+}
+
+const edgeTypes = {
+  'schema-relation': markRaw(RelationEdge),
 }
 
 const activeTableId = computed(() =>
@@ -304,7 +309,16 @@ const relationDraft = reactive<{
 
 function syncFlow() {
   nodes.value = tablesToNodes(schema.value.tables, activeTableId.value)
-  edges.value = relationsToEdges(schema.value, activeRelationId.value)
+  edges.value = relationsToEdges(schema.value, activeRelationId.value, {
+    onSelect: (relationId) => {
+      selection.value = { kind: 'relation', relationId }
+      sidePanel.value = 'relation'
+    },
+    onRemove: (relationId) => {
+      const rel = schema.value.relations.find((r) => r.id === relationId)
+      if (rel) void removeRelation(rel, true)
+    },
+  })
 }
 
 function commit() {
@@ -485,9 +499,8 @@ async function onRemoveColumn(columnId: string) {
   commit()
 }
 
-async function onRemoveTable() {
-  if (!activeTableId.value) return
-  const tableId = activeTableId.value
+async function onRemoveTable(tableId = activeTableId.value) {
+  if (!tableId) return
   const table = schema.value.tables.find((t) => t.id === tableId)
   const ok = await confirmAction({
     title: '删除表',
@@ -518,8 +531,10 @@ async function onRemoveTable() {
         !junctionIds.includes(r.junctionTableId ?? ''),
     ),
   }
-  selection.value = null
-  activeColumnId.value = null
+  if (selection.value?.kind === 'table' && selection.value.tableId === tableId) {
+    selection.value = null
+    activeColumnId.value = null
+  }
   commit()
 }
 
@@ -532,11 +547,6 @@ function onUpdateRelation(patch: Partial<SchemaRelation>) {
     ),
   }
   commit()
-}
-
-async function onRemoveRelation() {
-  if (!activeRelation.value) return
-  await removeRelation(activeRelation.value, true)
 }
 
 async function removeRelation(rel: SchemaRelation, needConfirm: boolean) {

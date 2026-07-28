@@ -26,9 +26,13 @@ export function tablesToNodes(
   }))
 }
 
-type FlowEdgeData = {
+export type FlowEdgeData = {
   relationId: string
   segment: 'direct' | 'junction-source' | 'junction-target'
+  label: string
+  active?: boolean
+  onSelect?: (relationId: string) => void
+  onRemove?: (relationId: string) => void
 }
 
 function edgeStyle(active: boolean) {
@@ -41,6 +45,10 @@ function edgeStyle(active: boolean) {
 export function relationsToEdges(
   schema: DatabaseSchema,
   activeRelationId?: string | null,
+  actions?: {
+    onSelect?: (relationId: string) => void
+    onRemove?: (relationId: string) => void
+  },
 ): Edge<FlowEdgeData>[] {
   const edges: Edge<FlowEdgeData>[] = []
 
@@ -60,6 +68,7 @@ export function relationsToEdges(
           relationId: rel.id,
           segment: 'junction-source',
           active,
+          actions,
         }),
         makeEdge({
           id: `${rel.id}__tgt`,
@@ -71,6 +80,7 @@ export function relationsToEdges(
           relationId: rel.id,
           segment: 'junction-target',
           active,
+          actions,
         }),
       )
       continue
@@ -87,6 +97,7 @@ export function relationsToEdges(
         relationId: rel.id,
         segment: 'direct',
         active,
+        actions,
       }),
     )
   }
@@ -104,6 +115,10 @@ function makeEdge(options: {
   relationId: string
   segment: FlowEdgeData['segment']
   active: boolean
+  actions?: {
+    onSelect?: (relationId: string) => void
+    onRemove?: (relationId: string) => void
+  }
 }): Edge<FlowEdgeData> {
   return {
     id: options.id,
@@ -111,18 +126,9 @@ function makeEdge(options: {
     sourceHandle: options.sourceHandle,
     target: options.target,
     targetHandle: options.targetHandle,
-    label: options.label,
-    type: 'smoothstep',
+    type: 'schema-relation',
     animated: options.active,
     style: edgeStyle(options.active),
-    labelStyle: {
-      fill: options.active ? 'var(--primary-color)' : 'var(--text-color-secondary)',
-      fontSize: 11,
-      fontWeight: 600,
-    },
-    labelBgStyle: {
-      fill: 'var(--component-background-color)',
-    },
     markerEnd: {
       type: MarkerType.ArrowClosed,
       color: options.active ? 'var(--primary-color)' : 'var(--text-color-secondary)',
@@ -135,6 +141,10 @@ function makeEdge(options: {
     data: {
       relationId: options.relationId,
       segment: options.segment,
+      label: options.label,
+      active: options.active,
+      onSelect: options.actions?.onSelect,
+      onRemove: options.actions?.onRemove,
     },
   }
 }

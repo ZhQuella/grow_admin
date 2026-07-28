@@ -20,7 +20,7 @@
       <GrowFormItem v-if="relation.type === 'many-to-many'" label="中间表">
         <GrowInput :model-value="junctionLabel" size="small" disabled />
       </GrowFormItem>
-      <GrowFormItem label="ON DELETE">
+      <GrowFormItem label="删除时">
         <GrowSelect
           :model-value="relation.onDelete"
           :options="REFERENTIAL_ACTION_OPTIONS"
@@ -29,7 +29,7 @@
           @update:model-value="(v) => emit('change', { onDelete: String(v) as any })"
         />
       </GrowFormItem>
-      <GrowFormItem label="ON UPDATE">
+      <GrowFormItem label="更新时">
         <GrowSelect
           :model-value="relation.onUpdate"
           :options="REFERENTIAL_ACTION_OPTIONS"
@@ -39,12 +39,6 @@
         />
       </GrowFormItem>
     </GrowForm>
-
-    <div class="mt-4">
-      <GrowButton size="small" type="warning" block @click="emit('remove')">
-        删除关联
-      </GrowButton>
-    </div>
   </div>
 </template>
 
@@ -64,7 +58,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   change: [patch: Partial<SchemaRelation>]
-  remove: []
 }>()
 
 const findLabel = (tableId: string, columnId: string) => {

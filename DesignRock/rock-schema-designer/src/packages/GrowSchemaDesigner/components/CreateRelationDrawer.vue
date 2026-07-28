@@ -25,7 +25,7 @@
             @update:model-value="(v) => (form.type = String(v) as SchemaRelationType)"
           />
         </GrowFormItem>
-        <GrowFormItem label="ON DELETE">
+        <GrowFormItem label="删除时">
           <GrowSelect
             :model-value="form.onDelete"
             :options="REFERENTIAL_ACTION_OPTIONS"
@@ -34,7 +34,7 @@
             @update:model-value="(v) => (form.onDelete = String(v) as SchemaReferentialAction)"
           />
         </GrowFormItem>
-        <GrowFormItem label="ON UPDATE">
+        <GrowFormItem label="更新时">
           <GrowSelect
             :model-value="form.onUpdate"
             :options="REFERENTIAL_ACTION_OPTIONS"

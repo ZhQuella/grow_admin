@@ -29,10 +29,10 @@ export const RELATION_TYPE_OPTIONS: { label: string; value: SchemaRelationType }
 ]
 
 export const REFERENTIAL_ACTION_OPTIONS: { label: string; value: SchemaReferentialAction }[] = [
-  { label: 'CASCADE', value: 'CASCADE' },
-  { label: 'SET NULL', value: 'SET NULL' },
-  { label: 'RESTRICT', value: 'RESTRICT' },
-  { label: 'NO ACTION', value: 'NO ACTION' },
+  { label: '级联', value: 'CASCADE' },
+  { label: '设为空', value: 'SET NULL' },
+  { label: '限制', value: 'RESTRICT' },
+  { label: '不操作', value: 'NO ACTION' },
 ]
 
 export const RELATION_TYPE_LABEL: Record<SchemaRelationType, string> = {

@@ -139,12 +139,6 @@
         </GrowForm>
       </div>
     </div>
-
-    <div class="box-border shrink-0 border-t border-solid border-border px-3 py-2">
-      <GrowButton size="small" type="warning" block @click="$emit('remove-table')">
-        删除此表
-      </GrowButton>
-    </div>
   </div>
 </template>
 
@@ -171,7 +165,6 @@ const emit = defineEmits<{
   'add-column': []
   'remove-column': [columnId: string]
   'select-column': [columnId: string]
-  'remove-table': []
 }>()
 
 const onNameChange = (value: string | number | null) => {
