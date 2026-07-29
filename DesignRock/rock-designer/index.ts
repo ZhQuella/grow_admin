@@ -38,4 +38,7 @@ export type {
 export { default as DesignerDataSourcePanel } from './src/packages/GrowDesigner/components/dataSource/index.vue'
 export { default as DesignerComputedPropsPanel } from './src/packages/GrowDesigner/components/computedProps/index.vue'
 export { default as DesignerApiOutlinedPanel } from './src/packages/GrowDesigner/components/apiOutlined/index.vue'
+export { default as DesignerPageEventsPanel } from './src/packages/GrowDesigner/components/pageEvents/index.vue'
 export { GROW_RUNTIME_STATE } from './src/packages/GrowDesigner/config/designation'
+export { runDesignerEvent } from './src/packages/GrowRenderer/utils/runDesignerEvent'
+export type { DesignerEventItem } from './src/packages/GrowDesigner/static/elementEvents/types'

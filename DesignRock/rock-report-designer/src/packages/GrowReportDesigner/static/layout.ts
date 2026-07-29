@@ -39,13 +39,14 @@ export function findNextPosition(
   h = REPORT_BLOCK_DEFAULT_H,
   colNum = REPORT_GRID_COL_NUM,
 ): { x: number; y: number } {
+  const safeW = Math.min(Math.max(w, 1), colNum)
   if (!layout.length) return { x: 0, y: 0 }
 
   const maxBottom = layout.reduce((max, item) => Math.max(max, item.y + item.h), 0)
 
   for (let y = 0; y <= maxBottom; y++) {
-    for (let x = 0; x <= colNum - w; x++) {
-      if (!collides(x, y, w, h, layout)) {
+    for (let x = 0; x <= colNum - safeW; x++) {
+      if (!collides(x, y, safeW, h, layout)) {
         return { x, y }
       }
     }
@@ -58,13 +59,15 @@ export function createLayoutItem(
   layout: ReportLayoutItem[],
   id: string,
   index: number,
+  colNum = REPORT_GRID_COL_NUM,
 ): ReportLayoutItem {
-  const { x, y } = findNextPosition(layout)
+  const w = Math.min(REPORT_BLOCK_DEFAULT_W, colNum)
+  const { x, y } = findNextPosition(layout, w, REPORT_BLOCK_DEFAULT_H, colNum)
   return {
     i: id,
     x,
     y,
-    w: REPORT_BLOCK_DEFAULT_W,
+    w,
     h: REPORT_BLOCK_DEFAULT_H,
     title: `区块 ${index}`,
     showTitle: true,
@@ -78,13 +81,16 @@ export function copyLayoutItem(
   layout: ReportLayoutItem[],
   source: ReportLayoutItem,
   id: string,
+  colNum = REPORT_GRID_COL_NUM,
 ): ReportLayoutItem {
-  const { x, y } = findNextPosition(layout, source.w, source.h)
+  const w = Math.min(source.w, colNum)
+  const { x, y } = findNextPosition(layout, w, source.h, colNum)
   return {
     ...source,
     i: id,
     x,
     y,
+    w,
     title: `${source.title} 副本`,
     chartConfig: cloneDeep(
       source.chartConfig ?? createDefaultChartConfig(source.chartType),

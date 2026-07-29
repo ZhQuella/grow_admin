@@ -40,21 +40,25 @@
 
     <div class="grow-designer__body">
       <aside class="grow-designer__rail" @mouseup.stop>
-        <div
+        <GrowTooltip
           v-for="item in railItems"
           :key="item.type"
-          class="grow-designer__rail-item"
-          :class="{ 'is-active': optionConfig.visible && optionConfig.type === item.type }"
-          :data-tip="item.label"
-          role="button"
-          tabindex="0"
-          :aria-label="item.label"
-          @click="onLeftOptionClick(item.type)"
-          @keydown.enter.prevent="onLeftOptionClick(item.type)"
-          @keydown.space.prevent="onLeftOptionClick(item.type)"
+          :content="item.label"
+          placement="right"
         >
-          <GrowIconify :icon="item.icon" :size="18" class="grow-designer__rail-icon" />
-        </div>
+          <div
+            class="grow-designer__rail-item"
+            :class="{ 'is-active': optionConfig.visible && optionConfig.type === item.type }"
+            role="button"
+            tabindex="0"
+            :aria-label="item.label"
+            @click="onLeftOptionClick(item.type)"
+            @keydown.enter.prevent="onLeftOptionClick(item.type)"
+            @keydown.space.prevent="onLeftOptionClick(item.type)"
+          >
+            <GrowIconify :icon="item.icon" :size="18" class="grow-designer__rail-icon" />
+          </div>
+        </GrowTooltip>
       </aside>
 
       <div
@@ -151,6 +155,7 @@ const railItems = [
   { type: 'dataBin', label: '数据源', icon: 'carbon:data-bin' },
   { type: 'computedProps', label: '属性计算', icon: 'carbon:function' },
   { type: 'pageWatchers', label: '数据监听', icon: 'carbon:view' },
+  { type: 'pageEvents', label: '页面事件', icon: 'carbon:lightning' },
   { type: 'apiOutlined', label: '数据请求', icon: 'carbon:api' },
 ] as const
 
@@ -239,6 +244,7 @@ import PageOptions from './components/pageOptions/index.vue'
 import dataSource from './components/dataSource/index.vue'
 import computedProps from './components/computedProps/index.vue'
 import pageWatchers from './components/pageWatchers/index.vue'
+import pageEvents from './components/pageEvents/index.vue'
 import apiOutlined from './components/apiOutlined/index.vue'
 
 export default defineComponent({
@@ -252,6 +258,7 @@ export default defineComponent({
     dataSource,
     computedProps,
     pageWatchers,
+    pageEvents,
     apiOutlined,
   },
 })
@@ -352,31 +359,6 @@ export default defineComponent({
   &:hover,
   &.is-active {
     color: var(--primary-color);
-  }
-
-  /* 悬停 tips：不改动 DOM 结构，避免挤乱图标布局 */
-  &::after {
-    content: attr(data-tip);
-    position: absolute;
-    top: 50%;
-    left: calc(100% + 10px);
-    z-index: 40;
-    padding: 4px 8px;
-    border-radius: 4px;
-    background: rgba(48, 49, 51, 0.92);
-    color: #fff;
-    font-size: 12px;
-    line-height: 1.4;
-    white-space: nowrap;
-    pointer-events: none;
-    opacity: 0;
-    transform: translateY(-50%);
-    transition: opacity 0.12s ease;
-  }
-
-  &:hover::after,
-  &:focus-visible::after {
-    opacity: 1;
   }
 }
 

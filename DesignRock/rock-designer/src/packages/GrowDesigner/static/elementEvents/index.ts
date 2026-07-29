@@ -233,7 +233,7 @@ export const getComponentEventOptions = (
   return elementEventsMap[elTagName] || COMMON_DOM
 }
 
-/** 页面级生命周期事件（页面配置 · 事件） */
+/** 页面级生命周期事件（左侧「页面事件」面板） */
 export const PAGE_LIFECYCLE_EVENTS: ComponentEventOption[] = [
   {
     type: 'onBeforeMount',

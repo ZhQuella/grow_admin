@@ -47,21 +47,27 @@
 
     <div class="relative flex min-h-0 flex-1 overflow-hidden">
       <aside class="report-rail" @click.stop>
-        <div
+        <GrowTooltip
           v-for="item in railItems"
           :key="item.type"
-          class="report-rail-item"
-          :class="{
-            'is-active': pagePanel.visible && pagePanel.type === item.type,
-          }"
-          :data-tip="item.label"
-          :title="item.label"
-          role="button"
-          tabindex="0"
-          @click="onRailClick(item.type)"
+          :content="item.label"
+          placement="right"
         >
-          <GrowIconify :icon="item.icon" :size="18" class="report-rail-icon" />
-        </div>
+          <div
+            class="report-rail-item"
+            :class="{
+              'is-active': pagePanel.visible && pagePanel.type === item.type,
+            }"
+            role="button"
+            tabindex="0"
+            :aria-label="item.label"
+            @click="onRailClick(item.type)"
+            @keydown.enter.prevent="onRailClick(item.type)"
+            @keydown.space.prevent="onRailClick(item.type)"
+          >
+            <GrowIconify :icon="item.icon" :size="18" class="report-rail-icon" />
+          </div>
+        </GrowTooltip>
       </aside>
 
       <div
@@ -83,16 +89,29 @@
       </div>
 
       <div class="report-designer-canvas relative box-border min-h-0 min-w-0 flex-1 overflow-auto p-3">
+        <!-- 预览时卸载画布 GridLayout：vue3-grid-layout 全局 eventBus 会串扰宽度/列数 -->
         <GridLayout
-          v-if="layout.length"
+          v-if="layout.length && !previewVisible"
           v-model:layout="layout"
           class="grow-report-grid"
-          :col-num="REPORT_GRID_COL_NUM"
-          :row-height="REPORT_GRID_ROW_HEIGHT"
+          :col-num="gridConfig.colNum"
+          :row-height="gridConfig.rowHeight"
+          :max-rows="gridConfig.maxRows"
+          :margin="gridConfig.margin"
           :is-draggable="true"
           :is-resizable="true"
-          :vertical-compact="true"
-          :use-css-transforms="true"
+          :is-mirrored="gridConfig.isMirrored"
+          :is-bounded="gridConfig.isBounded"
+          :auto-size="gridConfig.autoSize"
+          :vertical-compact="gridConfig.verticalCompact"
+          :restore-on-drag="gridConfig.restoreOnDrag"
+          :prevent-collision="gridConfig.preventCollision"
+          :use-css-transforms="gridConfig.useCssTransforms"
+          :responsive="gridConfig.responsive"
+          :breakpoints="gridConfig.breakpoints"
+          :cols="gridConfig.cols"
+          :use-style-cursor="true"
+          :transform-scale="gridConfig.transformScale"
         >
           <GridItem
             v-for="item in layout"
@@ -225,6 +244,7 @@ import {
   DesignerDataSourcePanel,
   DesignerComputedPropsPanel,
   DesignerApiOutlinedPanel,
+  DesignerPageEventsPanel,
   GROW_RUNTIME_STATE,
   buildRuntimeState,
   syncRuntimeState,
@@ -234,13 +254,15 @@ import {
 import {
   GrowReportRenderer,
   createReportSchema,
+  createDefaultPageConfig,
+  resolveReportGridConfig,
   type ReportSchema,
+  type ReportPageConfig,
 } from '../GrowReportRenderer'
 import ReportBlockChart from '../GrowReportRenderer/components/ReportBlockChart.vue'
 import BlockConfigPanel from './components/BlockConfigPanel.vue'
+import PageConfigPanel from './components/PageConfigPanel.vue'
 import {
-  REPORT_GRID_COL_NUM,
-  REPORT_GRID_ROW_HEIGHT,
   copyLayoutItem,
   createLayoutItem,
   type ReportLayoutItem,
@@ -264,12 +286,20 @@ const dragHint = ref<{
 let blockSeq = 0
 
 const pageData = reactive({
+  pageConfig: createDefaultPageConfig() as ReportPageConfig,
   dataSource: [] as any[],
   computedProps: [] as any[],
   apiOutlined: [] as any[],
 })
 
 const railItems = [
+  {
+    type: 'pageConfig',
+    label: '页面配置',
+    icon: 'carbon:grid',
+    componentName: 'PageConfigPanel',
+    title: '页面配置',
+  },
   {
     type: 'dataBin',
     label: '数据源',
@@ -285,6 +315,13 @@ const railItems = [
     title: '属性计算',
   },
   {
+    type: 'pageEvents',
+    label: '页面事件',
+    icon: 'carbon:lightning',
+    componentName: 'DesignerPageEventsPanel',
+    title: '页面事件',
+  },
+  {
     type: 'apiOutlined',
     label: '数据请求',
     icon: 'carbon:api',
@@ -292,6 +329,8 @@ const railItems = [
     title: '数据请求',
   },
 ] as const
+
+const gridConfig = computed(() => resolveReportGridConfig(pageData.pageConfig))
 
 const pagePanel = reactive({
   visible: false,
@@ -368,7 +407,7 @@ const configPanelTitle = computed(() =>
 )
 
 const formatDragHint = (i: string, w: number, h: number) => {
-  const share = (Math.max(w, 0) / REPORT_GRID_COL_NUM) * 100
+  const share = (Math.max(w, 0) / gridConfig.value.colNum) * 100
   return {
     i,
     shareText: Number.isInteger(share) ? `${share}%` : `${share.toFixed(1)}%`,
@@ -406,7 +445,10 @@ const onDeselect = () => {
 const onAddBlock = () => {
   blockSeq += 1
   const id = `block-${blockSeq}`
-  layout.value = [...layout.value, createLayoutItem(layout.value, id, blockSeq)]
+  layout.value = [
+    ...layout.value,
+    createLayoutItem(layout.value, id, blockSeq, gridConfig.value.colNum),
+  ]
   activeId.value = id
 }
 
@@ -446,7 +488,7 @@ const onCopyBlock = (id: string) => {
   if (!source) return
   blockSeq += 1
   const nextId = `block-${blockSeq}`
-  const copied = copyLayoutItem(layout.value, source, nextId)
+  const copied = copyLayoutItem(layout.value, source, nextId, gridConfig.value.colNum)
   layout.value = [...layout.value, copied]
   activeId.value = nextId
 }
@@ -460,14 +502,22 @@ const onClearCanvas = () => {
 }
 
 const buildSchema = () =>
-  createReportSchema(layout.value, undefined, {
+  createReportSchema(layout.value, pageData.pageConfig, {
     dataSource: pageData.dataSource,
     apiOutlined: pageData.apiOutlined,
     computedProps: pageData.computedProps,
   })
 
 const onPreview = () => {
-  previewSchema.value = buildSchema()
+  const schema = buildSchema()
+  // 预览固定设计列数：抽屉宽度与画布不同，若开响应式会切到其它断点列数
+  previewSchema.value = {
+    ...schema,
+    pageConfig: {
+      ...schema.pageConfig,
+      responsive: false,
+    },
+  }
   previewVisible.value = true
 }
 
@@ -485,6 +535,8 @@ export default defineComponent({
     DesignerDataSourcePanel,
     DesignerComputedPropsPanel,
     DesignerApiOutlinedPanel,
+    DesignerPageEventsPanel,
+    PageConfigPanel,
   },
 })
 </script>
@@ -586,10 +638,11 @@ export default defineComponent({
   position: absolute;
   width: 8px;
   height: 8px;
-  right: 3px;
-  bottom: 3px;
+  left: auto !important;
+  right: 3px !important;
+  bottom: 3px !important;
   padding: 0;
-  background: none;
+  background: none !important;
   border-right: 1.5px solid var(--primary-color);
   border-bottom: 1.5px solid var(--primary-color);
   opacity: 0.85;

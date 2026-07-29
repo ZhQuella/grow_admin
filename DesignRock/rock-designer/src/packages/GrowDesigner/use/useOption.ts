@@ -112,6 +112,10 @@ export const useOption = () => {
       title: "数据监听",
       componentName: "pageWatchers"
     },
+    pageEvents: {
+      title: "页面事件",
+      componentName: "pageEvents"
+    },
     apiOutlined: {
       title: "数据请求",
       componentName: "apiOutlined"
