@@ -14,6 +14,8 @@
   "dependencies": {
     "@grow-admin-rock/code-sandbox": "workspace:*",
     "@grow-admin-rock/components": "workspace:*",
+    "@grow-admin-rock/infrastructure": "workspace:*",
+    "@grow-admin-rock/ioc": "workspace:*",
     "@grow-admin-rock/utils": "workspace:*",
     "nanoid": "^4.0.2",
     "vuedraggable": "^4.1.0"

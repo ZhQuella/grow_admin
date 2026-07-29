@@ -10,6 +10,7 @@
 import { computed } from 'vue'
 import type { DesignerTableColumn } from '../../static/tableColumns'
 import {
+  coerceToDesignerTableColumns,
   filterVisibleTableColumns,
   tableColumnRenderKey,
 } from '../../static/tableColumnUtils'
@@ -19,14 +20,19 @@ defineOptions({ name: 'TableColumnNodes' })
 
 const props = withDefaults(
   defineProps<{
-    columns?: DesignerTableColumn[]
+    /** 设计器列或 EP columns（绑定变量求值结果） */
+    columns?: DesignerTableColumn[] | Record<string, any>[] | unknown
   }>(),
   {
     columns: () => [],
   },
 )
 
+const normalizedColumns = computed(() =>
+  coerceToDesignerTableColumns(props.columns),
+)
+
 const visibleColumns = computed(() =>
-  filterVisibleTableColumns(props.columns || []),
+  filterVisibleTableColumns(normalizedColumns.value),
 )
 </script>

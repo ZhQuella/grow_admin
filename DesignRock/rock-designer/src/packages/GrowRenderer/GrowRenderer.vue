@@ -34,12 +34,16 @@ import {
 } from 'vue'
 import RenderNode from './components/RenderNode.vue'
 import type { DesignerSchema } from './types'
-import { GROW_RUNTIME_STATE } from '../GrowDesigner/config/designation'
+import { GROW_RUNTIME_STATE, GROW_RUNTIME_APIS } from '../GrowDesigner/config/designation'
 import { buildRuntimeState, syncRuntimeState } from './utils/resolveBoundProps'
 import {
   recomputeComputedProps,
   runApiOutlinedList,
+  buildApiOutlinedMethods,
+  setupComputedPropReactivity,
+  resolveDesignerHttpClient,
   type ReportHttpClient,
+  type ApiOutlinedMethods,
 } from './utils/runApiOutlined'
 import { runDesignerEvent } from './utils/runDesignerEvent'
 import { setupPageWatchers } from './utils/runDesignerWatcher'
@@ -52,7 +56,7 @@ const props = withDefaults(
   defineProps<{
     /** 设计器导出的页面 schema（structures + renderArgument + props + styles） */
     schema?: DesignerSchema | null
-    /** 宿主注入的 HTTP 客户端（数据请求用）；缺省原生 fetch */
+    /** 宿主注入的 HTTP 客户端（数据请求用）；缺省走 infrastructure Axios */
     httpClient?: ReportHttpClient | null
   }>(),
   {
@@ -70,6 +74,10 @@ const runtimeState = reactive<Record<string, unknown>>({})
 
 let apiRunToken = 0
 
+const runtimeHttpClient = computed(() =>
+  resolveDesignerHttpClient(props.httpClient),
+)
+
 const rebuildRuntimeState = async () => {
   const token = ++apiRunToken
   syncRuntimeState(
@@ -80,7 +88,7 @@ const rebuildRuntimeState = async () => {
     ),
   )
   await runApiOutlinedList(resolvedSchema.value.apiOutlined, runtimeState, {
-    httpClient: props.httpClient || undefined,
+    httpClient: runtimeHttpClient.value,
     autoLoadOnly: true,
   })
   if (token !== apiRunToken) return
@@ -101,6 +109,21 @@ watch(
 )
 provide(GROW_RUNTIME_STATE, runtimeState)
 
+/** 依赖字段变化时自动重算计算属性 */
+setupComputedPropReactivity(
+  runtimeState,
+  () => resolvedSchema.value.computedProps,
+)
+
+/** 数据请求 → 事件可调用方法（配置名称即方法名） */
+const apiMethods = computed<ApiOutlinedMethods>(() =>
+  buildApiOutlinedMethods(resolvedSchema.value.apiOutlined, runtimeState, {
+    httpClient: runtimeHttpClient.value,
+    computedProps: resolvedSchema.value.computedProps,
+  }),
+)
+provide(GROW_RUNTIME_APIS, apiMethods)
+
 /** 供宿主读取表单双向绑定后的最新 state */
 const getRuntimeState = () => runtimeState
 
@@ -111,6 +134,7 @@ defineExpose({
   runtimeState,
   getRuntimeState,
   refreshApiOutlined,
+  apiMethods,
 })
 
 const pageStyle = computed(() => {
@@ -138,7 +162,7 @@ const pageWatchers = computed(
 const runPageLifecycle = (eventType: string, event?: unknown) => {
   const item = pageEvents.value?.[eventType]
   if (!item) return
-  runDesignerEvent(item, event, runtimeState)
+  void runDesignerEvent(item, event, runtimeState, apiMethods.value)
 }
 
 /** 页面 state 监听：配置变更时重建 */

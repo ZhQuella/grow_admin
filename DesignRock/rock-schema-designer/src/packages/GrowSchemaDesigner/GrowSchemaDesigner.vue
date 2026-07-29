@@ -53,7 +53,7 @@
 
       <div
         v-if="sidePanel"
-        class="relative z-20 w-[320px] shrink-0 border-r border-solid border-border bg-component"
+        class="relative z-20 w-[320px] shrink-0 overflow-visible border-r border-solid border-border bg-component"
         @click.stop
       >
         <div
@@ -75,7 +75,10 @@
             <GrowIconify icon="carbon:close" :size="15" />
           </GrowButton>
         </div>
-        <div class="absolute bottom-0 left-0 right-0 top-10 overflow-hidden">
+        <div
+          class="absolute bottom-0 left-0 right-0 top-10"
+          :class="sidePanel === 'sql' ? 'overflow-visible' : 'overflow-hidden'"
+        >
           <SchemaMetaPanel
             v-if="sidePanel === 'meta'"
             :schema="schema"
@@ -97,6 +100,11 @@
             :schema="schema"
             @change="onUpdateRelation"
           />
+          <SqlQueryPanel
+            v-else-if="sidePanel === 'sql'"
+            :schema="schema"
+            @change="onQueriesChange"
+          />
           <div v-else class="px-3 py-8 text-center text-xs text-text-secondary">
             {{ emptyPanelHint }}
           </div>
@@ -105,9 +113,10 @@
 
       <div class="relative min-h-0 min-w-0 flex-1" @click.stop>
         <VueFlow
+          :key="flowEpoch"
           id="grow-schema-designer"
           v-model:nodes="nodes"
-          :edges="edges"
+          v-model:edges="edges"
           :node-types="nodeTypes"
           :edge-types="edgeTypes"
           :default-viewport="DEFAULT_VIEWPORT"
@@ -174,6 +183,7 @@ import RelationEdge from './components/RelationEdge.vue'
 import TableConfigPanel from './components/TableConfigPanel.vue'
 import RelationConfigPanel from './components/RelationConfigPanel.vue'
 import SchemaMetaPanel from './components/SchemaMetaPanel.vue'
+import SqlQueryPanel from './components/SqlQueryPanel.vue'
 import CreateRelationDrawer from './components/CreateRelationDrawer.vue'
 import { confirmAction } from './confirmAction'
 import { copySchemaJson, downloadSchemaJson } from './exportSchema'
@@ -207,11 +217,14 @@ import type {
   SchemaRelation,
   SchemaRelationType,
   SchemaSelection,
+  SchemaSqlQuery,
   SchemaTable,
 } from './types'
 
 function cloneSchema(value: DatabaseSchema): DatabaseSchema {
-  return JSON.parse(JSON.stringify(value)) as DatabaseSchema
+  const cloned = JSON.parse(JSON.stringify(value)) as DatabaseSchema
+  if (!Array.isArray(cloned.queries)) cloned.queries = []
+  return cloned
 }
 
 defineOptions({
@@ -219,7 +232,10 @@ defineOptions({
 })
 
 const DEFAULT_VIEWPORT = { zoom: 0.6, x: 40, y: 40 } as const
-const { setViewport } = useVueFlow({ id: 'grow-schema-designer' })
+const { setViewport, setNodes, setEdges } = useVueFlow({ id: 'grow-schema-designer' })
+
+/** 清空后重挂载 VueFlow，避免 v-model 与内部 store 在空→非空时不同步导致节点不渲染 */
+const flowEpoch = ref(0)
 
 const props = withDefaults(
   defineProps<{
@@ -248,13 +264,14 @@ watch(
 
 const selection = ref<SchemaSelection>(null)
 const activeColumnId = ref<string | null>(null)
-const sidePanel = ref<'meta' | 'table' | 'relation' | null>('meta')
+const sidePanel = ref<'meta' | 'table' | 'relation' | 'sql' | null>('meta')
 
-type RailType = 'meta' | 'table' | 'relation'
+type RailType = 'meta' | 'table' | 'relation' | 'sql'
 const railItems: { type: RailType; label: string; icon: string }[] = [
   { type: 'meta', label: '库信息', icon: 'carbon:db2-database' },
   { type: 'table', label: '表配置', icon: 'carbon:data-table' },
-  { type: 'relation', label: '关联配置', icon: 'carbon:connectors' },
+  { type: 'relation', label: '关联配置', icon: 'carbon:connect' },
+  { type: 'sql', label: 'SQL 查询', icon: 'carbon:query' },
 ]
 
 const nodes = ref<Node<TableNodeData>[]>([])
@@ -301,6 +318,7 @@ const sidePanelTitle = computed(() => {
   if (sidePanel.value === 'meta') return '数据库'
   if (sidePanel.value === 'table') return activeTable.value ? `表 · ${activeTable.value.name}` : '表配置'
   if (sidePanel.value === 'relation') return '关联'
+  if (sidePanel.value === 'sql') return 'SQL 查询'
   return ''
 })
 
@@ -325,8 +343,8 @@ const relationDraft = reactive<{
 })
 
 function syncFlow() {
-  nodes.value = tablesToNodes(schema.value.tables, activeTableId.value)
-  edges.value = relationsToEdges(schema.value, activeRelationId.value, {
+  const nextNodes = tablesToNodes(schema.value.tables, activeTableId.value)
+  const nextEdges = relationsToEdges(schema.value, activeRelationId.value, {
     onSelect: (relationId) => {
       selection.value = { kind: 'relation', relationId }
       sidePanel.value = 'relation'
@@ -336,6 +354,11 @@ function syncFlow() {
       if (rel) void removeRelation(rel, true)
     },
   })
+  // 同时写 ref + store，避免清空后再添加时仅更新 ref、画布 store 仍为空
+  nodes.value = nextNodes
+  edges.value = nextEdges
+  setNodes(nextNodes)
+  setEdges(nextEdges)
 }
 
 function commit() {
@@ -392,6 +415,11 @@ function onMetaChange(patch: Partial<Pick<DatabaseSchema, 'name' | 'comment'>>) 
   commit()
 }
 
+function onQueriesChange(queries: SchemaSqlQuery[]) {
+  schema.value = { ...schema.value, queries }
+  commit()
+}
+
 function onAddTable() {
   const isFirstTable = schema.value.tables.length === 0
   const name = nextTableName(schema.value.tables, 'table')
@@ -409,9 +437,10 @@ function onAddTable() {
   onSelectTable(table.id)
   commit()
 
-  // 首次落表时强制视口，避免 Vue Flow 仍停留在 zoom=1
+  // 首次落表时强制视口，避免 Vue Flow 仍停留在异常缩放
   if (isFirstTable) {
     nextTick(() => {
+      setNodes(nodes.value)
       setViewport({ ...DEFAULT_VIEWPORT })
     })
   }
@@ -427,10 +456,16 @@ async function onClear() {
   schema.value = createDatabaseSchema({
     name: schema.value.name,
     comment: schema.value.comment,
+    queries: schema.value.queries,
   })
   selection.value = null
   activeColumnId.value = null
   sidePanel.value = 'meta'
+  nodes.value = []
+  edges.value = []
+  setNodes([])
+  setEdges([])
+  flowEpoch.value += 1
   commit()
   nextTick(() => {
     setViewport({ ...DEFAULT_VIEWPORT })

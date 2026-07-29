@@ -12,6 +12,7 @@
     "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
   },
   "dependencies": {
+    "@grow-admin-rock/code-sandbox": "workspace:*",
     "@grow-admin-rock/components": "workspace:*",
     "@grow-admin-rock/utils": "workspace:*",
     "@vue-flow/background": "^1.3.2",

@@ -6,7 +6,16 @@
  */
 
 import type { DesignerApiOutlinedItem, DesignerApiProcessor } from '../../GrowDesigner/components/apiOutlined/types'
-import { evaluateExpression } from './resolveBoundProps'
+import {
+  normalizePropBindMode,
+  PROP_BIND_MODE_BIND,
+} from '../../GrowDesigner/static/propBindModes'
+import {
+  evaluateExpression,
+  resolveBoundExpression,
+} from './resolveBoundProps'
+import { createInfrastructureHttpClient } from './infrastructureHttpClient'
+import { watch, type WatchStopHandle } from 'vue'
 
 export type ReportHttpRequestConfig = {
   url: string
@@ -21,7 +30,7 @@ export type ReportHttpClient = (
 ) => Promise<unknown>
 
 export type RunApiOutlinedOptions = {
-  /** 宿主注入的 HTTP 客户端；缺省用原生 fetch */
+  /** 宿主注入的 HTTP 客户端；缺省走 infrastructure Axios */
   httpClient?: ReportHttpClient
   /** 仅执行 autoLoad 的项；false 时仍可写入 defaultData */
   autoLoadOnly?: boolean
@@ -51,7 +60,7 @@ const findProcessor = (
   type: DesignerApiProcessor['type'],
 ) => item.processors?.find((p) => p.type === type)
 
-/** 求值 params 中的 value（支持字面量 / 简单表达式） */
+/** 求值 params 中的 value：bind 模式读 state；text 模式为固定值 */
 const resolveParams = (
   params: DesignerApiOutlinedItem['params'] | undefined,
   state: Record<string, unknown>,
@@ -62,6 +71,26 @@ const resolveParams = (
     const key = String(row?.key ?? '').trim()
     if (!key) continue
     const raw = String(row?.value ?? '')
+    if (!raw) {
+      out[key] = raw
+      continue
+    }
+
+    const hasExplicitMode = row?.bindMode != null && String(row.bindMode).trim() !== ''
+
+    // 明确 text：固定字面量
+    if (hasExplicitMode && normalizePropBindMode(row.bindMode) !== PROP_BIND_MODE_BIND) {
+      out[key] = raw
+      continue
+    }
+
+    // 明确 bind：按 state 表达式求值
+    if (hasExplicitMode) {
+      out[key] = resolveBoundExpression(raw, state)
+      continue
+    }
+
+    // 旧数据无 bindMode：尝试表达式，失败则回退字面量
     try {
       // eslint-disable-next-line no-new-func
       out[key] = new Function('state', `"use strict"; return (${raw});`)(state)
@@ -72,7 +101,7 @@ const resolveParams = (
   return out
 }
 
-const defaultHttpClient: ReportHttpClient = async (config) => {
+export const defaultHttpClient: ReportHttpClient = async (config) => {
   const method = config.method || 'GET'
   const url = new URL(config.url, typeof window !== 'undefined' ? window.location.origin : 'http://localhost')
   const headers: Record<string, string> = {
@@ -104,6 +133,19 @@ const defaultHttpClient: ReportHttpClient = async (config) => {
   return payload
 }
 
+/**
+ * 解析实际 HTTP 客户端：
+ * 1. 宿主显式传入
+ * 2. 默认 @grow-admin-rock/infrastructure Axios（与业务 API 同一套）
+ * 3. infrastructure 不可用时回退原生 fetch
+ */
+export const resolveDesignerHttpClient = (
+  injected?: ReportHttpClient | null,
+): ReportHttpClient => {
+  if (injected) return injected
+  return createInfrastructureHttpClient(defaultHttpClient)
+}
+
 const shouldFetchItem = (
   item: DesignerApiOutlinedItem,
   state: Record<string, unknown>,
@@ -133,15 +175,32 @@ export const applyApiDefaultData = (
   }
 }
 
+export type RunSingleApiOutlinedOptions = {
+  /** 事件手动调用时忽略 shouldFetch，强制发起请求 */
+  force?: boolean
+}
+
+export type ApiOutlinedMethods = Record<
+  string,
+  () => Promise<unknown>
+>
+
+export type BuildApiOutlinedMethodsOptions = {
+  httpClient?: ReportHttpClient
+  /** 请求成功后按最新 state 重算计算属性 */
+  computedProps?: unknown
+}
+
 /** 执行单个 API，结果写入 state[name] */
 export const runSingleApiOutlined = async (
   item: DesignerApiOutlinedItem,
   state: Record<string, unknown>,
-  httpClient: ReportHttpClient = defaultHttpClient,
+  httpClient: ReportHttpClient = resolveDesignerHttpClient(),
+  options: RunSingleApiOutlinedOptions = {},
 ): Promise<void> => {
   const name = String(item.name ?? '').trim()
   if (!name) return
-  if (!shouldFetchItem(item, state)) return
+  if (!options.force && !shouldFetchItem(item, state)) return
 
   const url = String(item.url ?? '').trim()
   if (!url) return
@@ -199,7 +258,7 @@ export const runApiOutlinedList = async (
 
   applyApiDefaultData(apiList, state)
 
-  const httpClient = options.httpClient || defaultHttpClient
+  const httpClient = options.httpClient || resolveDesignerHttpClient()
   const list = (apiList as DesignerApiOutlinedItem[]).filter((item) => {
     if (!item || typeof item !== 'object') return false
     if (options.autoLoadOnly !== false && !item.autoLoad) return false
@@ -221,7 +280,34 @@ export const runApiOutlinedList = async (
   await Promise.all(list.map((item) => runSingleApiOutlined(item, state, httpClient)))
 }
 
-/** 重新计算 computedProps（API 写入 state 后调用） */
+/**
+ * 将页面 apiOutlined 转为可在事件中调用的方法表：
+ * 配置名称 getList → 事件里 `apis.getList()` / `await apis.getList()`
+ */
+export const buildApiOutlinedMethods = (
+  apiList: unknown,
+  state: Record<string, unknown>,
+  options: BuildApiOutlinedMethodsOptions = {},
+): ApiOutlinedMethods => {
+  const methods: ApiOutlinedMethods = {}
+  if (!Array.isArray(apiList)) return methods
+
+  const httpClient = options.httpClient || resolveDesignerHttpClient()
+  for (const raw of apiList as DesignerApiOutlinedItem[]) {
+    if (!raw || typeof raw !== 'object') continue
+    const name = String(raw.name ?? '').trim()
+    if (!name) continue
+    const item = raw
+    methods[name] = async () => {
+      await runSingleApiOutlined(item, state, httpClient, { force: true })
+      recomputeComputedProps(options.computedProps, state)
+      return state[name]
+    }
+  }
+  return methods
+}
+
+/** 重新计算 computedProps（API 写入 state / 依赖变化后调用） */
 export const recomputeComputedProps = (
   computedProps: unknown,
   state: Record<string, unknown>,
@@ -231,14 +317,63 @@ export const recomputeComputedProps = (
     if (!item || typeof item !== 'object') continue
     const name = String(item.name ?? '').trim()
     if (!name) continue
+    const code = String(item.code ?? '').trim()
+    if (!code) {
+      state[name] = undefined
+      continue
+    }
     try {
       // eslint-disable-next-line no-new-func
       state[name] = new Function(
         'state',
-        `"use strict"; return (${String(item.code ?? '')});`,
+        `"use strict"; return (${code});`,
       )(state)
     } catch (error) {
       console.warn('[GrowComputedProp]', error)
     }
   }
+}
+
+/** 收集计算属性名称，避免监听自身写入造成循环 */
+export const collectComputedPropNames = (computedProps: unknown): Set<string> => {
+  const names = new Set<string>()
+  if (!Array.isArray(computedProps)) return names
+  for (const item of computedProps as Array<{ name?: string }>) {
+    if (!item || typeof item !== 'object') continue
+    const name = String(item.name ?? '').trim()
+    if (name) names.add(name)
+  }
+  return names
+}
+
+/**
+ * 监听 state 中「非计算属性」字段变化，自动重算 computedProps。
+ * 覆盖：数据源/请求结果更新、双向绑定回写、事件修改 state 等。
+ */
+export const setupComputedPropReactivity = (
+  state: Record<string, unknown>,
+  getComputedProps: () => unknown,
+): WatchStopHandle => {
+  let running = false
+  return watch(
+    () => {
+      const computedNames = collectComputedPropNames(getComputedProps())
+      const deps: Record<string, unknown> = {}
+      for (const key of Object.keys(state)) {
+        if (computedNames.has(key)) continue
+        deps[key] = state[key]
+      }
+      return deps
+    },
+    () => {
+      if (running) return
+      running = true
+      try {
+        recomputeComputedProps(getComputedProps(), state)
+      } finally {
+        running = false
+      }
+    },
+    { deep: true },
+  )
 }

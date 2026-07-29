@@ -337,10 +337,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, provide, reactive } from 'vue'
+import { computed, inject, provide, reactive, unref, type Ref } from 'vue'
 import { FORM_MODULE_FULL_WIDTH_TAGS } from '../../GrowDesigner/static/moduleMap'
 import {
   GROW_RUNTIME_STATE,
+  GROW_RUNTIME_APIS,
   LAYOUT_MAIN_SIZE,
   type LayoutMainSize,
 } from '../../GrowDesigner/config/designation'
@@ -370,6 +371,7 @@ import {
   toColumnBarItems,
 } from '../../GrowDesigner/static/tableColumnUtils'
 import { buildRuntimeEventProps } from '../utils/runDesignerEvent'
+import type { ApiOutlinedMethods } from '../utils/runApiOutlined'
 import RenderPageLayout from './RenderPageLayout.vue'
 import RenderScopedState from './RenderScopedState.vue'
 import TableColumnNodes from '../../GrowDesigner/components/shared/TableColumnNodes.vue'
@@ -395,19 +397,34 @@ const injectedRuntimeState = inject<Record<string, unknown> | null>(
   GROW_RUNTIME_STATE,
   null,
 )
+const injectedApis = inject<
+  ApiOutlinedMethods | Ref<ApiOutlinedMethods> | null
+>(GROW_RUNTIME_APIS, null)
 const runtimeState = computed(
   () =>
     injectedRuntimeState ??
     buildRuntimeState(props.schema.dataSource, props.schema.computedProps),
 )
+const runtimeApis = computed<ApiOutlinedMethods>(
+  () => unref(injectedApis) || {},
+)
 /** 按 propBindModes 求值后的 props（绑定字段已解析为展示值） */
-const rawProps = computed(() =>
-  resolveBoundProps(
+const rawProps = computed(() => {
+  const state = runtimeState.value
+  // 显式依赖计算属性，避免只改计算值时展示不刷新
+  const computedList = props.schema.computedProps
+  if (Array.isArray(computedList)) {
+    for (const item of computedList as Array<{ name?: string }>) {
+      const name = String(item?.name ?? '').trim()
+      if (name) void state[name]
+    }
+  }
+  return resolveBoundProps(
     props.schema.props?.[uuid.value] || {},
     props.schema.propBindModes?.[uuid.value],
-    runtimeState.value,
-  ),
-)
+    state,
+  )
+})
 
 /** 渲染（v-if）：默认 true */
 const isNodeRenderable = computed(() => coerceBool(rawProps.value?.render, true))
@@ -419,6 +436,7 @@ const runtimeEventProps = computed(() =>
   buildRuntimeEventProps(
     props.schema.events?.[uuid.value] as any,
     runtimeState.value,
+    runtimeApis.value,
   ),
 )
 

@@ -41,6 +41,12 @@ export function exportSchemaJson(schema: DatabaseSchema, pretty = true): string 
       onDelete: rel.onDelete,
       onUpdate: rel.onUpdate,
     })),
+    queries: (schema.queries ?? []).map((q) => ({
+      id: q.id,
+      name: q.name,
+      description: q.description ?? '',
+      sql: q.sql ?? '',
+    })),
   }
 
   return pretty ? JSON.stringify(payload, null, 2) : JSON.stringify(payload)

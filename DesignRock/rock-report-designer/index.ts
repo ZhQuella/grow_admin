@@ -14,6 +14,7 @@ export type {
 } from './src/packages/GrowReportRenderer'
 export {
   createReportSchema,
+  createDefaultPageConfig,
   REPORT_CHART_TYPE_OPTIONS,
   CARTESIAN_SERIES_TYPE_OPTIONS,
   DEFAULT_REPORT_CHART_TYPE,

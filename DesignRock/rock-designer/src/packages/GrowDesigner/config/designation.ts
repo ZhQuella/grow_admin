@@ -11,6 +11,9 @@ export const LAYOUT_MAIN_SIZE = "__layoutMainSize__";
 /** 变量绑定运行时 state（由 dataSource / computedProps 求值） */
 export const GROW_RUNTIME_STATE = "__growRuntimeState__";
 
+/** 数据请求方法表（由 apiOutlined 生成，事件中通过 apis.名称() 调用） */
+export const GROW_RUNTIME_APIS = "__growRuntimeApis__";
+
 export type LayoutMainSize = {
   width: number
   height: number

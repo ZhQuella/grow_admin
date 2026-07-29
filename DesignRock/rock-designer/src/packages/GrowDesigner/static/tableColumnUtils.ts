@@ -256,6 +256,83 @@ export const tableColumnsSignature = (columns: unknown) => {
   }
 }
 
+/**
+ * 将绑定变量求值结果（EP columns 或设计器列）归一为 DesignerTableColumn[]。
+ * 支持 label/prop（EP）与 title/field（设计器）两种形态。
+ */
+export const coerceToDesignerTableColumns = (
+  raw: unknown,
+): DesignerTableColumn[] => {
+  if (!Array.isArray(raw)) return []
+  const result: DesignerTableColumn[] = []
+  raw.forEach((item, index) => {
+    const col = coerceToDesignerTableColumn(item, index)
+    if (col) result.push(col)
+  })
+  return result
+}
+
+const coerceToDesignerTableColumn = (
+  raw: unknown,
+  index: number,
+): DesignerTableColumn | null => {
+  if (!raw || typeof raw !== 'object') return null
+  const item = raw as Record<string, any>
+  const type =
+    item.type === 'selection' || item.type === 'index' ? item.type : undefined
+
+  const childRaw = Array.isArray(item.children) ? item.children : []
+  const children = childRaw
+    .map((child: unknown, childIndex: number) =>
+      coerceToDesignerTableColumn(child, childIndex),
+    )
+    .filter(Boolean) as DesignerTableColumn[]
+
+  const title = String(item.title ?? item.label ?? '')
+  const field = type ? '' : String(item.field ?? item.prop ?? '')
+  const id =
+    item.id != null && String(item.id)
+      ? String(item.id)
+      : `bound_${type || field || title || 'col'}_${index}`
+
+  const sortableRaw = item.sortable
+  let sortable: DesignerTableColumn['sortable'] = ''
+  if (sortableRaw === true || sortableRaw === 'custom') sortable = sortableRaw
+  else if (sortableRaw === 'true') sortable = true
+
+  const minWidth = item.minWidth ?? item['min-width']
+  const headerAlign = item.headerAlign ?? item['header-align']
+  const showOverflowTooltip =
+    item.showOverflowTooltip ?? item['show-overflow-tooltip']
+  const className = item.className ?? item['class-name']
+  const labelClassName = item.labelClassName ?? item['label-class-name']
+  const columnKey = item.columnKey ?? item['column-key']
+
+  return {
+    id,
+    ...(type ? { type } : {}),
+    title,
+    field,
+    ...(item.width != null && item.width !== '' ? { width: item.width } : {}),
+    ...(minWidth != null && minWidth !== '' ? { minWidth } : {}),
+    ...(item.align ? { align: item.align } : {}),
+    ...(headerAlign ? { headerAlign } : {}),
+    ...(item.fixed === true || item.fixed === 'left' || item.fixed === 'right'
+      ? { fixed: item.fixed }
+      : {}),
+    ...(sortable !== '' ? { sortable } : {}),
+    ...(typeof item.resizable === 'boolean' ? { resizable: item.resizable } : {}),
+    ...(typeof showOverflowTooltip === 'boolean'
+      ? { showOverflowTooltip }
+      : {}),
+    ...(className ? { className: String(className) } : {}),
+    ...(labelClassName ? { labelClassName: String(labelClassName) } : {}),
+    ...(columnKey ? { columnKey: String(columnKey) } : {}),
+    visible: item.visible !== false,
+    ...(children.length ? { children } : {}),
+  }
+}
+
 /** 在树中按 id 更新节点 */
 export const updateTableColumnById = (
   list: DesignerTableColumn[],

@@ -42,7 +42,11 @@ export const useApiOutlined = (data: Ref<Record<string, any>>) => {
           loadType: item.loadType || 'parallel',
           url: item.url || '',
           method: item.method || 'GET',
-          params: (item.params || []).map((row) => ({ ...row })),
+          params: (item.params || []).map((row) => ({
+            key: row.key || '',
+            value: row.value || '',
+            bindMode: row.bindMode || 'text',
+          })),
           shouldFetch: item.shouldFetch ?? true,
           processors: (item.processors || []).map((row) => ({
             id: row.id,
@@ -107,7 +111,11 @@ export const useApiOutlined = (data: Ref<Record<string, any>>) => {
       loadType: formData.loadType,
       url: formData.url,
       method: formData.method,
-      params: formData.params.map((row) => ({ key: row.key, value: row.value })),
+      params: formData.params.map((row) => ({
+        key: row.key,
+        value: row.value,
+        bindMode: row.bindMode || 'text',
+      })),
       shouldFetch: formData.shouldFetch,
       processors: formData.processors.map((row) => ({
         id: row.id,

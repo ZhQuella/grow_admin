@@ -418,6 +418,16 @@ export const tableConfig = createConfig([
   sizeSelect('Table 尺寸'),
   textInput('空数据文案', 'empty-text', '空数据时显示的文本'),
   boolSwitch('显示合计行', 'show-summary', '是否在表尾显示合计行'),
+  textInput('合计文案', 'sum-text', '合计行第一列的文本，默认「合计」', '合计'),
+  functionBind(
+    '合计方法',
+    'summary-method',
+    '自定义合计行的计算方法（需开启「显示合计行」）；不填则按数值列自动求和',
+    {
+      params: ['param'],
+      example: `// const { columns, data } = param\n// return columns.map((column, index) => {\n//   if (index === 0) return '合计'\n//   // 按列汇总…\n//   return ''\n// })\nreturn []`,
+    },
+  ),
   functionBind(
     '合并行或列',
     'span-method',
@@ -425,15 +435,6 @@ export const tableConfig = createConfig([
     {
       params: ['row', 'column', 'rowIndex', 'columnIndex'],
       example: `// return [1, 1]\nreturn [1, 1]`,
-    },
-  ),
-  functionBind(
-    '合计方法',
-    'summary-method',
-    '自定义合计行的计算方法（需开启 show-summary）',
-    {
-      params: ['param'],
-      example: `// const { columns, data } = param\n// return columns.map(() => '')\nreturn []`,
     },
   ),
   functionBind(
