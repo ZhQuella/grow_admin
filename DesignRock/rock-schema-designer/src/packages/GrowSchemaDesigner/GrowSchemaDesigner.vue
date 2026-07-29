@@ -105,9 +105,10 @@
 
       <div class="relative min-h-0 min-w-0 flex-1" @click.stop>
         <VueFlow
+          :key="flowEpoch"
           id="grow-schema-designer"
           v-model:nodes="nodes"
-          :edges="edges"
+          v-model:edges="edges"
           :node-types="nodeTypes"
           :edge-types="edgeTypes"
           :default-viewport="DEFAULT_VIEWPORT"
@@ -219,7 +220,10 @@ defineOptions({
 })
 
 const DEFAULT_VIEWPORT = { zoom: 0.6, x: 40, y: 40 } as const
-const { setViewport } = useVueFlow({ id: 'grow-schema-designer' })
+const { setViewport, setNodes, setEdges } = useVueFlow({ id: 'grow-schema-designer' })
+
+/** 清空后重挂载 VueFlow，避免 v-model 与内部 store 在空→非空时不同步导致节点不渲染 */
+const flowEpoch = ref(0)
 
 const props = withDefaults(
   defineProps<{
@@ -325,8 +329,8 @@ const relationDraft = reactive<{
 })
 
 function syncFlow() {
-  nodes.value = tablesToNodes(schema.value.tables, activeTableId.value)
-  edges.value = relationsToEdges(schema.value, activeRelationId.value, {
+  const nextNodes = tablesToNodes(schema.value.tables, activeTableId.value)
+  const nextEdges = relationsToEdges(schema.value, activeRelationId.value, {
     onSelect: (relationId) => {
       selection.value = { kind: 'relation', relationId }
       sidePanel.value = 'relation'
@@ -336,6 +340,11 @@ function syncFlow() {
       if (rel) void removeRelation(rel, true)
     },
   })
+  // 同时写 ref + store，避免清空后再添加时仅更新 ref、画布 store 仍为空
+  nodes.value = nextNodes
+  edges.value = nextEdges
+  setNodes(nextNodes)
+  setEdges(nextEdges)
 }
 
 function commit() {
@@ -409,9 +418,10 @@ function onAddTable() {
   onSelectTable(table.id)
   commit()
 
-  // 首次落表时强制视口，避免 Vue Flow 仍停留在 zoom=1
+  // 首次落表时强制视口，避免 Vue Flow 仍停留在异常缩放
   if (isFirstTable) {
     nextTick(() => {
+      setNodes(nodes.value)
       setViewport({ ...DEFAULT_VIEWPORT })
     })
   }
@@ -431,6 +441,11 @@ async function onClear() {
   selection.value = null
   activeColumnId.value = null
   sidePanel.value = 'meta'
+  nodes.value = []
+  edges.value = []
+  setNodes([])
+  setEdges([])
+  flowEpoch.value += 1
   commit()
   nextTick(() => {
     setViewport({ ...DEFAULT_VIEWPORT })
