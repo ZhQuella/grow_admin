@@ -27,6 +27,7 @@
     <div class="mt-3 rounded border border-solid border-border bg-layout px-3 py-2 text-xs text-text-secondary">
       <div>表数量：{{ schema.tables.length }}</div>
       <div class="mt-1">关联数量：{{ schema.relations.length }}</div>
+      <div class="mt-1">SQL 查询：{{ (schema.queries ?? []).length }}</div>
     </div>
   </div>
 </template>

@@ -53,7 +53,7 @@
 
       <div
         v-if="sidePanel"
-        class="relative z-20 w-[320px] shrink-0 border-r border-solid border-border bg-component"
+        class="relative z-20 w-[320px] shrink-0 overflow-visible border-r border-solid border-border bg-component"
         @click.stop
       >
         <div
@@ -75,7 +75,10 @@
             <GrowIconify icon="carbon:close" :size="15" />
           </GrowButton>
         </div>
-        <div class="absolute bottom-0 left-0 right-0 top-10 overflow-hidden">
+        <div
+          class="absolute bottom-0 left-0 right-0 top-10"
+          :class="sidePanel === 'sql' ? 'overflow-visible' : 'overflow-hidden'"
+        >
           <SchemaMetaPanel
             v-if="sidePanel === 'meta'"
             :schema="schema"
@@ -96,6 +99,11 @@
             :relation="activeRelation"
             :schema="schema"
             @change="onUpdateRelation"
+          />
+          <SqlQueryPanel
+            v-else-if="sidePanel === 'sql'"
+            :schema="schema"
+            @change="onQueriesChange"
           />
           <div v-else class="px-3 py-8 text-center text-xs text-text-secondary">
             {{ emptyPanelHint }}
@@ -175,6 +183,7 @@ import RelationEdge from './components/RelationEdge.vue'
 import TableConfigPanel from './components/TableConfigPanel.vue'
 import RelationConfigPanel from './components/RelationConfigPanel.vue'
 import SchemaMetaPanel from './components/SchemaMetaPanel.vue'
+import SqlQueryPanel from './components/SqlQueryPanel.vue'
 import CreateRelationDrawer from './components/CreateRelationDrawer.vue'
 import { confirmAction } from './confirmAction'
 import { copySchemaJson, downloadSchemaJson } from './exportSchema'
@@ -208,11 +217,14 @@ import type {
   SchemaRelation,
   SchemaRelationType,
   SchemaSelection,
+  SchemaSqlQuery,
   SchemaTable,
 } from './types'
 
 function cloneSchema(value: DatabaseSchema): DatabaseSchema {
-  return JSON.parse(JSON.stringify(value)) as DatabaseSchema
+  const cloned = JSON.parse(JSON.stringify(value)) as DatabaseSchema
+  if (!Array.isArray(cloned.queries)) cloned.queries = []
+  return cloned
 }
 
 defineOptions({
@@ -252,13 +264,14 @@ watch(
 
 const selection = ref<SchemaSelection>(null)
 const activeColumnId = ref<string | null>(null)
-const sidePanel = ref<'meta' | 'table' | 'relation' | null>('meta')
+const sidePanel = ref<'meta' | 'table' | 'relation' | 'sql' | null>('meta')
 
-type RailType = 'meta' | 'table' | 'relation'
+type RailType = 'meta' | 'table' | 'relation' | 'sql'
 const railItems: { type: RailType; label: string; icon: string }[] = [
   { type: 'meta', label: '库信息', icon: 'carbon:db2-database' },
   { type: 'table', label: '表配置', icon: 'carbon:data-table' },
-  { type: 'relation', label: '关联配置', icon: 'carbon:connectors' },
+  { type: 'relation', label: '关联配置', icon: 'carbon:connect' },
+  { type: 'sql', label: 'SQL 查询', icon: 'carbon:query' },
 ]
 
 const nodes = ref<Node<TableNodeData>[]>([])
@@ -305,6 +318,7 @@ const sidePanelTitle = computed(() => {
   if (sidePanel.value === 'meta') return '数据库'
   if (sidePanel.value === 'table') return activeTable.value ? `表 · ${activeTable.value.name}` : '表配置'
   if (sidePanel.value === 'relation') return '关联'
+  if (sidePanel.value === 'sql') return 'SQL 查询'
   return ''
 })
 
@@ -401,6 +415,11 @@ function onMetaChange(patch: Partial<Pick<DatabaseSchema, 'name' | 'comment'>>) 
   commit()
 }
 
+function onQueriesChange(queries: SchemaSqlQuery[]) {
+  schema.value = { ...schema.value, queries }
+  commit()
+}
+
 function onAddTable() {
   const isFirstTable = schema.value.tables.length === 0
   const name = nextTableName(schema.value.tables, 'table')
@@ -437,6 +456,7 @@ async function onClear() {
   schema.value = createDatabaseSchema({
     name: schema.value.name,
     comment: schema.value.comment,
+    queries: schema.value.queries,
   })
   selection.value = null
   activeColumnId.value = null

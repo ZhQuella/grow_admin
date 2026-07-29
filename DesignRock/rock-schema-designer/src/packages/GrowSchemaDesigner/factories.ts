@@ -6,6 +6,7 @@ import type {
   SchemaColumn,
   SchemaRelation,
   SchemaRelationType,
+  SchemaSqlQuery,
   SchemaTable,
 } from './types'
 
@@ -78,6 +79,17 @@ export function createSchemaRelation(
   }
 }
 
+export function createSchemaSqlQuery(
+  patch: Partial<SchemaSqlQuery> & Pick<SchemaSqlQuery, 'name'> = { name: 'query' },
+): SchemaSqlQuery {
+  return {
+    id: patch.id ?? nanoid(10),
+    name: String(patch.name || 'query').trim() || 'query',
+    description: patch.description ?? '',
+    sql: patch.sql ?? '',
+  }
+}
+
 export function createDatabaseSchema(
   patch: Partial<DatabaseSchema> = {},
 ): DatabaseSchema {
@@ -88,6 +100,7 @@ export function createDatabaseSchema(
     comment: patch.comment ?? '',
     tables: patch.tables ?? [],
     relations: patch.relations ?? [],
+    queries: Array.isArray(patch.queries) ? patch.queries.map((q) => createSchemaSqlQuery(q)) : [],
   }
 }
 

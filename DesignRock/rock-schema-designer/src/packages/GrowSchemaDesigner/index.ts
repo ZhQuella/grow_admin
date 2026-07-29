@@ -7,6 +7,7 @@ export type {
   SchemaColumn,
   SchemaRelation,
   SchemaRelationType,
+  SchemaSqlQuery,
   MysqlColumnType,
   SchemaReferentialAction,
   SchemaSelection,
@@ -16,6 +17,7 @@ export {
   createSchemaTable,
   createSchemaColumn,
   createSchemaRelation,
+  createSchemaSqlQuery,
 } from './factories'
 export {
   MYSQL_COLUMN_TYPE_OPTIONS,

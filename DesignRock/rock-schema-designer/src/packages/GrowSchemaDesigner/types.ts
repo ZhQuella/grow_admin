@@ -66,6 +66,14 @@ export interface SchemaRelation {
   onUpdate: SchemaReferentialAction
 }
 
+/** 建模侧 SQL 查询配置（执行走库信息.name，存档走后端；本版仅本地状态） */
+export interface SchemaSqlQuery {
+  id: string
+  name: string
+  description?: string
+  sql: string
+}
+
 export interface DatabaseSchema {
   version: 1
   dialect: 'mysql'
@@ -73,6 +81,7 @@ export interface DatabaseSchema {
   comment?: string
   tables: SchemaTable[]
   relations: SchemaRelation[]
+  queries?: SchemaSqlQuery[]
 }
 
 export type SchemaSelection =

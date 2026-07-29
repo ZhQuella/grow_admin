@@ -826,6 +826,9 @@ importers:
 
   DesignRock/rock-schema-designer:
     dependencies:
+      '@grow-admin-rock/code-sandbox':
+        specifier: workspace:*
+        version: link:../rock-code-sandbox
       '@grow-admin-rock/components':
         specifier: workspace:*
         version: link:../rock-components
