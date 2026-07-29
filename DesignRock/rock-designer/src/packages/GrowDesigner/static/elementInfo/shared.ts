@@ -212,7 +212,7 @@ export const COMMON_VISIBILITY_PROPS: PropConfigItem[] = [
 /** 表格多级表头配置 */
 export const tableColumnsInput = (
   name = '表头',
-  describe = '配置表格列，支持多级表头、排序与常用列属性',
+  describe = '配置表格列，支持多级表头、排序与常用列属性；也可绑定变量（EP columns 数组）',
 ): PropConfigItem => ({
   eleType: 'PropTableColumns',
   name,

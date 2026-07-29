@@ -43,6 +43,8 @@
             v-else-if="item.eleType === 'PropTableColumns'"
             v-bind="item.props || {}"
             v-model="currentPropsConfig[item.modelKey]"
+            :bind-mode="getBindMode(item.modelKey)"
+            @update:bind-mode="(mode) => setBindMode(item.modelKey, mode)"
           />
           <PropPaginationLayout
             v-else-if="item.eleType === 'PropPaginationLayout'"
