@@ -305,9 +305,12 @@ const onRemove = () => {
   text-align: left;
   cursor: pointer;
 
-  &:hover,
+  &:hover {
+    background: var(--layout-container-background-color, #f0f2f5);
+  }
+
   &.is-active {
-    background: var(--layout-background-color, #f2f3f5);
+    background: var(--color-primary-a08, rgba(139, 92, 246, 0.08));
   }
 }
 
