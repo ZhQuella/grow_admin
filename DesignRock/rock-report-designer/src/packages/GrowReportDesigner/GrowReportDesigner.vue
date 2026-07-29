@@ -34,6 +34,7 @@
       size="90%"
       height="90%"
       :destroy-on-close="true"
+      class="report-designer__preview-drawer"
       @click.stop
     >
       <div class="box-border h-full min-h-0 w-full overflow-hidden p-3">
@@ -266,6 +267,7 @@ import {
   createReportSchema,
   createDefaultPageConfig,
   resolveReportGridConfig,
+  calcGridItemRect,
   type ReportSchema,
   type ReportPageConfig,
 } from '../GrowReportRenderer'
@@ -344,10 +346,15 @@ const gridConfig = computed(() => resolveReportGridConfig(pageData.pageConfig))
 
 const gridBoardRef = ref<HTMLElement | null>(null)
 const gridBoardWidth = ref(0)
+const gridBoardHeight = ref(0)
 let gridBoardObserver: ResizeObserver | null = null
 
-const syncGridBoardWidth = () => {
-  gridBoardWidth.value = gridBoardRef.value?.clientWidth || 0
+const syncGridBoardSize = () => {
+  const el = gridBoardRef.value
+  // 与 GridLayout 自身测宽对齐，避免滚动条出现后背景与区块各算各的
+  const layoutEl = el?.querySelector('.vue-grid-layout') as HTMLElement | null
+  gridBoardWidth.value = layoutEl?.offsetWidth || el?.clientWidth || 0
+  gridBoardHeight.value = el?.clientHeight || 0
 }
 
 const setupGridBoardObserver = async () => {
@@ -357,16 +364,27 @@ const setupGridBoardObserver = async () => {
   const el = gridBoardRef.value
   if (!el) {
     gridBoardWidth.value = 0
+    gridBoardHeight.value = 0
     return
   }
-  syncGridBoardWidth()
+  syncGridBoardSize()
   if (typeof ResizeObserver === 'undefined') return
-  gridBoardObserver = new ResizeObserver(() => syncGridBoardWidth())
+  gridBoardObserver = new ResizeObserver(() => syncGridBoardSize())
   gridBoardObserver.observe(el)
+  const layoutEl = el.querySelector('.vue-grid-layout')
+  if (layoutEl) gridBoardObserver.observe(layoutEl)
 }
 
 watch(
-  () => [layout.value.length, previewVisible.value, gridConfig.value.colNum] as const,
+  () =>
+    [
+      layout.value.length,
+      previewVisible.value,
+      gridConfig.value.colNum,
+      gridConfig.value.rowHeight,
+      gridConfig.value.margin[0],
+      gridConfig.value.margin[1],
+    ] as const,
   () => {
     void setupGridBoardObserver()
   },
@@ -382,35 +400,55 @@ onBeforeUnmount(() => {
 })
 
 /**
- * 与 vue-grid-layout GridItem.calcPosition 对齐（含 Math.round）。
- * 虚线框再内缩 1px，避免亚像素/描边导致区块右侧露出网格线。
+ * 按 GridItem.calcPosition（含 Math.round）逐格绘制，避免 CSS 平铺在取整后行列漂移。
+ * 虚线框内缩 1px，减少区块边缘露线。
  */
-const buildAlignedGridPattern = (
-  cellW: number,
-  cellH: number,
+const buildExactGridPattern = (
+  cols: number,
+  rows: number,
+  rowHeight: number,
   mx: number,
   my: number,
-) => {
-  const tileW = cellW + mx
-  const tileH = cellH + my
-  if (tileW <= 0 || tileH <= 0 || cellW <= 0 || cellH <= 0) return 'none'
-  const coverInset = 1
-  const drawW = Math.max(cellW - coverInset * 2, 1)
-  const drawH = Math.max(cellH - coverInset * 2, 1)
-  const radius = Math.min(4, drawW / 6, drawH / 6)
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${tileW}" height="${tileH}" viewBox="0 0 ${tileW} ${tileH}">
-  <rect x="${coverInset}" y="${coverInset}" width="${drawW}" height="${drawH}" rx="${radius}" ry="${radius}"
-    fill="none"
-    stroke="rgba(148,163,184,0.75)"
-    stroke-width="0.5"
-    stroke-dasharray="1.6 1.6"
-    stroke-linecap="round"
-  />
-</svg>`
-  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
+  containerWidth: number,
+): { pattern: string; width: number; height: number } => {
+  if (cols <= 0 || rows <= 0 || containerWidth <= 0 || rowHeight <= 0) {
+    return { pattern: 'none', width: 0, height: 0 }
+  }
+  const rects: string[] = []
+  let maxBottom = 0
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      const { left, top, width, height } = calcGridItemRect(
+        { x, y, w: 1, h: 1 },
+        {
+          colNum: cols,
+          rowHeight,
+          margin: [mx, my],
+          containerWidth,
+        },
+      )
+      maxBottom = Math.max(maxBottom, top + height)
+      const inset = 1
+      const drawW = Math.max(width - inset * 2, 1)
+      const drawH = Math.max(height - inset * 2, 1)
+      if (drawW < 2 || drawH < 2) continue
+      const radius = Math.min(4, drawW / 6, drawH / 6)
+      rects.push(
+        `<rect x="${left + inset}" y="${top + inset}" width="${drawW}" height="${drawH}" rx="${radius}" ry="${radius}" fill="none" stroke="rgba(148,163,184,0.75)" stroke-width="0.5" stroke-dasharray="1.6 1.6" stroke-linecap="round"/>`,
+      )
+    }
+  }
+  const svgW = containerWidth
+  const svgH = Math.max(maxBottom + my, 1)
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">${rects.join('')}</svg>`
+  return {
+    pattern: `url("data:image/svg+xml,${encodeURIComponent(svg)}")`,
+    width: svgW,
+    height: svgH,
+  }
 }
 
-/** 网格与区块几何对齐：1 格区块正好盖住 1 个虚线框 */
+/** 网格与区块同公式对齐：每个虚线框对应一个 1×1 GridItem */
 const gridBackgroundStyle = computed(() => {
   const { colNum, rowHeight, margin } = gridConfig.value
   const mx = Math.max(margin[0], 0)
@@ -422,19 +460,15 @@ const gridBackgroundStyle = computed(() => {
       '--report-grid-cell-pattern': 'none',
     }
   }
-  // 与 GridItem：width = Math.round(colWidth * w + ...) 在 w=1 时一致
-  const colWidth = (width - mx * (cols + 1)) / cols
-  const cellW = Math.round(colWidth)
-  const cellH = Math.round(rowHeight)
-  // 只绘制到最后一列单元格右缘，避免容器余宽再铺出半列虚线框
-  const paintWidth = cols * (cellW + mx)
+  const pitch = Math.max(rowHeight + my, 1)
+  const layoutRows = layout.value.reduce((max, item) => Math.max(max, item.y + item.h), 0)
+  const heightRows = Math.ceil((Math.max(gridBoardHeight.value, 1) - my) / pitch)
+  const rows = Math.max(1, layoutRows, heightRows)
+  const grid = buildExactGridPattern(cols, rows, rowHeight, mx, my, width)
   return {
-    '--report-grid-origin-x': `${mx}px`,
-    '--report-grid-origin-y': `${my}px`,
-    '--report-grid-tile-w': `${cellW + mx}px`,
-    '--report-grid-tile-h': `${cellH + my}px`,
-    '--report-grid-paint-width': `${paintWidth}px`,
-    '--report-grid-cell-pattern': buildAlignedGridPattern(cellW, cellH, mx, my),
+    '--report-grid-svg-w': `${grid.width}px`,
+    '--report-grid-svg-h': `${grid.height}px`,
+    '--report-grid-cell-pattern': grid.pattern,
   }
 })
 
@@ -746,22 +780,19 @@ export default defineComponent({
   overflow: hidden;
 }
 
-/* 网格与 GridItem 同公式对齐；宽度裁到最后一列，避免最右侧多出半格边框 */
+/* 整图网格（非平铺），与 GridItem 逐格同坐标 */
 .report-designer-canvas :deep(.grow-report-grid-board)::before {
   content: '';
   position: absolute;
   z-index: 0;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: var(--report-grid-paint-width, 100%);
+  inset: 0;
   box-sizing: border-box;
   pointer-events: none;
   overflow: hidden;
   background-image: var(--report-grid-cell-pattern);
-  background-repeat: repeat;
-  background-position: var(--report-grid-origin-x, 10px) var(--report-grid-origin-y, 10px);
-  background-size: var(--report-grid-tile-w, 0) var(--report-grid-tile-h, 0);
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-size: var(--report-grid-svg-w, 100%) var(--report-grid-svg-h, auto);
 }
 
 .report-designer-canvas :deep(.grow-report-grid) {
@@ -771,13 +802,15 @@ export default defineComponent({
   background-color: transparent;
 }
 
+/* 关掉位移动画，避免改行高时区块缓动、网格瞬切造成错位观感 */
 .report-designer-canvas :deep(.grow-report-grid > .vue-grid-item) {
   z-index: 1;
   overflow: hidden;
+  transition: none;
 }
 
 .report-designer-canvas :deep(.grow-report-grid > .vue-grid-item.vue-grid-placeholder) {
-  background: var(--primary-color);
+  background: var(--primary-color) !important;
   opacity: 0.2;
   border-radius: 4px;
 }
@@ -797,5 +830,13 @@ export default defineComponent({
   opacity: 0.85;
   cursor: se-resize;
   pointer-events: auto;
+}
+</style>
+
+<style>
+/* Drawer 挂到 body，需非 scoped 才能去掉 body padding */
+.report-designer__preview-drawer .el-drawer__body,
+.report-designer__preview-drawer .n-drawer-body-content-wrapper {
+  padding: 0;
 }
 </style>

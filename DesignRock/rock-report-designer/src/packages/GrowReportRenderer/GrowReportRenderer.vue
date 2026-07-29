@@ -234,11 +234,17 @@ defineExpose({
 </script>
 
 <style scoped>
-.grow-report-grid :deep(> .vue-grid-item) {
+:deep(.grow-report-grid > .vue-grid-item) {
   overflow: hidden;
 }
 
-.grow-report-grid :deep(> .vue-grid-item > .vue-resizable-handle) {
+:deep(.grow-report-grid > .vue-grid-item.vue-grid-placeholder) {
+  background: var(--primary-color) !important;
+  opacity: 0.2;
+  border-radius: 4px;
+}
+
+:deep(.grow-report-grid > .vue-grid-item > .vue-resizable-handle) {
   z-index: 20;
   position: absolute;
   width: 8px;
