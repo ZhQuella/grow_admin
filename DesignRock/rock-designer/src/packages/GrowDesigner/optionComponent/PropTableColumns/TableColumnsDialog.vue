@@ -50,27 +50,29 @@
             </button>
           </div>
 
-          <draggable
-            :key="listKey"
-            class="table-columns-dialog__tree"
-            :list="draft"
-            item-key="id"
-            group="designer-table-columns"
-            handle=".column-tree-node__drag"
-            :animation="200"
-            @change="onDragChange"
-          >
-            <template #item="{ element }">
-              <ColumnTreeNode
-                :column="element"
-                :depth="0"
-                @update="onUpdateColumn"
-                @remove="onRemove"
-                @add-child="onAddChild"
-                @replace-children="onReplaceChildren"
-              />
-            </template>
-          </draggable>
+          <GrowScrollbar height="100%" class="table-columns-dialog__scroll">
+            <draggable
+              :key="listKey"
+              class="table-columns-dialog__tree"
+              :list="draft"
+              item-key="id"
+              group="designer-table-columns"
+              handle=".column-tree-node__drag"
+              :animation="200"
+              @change="onDragChange"
+            >
+              <template #item="{ element }">
+                <ColumnTreeNode
+                  :column="element"
+                  :depth="0"
+                  @update="onUpdateColumn"
+                  @remove="onRemove"
+                  @add-child="onAddChild"
+                  @replace-children="onReplaceChildren"
+                />
+              </template>
+            </draggable>
+          </GrowScrollbar>
         </div>
 
         <footer class="table-columns-dialog__footer">
@@ -273,23 +275,35 @@ const onConfirm = () => {
 }
 
 .table-columns-dialog__body {
+  display: flex;
   flex: 1;
+  flex-direction: column;
   min-height: 280px;
-  overflow: auto;
-  padding: 12px 16px;
+  overflow: hidden;
 }
 
 .table-columns-dialog__toolbar {
-  position: sticky;
-  top: 0;
   z-index: 1;
   display: flex;
   flex-wrap: wrap;
+  flex-shrink: 0;
   gap: 8px;
-  margin: -12px -16px 12px;
   padding: 10px 16px;
   background: var(--layout-container-background-color, #fff);
   border-bottom: 1px solid var(--layout-border-color, #ebeef5);
+}
+
+/* 锁死视口高度，滚动只发生在 GrowScrollbar 内部 wrap */
+.table-columns-dialog__scroll {
+  flex: 1 1 auto;
+  width: 100%;
+  height: 0;
+  min-height: 0;
+}
+
+.table-columns-dialog__scroll :deep(.el-scrollbar__wrap),
+.table-columns-dialog__scroll :deep(.n-scrollbar-container) {
+  max-height: 100%;
 }
 
 .table-columns-dialog__tool-btn {
@@ -336,6 +350,7 @@ const onConfirm = () => {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  padding: 12px 16px;
 }
 
 .table-columns-dialog__footer {
