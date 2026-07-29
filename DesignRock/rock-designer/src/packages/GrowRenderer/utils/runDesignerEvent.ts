@@ -1,5 +1,6 @@
 import type { DesignerEventItem } from '../../GrowDesigner/static/elementEvents/types'
 import { isEventEnabled } from '../../GrowDesigner/static/elementEvents/types'
+import type { ApiOutlinedMethods } from './runApiOutlined'
 
 const SAFE_NAME_RE = /^[A-Za-z_$][\w$]*$/
 
@@ -17,11 +18,12 @@ export const toVueListenerProp = (eventType: string): string => {
   return `on${camel.charAt(0).toUpperCase()}${camel.slice(1)}`
 }
 
-/** 编译并执行事件函数体；上下文：event、state */
+/** 编译并执行事件函数体；上下文：event、state、apis（数据请求方法表） */
 export const runDesignerEvent = (
   item: DesignerEventItem,
   event: unknown,
   state: Record<string, unknown>,
+  apis: ApiOutlinedMethods = {},
 ) => {
   if (!isEventEnabled(item)) return
   const code = String(item.code ?? '')
@@ -32,9 +34,10 @@ export const runDesignerEvent = (
     const runner = new Function(
       'event',
       'state',
-      `"use strict";\nreturn (function ${fnName}(event, state) {\n${code}\n})(event, state);`,
+      'apis',
+      `"use strict";\nreturn (async function ${fnName}(event, state, apis) {\n${code}\n})(event, state, apis);`,
     )
-    runner(event, state)
+    return runner(event, state, apis)
   } catch (error) {
     console.error(`[GrowEvent:${fnName}/${item.eventType}]`, error)
   }
@@ -44,6 +47,7 @@ export const runDesignerEvent = (
 export const buildRuntimeEventProps = (
   events: Record<string, DesignerEventItem> | undefined,
   state: Record<string, unknown>,
+  apis: ApiOutlinedMethods = {},
 ): Record<string, (...args: unknown[]) => void> => {
   const result: Record<string, (...args: unknown[]) => void> = {}
   if (!events || typeof events !== 'object') return result
@@ -52,7 +56,7 @@ export const buildRuntimeEventProps = (
     if (!isEventEnabled(item)) continue
     const key = toVueListenerProp(item.eventType || eventType)
     result[key] = (...args: unknown[]) => {
-      runDesignerEvent(item, args[0], state)
+      void runDesignerEvent(item, args[0], state, apis)
     }
   }
   return result

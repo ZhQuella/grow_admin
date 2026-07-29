@@ -35,7 +35,7 @@
       class="flex h-8 shrink-0 items-center justify-between border-y border-solid border-border bg-layout px-3 text-sm font-medium text-text"
     >
       <span>函数体</span>
-      <span class="text-xs font-normal text-text-secondary">参数：event、state</span>
+      <span class="text-xs font-normal text-text-secondary">参数：event、state、apis</span>
     </div>
 
     <div
@@ -68,5 +68,7 @@ defineProps<{
 const EXAMPLE_CODE = `// 函数体示例
 console.log('event', event)
 console.log('state', state)
+// 调用「数据请求」面板中配置的同名方法
+// await apis.getList()
 // state.user.name = 'Bob'`
 </script>

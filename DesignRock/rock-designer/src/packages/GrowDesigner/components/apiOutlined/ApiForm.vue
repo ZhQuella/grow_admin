@@ -9,7 +9,11 @@
       size="small"
     >
       <GrowFormItem label="名称" prop="name">
-        <GrowInput v-model="model.name" placeholder="请输入" clearable />
+        <GrowInput
+          v-model="model.name"
+          placeholder="如 getList，事件中可通过 apis.getList() 调用"
+          clearable
+        />
       </GrowFormItem>
 
       <GrowFormItem label="描述" prop="description">
@@ -50,7 +54,10 @@
         <template #label>
           <span class="inline-flex items-center gap-1">
             请求参数
-            <GrowTooltip content="请求时携带的参数，可配置静态键值对" placement="top">
+            <GrowTooltip
+              content="请求时携带的参数；value 可填固定值，或绑定数据源 / 属性计算"
+              placement="top"
+            >
               <GrowIconify
                 icon="carbon:help"
                 :size="14"
@@ -67,11 +74,11 @@
             class="mb-2 flex items-center gap-1.5"
           >
             <GrowInput v-model="row.key" class="min-w-0 flex-1" placeholder="key" clearable />
-            <GrowInput
-              v-model="row.value"
+            <PropVariableBind
               class="min-w-0 flex-1"
-              placeholder="value"
-              clearable
+              v-model="row.value"
+              v-model:bind-mode="row.bindMode"
+              placeholder="value 或绑定变量"
             />
             <GrowButton text size="small" type="danger" @click.stop="onRemoveParam(index)">
               <GrowIconify icon="carbon:close" :size="14" />
@@ -113,6 +120,8 @@ import { loadTypeOptions, methodOptions } from './constants'
 import type { DesignerApiFormModel } from './types'
 import ApiProcessors from './ApiProcessors.vue'
 import ApiDefaultData from './ApiDefaultData.vue'
+import PropVariableBind from '../../optionComponent/PropVariableBind/index.vue'
+import { PROP_BIND_MODE_TEXT } from '../../static/propBindModes'
 
 defineOptions({ name: 'ApiForm' })
 
@@ -128,7 +137,7 @@ defineExpose({
 })
 
 const onAddParam = () => {
-  props.model.params.push({ key: '', value: '' })
+  props.model.params.push({ key: '', value: '', bindMode: PROP_BIND_MODE_TEXT })
 }
 
 const onRemoveParam = (index: number) => {

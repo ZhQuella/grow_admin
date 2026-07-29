@@ -1,6 +1,10 @@
+import type { PropBindMode } from '../../static/propBindModes'
+
 export interface DesignerApiParam {
   key: string
   value: string
+  /** value 输入模式：text 固定值 / bind 绑定数据源或计算属性 */
+  bindMode?: PropBindMode | string
 }
 
 export type DesignerApiProcessorType = 'willFetch' | 'fit' | 'didFetch' | 'onError'

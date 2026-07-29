@@ -153,6 +153,24 @@ export const formatBoundDisplayValue = (value: unknown): any => {
   return value
 }
 
+/** 是否像 state 绑定表达式（state.xxx / state['xxx']） */
+export const isStateBindExpression = (expr: unknown): boolean => {
+  if (typeof expr !== 'string') return false
+  return /^\s*state\s*(\.|\[)/.test(expr)
+}
+
+/** 字段是否应按绑定表达式求值 */
+export const shouldEvaluateBoundProp = (
+  raw: unknown,
+  mode: string | undefined,
+): boolean => {
+  if (mode === 'function') return false
+  if (mode === 'bind') return true
+  // 未显式标记 text 时，state.* 仍按绑定求值（兼容漏存 bindMode）
+  if (mode === 'text') return false
+  return isStateBindExpression(raw)
+}
+
 /** 是否应按 model 表达式做绑定（bind 模式或显式 state.xxx） */
 export const isModelBindExpression = (
   expr: string,
@@ -160,7 +178,7 @@ export const isModelBindExpression = (
 ): boolean => {
   const trimmed = String(expr ?? '').trim()
   if (!trimmed) return false
-  return bindModes?.model === 'bind' || /\bstate\./.test(trimmed)
+  return bindModes?.model === 'bind' || isStateBindExpression(trimmed)
 }
 
 /**
@@ -352,6 +370,7 @@ export const writePaginationProp = (
  * 按 propBindModes 解析 props：
  * - mode === 'bind'：求值表达式并写回展示值
  * - mode === 'function'：编译为可调用函数
+ * - 未标 mode 但值为 state.*：按绑定求值（避免漏存 bindMode 时回显路径）
  * - model：特殊处理 → 写入 modelValue，保留路径
  * - 其余字段保持原样
  */
@@ -361,25 +380,32 @@ export const resolveBoundProps = (
   state: Record<string, unknown>,
 ): Record<string, any> => {
   const result = { ...(rawProps || {}) }
-  if (bindModes) {
-    for (const [key, mode] of Object.entries(bindModes)) {
-      if (mode === 'function') {
-        const raw = result[key]
-        const code = raw == null ? '' : String(raw)
-        const fn = compileDesignerPropFunction(code, state, { modelKey: key })
-        if (fn) result[key] = fn
-        else Reflect.deleteProperty(result, key)
-        continue
-      }
-      if (mode !== 'bind') continue
-      // model 由 applyModelBinding 处理，避免把路径替换成叶子值
-      if (key === 'model') continue
+  const keys = new Set([
+    ...Object.keys(result),
+    ...Object.keys(bindModes || {}),
+  ])
+
+  for (const key of keys) {
+    const mode = bindModes?.[key]
+    if (mode === 'function') {
       const raw = result[key]
-      if (raw == null || raw === '') continue
-      const evaluated = resolveBoundExpression(String(raw), state)
-      if (evaluated === undefined) continue
-      result[key] = formatBoundDisplayValue(evaluated)
+      const code = raw == null ? '' : String(raw)
+      const fn = compileDesignerPropFunction(code, state, { modelKey: key })
+      if (fn) result[key] = fn
+      else Reflect.deleteProperty(result, key)
+      continue
     }
+    // model 由 applyModelBinding 处理，避免把路径替换成叶子值
+    if (key === 'model') continue
+
+    const raw = result[key]
+    if (raw == null || raw === '') continue
+    if (!shouldEvaluateBoundProp(raw, mode)) continue
+
+    const evaluated = resolveBoundExpression(String(raw), state)
+    // 绑定态绝不能把「state.xxx」路径本身当作展示内容
+    result[key] =
+      evaluated === undefined ? null : formatBoundDisplayValue(evaluated)
   }
   applyModelBinding(result, bindModes, state)
   return result

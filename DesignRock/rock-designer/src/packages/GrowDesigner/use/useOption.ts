@@ -13,6 +13,8 @@ import {
   applyApiDefaultData,
   recomputeComputedProps,
   runApiOutlinedList,
+  setupComputedPropReactivity,
+  resolveDesignerHttpClient,
 } from "../../GrowRenderer/utils/runApiOutlined";
 
 export const useOption = () => {
@@ -55,6 +57,7 @@ export const useOption = () => {
     // 设计态：先写入 defaultData，再发 autoLoad 真实请求
     applyApiDefaultData(draggableConfig.apiOutlined, runtimeState);
     await runApiOutlinedList(draggableConfig.apiOutlined, runtimeState, {
+      httpClient: resolveDesignerHttpClient(),
       autoLoadOnly: true,
     });
     if (token !== apiRunToken) return;
@@ -72,6 +75,12 @@ export const useOption = () => {
       void rebuildRuntimeState();
     },
     { deep: true, immediate: true },
+  );
+
+  /** 依赖的数据源 / 请求结果变化时，自动重算计算属性 */
+  setupComputedPropReactivity(
+    runtimeState,
+    () => draggableConfig.computedProps,
   );
 
   provide(DRAGGABLE_CONGIG, draggableConfig);

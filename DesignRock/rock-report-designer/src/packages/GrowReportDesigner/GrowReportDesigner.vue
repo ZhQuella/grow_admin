@@ -261,6 +261,8 @@ import {
   syncRuntimeState,
   runApiOutlinedList,
   recomputeComputedProps,
+  setupComputedPropReactivity,
+  resolveDesignerHttpClient,
 } from '@grow-admin-rock/designer'
 import {
   GrowReportRenderer,
@@ -507,7 +509,10 @@ const rebuildRuntimeState = async () => {
     runtimeState,
     buildRuntimeState(pageData.dataSource, pageData.computedProps),
   )
-  await runApiOutlinedList(pageData.apiOutlined, runtimeState, { autoLoadOnly: true })
+  await runApiOutlinedList(pageData.apiOutlined, runtimeState, {
+    httpClient: resolveDesignerHttpClient(),
+    autoLoadOnly: true,
+  })
   if (token !== apiRunToken) return
   recomputeComputedProps(pageData.computedProps, runtimeState)
 }
@@ -521,6 +526,10 @@ watch(
 )
 
 provide(GROW_RUNTIME_STATE, runtimeState)
+/** 与 designer designation.DRAGGABLE_CONGIG 一致，供变量绑定读取 dataSource / computedProps */
+provide('__draggableConfig__', pageData)
+
+setupComputedPropReactivity(runtimeState, () => pageData.computedProps)
 
 const variableOptions = computed(() => {
   const names = new Set<string>()

@@ -27,11 +27,19 @@ export {
   runSingleApiOutlined,
   applyApiDefaultData,
   recomputeComputedProps,
+  buildApiOutlinedMethods,
+  setupComputedPropReactivity,
+  collectComputedPropNames,
+  resolveDesignerHttpClient,
+  defaultHttpClient,
 } from './src/packages/GrowRenderer/utils/runApiOutlined'
+export { createInfrastructureHttpClient } from './src/packages/GrowRenderer/utils/infrastructureHttpClient'
 export type {
   ReportHttpClient,
   ReportHttpRequestConfig,
   RunApiOutlinedOptions,
+  ApiOutlinedMethods,
+  BuildApiOutlinedMethodsOptions,
 } from './src/packages/GrowRenderer/utils/runApiOutlined'
 
 /** 页面数据面板（报表设计器可复用） */
@@ -39,6 +47,11 @@ export { default as DesignerDataSourcePanel } from './src/packages/GrowDesigner/
 export { default as DesignerComputedPropsPanel } from './src/packages/GrowDesigner/components/computedProps/index.vue'
 export { default as DesignerApiOutlinedPanel } from './src/packages/GrowDesigner/components/apiOutlined/index.vue'
 export { default as DesignerPageEventsPanel } from './src/packages/GrowDesigner/components/pageEvents/index.vue'
-export { GROW_RUNTIME_STATE } from './src/packages/GrowDesigner/config/designation'
+import {
+  GROW_RUNTIME_STATE,
+  GROW_RUNTIME_APIS,
+  DRAGGABLE_CONGIG,
+} from './src/packages/GrowDesigner/config/designation'
+export { GROW_RUNTIME_STATE, GROW_RUNTIME_APIS, DRAGGABLE_CONGIG }
 export { runDesignerEvent } from './src/packages/GrowRenderer/utils/runDesignerEvent'
 export type { DesignerEventItem } from './src/packages/GrowDesigner/static/elementEvents/types'

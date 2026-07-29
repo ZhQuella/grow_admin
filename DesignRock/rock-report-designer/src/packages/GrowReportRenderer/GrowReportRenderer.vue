@@ -78,9 +78,13 @@ import {
   syncRuntimeState,
   runApiOutlinedList,
   recomputeComputedProps,
+  buildApiOutlinedMethods,
+  setupComputedPropReactivity,
+  resolveDesignerHttpClient,
   runDesignerEvent,
   type DesignerEventItem,
   type ReportHttpClient,
+  type ApiOutlinedMethods,
 } from '@grow-admin-rock/designer'
 import ReportBlockChart from './components/ReportBlockChart.vue'
 import {
@@ -98,7 +102,7 @@ const props = withDefaults(
   defineProps<{
     /** 设计器导出的报表 schema（layout + pageConfig + 页面数据） */
     schema?: ReportSchema | null
-    /** 宿主注入的 HTTP 客户端；缺省原生 fetch */
+    /** 宿主注入的 HTTP 客户端；缺省走 infrastructure Axios */
     httpClient?: ReportHttpClient | null
   }>(),
   {
@@ -144,6 +148,10 @@ const gridLayoutKey = computed(() => {
 const runtimeState = reactive<Record<string, unknown>>({})
 let apiRunToken = 0
 
+const runtimeHttpClient = computed(() =>
+  resolveDesignerHttpClient(props.httpClient),
+)
+
 const rebuildRuntimeState = async () => {
   const token = ++apiRunToken
   syncRuntimeState(
@@ -154,7 +162,7 @@ const rebuildRuntimeState = async () => {
     ),
   )
   await runApiOutlinedList(resolvedSchema.value.apiOutlined, runtimeState, {
-    httpClient: props.httpClient || undefined,
+    httpClient: runtimeHttpClient.value,
     autoLoadOnly: true,
   })
   if (token !== apiRunToken) return
@@ -176,6 +184,18 @@ watch(
 
 provide(GROW_RUNTIME_STATE, runtimeState)
 
+setupComputedPropReactivity(
+  runtimeState,
+  () => resolvedSchema.value.computedProps,
+)
+
+const apiMethods = computed<ApiOutlinedMethods>(() =>
+  buildApiOutlinedMethods(resolvedSchema.value.apiOutlined, runtimeState, {
+    httpClient: runtimeHttpClient.value,
+    computedProps: resolvedSchema.value.computedProps,
+  }),
+)
+
 const pageEvents = computed(
   () =>
     (resolvedSchema.value.pageConfig?.events || {}) as Record<
@@ -187,7 +207,7 @@ const pageEvents = computed(
 const runPageLifecycle = (eventType: string, event?: unknown) => {
   const item = pageEvents.value?.[eventType]
   if (!item) return
-  runDesignerEvent(item, event, runtimeState)
+  void runDesignerEvent(item, event, runtimeState, apiMethods.value)
 }
 
 onBeforeMount(() => {
@@ -230,6 +250,7 @@ onUnmounted(() => {
 defineExpose({
   runtimeState,
   refreshApiOutlined: rebuildRuntimeState,
+  apiMethods,
 })
 </script>
 

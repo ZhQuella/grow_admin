@@ -566,6 +566,12 @@ importers:
       '@grow-admin-rock/components':
         specifier: workspace:*
         version: link:../rock-components
+      '@grow-admin-rock/infrastructure':
+        specifier: workspace:*
+        version: link:../rock-infrastructure
+      '@grow-admin-rock/ioc':
+        specifier: workspace:*
+        version: link:../rock-ioc
       '@grow-admin-rock/utils':
         specifier: workspace:*
         version: link:../rock-utils

@@ -977,7 +977,7 @@ const props = withDefaults(defineProps<PropsType>(), {
 
 const { structure, drag, propsInfo } = toRefs(props);
 
-/** 叶子节点展示：绑定字段随 runtimeState（dataSource）变更重算 */
+/** 叶子节点展示：绑定字段随 runtimeState（数据源 / 计算属性）变更重算 */
 const resolvedPropsInfo = computed(() => {
   const uuid = structure.value?.uuid
   const raw = propsInfo.value || {}
@@ -985,6 +985,14 @@ const resolvedPropsInfo = computed(() => {
   const state =
     injectedRuntimeState ??
     buildRuntimeState(draggableConfig.dataSource, draggableConfig.computedProps)
+  // 显式读取计算属性键，确保其更新时本 computed 失效重算
+  const computedList = draggableConfig.computedProps
+  if (Array.isArray(computedList)) {
+    for (const item of computedList) {
+      const name = String(item?.name ?? '').trim()
+      if (name) void state[name]
+    }
+  }
   const resolved = resolveBoundProps(
     raw,
     draggableConfig.propBindModes?.[uuid],
