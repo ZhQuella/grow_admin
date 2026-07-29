@@ -88,116 +88,126 @@
         </div>
       </div>
 
-      <div class="report-designer-canvas relative box-border min-h-0 min-w-0 flex-1 overflow-auto p-3">
-        <!-- 预览时卸载画布 GridLayout：vue3-grid-layout 全局 eventBus 会串扰宽度/列数 -->
-        <GridLayout
-          v-if="layout.length && !previewVisible"
-          v-model:layout="layout"
-          class="grow-report-grid"
-          :col-num="gridConfig.colNum"
-          :row-height="gridConfig.rowHeight"
-          :max-rows="gridConfig.maxRows"
-          :margin="gridConfig.margin"
-          :is-draggable="true"
-          :is-resizable="true"
-          :is-mirrored="gridConfig.isMirrored"
-          :is-bounded="gridConfig.isBounded"
-          :auto-size="gridConfig.autoSize"
-          :vertical-compact="gridConfig.verticalCompact"
-          :restore-on-drag="gridConfig.restoreOnDrag"
-          :prevent-collision="gridConfig.preventCollision"
-          :use-css-transforms="gridConfig.useCssTransforms"
-          :responsive="gridConfig.responsive"
-          :breakpoints="gridConfig.breakpoints"
-          :cols="gridConfig.cols"
-          :use-style-cursor="true"
-          :transform-scale="gridConfig.transformScale"
-        >
-          <GridItem
-            v-for="item in layout"
-            :key="item.i"
-            :x="item.x"
-            :y="item.y"
-            :w="item.w"
-            :h="item.h"
-            :i="item.i"
-            @click.stop="onSelect(item.i)"
-            @move="onItemMove"
-            @moved="onItemInteractEnd"
-            @resize="onItemResize"
-            @resized="onItemInteractEnd"
-          >
+      <div class="report-designer-canvas relative box-border flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <GrowScrollbar height="100%" class="report-designer-canvas__scroll">
+          <div class="box-border min-h-full p-3">
+            <!-- 预览时卸载画布 GridLayout：vue3-grid-layout 全局 eventBus 会串扰宽度/列数 -->
             <div
-              class="group relative box-border h-full w-full cursor-pointer select-none"
-              :class="{
-                'is-active outline outline-1 -outline-offset-1 outline-primary':
-                  activeId === item.i,
-              }"
+              v-if="layout.length && !previewVisible"
+              ref="gridBoardRef"
+              class="grow-report-grid-board"
+              :style="gridBackgroundStyle"
             >
-              <div
-                class="absolute right-0 top-0 z-20 hidden h-[26px] items-center gap-0.5 rounded-bl-lg rounded-tr bg-primary px-1 py-0 pl-0.5 text-white group-hover:inline-flex group-[.is-active]:inline-flex"
+              <GridLayout
+                v-model:layout="layout"
+                class="grow-report-grid"
+                :col-num="gridConfig.colNum"
+                :row-height="gridConfig.rowHeight"
+                :max-rows="gridConfig.maxRows"
+                :margin="gridConfig.margin"
+                :is-draggable="true"
+                :is-resizable="true"
+                :is-mirrored="gridConfig.isMirrored"
+                :is-bounded="gridConfig.isBounded"
+                :auto-size="gridConfig.autoSize"
+                :vertical-compact="gridConfig.verticalCompact"
+                :restore-on-drag="gridConfig.restoreOnDrag"
+                :prevent-collision="gridConfig.preventCollision"
+                :use-css-transforms="gridConfig.useCssTransforms"
+                :responsive="gridConfig.responsive"
+                :breakpoints="gridConfig.breakpoints"
+                :cols="gridConfig.cols"
+                :use-style-cursor="true"
+                :transform-scale="gridConfig.transformScale"
               >
-                <GrowIconify
-                  class="inline-flex h-[22px] w-[22px] items-center justify-center rounded text-white opacity-90 hover:bg-white/18 hover:opacity-100"
-                  icon="carbon:settings"
-                  :size="13"
-                  hover-pointer
-                  title="报表配置"
-                  @click.stop="onOpenConfig(item.i)"
-                  @mousedown.stop
-                />
-                <GrowIconify
-                  class="inline-flex h-[22px] w-[22px] items-center justify-center rounded text-white opacity-90 hover:bg-white/18 hover:opacity-100"
-                  icon="carbon:copy"
-                  :size="13"
-                  hover-pointer
-                  title="复制区块"
-                  @click.stop="onCopyBlock(item.i)"
-                  @mousedown.stop
-                />
-                <GrowIconify
-                  class="inline-flex h-[22px] w-[22px] items-center justify-center rounded text-white opacity-90 hover:bg-[rgba(237,111,111,0.45)] hover:opacity-100"
-                  icon="carbon:trash-can"
-                  :size="13"
-                  hover-pointer
-                  title="删除区块"
-                  @click.stop="onDeleteBlock(item.i)"
-                  @mousedown.stop
-                />
-              </div>
-              <div
-                v-if="dragHint?.i === item.i"
-                class="pointer-events-none absolute inset-0 z-10 flex items-center justify-center"
+              <GridItem
+                v-for="item in layout"
+                :key="item.i"
+                :x="item.x"
+                :y="item.y"
+                :w="item.w"
+                :h="item.h"
+                :i="item.i"
+                @click.stop="onSelect(item.i)"
+                @move="onItemMove"
+                @moved="onItemInteractEnd"
+                @resize="onItemResize"
+                @resized="onItemInteractEnd"
               >
                 <div
-                  class="rounded-md bg-[rgba(0,0,0,0.62)] px-2.5 py-1.5 text-center text-white shadow-sm backdrop-blur-[2px]"
+                  class="group relative box-border h-full w-full cursor-pointer select-none"
+                  :class="{
+                    'is-active outline outline-1 -outline-offset-1 outline-primary':
+                      activeId === item.i,
+                  }"
                 >
-                  <div class="text-sm font-semibold leading-tight tracking-wide">
-                    {{ dragHint.shareText }}
+                  <div
+                    class="absolute right-0 top-0 z-20 hidden h-[26px] items-center gap-0.5 rounded-bl-lg rounded-tr bg-primary px-1 py-0 pl-0.5 text-white group-hover:inline-flex group-[.is-active]:inline-flex"
+                  >
+                    <GrowIconify
+                      class="inline-flex h-[22px] w-[22px] items-center justify-center rounded text-white opacity-90 hover:bg-white/18 hover:opacity-100"
+                      icon="carbon:settings"
+                      :size="13"
+                      hover-pointer
+                      title="报表配置"
+                      @click.stop="onOpenConfig(item.i)"
+                      @mousedown.stop
+                    />
+                    <GrowIconify
+                      class="inline-flex h-[22px] w-[22px] items-center justify-center rounded text-white opacity-90 hover:bg-white/18 hover:opacity-100"
+                      icon="carbon:copy"
+                      :size="13"
+                      hover-pointer
+                      title="复制区块"
+                      @click.stop="onCopyBlock(item.i)"
+                      @mousedown.stop
+                    />
+                    <GrowIconify
+                      class="inline-flex h-[22px] w-[22px] items-center justify-center rounded text-white opacity-90 hover:bg-[rgba(237,111,111,0.45)] hover:opacity-100"
+                      icon="carbon:trash-can"
+                      :size="13"
+                      hover-pointer
+                      title="删除区块"
+                      @click.stop="onDeleteBlock(item.i)"
+                      @mousedown.stop
+                    />
                   </div>
-                  <div class="mt-0.5 text-[11px] leading-tight opacity-85">
-                    {{ dragHint.sizeText }}
+                  <div
+                    v-if="dragHint?.i === item.i"
+                    class="pointer-events-none absolute inset-0 z-10 flex items-center justify-center"
+                  >
+                    <div
+                      class="rounded-md bg-[rgba(0,0,0,0.62)] px-2.5 py-1.5 text-center text-white shadow-sm backdrop-blur-[2px]"
+                    >
+                      <div class="text-sm font-semibold leading-tight tracking-wide">
+                        {{ dragHint.shareText }}
+                      </div>
+                      <div class="mt-0.5 text-[11px] leading-tight opacity-85">
+                        {{ dragHint.sizeText }}
+                      </div>
+                    </div>
                   </div>
+                  <GrowCard class="report-block-card flex h-full flex-col overflow-hidden">
+                    <template v-if="item.showTitle" #header>
+                      <span>{{ item.title }}</span>
+                    </template>
+                    <ReportBlockChart
+                      class="min-h-0 flex-1"
+                      :chart-type="item.chartType"
+                      :chart-config="item.chartConfig"
+                      :data-binding="item.dataBinding"
+                    />
+                  </GrowCard>
                 </div>
-              </div>
-              <GrowCard class="report-block-card flex h-full flex-col overflow-hidden">
-                <template v-if="item.showTitle" #header>
-                  <span>{{ item.title }}</span>
-                </template>
-                <ReportBlockChart
-                  class="min-h-0 flex-1"
-                  :chart-type="item.chartType"
-                  :chart-config="item.chartConfig"
-                  :data-binding="item.dataBinding"
-                />
-              </GrowCard>
+              </GridItem>
+              </GridLayout>
             </div>
-          </GridItem>
-        </GridLayout>
 
-        <div v-else class="flex-center h-full min-h-60 w-full">
-          <GrowEmpty description="点击上方「添加区块」开始设计" />
-        </div>
+            <div v-else class="flex-center h-full min-h-60 w-full">
+              <GrowEmpty description="点击上方「添加区块」开始设计" />
+            </div>
+          </div>
+        </GrowScrollbar>
       </div>
 
       <aside
@@ -238,7 +248,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, provide, reactive, ref, watch } from 'vue'
+import { computed, defineComponent, nextTick, onBeforeUnmount, onMounted, provide, reactive, ref, watch } from 'vue'
 import { GridItem, GridLayout } from 'vue3-grid-layout'
 import {
   DesignerDataSourcePanel,
@@ -315,22 +325,118 @@ const railItems = [
     title: '属性计算',
   },
   {
-    type: 'pageEvents',
-    label: '页面事件',
-    icon: 'carbon:lightning',
-    componentName: 'DesignerPageEventsPanel',
-    title: '页面事件',
-  },
-  {
     type: 'apiOutlined',
     label: '数据请求',
     icon: 'carbon:api',
     componentName: 'DesignerApiOutlinedPanel',
     title: '数据请求',
   },
+  {
+    type: 'pageEvents',
+    label: '页面事件',
+    icon: 'carbon:lightning',
+    componentName: 'DesignerPageEventsPanel',
+    title: '页面事件',
+  },
 ] as const
 
 const gridConfig = computed(() => resolveReportGridConfig(pageData.pageConfig))
+
+const gridBoardRef = ref<HTMLElement | null>(null)
+const gridBoardWidth = ref(0)
+let gridBoardObserver: ResizeObserver | null = null
+
+const syncGridBoardWidth = () => {
+  gridBoardWidth.value = gridBoardRef.value?.clientWidth || 0
+}
+
+const setupGridBoardObserver = async () => {
+  await nextTick()
+  gridBoardObserver?.disconnect()
+  gridBoardObserver = null
+  const el = gridBoardRef.value
+  if (!el) {
+    gridBoardWidth.value = 0
+    return
+  }
+  syncGridBoardWidth()
+  if (typeof ResizeObserver === 'undefined') return
+  gridBoardObserver = new ResizeObserver(() => syncGridBoardWidth())
+  gridBoardObserver.observe(el)
+}
+
+watch(
+  () => [layout.value.length, previewVisible.value, gridConfig.value.colNum] as const,
+  () => {
+    void setupGridBoardObserver()
+  },
+)
+
+onMounted(() => {
+  void setupGridBoardObserver()
+})
+
+onBeforeUnmount(() => {
+  gridBoardObserver?.disconnect()
+  gridBoardObserver = null
+})
+
+/**
+ * 与 vue-grid-layout GridItem.calcPosition 对齐（含 Math.round）。
+ * 虚线框再内缩 1px，避免亚像素/描边导致区块右侧露出网格线。
+ */
+const buildAlignedGridPattern = (
+  cellW: number,
+  cellH: number,
+  mx: number,
+  my: number,
+) => {
+  const tileW = cellW + mx
+  const tileH = cellH + my
+  if (tileW <= 0 || tileH <= 0 || cellW <= 0 || cellH <= 0) return 'none'
+  const coverInset = 1
+  const drawW = Math.max(cellW - coverInset * 2, 1)
+  const drawH = Math.max(cellH - coverInset * 2, 1)
+  const radius = Math.min(4, drawW / 6, drawH / 6)
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${tileW}" height="${tileH}" viewBox="0 0 ${tileW} ${tileH}">
+  <rect x="${coverInset}" y="${coverInset}" width="${drawW}" height="${drawH}" rx="${radius}" ry="${radius}"
+    fill="none"
+    stroke="rgba(148,163,184,0.75)"
+    stroke-width="0.5"
+    stroke-dasharray="1.6 1.6"
+    stroke-linecap="round"
+  />
+</svg>`
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
+}
+
+/** 网格与区块几何对齐：1 格区块正好盖住 1 个虚线框 */
+const gridBackgroundStyle = computed(() => {
+  const { colNum, rowHeight, margin } = gridConfig.value
+  const mx = Math.max(margin[0], 0)
+  const my = Math.max(margin[1], 0)
+  const cols = Math.max(colNum, 1)
+  const width = gridBoardWidth.value
+  if (width <= mx * (cols + 1)) {
+    return {
+      '--report-grid-cell-pattern': 'none',
+    }
+  }
+  // 与 GridItem：width = Math.round(colWidth * w + ...) 在 w=1 时一致
+  const colWidth = (width - mx * (cols + 1)) / cols
+  const cellW = Math.round(colWidth)
+  const cellH = Math.round(rowHeight)
+  // 只绘制到最后一列单元格右缘，避免容器余宽再铺出半列虚线框
+  const paintWidth = cols * (cellW + mx)
+  return {
+    '--report-grid-origin-x': `${mx}px`,
+    '--report-grid-origin-y': `${my}px`,
+    '--report-grid-tile-w': `${cellW + mx}px`,
+    '--report-grid-tile-h': `${cellH + my}px`,
+    '--report-grid-paint-width': `${paintWidth}px`,
+    '--report-grid-cell-pattern': buildAlignedGridPattern(cellW, cellH, mx, my),
+  }
+})
 
 const pagePanel = reactive({
   visible: false,
@@ -623,7 +729,50 @@ export default defineComponent({
   padding: 10px;
 }
 
+.report-designer-canvas__scroll {
+  width: 100%;
+  height: 100%;
+}
+
+.report-designer-canvas__scroll :deep(.el-scrollbar__wrap),
+.report-designer-canvas__scroll :deep(.n-scrollbar-container),
+.report-designer-canvas__scroll :deep(.grow-scrollbar) {
+  height: 100%;
+}
+
+.report-designer-canvas :deep(.grow-report-grid-board) {
+  position: relative;
+  min-height: 100%;
+  overflow: hidden;
+}
+
+/* 网格与 GridItem 同公式对齐；宽度裁到最后一列，避免最右侧多出半格边框 */
+.report-designer-canvas :deep(.grow-report-grid-board)::before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--report-grid-paint-width, 100%);
+  box-sizing: border-box;
+  pointer-events: none;
+  overflow: hidden;
+  background-image: var(--report-grid-cell-pattern);
+  background-repeat: repeat;
+  background-position: var(--report-grid-origin-x, 10px) var(--report-grid-origin-y, 10px);
+  background-size: var(--report-grid-tile-w, 0) var(--report-grid-tile-h, 0);
+}
+
+.report-designer-canvas :deep(.grow-report-grid) {
+  position: relative;
+  z-index: 1;
+  min-height: 100%;
+  background-color: transparent;
+}
+
 .report-designer-canvas :deep(.grow-report-grid > .vue-grid-item) {
+  z-index: 1;
   overflow: hidden;
 }
 
