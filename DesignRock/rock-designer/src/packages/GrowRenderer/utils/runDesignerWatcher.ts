@@ -3,10 +3,24 @@ import type { DesignerWatcherItem } from '../../GrowDesigner/static/pageWatchers
 import { isWatcherEnabled } from '../../GrowDesigner/static/pageWatchers'
 import {
   parseStatePath,
-  resolveBoundExpression,
 } from './resolveBoundProps'
 
 const SAFE_NAME_RE = /^[A-Za-z_$][\w$]*$/
+
+/** 按 state.xxx 路径读取当前值（监听源，不做函数体求值） */
+const getByStatePath = (
+  state: Record<string, unknown>,
+  expr: string,
+): unknown => {
+  const path = parseStatePath(expr)
+  if (!path?.length) return undefined
+  let cursor: any = state
+  for (const key of path) {
+    if (cursor == null || typeof cursor !== 'object') return undefined
+    cursor = cursor[key]
+  }
+  return cursor
+}
 
 /** 执行监听回调函数体；上下文：value、oldValue、state */
 export const runDesignerWatcher = (
@@ -58,7 +72,7 @@ export const setupPageWatchers = (
     }
 
     const stop = watch(
-      () => resolveBoundExpression(source, state),
+      () => getByStatePath(state, source),
       (value, oldValue) => {
         runDesignerWatcher(item, value, oldValue, state)
       },

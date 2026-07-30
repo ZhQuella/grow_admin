@@ -16,6 +16,17 @@ const getBySimplePath = (source: unknown, path?: string): unknown => {
   return cur
 }
 
+/** 是否应按函数体（含 state 上下文）求值，而非字面量表达式 */
+const looksLikeBoundScript = (source: string): boolean => {
+  const trimmed = source.trim()
+  if (!trimmed) return false
+  if (/^\s*return\b/.test(trimmed)) return true
+  if (/^\s*state\s*[\.\[]/.test(trimmed)) return true
+  if (/^\s*(const|let|var|if|for|while|switch|try)\b/.test(trimmed)) return true
+  if (/[\n;]/.test(trimmed)) return true
+  return false
+}
+
 /** 解析单路绑定 */
 export function resolveDataBindRef(
   ref: ReportDataBindRef | null | undefined,
@@ -27,7 +38,7 @@ export function resolveDataBindRef(
 
   let value: unknown
   try {
-    value = source.startsWith('state.')
+    value = looksLikeBoundScript(source)
       ? resolveBoundExpression(source, state)
       : evaluateExpression(source)
   } catch {

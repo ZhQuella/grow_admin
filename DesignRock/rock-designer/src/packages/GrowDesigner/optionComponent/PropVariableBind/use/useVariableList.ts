@@ -97,9 +97,9 @@ export const useVariableList = (
   return { allVariables, filteredVariables }
 }
 
-/** 点击变量：若当前为空则写入，否则追加 */
+/** 点击变量：若当前为空则写入 return 语句，否则追加表达式 */
 export const insertVariableExpression = (current: string, expression: string) => {
   const trimmed = (current || '').trim()
-  if (!trimmed) return expression
+  if (!trimmed) return `return ${expression}`
   return `${trimmed}${expression}`
 }

@@ -125,7 +125,7 @@ const chartDataHint = computed(() => {
   if (chartType.value === 'graph' || chartType.value === 'chord' || chartType.value === 'sankey') {
     return '可为数组，或 { data, links }'
   }
-  return '表达式求值结果写入系列 data'
+  return '函数体求值结果写入系列 data'
 })
 
 const onPatch = (patch: Partial<ReportBlockDataBinding>) => {

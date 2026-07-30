@@ -11,6 +11,7 @@ import {
   PROP_BIND_MODE_BIND,
 } from '../../GrowDesigner/static/propBindModes'
 import {
+  evaluateComputedExpression,
   evaluateExpression,
   resolveBoundExpression,
 } from './resolveBoundProps'
@@ -90,10 +91,10 @@ const resolveParams = (
       continue
     }
 
-    // 旧数据无 bindMode：尝试表达式，失败则回退字面量
+    // 旧数据无 bindMode：尝试函数体求值，失败则回退字面量
     try {
-      // eslint-disable-next-line no-new-func
-      out[key] = new Function('state', `"use strict"; return (${raw});`)(state)
+      const evaluated = resolveBoundExpression(raw, state)
+      out[key] = evaluated === undefined ? raw : evaluated
     } catch {
       out[key] = raw
     }
@@ -322,15 +323,7 @@ export const recomputeComputedProps = (
       state[name] = undefined
       continue
     }
-    try {
-      // eslint-disable-next-line no-new-func
-      state[name] = new Function(
-        'state',
-        `"use strict"; return (${code});`,
-      )(state)
-    } catch (error) {
-      console.warn('[GrowComputedProp]', error)
-    }
+    state[name] = evaluateComputedExpression(code, state)
   }
 }
 

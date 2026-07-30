@@ -543,7 +543,7 @@ const variableOptions = computed(() => {
   })
   return [...names].map((name) => ({
     label: `state.${name}`,
-    value: `state.${name}`,
+    value: `return state.${name}`,
   }))
 })
 
