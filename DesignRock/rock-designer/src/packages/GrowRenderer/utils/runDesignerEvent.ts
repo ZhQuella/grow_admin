@@ -1,6 +1,7 @@
 import type { DesignerEventItem } from '../../GrowDesigner/static/elementEvents/types'
 import { isEventEnabled } from '../../GrowDesigner/static/elementEvents/types'
 import type { ApiOutlinedMethods } from './runApiOutlined'
+import type { DesignerRuntimeRefs } from './runtimeRefs'
 
 const SAFE_NAME_RE = /^[A-Za-z_$][\w$]*$/
 
@@ -18,12 +19,13 @@ export const toVueListenerProp = (eventType: string): string => {
   return `on${camel.charAt(0).toUpperCase()}${camel.slice(1)}`
 }
 
-/** 编译并执行事件函数体；上下文：event、state、apis（数据请求方法表） */
+/** 编译并执行事件函数体；上下文：event、state、apis、refs */
 export const runDesignerEvent = (
   item: DesignerEventItem,
   event: unknown,
   state: Record<string, unknown>,
   apis: ApiOutlinedMethods = {},
+  refs: DesignerRuntimeRefs = {},
 ) => {
   if (!isEventEnabled(item)) return
   const code = String(item.code ?? '')
@@ -35,9 +37,10 @@ export const runDesignerEvent = (
       'event',
       'state',
       'apis',
-      `"use strict";\nreturn (async function ${fnName}(event, state, apis) {\n${code}\n})(event, state, apis);`,
+      'refs',
+      `"use strict";\nreturn (async function ${fnName}(event, state, apis, refs) {\n${code}\n})(event, state, apis, refs);`,
     )
-    return runner(event, state, apis)
+    return runner(event, state, apis, refs)
   } catch (error) {
     console.error(`[GrowEvent:${fnName}/${item.eventType}]`, error)
   }
@@ -48,6 +51,7 @@ export const buildRuntimeEventProps = (
   events: Record<string, DesignerEventItem> | undefined,
   state: Record<string, unknown>,
   apis: ApiOutlinedMethods = {},
+  refs: DesignerRuntimeRefs = {},
 ): Record<string, (...args: unknown[]) => void> => {
   const result: Record<string, (...args: unknown[]) => void> = {}
   if (!events || typeof events !== 'object') return result
@@ -56,7 +60,7 @@ export const buildRuntimeEventProps = (
     if (!isEventEnabled(item)) continue
     const key = toVueListenerProp(item.eventType || eventType)
     result[key] = (...args: unknown[]) => {
-      void runDesignerEvent(item, args[0], state, apis)
+      void runDesignerEvent(item, args[0], state, apis, refs)
     }
   }
   return result

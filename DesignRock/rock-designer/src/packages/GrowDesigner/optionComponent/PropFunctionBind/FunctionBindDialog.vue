@@ -19,7 +19,7 @@
 
         <div class="function-bind-dialog__body">
           <p class="function-bind-dialog__hint">
-            可用参数：{{ paramsHint }}；以及 state
+            可用参数：{{ paramsHint }}；以及 state、refs
           </p>
           <div class="function-bind-dialog__editor">
             <GrowCodeEditor

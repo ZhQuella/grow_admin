@@ -17,6 +17,8 @@ export type DesignerStructureNode = {
 export type DesignerRenderArgument = {
   elTagName?: string
   elName?: string
+  /** 运行时 refs 键名；有值才收集，事件中通过 refs.refName 访问 */
+  refName?: string
   elType?: string
   isChild?: boolean
   unsupported?: boolean

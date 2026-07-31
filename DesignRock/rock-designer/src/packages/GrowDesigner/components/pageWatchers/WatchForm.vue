@@ -39,7 +39,7 @@
       class="flex h-8 shrink-0 items-center justify-between border-y border-solid border-border bg-layout px-3 text-sm font-medium text-text"
     >
       <span>函数体</span>
-      <span class="text-xs font-normal text-text-secondary">参数：value、oldValue、state</span>
+      <span class="text-xs font-normal text-text-secondary">参数：value、oldValue、state、refs</span>
     </div>
 
     <div
@@ -72,5 +72,6 @@ defineProps<{
 const EXAMPLE_CODE = `// 函数体示例
 console.log('value', value)
 console.log('oldValue', oldValue)
-console.log('state', state)`
+console.log('state', state)
+// refs.form?.validate?.()`
 </script>

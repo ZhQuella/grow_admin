@@ -1,6 +1,7 @@
 /** 变量绑定：由 dataSource / computedProps 构建 state，并按 propBindModes 求值 */
 
 import { compileDesignerPropFunction } from './runDesignerPropFunction'
+import type { DesignerRuntimeRefs } from './runtimeRefs'
 
 export type DataSourceLike = {
   id?: string
@@ -384,6 +385,7 @@ export const resolveBoundProps = (
   rawProps: Record<string, any> | undefined,
   bindModes: Record<string, string> | undefined,
   state: Record<string, unknown>,
+  refs: DesignerRuntimeRefs = {},
 ): Record<string, any> => {
   const result = { ...(rawProps || {}) }
   const keys = new Set([
@@ -396,7 +398,7 @@ export const resolveBoundProps = (
     if (mode === 'function') {
       const raw = result[key]
       const code = raw == null ? '' : String(raw)
-      const fn = compileDesignerPropFunction(code, state, { modelKey: key })
+      const fn = compileDesignerPropFunction(code, state, { modelKey: key, refs })
       if (fn) result[key] = fn
       else Reflect.deleteProperty(result, key)
       continue

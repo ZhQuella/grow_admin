@@ -35,7 +35,7 @@
       class="flex h-8 shrink-0 items-center justify-between border-y border-solid border-border bg-layout px-3 text-sm font-medium text-text"
     >
       <span>函数体</span>
-      <span class="text-xs font-normal text-text-secondary">参数：event、state、apis</span>
+      <span class="text-xs font-normal text-text-secondary">参数：event、state、apis、refs</span>
     </div>
 
     <div
@@ -70,5 +70,7 @@ console.log('event', event)
 console.log('state', state)
 // 调用「数据请求」面板中配置的同名方法
 // await apis.getList()
+// 调用高级面板配置了 Ref 名称的组件实例
+// refs.form?.validate?.()
 // state.user.name = 'Bob'`
 </script>

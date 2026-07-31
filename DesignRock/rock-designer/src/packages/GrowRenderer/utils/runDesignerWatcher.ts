@@ -4,6 +4,7 @@ import { isWatcherEnabled } from '../../GrowDesigner/static/pageWatchers'
 import {
   parseStatePath,
 } from './resolveBoundProps'
+import type { DesignerRuntimeRefs } from './runtimeRefs'
 
 const SAFE_NAME_RE = /^[A-Za-z_$][\w$]*$/
 
@@ -22,12 +23,13 @@ const getByStatePath = (
   return cursor
 }
 
-/** 执行监听回调函数体；上下文：value、oldValue、state */
+/** 执行监听回调函数体；上下文：value、oldValue、state、refs */
 export const runDesignerWatcher = (
   item: DesignerWatcherItem,
   value: unknown,
   oldValue: unknown,
   state: Record<string, unknown>,
+  refs: DesignerRuntimeRefs = {},
 ) => {
   if (!isWatcherEnabled(item)) return
   const code = String(item.code ?? '')
@@ -39,9 +41,10 @@ export const runDesignerWatcher = (
       'value',
       'oldValue',
       'state',
-      `"use strict";\nreturn (function ${fnName}(value, oldValue, state) {\n${code}\n})(value, oldValue, state);`,
+      'refs',
+      `"use strict";\nreturn (function ${fnName}(value, oldValue, state, refs) {\n${code}\n})(value, oldValue, state, refs);`,
     )
-    runner(value, oldValue, state)
+    runner(value, oldValue, state, refs)
   } catch (error) {
     console.error(`[GrowWatcher:${fnName}/${item.source}]`, error)
   }
@@ -54,6 +57,7 @@ export const runDesignerWatcher = (
 export const setupPageWatchers = (
   watchers: Record<string, DesignerWatcherItem> | undefined,
   state: Record<string, unknown>,
+  refs: DesignerRuntimeRefs = {},
 ): WatchStopHandle => {
   const stops: WatchStopHandle[] = []
   if (!watchers || typeof watchers !== 'object') {
@@ -74,7 +78,7 @@ export const setupPageWatchers = (
     const stop = watch(
       () => getByStatePath(state, source),
       (value, oldValue) => {
-        runDesignerWatcher(item, value, oldValue, state)
+        runDesignerWatcher(item, value, oldValue, state, refs)
       },
       {
         deep: Boolean(item.deep),
