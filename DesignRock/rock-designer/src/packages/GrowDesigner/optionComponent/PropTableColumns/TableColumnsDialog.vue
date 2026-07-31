@@ -227,8 +227,8 @@ const onConfirm = () => {
   max-height: min(640px, calc(100vh - 48px));
   overflow: hidden;
   border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+  background: var(--component-background-color);
+  box-shadow: var(--card-shadow);
 }
 
 .table-columns-dialog__header {
@@ -269,7 +269,7 @@ const onConfirm = () => {
   }
 
   &:hover {
-    background: #f2f3f5;
+    background: var(--header-action-hover-bg-color);
     color: var(--text-color, #303133);
   }
 }
@@ -289,7 +289,7 @@ const onConfirm = () => {
   flex-shrink: 0;
   gap: 8px;
   padding: 10px 16px;
-  background: var(--layout-container-background-color, #fff);
+  background: var(--layout-container-background-color);
   border-bottom: 1px solid var(--layout-border-color, #ebeef5);
 }
 
@@ -316,7 +316,7 @@ const onConfirm = () => {
   padding: 0 10px;
   border: 1px solid var(--layout-border-color, #dcdfe6);
   border-radius: 4px;
-  background: #fff;
+  background: var(--component-background-color);
   color: var(--text-color, #303133);
   font-size: 12px;
   cursor: pointer;
@@ -336,7 +336,7 @@ const onConfirm = () => {
   &.is-primary {
     border-color: var(--primary-color, #409eff);
     color: var(--primary-color, #409eff);
-    background: var(--el-color-primary-light-9, #ecf5ff);
+    background: var(--color-primary-a08);
   }
 
   &:disabled,

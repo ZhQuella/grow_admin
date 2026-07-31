@@ -321,7 +321,7 @@ const onAdd = () => {
 }
 
 .child-col-spans__btn--danger:hover {
-  color: var(--color-error, #d03050);
+  color: var(--error-color);
   border-color: currentColor;
 }
 

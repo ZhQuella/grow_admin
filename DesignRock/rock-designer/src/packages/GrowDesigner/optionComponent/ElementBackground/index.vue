@@ -97,7 +97,7 @@ const onClear = () => {
 
   &:hover {
     color: var(--primary-color);
-    border-color: color-mix(in srgb, var(--primary-color, #2f6bff) 35%, #e4e7ed);
+    border-color: color-mix(in srgb, var(--primary-color, #2f6bff) 35%, var(--layout-border-color));
   }
 }
 </style>

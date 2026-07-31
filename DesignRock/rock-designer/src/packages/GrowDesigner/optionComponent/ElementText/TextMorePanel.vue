@@ -189,7 +189,7 @@ const PADDING_SIDES = [
 
   &:hover {
     color: var(--text-color, #303133);
-    background: #f2f3f5;
+    background: var(--header-action-hover-bg-color);
   }
 }
 
@@ -243,11 +243,11 @@ const PADDING_SIDES = [
   }
 
   &:hover:not(.is-active) {
-    background: #f2f3f5;
+    background: var(--header-action-hover-bg-color);
   }
 
   &.is-active {
-    background: #e8e9eb;
+    background: var(--color-primary-a12);
     color: var(--text-color, #303133);
   }
 }

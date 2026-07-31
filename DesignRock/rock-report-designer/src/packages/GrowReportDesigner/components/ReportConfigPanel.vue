@@ -110,7 +110,7 @@ const resolveCellStyle = (option: ReportChartTypeOption) => {
     return { backgroundColor: toChartTypeSoftBg(option.color, 0.16) }
   }
   if (hoveredType.value === option.value) {
-    return { backgroundColor: 'var(--layout-background-color)' }
+    return { backgroundColor: 'var(--header-action-hover-bg-color)' }
   }
   return { backgroundColor: 'transparent' }
 }

@@ -230,11 +230,11 @@ const {
   }
 
   &:hover:not(.is-active) {
-    background: #f2f3f5;
+    background: var(--header-action-hover-bg-color);
   }
 
   &.is-active {
-    background: #e8e9eb;
+    background: var(--color-primary-a12);
     color: var(--text-color, #303133);
   }
 }
@@ -265,11 +265,11 @@ const {
   }
 
   &:hover:not(.is-active) {
-    background: #f2f3f5;
+    background: var(--header-action-hover-bg-color);
   }
 
   &.is-active {
-    background: #e8e9eb;
+    background: var(--color-primary-a12);
     color: var(--text-color, #303133);
   }
 }
@@ -325,7 +325,7 @@ const {
 }
 
 .element-text__more:hover {
-  background: #f2f3f5;
+  background: var(--header-action-hover-bg-color);
 }
 
 </style>

@@ -140,7 +140,7 @@ const onChildrenChange = (children: DesignerTableColumn[]) => {
   transition: background 0.15s ease;
 
   &--active {
-    background: var(--el-color-primary-light-9, #ecf5ff);
+    background: var(--color-primary-a08);
   }
 }
 
@@ -180,7 +180,7 @@ const onChildrenChange = (children: DesignerTableColumn[]) => {
   line-height: 0;
 
   &:hover {
-    background: #eef0f3;
+    background: var(--header-action-hover-bg-color);
     color: var(--text-color, #303133);
   }
 }
@@ -197,13 +197,13 @@ const onChildrenChange = (children: DesignerTableColumn[]) => {
 }
 
 .column-tree-node__btn--active {
-  background: var(--el-color-primary-light-8, #d9ecff);
+  background: var(--color-primary-a12);
   color: var(--primary-color, #409eff);
 }
 
 .column-tree-node__btn--danger:hover {
-  background: #fef0f0;
-  color: #f56c6c;
+  background: color-mix(in srgb, var(--error-color) 14%, transparent);
+  color: var(--error-color);
 }
 
 .column-tree-node--active .column-tree-node__title {

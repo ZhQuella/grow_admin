@@ -1499,11 +1499,11 @@ const onCopyItem = (event) => {
   overflow: visible;
 
   &.is-loop {
-    border-color: color-mix(in srgb, var(--color-primary) 45%, transparent);
+    border-color: color-mix(in srgb, var(--primary-color) 45%, transparent);
   }
 
   &.is-condition {
-    border-color: color-mix(in srgb, var(--color-warning, #e6a23c) 55%, transparent);
+    border-color: color-mix(in srgb, var(--warning-color) 55%, transparent);
   }
 }
 

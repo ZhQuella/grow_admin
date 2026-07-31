@@ -108,7 +108,7 @@ const onToggle = (value: string, enabled: boolean) => {
 
   &.is-enabled {
     opacity: 1;
-    background: var(--layout-background-color, #f5f7fa);
+    background: var(--layout-container-background-color);
   }
 }
 

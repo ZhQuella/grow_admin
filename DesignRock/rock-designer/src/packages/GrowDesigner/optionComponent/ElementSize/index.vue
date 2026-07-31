@@ -254,7 +254,7 @@ const onDimensionUnitChange = (key: 'width' | 'height', unit: string) => {
 </script>
 
 <style lang="scss" scoped>
-$edge-color: #d6e4ff;
+$edge-color: var(--color-primary-a16);
 
 .element-size {
   padding: 5px 10px;
@@ -407,7 +407,7 @@ $edge-color: #d6e4ff;
   margin-left: -10px;
   margin-top: -5px;
   transform: scale(0.65);
-  color: #999;
+  color: var(--text-color-secondary);
 }
 
 .element-size__input {

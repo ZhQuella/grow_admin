@@ -213,7 +213,7 @@
 
       <aside
         v-if="configVisible && configItem"
-        class="absolute bottom-2.5 right-2.5 top-2.5 z-30 box-border flex w-[420px] min-h-0 flex-col overflow-hidden rounded-md border border-solid border-border bg-component shadow-[rgba(0,0,0,0.08)_-4px_0_16px]"
+        class="absolute bottom-2.5 right-2.5 top-2.5 z-30 box-border flex w-[420px] min-h-0 flex-col overflow-hidden rounded-md border border-solid border-border bg-component shadow-card"
         @click.stop
       >
         <div
@@ -392,19 +392,42 @@ watch(
   },
 )
 
+/** 主题 class 变化时重绘网格描边（SVG data-uri 无法继承页面 CSS 变量） */
+const themeTick = ref(0)
+let themeClassObserver: MutationObserver | null = null
+
 onMounted(() => {
   void setupGridBoardObserver()
+  if (typeof MutationObserver !== 'undefined' && typeof document !== 'undefined') {
+    themeClassObserver = new MutationObserver(() => {
+      themeTick.value += 1
+    })
+    themeClassObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    })
+  }
 })
 
 onBeforeUnmount(() => {
   gridBoardObserver?.disconnect()
   gridBoardObserver = null
+  themeClassObserver?.disconnect()
+  themeClassObserver = null
 })
 
 /**
  * 按 GridItem.calcPosition（含 Math.round）逐格绘制，避免 CSS 平铺在取整后行列漂移。
  * 虚线框内缩 1px，减少区块边缘露线。
  */
+const resolveGridStrokeColor = () => {
+  if (typeof document === 'undefined') return 'rgba(148, 163, 184, 0.55)'
+  const raw = getComputedStyle(document.documentElement)
+    .getPropertyValue('--layout-border-color')
+    .trim()
+  return raw || 'rgba(148, 163, 184, 0.55)'
+}
+
 const buildExactGridPattern = (
   cols: number,
   rows: number,
@@ -412,6 +435,7 @@ const buildExactGridPattern = (
   mx: number,
   my: number,
   containerWidth: number,
+  strokeColor: string,
 ): { pattern: string; width: number; height: number } => {
   if (cols <= 0 || rows <= 0 || containerWidth <= 0 || rowHeight <= 0) {
     return { pattern: 'none', width: 0, height: 0 }
@@ -436,7 +460,7 @@ const buildExactGridPattern = (
       if (drawW < 2 || drawH < 2) continue
       const radius = Math.min(4, drawW / 6, drawH / 6)
       rects.push(
-        `<rect x="${left + inset}" y="${top + inset}" width="${drawW}" height="${drawH}" rx="${radius}" ry="${radius}" fill="none" stroke="rgba(148,163,184,0.75)" stroke-width="0.5" stroke-dasharray="1.6 1.6" stroke-linecap="round"/>`,
+        `<rect x="${left + inset}" y="${top + inset}" width="${drawW}" height="${drawH}" rx="${radius}" ry="${radius}" fill="none" stroke="${strokeColor}" stroke-width="0.5" stroke-dasharray="1.6 1.6" stroke-linecap="round"/>`,
       )
     }
   }
@@ -452,6 +476,7 @@ const buildExactGridPattern = (
 
 /** 网格与区块同公式对齐：每个虚线框对应一个 1×1 GridItem */
 const gridBackgroundStyle = computed(() => {
+  void themeTick.value
   const { colNum, rowHeight, margin } = gridConfig.value
   const mx = Math.max(margin[0], 0)
   const my = Math.max(margin[1], 0)
@@ -466,7 +491,15 @@ const gridBackgroundStyle = computed(() => {
   const layoutRows = layout.value.reduce((max, item) => Math.max(max, item.y + item.h), 0)
   const heightRows = Math.ceil((Math.max(gridBoardHeight.value, 1) - my) / pitch)
   const rows = Math.max(1, layoutRows, heightRows)
-  const grid = buildExactGridPattern(cols, rows, rowHeight, mx, my, width)
+  const grid = buildExactGridPattern(
+    cols,
+    rows,
+    rowHeight,
+    mx,
+    my,
+    width,
+    resolveGridStrokeColor(),
+  )
   return {
     '--report-grid-svg-w': `${grid.width}px`,
     '--report-grid-svg-h': `${grid.height}px`,
