@@ -169,17 +169,21 @@ const designVisibility = computed(() => {
 })
 const designVisible = computed(() => designVisibility.value.visible)
 const designRenderable = computed(() => designVisibility.value.render)
-/** 滚动条：高度由组件 props 控制，不重复写到外框（避免与 body padding 叠加） */
-const effectiveFrameStyles = computed(() => {
-  return { ...currentStyles.value }
-})
-
-const isAdd = computed(() => currentArgument?.value?.isAdd)
 
 const isOverlayHost = computed(() => {
   const tag = currentArgument.value?.elTagName
   return tag === 'GrowModal' || tag === 'GrowDrawer'
 })
+
+/** 滚动条：高度由组件 props 控制，不重复写到外框（避免与 body padding 叠加）
+ * 弹窗/抽屉：样式作用在真实组件（及模拟编辑层）上，不作用在画布占位外框
+ */
+const effectiveFrameStyles = computed(() => {
+  if (isOverlayHost.value) return {}
+  return { ...currentStyles.value }
+})
+
+const isAdd = computed(() => currentArgument?.value?.isAdd)
 
 const overlayOpenTitle = computed(() =>
   currentArgument.value?.elTagName === 'GrowDrawer' ? '打开抽屉编辑' : '打开弹窗编辑',

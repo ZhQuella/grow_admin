@@ -54,13 +54,17 @@
       <section class="variable-bind-dialog__editor-pane">
         <h4 class="variable-bind-dialog__pane-title">变量</h4>
         <p class="variable-bind-dialog__editor-tip">
-          输入框内默认支持变量，写法和 JS 写法完全一致。
+          写法与 JS 函数体一致，可使用
+          <code>state</code>
+          ，须
+          <code>return</code>
+          返回绑定值。
         </p>
         <div class="variable-bind-dialog__editor">
           <GrowCodeEditor
             v-model="draft"
             class="h-full"
-            default-language="expression"
+            default-language="javascript"
             :language-switchable="false"
           />
         </div>

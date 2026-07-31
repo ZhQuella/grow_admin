@@ -47,12 +47,6 @@ export const defaultStylesByTag: Record<string, Record<string, string>> = {
     width: '100%',
     height: '100%',
   },
-  GrowModal: {
-    width: '100%',
-  },
-  GrowDrawer: {
-    width: '100%',
-  },
 }
 
 /** 拖入画布时按 elTagName 写入的默认 props */

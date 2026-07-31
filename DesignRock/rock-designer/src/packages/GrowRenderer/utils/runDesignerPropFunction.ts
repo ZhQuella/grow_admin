@@ -2,12 +2,13 @@
 
 import { decodeFunctionPropValue } from '../../GrowDesigner/static/functionPropCodec'
 import { getFunctionPropParams } from '../../GrowDesigner/static/functionPropParams'
+import type { DesignerRuntimeRefs } from './runtimeRefs'
 
 const SAFE_NAME_RE = /^[A-Za-z_$][\w$]*$/
 
 /**
  * 将函数体编译为可传入组件的 prop 回调。
- * 函数体内可使用文档参数名，以及 state。
+ * 函数体内可使用文档参数名，以及 state、refs。
  */
 export const compileDesignerPropFunction = (
   codeOrEncoded: string,
@@ -16,6 +17,7 @@ export const compileDesignerPropFunction = (
     name?: string
     modelKey?: string
     params?: string[]
+    refs?: DesignerRuntimeRefs
   },
 ): ((...args: unknown[]) => unknown) | undefined => {
   const decoded = decodeFunctionPropValue(codeOrEncoded)
@@ -37,14 +39,17 @@ export const compileDesignerPropFunction = (
     .map((param, index) => `const ${param} = args[${index}];`)
     .join('\n')
 
+  const refs = options?.refs || {}
+
   try {
     // eslint-disable-next-line no-new-func
     const runner = new Function(
       'args',
       'state',
+      'refs',
       `"use strict";\n${prelude}\n${body}`,
     )
-    return (...args: unknown[]) => runner(args, state)
+    return (...args: unknown[]) => runner(args, state, refs)
   } catch (error) {
     console.error(`[GrowPropFunction:${fnName}]`, error)
     return undefined

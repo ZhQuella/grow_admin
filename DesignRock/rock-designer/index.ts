@@ -50,8 +50,14 @@ export { default as DesignerPageEventsPanel } from './src/packages/GrowDesigner/
 import {
   GROW_RUNTIME_STATE,
   GROW_RUNTIME_APIS,
+  GROW_RUNTIME_REFS,
   DRAGGABLE_CONGIG,
 } from './src/packages/GrowDesigner/config/designation'
-export { GROW_RUNTIME_STATE, GROW_RUNTIME_APIS, DRAGGABLE_CONGIG }
+export { GROW_RUNTIME_STATE, GROW_RUNTIME_APIS, GROW_RUNTIME_REFS, DRAGGABLE_CONGIG }
 export { runDesignerEvent } from './src/packages/GrowRenderer/utils/runDesignerEvent'
 export type { DesignerEventItem } from './src/packages/GrowDesigner/static/elementEvents/types'
+export type {
+  DesignerRuntimeRefs,
+  RuntimeRefsRegistry,
+} from './src/packages/GrowRenderer/utils/runtimeRefs'
+export { createRuntimeRefsRegistry } from './src/packages/GrowRenderer/utils/runtimeRefs'

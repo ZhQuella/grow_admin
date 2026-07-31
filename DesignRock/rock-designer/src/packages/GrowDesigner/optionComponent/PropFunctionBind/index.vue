@@ -132,7 +132,7 @@ const onRemove = () => {
   :deep(.ant-input),
   :deep(input) {
     cursor: default;
-    background: var(--layout-background-color, #f5f7fa);
+    background: var(--layout-container-background-color);
   }
 }
 

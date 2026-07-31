@@ -368,7 +368,7 @@ const toggleLinked = () => {
   flex-shrink: 0;
   width: 12px;
   height: 12px;
-  border: 1.5px solid #c0c4cc;
+  border: 1.5px solid var(--text-color-secondary);
   box-sizing: border-box;
   opacity: 0.7;
 
@@ -420,7 +420,7 @@ const toggleLinked = () => {
   border: none;
   border-radius: 4px;
   background: transparent;
-  color: #c0c4cc;
+  color: var(--text-color-secondary);
   cursor: pointer;
   transition: color 0.15s ease, background-color 0.15s ease;
 

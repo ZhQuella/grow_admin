@@ -200,7 +200,7 @@ const toggleLinked = () => {
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
   &:hover {
-    border-color: color-mix(in srgb, var(--primary-color, #2f6bff) 35%, #e4e7ed);
+    border-color: color-mix(in srgb, var(--primary-color, #2f6bff) 35%, var(--layout-border-color));
   }
 
   &:focus-within {
@@ -225,7 +225,7 @@ const toggleLinked = () => {
     position: absolute;
     inset: 0;
     border: 1.5px solid currentColor;
-    color: #909399;
+    color: var(--text-color-secondary);
     border-radius: 1px;
     box-sizing: border-box;
   }
@@ -280,13 +280,13 @@ const toggleLinked = () => {
   border: 1px solid var(--layout-border-color, #e4e7ed);
   border-radius: 4px;
   background: var(--component-background-color, #fff);
-  color: #c0c4cc;
+  color: var(--text-color-secondary);
   cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 
   &:hover {
     color: var(--primary-color, #2f6bff);
-    border-color: color-mix(in srgb, var(--primary-color, #2f6bff) 35%, #e4e7ed);
+    border-color: color-mix(in srgb, var(--primary-color, #2f6bff) 35%, var(--layout-border-color));
   }
 
   /* 四角联动开启 → 选中；取消联动 → 不选中 */

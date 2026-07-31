@@ -8,11 +8,14 @@
     <div class="overlay-editor__mask" @click="onClose" />
     <div
       class="overlay-editor__panel"
-      :class="{
-        'is-modal': isModal,
-        'is-drawer': isDrawer,
-        [`is-drawer-${direction}`]: isDrawer,
-      }"
+      :class="[
+        {
+          'is-modal': isModal,
+          'is-drawer': isDrawer,
+          [`is-drawer-${direction}`]: isDrawer,
+        },
+        overlayClass,
+      ]"
       :style="panelStyle"
     >
       <div class="overlay-editor__header">
@@ -124,6 +127,10 @@ import {
   buildRuntimeState,
   resolveBoundProps,
 } from '../../../GrowRenderer/utils/resolveBoundProps'
+import {
+  resolveNodeClass,
+  resolveOverlayHostStyle,
+} from '../../../GrowRenderer/utils/normalizeProps'
 import DraggableItem from '../draggableItem/index.vue'
 import abstractionComponent from '../abstractionComponent/index.vue'
 
@@ -163,6 +170,10 @@ const config = computed(
   () => props.draggableConfig.renderArgument?.[props.uuid] || {},
 )
 const propsInfo = computed(() => props.draggableConfig.props?.[props.uuid] || {})
+/** 显式依赖 styles 引用，保证样式面板改动能刷新模拟层 */
+const rawStyles = computed(
+  () => props.draggableConfig.styles?.[props.uuid] || {},
+)
 const resolvedPropsInfo = computed(() =>
   resolveBoundProps(
     propsInfo.value,
@@ -186,27 +197,66 @@ const title = computed(
 const showClose = computed(() => propsInfo.value['show-close'] !== false)
 const showFooter = computed(() => Boolean(propsInfo.value.showFooter))
 
+const overlayClass = computed(() => resolveNodeClass(rawStyles.value))
+
+/**
+ * 设计态模拟面板：配置样式作用在面板上（对应预览时作用在弹窗/抽屉组件）。
+ * 尺寸 props（width / size）仅在样式未设置对应尺寸时作为兜底。
+ */
 const panelStyle = computed(() => {
-  const style: Record<string, string> = {}
+  const style: Record<string, string | number> = {
+    ...resolveOverlayHostStyle(rawStyles.value),
+  }
+
   if (isModal.value) {
     const width = propsInfo.value.width
-    style.width = width != null && width !== '' ? String(width) : '480px'
-    style.maxWidth = 'calc(100% - 32px)'
+    const configuredStyleWidth = rawStyles.value?.width
+    if (String(configuredStyleWidth) === 'auto') {
+      // 设计态 auto：接近画布宽度并左右留白（见期望效果）
+      style.width = 'calc(100% - 32px)'
+    } else if (configuredStyleWidth == null || configuredStyleWidth === '') {
+      style.width =
+        width != null && width !== '' && String(width) !== 'auto'
+          ? String(width)
+          : '480px'
+    }
+    if (style.maxWidth == null && style['max-width'] == null) {
+      style.maxWidth = 'calc(100% - 32px)'
+    }
   }
+
   if (isDrawer.value) {
     const size = propsInfo.value.size
     const dir = direction.value
     const isVertical = dir === 'ttb' || dir === 'btt'
     if (isVertical) {
-      style.width = '100%'
-      style.height = size != null && size !== '' ? String(size) : '40%'
-      style.maxHeight = 'calc(100% - 16px)'
+      if (style.width == null || style.width === '' || String(style.width) === 'fit-content') {
+        style.width = '100%'
+      }
+      if (style.height == null || style.height === '') {
+        style.height = size != null && size !== '' ? String(size) : '40%'
+      }
+      if (style.maxHeight == null && style['max-height'] == null) {
+        style.maxHeight = 'calc(100% - 16px)'
+      }
     } else {
-      style.height = '100%'
-      style.width = size != null && size !== '' ? String(size) : '30%'
-      style.maxWidth = 'calc(100% - 16px)'
+      if (style.height == null || style.height === '') style.height = '100%'
+      if (style.width == null || style.width === '') {
+        style.width = size != null && size !== '' ? String(size) : '30%'
+      } else if (String(style.width) === 'fit-content') {
+        if (style.minWidth == null && style['min-width'] == null) {
+          style.minWidth =
+            size != null && size !== '' && size !== 'auto'
+              ? String(size)
+              : '30%'
+        }
+      }
+      if (style.maxWidth == null && style['max-width'] == null) {
+        style.maxWidth = 'calc(100% - 16px)'
+      }
     }
   }
+
   return style
 })
 
@@ -268,6 +318,8 @@ const onActive = (payload: any) => emit('active', payload)
 }
 
 .overlay-editor__panel.is-modal {
+  flex: 0 0 auto;
+  align-self: center;
   border-radius: 8px;
   min-height: 200px;
   max-height: calc(100% - 32px);

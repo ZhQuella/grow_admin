@@ -23,7 +23,12 @@ export interface DesignerApiOutlinedItem {
   loadType: 'serial' | 'parallel'
   url: string
   method: 'GET' | 'POST' | 'PUT' | 'DELETE'
+  /** query：拼接在 URL 后，如 ?a=1&b=2 */
   params: DesignerApiParam[]
+  /** body：放入请求体；GET 不可用 */
+  body: DesignerApiParam[]
+  /** pathParams：替换 URL 中的 {key} / {key?} 占位 */
+  pathParams: DesignerApiParam[]
   shouldFetch: boolean
   processors: DesignerApiProcessor[]
   defaultData: string

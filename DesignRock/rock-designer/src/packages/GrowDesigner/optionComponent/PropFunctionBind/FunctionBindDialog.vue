@@ -19,7 +19,7 @@
 
         <div class="function-bind-dialog__body">
           <p class="function-bind-dialog__hint">
-            可用参数：{{ paramsHint }}；以及 state
+            可用参数：{{ paramsHint }}；以及 state、refs
           </p>
           <div class="function-bind-dialog__editor">
             <GrowCodeEditor
@@ -168,7 +168,7 @@ const onRemove = () => {
   cursor: pointer;
 
   &:hover {
-    background: var(--layout-background-color, #f5f7fa);
+    background: var(--header-action-hover-bg-color);
     color: var(--text-color);
   }
 }
@@ -203,7 +203,7 @@ const onRemove = () => {
   padding: 8px 10px;
   overflow: auto;
   border-radius: 6px;
-  background: var(--layout-background-color, #f5f7fa);
+  background: var(--layout-container-background-color);
   font-size: 12px;
   line-height: 1.5;
   color: var(--text-color-secondary);

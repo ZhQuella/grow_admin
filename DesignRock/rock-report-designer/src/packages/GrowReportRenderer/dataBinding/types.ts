@@ -4,12 +4,12 @@ export type ReportDataBindMode = 'bind' | 'map'
 
 /**
  * 单路数据绑定：
- * - bind：source 表达式求值结果直接作为目标数据（如 state.sales）
+ * - bind：source 函数体求值结果直接作为目标数据（如 return state.sales）
  * - map：对 source 求值后，用 mapping.path / mapping.fields 提取
  */
 export type ReportDataBindRef = {
   mode?: ReportDataBindMode
-  /** 绑定表达式，建议 state.xxx */
+  /** 绑定函数体，须 return；纯路径 state.xxx 亦可 */
   source?: string
   /**
    * map 模式：

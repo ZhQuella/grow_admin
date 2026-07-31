@@ -211,6 +211,8 @@ const previewSchema = computed<DesignerSchema>(() => {
     url: item?.url,
     method: item?.method,
     params: item?.params,
+    body: item?.body,
+    pathParams: item?.pathParams,
     shouldFetch: item?.shouldFetch,
     processors: item?.processors,
     defaultData: item?.defaultData,

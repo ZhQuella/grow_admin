@@ -26,13 +26,15 @@
     <div
       class="flex h-8 shrink-0 items-center border-y border-solid border-border bg-layout px-3 text-sm font-medium text-text"
     >
-      计算表达式
+      函数体
     </div>
 
     <p class="shrink-0 px-3 py-2 text-xs leading-relaxed text-text-secondary">
-      写法与 JS 表达式一致，可使用
+      写法与 JS 函数体一致，可使用
       <code class="rounded bg-layout px-1">state</code>
-      引用数据源及其它计算属性（按列表顺序求值）。
+      引用数据源及其它计算属性（按列表顺序求值），须
+      <code class="rounded bg-layout px-1">return</code>
+      返回计算结果。
     </p>
 
     <div
@@ -41,7 +43,7 @@
       <GrowCodeEditor
         v-model="model.code"
         class="h-full"
-        default-language="expression"
+        default-language="javascript"
         :language-switchable="false"
       />
     </div>

@@ -42,20 +42,23 @@
           v-model="model.url"
           type="textarea"
           :rows="2"
-          placeholder="请输入请求地址"
+          placeholder="支持路径占位，如 https://api.example.com/users/{id}/{userID?}"
         />
+        <p class="mt-1 mb-0 text-xs leading-5 text-text-secondary">
+          路径参数请用 &#123;key&#125; 或 &#123;key?&#125; 书写；&#123;key?&#125; 仅表示可选语义，未传时替换为空段。
+        </p>
       </GrowFormItem>
 
       <GrowFormItem label="请求方法" prop="method">
         <GrowRadioButtonGroup v-model="model.method" size="small" :options="methodOptions" />
       </GrowFormItem>
 
-      <GrowFormItem prop="params">
+      <GrowFormItem prop="pathParams">
         <template #label>
           <span class="inline-flex items-center gap-1">
-            请求参数
+            路径参数
             <GrowTooltip
-              content="请求时携带的参数；value 可填固定值，或绑定数据源 / 属性计算"
+              content="匹配 URL 中的 {key} / {key?}；key 与占位符名称对应，未传（含空字符串）时替换为空段"
               placement="top"
             >
               <GrowIconify
@@ -68,9 +71,56 @@
         </template>
 
         <div class="w-full">
+          <p class="mb-2 mt-0 text-xs leading-5 text-text-secondary">
+            用于替换地址中的路径占位，如 /users/&#123;id&#125;/posts/&#123;postId?&#125;
+          </p>
+          <div
+            v-for="(row, index) in model.pathParams"
+            :key="`path-${index}`"
+            class="mb-2 flex items-center gap-1.5"
+          >
+            <GrowInput v-model="row.key" class="min-w-0 flex-1" placeholder="key" clearable />
+            <PropVariableBind
+              class="min-w-0 flex-1"
+              v-model="row.value"
+              v-model:bind-mode="row.bindMode"
+              placeholder="value 或绑定变量"
+            />
+            <GrowButton text size="small" type="danger" @click.stop="onRemovePathParam(index)">
+              <GrowIconify icon="carbon:close" :size="14" />
+            </GrowButton>
+          </div>
+          <GrowButton class="w-full" size="small" @click.stop="onAddPathParam">
+            <GrowIconify icon="carbon:add" :size="14" class="mr-1" />
+            添加一项
+          </GrowButton>
+        </div>
+      </GrowFormItem>
+
+      <GrowFormItem prop="params">
+        <template #label>
+          <span class="inline-flex items-center gap-1">
+            Query 参数
+            <GrowTooltip
+              content="拼接在 URL 后，如 ?a=1&b=2；value 可填固定值，或绑定数据源 / 属性计算"
+              placement="top"
+            >
+              <GrowIconify
+                icon="carbon:help"
+                :size="14"
+                class="cursor-help text-text-secondary"
+              />
+            </GrowTooltip>
+          </span>
+        </template>
+
+        <div class="w-full">
+          <p class="mb-2 mt-0 text-xs leading-5 text-text-secondary">
+            作为查询字符串附加到请求地址后面
+          </p>
           <div
             v-for="(row, index) in model.params"
-            :key="index"
+            :key="`query-${index}`"
             class="mb-2 flex items-center gap-1.5"
           >
             <GrowInput v-model="row.key" class="min-w-0 flex-1" placeholder="key" clearable />
@@ -85,6 +135,50 @@
             </GrowButton>
           </div>
           <GrowButton class="w-full" size="small" @click.stop="onAddParam">
+            <GrowIconify icon="carbon:add" :size="14" class="mr-1" />
+            添加一项
+          </GrowButton>
+        </div>
+      </GrowFormItem>
+
+      <GrowFormItem v-if="model.method !== 'GET'" prop="body">
+        <template #label>
+          <span class="inline-flex items-center gap-1">
+            Body 参数
+            <GrowTooltip
+              content="放入请求体（JSON）；GET 不可用；value 可填固定值，或绑定数据源 / 属性计算"
+              placement="top"
+            >
+              <GrowIconify
+                icon="carbon:help"
+                :size="14"
+                class="cursor-help text-text-secondary"
+              />
+            </GrowTooltip>
+          </span>
+        </template>
+
+        <div class="w-full">
+          <p class="mb-2 mt-0 text-xs leading-5 text-text-secondary">
+            以 JSON 对象写入请求 body；GET 方法不可配置
+          </p>
+          <div
+            v-for="(row, index) in model.body"
+            :key="`body-${index}`"
+            class="mb-2 flex items-center gap-1.5"
+          >
+            <GrowInput v-model="row.key" class="min-w-0 flex-1" placeholder="key" clearable />
+            <PropVariableBind
+              class="min-w-0 flex-1"
+              v-model="row.value"
+              v-model:bind-mode="row.bindMode"
+              placeholder="value 或绑定变量"
+            />
+            <GrowButton text size="small" type="danger" @click.stop="onRemoveBodyParam(index)">
+              <GrowIconify icon="carbon:close" :size="14" />
+            </GrowButton>
+          </div>
+          <GrowButton class="w-full" size="small" @click.stop="onAddBodyParam">
             <GrowIconify icon="carbon:add" :size="14" class="mr-1" />
             添加一项
           </GrowButton>
@@ -117,7 +211,7 @@
 import { ref } from 'vue'
 import { driverRef } from '@grow-admin-rock/components'
 import { loadTypeOptions, methodOptions } from './constants'
-import type { DesignerApiFormModel } from './types'
+import type { DesignerApiFormModel, DesignerApiParam } from './types'
 import ApiProcessors from './ApiProcessors.vue'
 import ApiDefaultData from './ApiDefaultData.vue'
 import PropVariableBind from '../../optionComponent/PropVariableBind/index.vue'
@@ -136,11 +230,33 @@ defineExpose({
   validate: () => driverRef(formRef)?.validate(),
 })
 
+const createEmptyParam = (): DesignerApiParam => ({
+  key: '',
+  value: '',
+  bindMode: PROP_BIND_MODE_TEXT,
+})
+
 const onAddParam = () => {
-  props.model.params.push({ key: '', value: '', bindMode: PROP_BIND_MODE_TEXT })
+  props.model.params.push(createEmptyParam())
 }
 
 const onRemoveParam = (index: number) => {
   props.model.params.splice(index, 1)
+}
+
+const onAddBodyParam = () => {
+  props.model.body.push(createEmptyParam())
+}
+
+const onRemoveBodyParam = (index: number) => {
+  props.model.body.splice(index, 1)
+}
+
+const onAddPathParam = () => {
+  props.model.pathParams.push(createEmptyParam())
+}
+
+const onRemovePathParam = (index: number) => {
+  props.model.pathParams.splice(index, 1)
 }
 </script>

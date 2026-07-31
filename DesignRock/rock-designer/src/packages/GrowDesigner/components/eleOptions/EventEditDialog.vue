@@ -36,7 +36,7 @@
       <div class="event-edit-dialog__editor-head">
         <span>函数体</span>
         <span class="event-edit-dialog__hint">
-          可用参数：event、state、apis
+          可用参数：event、state、apis、refs
         </span>
       </div>
       <div class="event-edit-dialog__editor">
@@ -74,6 +74,8 @@ console.log('event', event)
 console.log('state', state)
 // 调用「数据请求」面板中配置的同名方法
 // await apis.getList()
+// 调用高级面板配置了 Ref 名称的组件实例
+// refs.form?.validate?.()
 // state.user.name = 'Bob'`
 
 const props = defineProps<{

@@ -14,6 +14,9 @@ export const GROW_RUNTIME_STATE = "__growRuntimeState__";
 /** 数据请求方法表（由 apiOutlined 生成，事件中通过 apis.名称() 调用） */
 export const GROW_RUNTIME_APIS = "__growRuntimeApis__";
 
+/** 组件实例 refs 表（由 renderArgument.refName 收集，事件中通过 refs.名称 调用） */
+export const GROW_RUNTIME_REFS = "__growRuntimeRefs__";
+
 export type LayoutMainSize = {
   width: number
   height: number

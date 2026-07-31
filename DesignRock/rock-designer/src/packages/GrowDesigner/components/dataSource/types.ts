@@ -12,7 +12,7 @@ export interface DesignerComputedPropItem {
   id: string
   name: string
   description: string
-  /** 表达式，可使用 state（如 (state.list || []).filter(Boolean)） */
+  /** 函数体，可使用 state，须 return 返回值 */
   code: string
 }
 

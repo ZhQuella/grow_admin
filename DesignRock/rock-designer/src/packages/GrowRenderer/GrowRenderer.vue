@@ -34,7 +34,7 @@ import {
 } from 'vue'
 import RenderNode from './components/RenderNode.vue'
 import type { DesignerSchema } from './types'
-import { GROW_RUNTIME_STATE, GROW_RUNTIME_APIS } from '../GrowDesigner/config/designation'
+import { GROW_RUNTIME_STATE, GROW_RUNTIME_APIS, GROW_RUNTIME_REFS } from '../GrowDesigner/config/designation'
 import { buildRuntimeState, syncRuntimeState } from './utils/resolveBoundProps'
 import {
   recomputeComputedProps,
@@ -47,6 +47,7 @@ import {
 } from './utils/runApiOutlined'
 import { runDesignerEvent } from './utils/runDesignerEvent'
 import { setupPageWatchers } from './utils/runDesignerWatcher'
+import { createRuntimeRefsRegistry } from './utils/runtimeRefs'
 import type { DesignerEventItem } from '../GrowDesigner/static/elementEvents/types'
 import type { DesignerWatcherItem } from '../GrowDesigner/static/pageWatchers'
 
@@ -124,6 +125,10 @@ const apiMethods = computed<ApiOutlinedMethods>(() =>
 )
 provide(GROW_RUNTIME_APIS, apiMethods)
 
+/** 组件实例 refs（高级面板配置 refName 后收集） */
+const refsRegistry = createRuntimeRefsRegistry()
+provide(GROW_RUNTIME_REFS, refsRegistry)
+
 /** 供宿主读取表单双向绑定后的最新 state */
 const getRuntimeState = () => runtimeState
 
@@ -135,6 +140,7 @@ defineExpose({
   getRuntimeState,
   refreshApiOutlined,
   apiMethods,
+  refs: refsRegistry.refs,
 })
 
 const pageStyle = computed(() => {
@@ -162,14 +168,18 @@ const pageWatchers = computed(
 const runPageLifecycle = (eventType: string, event?: unknown) => {
   const item = pageEvents.value?.[eventType]
   if (!item) return
-  void runDesignerEvent(item, event, runtimeState, apiMethods.value)
+  void runDesignerEvent(item, event, runtimeState, apiMethods.value, refsRegistry.refs)
 }
 
 /** 页面 state 监听：配置变更时重建 */
 let stopPageWatchers: WatchStopHandle | null = null
 const rebuildPageWatchers = () => {
   stopPageWatchers?.()
-  stopPageWatchers = setupPageWatchers(pageWatchers.value, runtimeState)
+  stopPageWatchers = setupPageWatchers(
+    pageWatchers.value,
+    runtimeState,
+    refsRegistry.refs,
+  )
 }
 watch(pageWatchers, rebuildPageWatchers, { deep: true, immediate: true })
 
@@ -221,6 +231,7 @@ onBeforeUnmount(() => {
   runPageLifecycle('onBeforeUnmount')
   stopPageWatchers?.()
   stopPageWatchers = null
+  refsRegistry.clear()
   rootObserver?.disconnect()
   rootObserver = null
 })

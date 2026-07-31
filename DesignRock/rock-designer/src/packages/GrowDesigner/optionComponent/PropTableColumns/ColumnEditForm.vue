@@ -264,7 +264,7 @@ const onSortableChange = (value: string | number | null | undefined) => {
   padding: 8px 10px;
   overflow: visible;
   border-radius: 4px;
-  background: var(--layout-background-color, #f5f7fa);
+  background: var(--layout-container-background-color);
 }
 
 .column-edit-form__row {

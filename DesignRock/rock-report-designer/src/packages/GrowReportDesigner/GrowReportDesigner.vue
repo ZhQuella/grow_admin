@@ -120,6 +120,7 @@
                 :cols="gridConfig.cols"
                 :use-style-cursor="true"
                 :transform-scale="gridConfig.transformScale"
+                @layout-updated="clearDragHint"
               >
               <GridItem
                 v-for="item in layout"
@@ -213,7 +214,7 @@
 
       <aside
         v-if="configVisible && configItem"
-        class="absolute bottom-2.5 right-2.5 top-2.5 z-30 box-border flex w-[420px] min-h-0 flex-col overflow-hidden rounded-md border border-solid border-border bg-component shadow-[rgba(0,0,0,0.08)_-4px_0_16px]"
+        class="absolute bottom-2.5 right-2.5 top-2.5 z-30 box-border flex w-[420px] min-h-0 flex-col overflow-hidden rounded-md border border-solid border-border bg-component shadow-card"
         @click.stop
       >
         <div
@@ -251,6 +252,7 @@
 <script setup lang="ts">
 import { computed, defineComponent, nextTick, onBeforeUnmount, onMounted, provide, reactive, ref, watch } from 'vue'
 import { GridItem, GridLayout } from 'vue3-grid-layout'
+import { domEventManager } from '@grow-admin-rock/utils'
 import {
   DesignerDataSourcePanel,
   DesignerComputedPropsPanel,
@@ -298,6 +300,44 @@ const dragHint = ref<{
   sizeText: string
 } | null>(null)
 let blockSeq = 0
+
+/**
+ * vue3-grid-layout 仅在最终尺寸/位置相对开始时发生变化才触发 resized/moved；
+ * 拖拽过程中若中间态已触发 resize/move 显示提示，松手后可能不会发结束事件，导致提示残留。
+ * 因此在显示提示时挂 pointerup/cancel 兜底清除。
+ */
+const DRAG_HINT_END_EVENTS = [
+  'pointerup',
+  'pointercancel',
+  'mouseup',
+  'blur',
+] as const
+
+let dragHintListening = false
+
+const teardownDragHintEndListeners = () => {
+  if (!dragHintListening || typeof window === 'undefined') return
+  domEventManager.remove(window, [...DRAG_HINT_END_EVENTS])
+  dragHintListening = false
+}
+
+const clearDragHint = () => {
+  dragHint.value = null
+  teardownDragHintEndListeners()
+}
+
+const ensureDragHintEndListeners = () => {
+  if (dragHintListening || typeof window === 'undefined') return
+  const onEnd = () => {
+    clearDragHint()
+    // 兜底：resizeend 偶发在 pointerup 之后再触发一次 resize，下一帧再清一次
+    requestAnimationFrame(() => {
+      if (dragHint.value) clearDragHint()
+    })
+  }
+  domEventManager.add(window, [...DRAG_HINT_END_EVENTS], onEnd, { passive: true })
+  dragHintListening = true
+}
 
 const pageData = reactive({
   pageConfig: createDefaultPageConfig() as ReportPageConfig,
@@ -392,19 +432,43 @@ watch(
   },
 )
 
+/** 主题 class 变化时重绘网格描边（SVG data-uri 无法继承页面 CSS 变量） */
+const themeTick = ref(0)
+let themeClassObserver: MutationObserver | null = null
+
 onMounted(() => {
   void setupGridBoardObserver()
+  if (typeof MutationObserver !== 'undefined' && typeof document !== 'undefined') {
+    themeClassObserver = new MutationObserver(() => {
+      themeTick.value += 1
+    })
+    themeClassObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    })
+  }
 })
 
 onBeforeUnmount(() => {
+  clearDragHint()
   gridBoardObserver?.disconnect()
   gridBoardObserver = null
+  themeClassObserver?.disconnect()
+  themeClassObserver = null
 })
 
 /**
  * 按 GridItem.calcPosition（含 Math.round）逐格绘制，避免 CSS 平铺在取整后行列漂移。
  * 虚线框内缩 1px，减少区块边缘露线。
  */
+const resolveGridStrokeColor = () => {
+  if (typeof document === 'undefined') return 'rgba(148, 163, 184, 0.55)'
+  const raw = getComputedStyle(document.documentElement)
+    .getPropertyValue('--layout-border-color')
+    .trim()
+  return raw || 'rgba(148, 163, 184, 0.55)'
+}
+
 const buildExactGridPattern = (
   cols: number,
   rows: number,
@@ -412,6 +476,7 @@ const buildExactGridPattern = (
   mx: number,
   my: number,
   containerWidth: number,
+  strokeColor: string,
 ): { pattern: string; width: number; height: number } => {
   if (cols <= 0 || rows <= 0 || containerWidth <= 0 || rowHeight <= 0) {
     return { pattern: 'none', width: 0, height: 0 }
@@ -436,7 +501,7 @@ const buildExactGridPattern = (
       if (drawW < 2 || drawH < 2) continue
       const radius = Math.min(4, drawW / 6, drawH / 6)
       rects.push(
-        `<rect x="${left + inset}" y="${top + inset}" width="${drawW}" height="${drawH}" rx="${radius}" ry="${radius}" fill="none" stroke="rgba(148,163,184,0.75)" stroke-width="0.5" stroke-dasharray="1.6 1.6" stroke-linecap="round"/>`,
+        `<rect x="${left + inset}" y="${top + inset}" width="${drawW}" height="${drawH}" rx="${radius}" ry="${radius}" fill="none" stroke="${strokeColor}" stroke-width="0.5" stroke-dasharray="1.6 1.6" stroke-linecap="round"/>`,
       )
     }
   }
@@ -452,6 +517,7 @@ const buildExactGridPattern = (
 
 /** 网格与区块同公式对齐：每个虚线框对应一个 1×1 GridItem */
 const gridBackgroundStyle = computed(() => {
+  void themeTick.value
   const { colNum, rowHeight, margin } = gridConfig.value
   const mx = Math.max(margin[0], 0)
   const my = Math.max(margin[1], 0)
@@ -466,7 +532,15 @@ const gridBackgroundStyle = computed(() => {
   const layoutRows = layout.value.reduce((max, item) => Math.max(max, item.y + item.h), 0)
   const heightRows = Math.ceil((Math.max(gridBoardHeight.value, 1) - my) / pitch)
   const rows = Math.max(1, layoutRows, heightRows)
-  const grid = buildExactGridPattern(cols, rows, rowHeight, mx, my, width)
+  const grid = buildExactGridPattern(
+    cols,
+    rows,
+    rowHeight,
+    mx,
+    my,
+    width,
+    resolveGridStrokeColor(),
+  )
   return {
     '--report-grid-svg-w': `${grid.width}px`,
     '--report-grid-svg-h': `${grid.height}px`,
@@ -543,7 +617,7 @@ const variableOptions = computed(() => {
   })
   return [...names].map((name) => ({
     label: `state.${name}`,
-    value: `state.${name}`,
+    value: `return state.${name}`,
   }))
 })
 
@@ -566,6 +640,7 @@ const formatDragHint = (i: string, w: number, h: number) => {
 
 const showDragHint = (i: string, w: number, h: number) => {
   dragHint.value = formatDragHint(i, w, h)
+  ensureDragHintEndListeners()
 }
 
 const onItemMove = (i: string | number) => {
@@ -580,7 +655,7 @@ const onItemResize = (i: string | number, h: number, w: number) => {
 }
 
 const onItemInteractEnd = () => {
-  dragHint.value = null
+  clearDragHint()
 }
 
 const onSelect = (id: string) => {

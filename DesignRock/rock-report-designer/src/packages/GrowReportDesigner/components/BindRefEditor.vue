@@ -21,7 +21,7 @@
         clearable
         list="report-bind-vars"
         :model-value="modelValue?.source || ''"
-        placeholder="如 state.sales"
+        placeholder="如 return state.sales"
         @update:model-value="(v) => emitPatch({ source: String(v ?? '') })"
       />
     </div>

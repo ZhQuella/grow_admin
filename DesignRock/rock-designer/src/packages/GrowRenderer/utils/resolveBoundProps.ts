@@ -1,6 +1,7 @@
 /** 变量绑定：由 dataSource / computedProps 构建 state，并按 propBindModes 求值 */
 
 import { compileDesignerPropFunction } from './runDesignerPropFunction'
+import type { DesignerRuntimeRefs } from './runtimeRefs'
 
 export type DataSourceLike = {
   id?: string
@@ -26,7 +27,7 @@ export const evaluateExpression = (code: string): unknown => {
   }
 }
 
-/** 在 state 上下文中求值计算属性表达式 */
+/** 在 state 上下文中执行计算属性函数体（需 return 返回值） */
 export const evaluateComputedExpression = (
   code: string,
   state: Record<string, unknown>,
@@ -35,7 +36,7 @@ export const evaluateComputedExpression = (
   if (!trimmed) return undefined
   try {
     // eslint-disable-next-line no-new-func
-    return new Function('state', `"use strict"; return (${trimmed});`)(state)
+    return new Function('state', `"use strict";\n${trimmed}`)(state)
   } catch (error) {
     console.warn('[GrowComputedProp]', error)
     return undefined
@@ -78,25 +79,31 @@ export const syncRuntimeState = (
   Object.assign(target, next)
 }
 
-/** 在 state 上下文中求值绑定表达式（如 state.title） */
+/** 在 state 上下文中执行绑定函数体（需 return 返回值，如 return state.title） */
 export const resolveBoundExpression = (
   expr: string,
   state: Record<string, unknown>,
 ): unknown => {
   const trimmed = String(expr ?? '').trim()
   if (!trimmed) return undefined
+  // 纯路径快捷写法：等价于 return state.xxx（报表单行来源、变量点选等）
+  const body = /^state\.([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*)$/.test(trimmed)
+    ? `return ${trimmed}`
+    : trimmed
   try {
     // eslint-disable-next-line no-new-func
-    return new Function('state', `"use strict"; return (${trimmed});`)(state)
+    return new Function('state', `"use strict";\n${body}`)(state)
   } catch {
     return undefined
   }
 }
 
-/** 将 state.user.name 解析为相对 state 的路径段 */
+/** 将 state.user.name / return state.user.name 解析为相对 state 的路径段（供双向写回） */
 export const parseStatePath = (expr: string): string[] | null => {
   const trimmed = String(expr ?? '').trim()
-  const matched = trimmed.match(/^state\.([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*)$/)
+  const matched = trimmed.match(
+    /^(?:return\s+)?state\.([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*)\s*;?\s*$/,
+  )
   if (!matched) return null
   return matched[1].split('.')
 }
@@ -153,10 +160,10 @@ export const formatBoundDisplayValue = (value: unknown): any => {
   return value
 }
 
-/** 是否像 state 绑定表达式（state.xxx / state['xxx']） */
+/** 是否像 state 绑定（state.xxx / return state.xxx / state['xxx']） */
 export const isStateBindExpression = (expr: unknown): boolean => {
   if (typeof expr !== 'string') return false
-  return /^\s*state\s*(\.|\[)/.test(expr)
+  return /^\s*(?:return\s+)?state\s*(\.|\[)/.test(expr)
 }
 
 /** 字段是否应按绑定表达式求值 */
@@ -378,6 +385,7 @@ export const resolveBoundProps = (
   rawProps: Record<string, any> | undefined,
   bindModes: Record<string, string> | undefined,
   state: Record<string, unknown>,
+  refs: DesignerRuntimeRefs = {},
 ): Record<string, any> => {
   const result = { ...(rawProps || {}) }
   const keys = new Set([
@@ -390,7 +398,7 @@ export const resolveBoundProps = (
     if (mode === 'function') {
       const raw = result[key]
       const code = raw == null ? '' : String(raw)
-      const fn = compileDesignerPropFunction(code, state, { modelKey: key })
+      const fn = compileDesignerPropFunction(code, state, { modelKey: key, refs })
       if (fn) result[key] = fn
       else Reflect.deleteProperty(result, key)
       continue

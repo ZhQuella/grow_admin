@@ -18,6 +18,15 @@
           @update:model-value="onNameChange"
         />
       </GrowFormItem>
+      <GrowFormItem label="Ref 名称">
+        <GrowInput
+          class="advanced-config__control w-full"
+          :model-value="currentBasicConfig.refName"
+          clearable
+          placeholder="如 form，事件中可通过 refs.form 调用"
+          @update:model-value="onRefNameChange"
+        />
+      </GrowFormItem>
     </GrowForm>
   </div>
 </template>
@@ -39,6 +48,11 @@ const props = defineProps({
 const onNameChange = (value: string) => {
   if (!props.currentBasicConfig) return
   props.currentBasicConfig.elName = value
+}
+
+const onRefNameChange = (value: string) => {
+  if (!props.currentBasicConfig) return
+  props.currentBasicConfig.refName = value
 }
 </script>
 

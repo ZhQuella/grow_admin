@@ -13,6 +13,7 @@
   <component
     v-if="isBasicLeaf && basicTag"
     :is="basicTag"
+    :ref="setComponentRef"
     v-bind="basicProps"
     :class="nodeClass"
     :style="nodeStyle"
@@ -23,6 +24,7 @@
   <!-- 容器：div -->
   <div
     v-else-if="isChild && tag === 'div'"
+    :ref="setComponentRef"
     v-bind="runtimeEventProps"
     :class="nodeClass"
     :style="nodeStyle"
@@ -67,6 +69,7 @@
   <component
     v-else-if="isChild && tag === 'GrowCard'"
     :is="tag"
+    :ref="setComponentRef"
     v-bind="moduleProps"
     :class="[nodeClass, { 'w-full': isFormFullWidth }]"
     :style="nodeStyle"
@@ -108,6 +111,7 @@
   >
     <component
       :is="tag"
+      :ref="setComponentRef"
       v-bind="scrollbarModuleProps"
       class="grow-scrollbar-host"
     >
@@ -125,6 +129,7 @@
   <!-- GrowLayout：按 layout 预设组装 Header / Aside / Main / Footer -->
   <RenderPageLayout
     v-else-if="isChild && tag === 'GrowLayout'"
+    :ref="setComponentRef"
     :layout="rawProps.layout"
     :header-height="rawProps.headerHeight"
     :aside-width="rawProps.asideWidth"
@@ -171,6 +176,7 @@
   <component
     v-else-if="isChild && tag === 'GrowTooltip'"
     :is="tag"
+    :ref="setComponentRef"
     v-bind="moduleProps"
     :class="nodeClass"
     :style="nodeStyle"
@@ -192,6 +198,7 @@
   <component
     v-else-if="isChild && tag === 'GrowUpload'"
     :is="tag"
+    :ref="setComponentRef"
     v-bind="moduleProps"
     :class="nodeClass"
     :style="nodeStyle"
@@ -217,6 +224,7 @@
   <component
     v-else-if="isChild && tag === 'GrowPopover'"
     :is="tag"
+    :ref="setComponentRef"
     v-bind="popoverModuleProps"
     :class="nodeClass"
     :style="nodeStyle"
@@ -245,6 +253,7 @@
   <component
     v-else-if="isChild && (tag === 'GrowModal' || tag === 'GrowDrawer')"
     :is="tag"
+    :ref="setComponentRef"
     v-bind="moduleProps"
     :class="nodeClass"
     :style="nodeStyle"
@@ -269,6 +278,7 @@
   <component
     v-else-if="isChild && tag"
     :is="tag"
+    :ref="setComponentRef"
     v-bind="moduleProps"
     :class="[nodeClass, { 'w-full': isFormFullWidth }]"
     :style="nodeStyle"
@@ -294,6 +304,7 @@
       <template #default="{ height: watchHeight }">
         <component
           :is="tag"
+          :ref="setComponentRef"
           :key="tableColumnsKey"
           v-bind="tableBaseProps"
           :height="watchHeight > 0 ? watchHeight : undefined"
@@ -309,6 +320,7 @@
   <component
     v-else-if="isModuleLeaf && tag === 'GrowTable'"
     :is="tag"
+    :ref="setComponentRef"
     :key="tableColumnsKey"
     v-bind="moduleProps"
     :class="[nodeClass, { 'w-full': isFormFullWidth }]"
@@ -321,6 +333,7 @@
   <component
     v-else-if="isModuleLeaf && tag"
     :is="tag"
+    :ref="setComponentRef"
     v-bind="moduleProps"
     :class="[nodeClass, { 'w-full': isFormFullWidth }]"
     :style="nodeStyle"
@@ -337,11 +350,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, provide, reactive, unref, type Ref } from 'vue'
+import { computed, inject, onBeforeUnmount, provide, reactive, unref, watch, type Ref } from 'vue'
 import { FORM_MODULE_FULL_WIDTH_TAGS } from '../../GrowDesigner/static/moduleMap'
 import {
   GROW_RUNTIME_STATE,
   GROW_RUNTIME_APIS,
+  GROW_RUNTIME_REFS,
   LAYOUT_MAIN_SIZE,
   type LayoutMainSize,
 } from '../../GrowDesigner/config/designation'
@@ -353,6 +367,7 @@ import {
   resolveBasicText,
   resolveNodeClass,
   resolveNodeStyle,
+  resolveOverlayHostStyle,
   toRendererRelativeSize,
 } from '../utils/normalizeProps'
 import {
@@ -371,6 +386,7 @@ import {
   toColumnBarItems,
 } from '../../GrowDesigner/static/tableColumnUtils'
 import { buildRuntimeEventProps } from '../utils/runDesignerEvent'
+import type { RuntimeRefsRegistry } from '../utils/runtimeRefs'
 import type { ApiOutlinedMethods } from '../utils/runApiOutlined'
 import RenderPageLayout from './RenderPageLayout.vue'
 import RenderScopedState from './RenderScopedState.vue'
@@ -400,6 +416,7 @@ const injectedRuntimeState = inject<Record<string, unknown> | null>(
 const injectedApis = inject<
   ApiOutlinedMethods | Ref<ApiOutlinedMethods> | null
 >(GROW_RUNTIME_APIS, null)
+const refsRegistry = inject<RuntimeRefsRegistry | null>(GROW_RUNTIME_REFS, null)
 const runtimeState = computed(
   () =>
     injectedRuntimeState ??
@@ -408,6 +425,8 @@ const runtimeState = computed(
 const runtimeApis = computed<ApiOutlinedMethods>(
   () => unref(injectedApis) || {},
 )
+const runtimeRefs = computed(() => refsRegistry?.refs || {})
+
 /** 按 propBindModes 求值后的 props（绑定字段已解析为展示值） */
 const rawProps = computed(() => {
   const state = runtimeState.value
@@ -423,6 +442,7 @@ const rawProps = computed(() => {
     props.schema.props?.[uuid.value] || {},
     props.schema.propBindModes?.[uuid.value],
     state,
+    runtimeRefs.value,
   )
 })
 
@@ -437,8 +457,59 @@ const runtimeEventProps = computed(() =>
     props.schema.events?.[uuid.value] as any,
     runtimeState.value,
     runtimeApis.value,
+    runtimeRefs.value,
   ),
 )
+
+/** 高级面板 refName：有值才收集组件实例到 refs */
+const boundRef = {
+  name: '',
+  instance: null as unknown,
+}
+
+const resolveConfiguredRefName = () =>
+  String(config.value?.refName ?? '').trim()
+
+const clearBoundRef = () => {
+  if (!refsRegistry || !boundRef.name || boundRef.instance == null) {
+    boundRef.name = ''
+    boundRef.instance = null
+    return
+  }
+  refsRegistry.unregister(boundRef.name, uuid.value, boundRef.instance)
+  boundRef.name = ''
+  boundRef.instance = null
+}
+
+const setComponentRef = (el: unknown) => {
+  const name = resolveConfiguredRefName()
+  if (boundRef.instance != null && (el == null || el !== boundRef.instance || name !== boundRef.name)) {
+    clearBoundRef()
+  }
+  if (el == null || !name || !refsRegistry) return
+  refsRegistry.register(name, uuid.value, el)
+  boundRef.name = name
+  boundRef.instance = el
+}
+
+watch(
+  () => resolveConfiguredRefName(),
+  (name) => {
+    if (boundRef.instance == null || !refsRegistry) return
+    if (boundRef.name && boundRef.name !== name) {
+      refsRegistry.unregister(boundRef.name, uuid.value, boundRef.instance)
+      boundRef.name = ''
+    }
+    if (name) {
+      refsRegistry.register(name, uuid.value, boundRef.instance)
+      boundRef.name = name
+    }
+  },
+)
+
+onBeforeUnmount(() => {
+  clearBoundRef()
+})
 
 const rawStyles = computed(() => props.schema.styles?.[uuid.value])
 
@@ -620,7 +691,13 @@ const popoverModuleProps = computed(() => {
   }
 })
 
-const nodeStyle = computed(() => resolveNodeStyle(rawStyles.value))
+const nodeStyle = computed(() => {
+  const styles = rawStyles.value
+  if (tag.value === 'GrowModal' || tag.value === 'GrowDrawer') {
+    return resolveOverlayHostStyle(styles)
+  }
+  return resolveNodeStyle(styles)
+})
 const nodeClass = computed(() => resolveNodeClass(rawStyles.value))
 const scrollbarBodyStyle = computed(() => {
   const height = toRendererRelativeSize(rawProps.value?.height)

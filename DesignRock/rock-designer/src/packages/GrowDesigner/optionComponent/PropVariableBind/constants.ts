@@ -1,15 +1,17 @@
 /** 变量绑定配置 */
 
-import { DATA_EXAMPLE_CODE } from '../../components/shared/dataExample'
-
 export const BIND_PREFIX = 'state.'
 
-/** 与数据源示例一致，并补充数据源引用写法 */
-export const BIND_EXAMPLE_CODE = `数据源: state.xxx
-计算属性: state.yyy
-循环当前项: state.item / state.item.name
-循环索引: state.index
-${DATA_EXAMPLE_CODE}`
+/** 函数体示例：须 return 返回绑定值 */
+export const BIND_EXAMPLE_CODE = `// 直接绑定
+return state.xxx
+
+// 多行计算
+const list = state.list || []
+return list.filter((item) => item.enabled)
+
+// 循环当前项: return state.item / return state.item.name
+// 循环索引: return state.index`
 
 export type VariableListItem = {
   key: string

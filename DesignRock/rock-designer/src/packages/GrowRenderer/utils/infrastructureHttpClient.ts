@@ -51,12 +51,11 @@ export const createInfrastructureHttpClient = (
     const requestConfig: Record<string, unknown> = {
       url: config.url,
       headers: config.headers,
+      params: config.params,
     }
 
-    if (method === 'get' || method === 'delete') {
-      requestConfig.params = config.params
-    } else {
-      requestConfig.data = config.data ?? config.params
+    if (method !== 'get' && config.data != null) {
+      requestConfig.data = config.data
     }
 
     return axios[method](requestConfig)
