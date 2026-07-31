@@ -27,6 +27,8 @@ export const createDefaultApiForm = (): DesignerApiFormModel => ({
   url: '',
   method: 'GET',
   params: [],
+  body: [],
+  pathParams: [],
   shouldFetch: true,
   processors: [],
   defaultData: '',

@@ -5,7 +5,7 @@
  * - processors: willFetch / fit / didFetch / onError
  */
 
-import type { DesignerApiOutlinedItem, DesignerApiProcessor } from '../../GrowDesigner/components/apiOutlined/types'
+import type { DesignerApiOutlinedItem, DesignerApiParam, DesignerApiProcessor } from '../../GrowDesigner/components/apiOutlined/types'
 import {
   normalizePropBindMode,
   PROP_BIND_MODE_BIND,
@@ -61,9 +61,9 @@ const findProcessor = (
   type: DesignerApiProcessor['type'],
 ) => item.processors?.find((p) => p.type === type)
 
-/** 求值 params 中的 value：bind 模式读 state；text 模式为固定值 */
+/** 求值参数列表中的 value：bind 模式读 state；text 模式为固定值 */
 const resolveParams = (
-  params: DesignerApiOutlinedItem['params'] | undefined,
+  params: DesignerApiParam[] | undefined,
   state: Record<string, unknown>,
 ): Record<string, unknown> => {
   const out: Record<string, unknown> = {}
@@ -102,6 +102,24 @@ const resolveParams = (
   return out
 }
 
+/** 路径占位未传递：null / undefined / "" */
+const isPathValueMissing = (value: unknown) => value == null || value === ''
+
+/**
+ * 将 URL 中的 {key} / {key?} 替换为 pathParams 值。
+ * {key?} 的 ? 仅表示可选语义，运行时与 {key} 相同；未传时替换为空段。
+ */
+export const applyPathParams = (
+  url: string,
+  pathParams: Record<string, unknown>,
+): string => {
+  return String(url || '').replace(/\{([^{}?]+)(\?)?\}/g, (_match, key: string) => {
+    const value = pathParams[key]
+    if (isPathValueMissing(value)) return ''
+    return encodeURIComponent(String(value))
+  })
+}
+
 export const defaultHttpClient: ReportHttpClient = async (config) => {
   const method = config.method || 'GET'
   const url = new URL(config.url, typeof window !== 'undefined' ? window.location.origin : 'http://localhost')
@@ -110,14 +128,14 @@ export const defaultHttpClient: ReportHttpClient = async (config) => {
     ...(config.headers || {}),
   }
 
+  Object.entries(config.params || {}).forEach(([key, value]) => {
+    if (value == null) return
+    url.searchParams.set(key, String(value))
+  })
+
   let body: string | undefined
-  if (method === 'GET' || method === 'DELETE') {
-    Object.entries(config.params || {}).forEach(([key, value]) => {
-      if (value == null) return
-      url.searchParams.set(key, String(value))
-    })
-  } else {
-    body = JSON.stringify(config.data ?? config.params ?? {})
+  if (method !== 'GET' && config.data != null) {
+    body = JSON.stringify(config.data)
   }
 
   const response = await fetch(url.toString(), { method, headers, body })
@@ -206,10 +224,14 @@ export const runSingleApiOutlined = async (
   const url = String(item.url ?? '').trim()
   if (!url) return
 
+  const method = item.method || 'GET'
   let request: ReportHttpRequestConfig = {
-    url,
-    method: item.method || 'GET',
+    url: applyPathParams(url, resolveParams(item.pathParams, state)),
+    method,
     params: resolveParams(item.params, state),
+  }
+  if (method !== 'GET') {
+    request.data = resolveParams(item.body, state)
   }
 
   const willFetch = findProcessor(item, 'willFetch')

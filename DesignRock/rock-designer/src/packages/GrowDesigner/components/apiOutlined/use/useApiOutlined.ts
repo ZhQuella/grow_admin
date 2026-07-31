@@ -33,6 +33,13 @@ export const useApiOutlined = (data: Ref<Record<string, any>>) => {
     },
   })
 
+  const mapParamRows = (rows?: DesignerApiOutlinedItem['params']) =>
+    (rows || []).map((row) => ({
+      key: row.key || '',
+      value: row.value || '',
+      bindMode: row.bindMode || 'text',
+    }))
+
   const assignForm = (item?: DesignerApiOutlinedItem) => {
     const source = item
       ? {
@@ -42,11 +49,9 @@ export const useApiOutlined = (data: Ref<Record<string, any>>) => {
           loadType: item.loadType || 'parallel',
           url: item.url || '',
           method: item.method || 'GET',
-          params: (item.params || []).map((row) => ({
-            key: row.key || '',
-            value: row.value || '',
-            bindMode: row.bindMode || 'text',
-          })),
+          params: mapParamRows(item.params),
+          body: mapParamRows(item.body),
+          pathParams: mapParamRows(item.pathParams),
           shouldFetch: item.shouldFetch ?? true,
           processors: (item.processors || []).map((row) => ({
             id: row.id,
@@ -103,6 +108,13 @@ export const useApiOutlined = (data: Ref<Record<string, any>>) => {
     }
 
     const list = ensureApiList()
+    const mapSaveParams = (rows: DesignerApiOutlinedItem['params']) =>
+      (rows || []).map((row) => ({
+        key: row.key,
+        value: row.value,
+        bindMode: row.bindMode || 'text',
+      }))
+
     const payload: DesignerApiOutlinedItem = {
       id: editingId.value || nanoid(),
       name,
@@ -111,11 +123,9 @@ export const useApiOutlined = (data: Ref<Record<string, any>>) => {
       loadType: formData.loadType,
       url: formData.url,
       method: formData.method,
-      params: formData.params.map((row) => ({
-        key: row.key,
-        value: row.value,
-        bindMode: row.bindMode || 'text',
-      })),
+      params: mapSaveParams(formData.params),
+      body: mapSaveParams(formData.body),
+      pathParams: mapSaveParams(formData.pathParams),
       shouldFetch: formData.shouldFetch,
       processors: formData.processors.map((row) => ({
         id: row.id,
