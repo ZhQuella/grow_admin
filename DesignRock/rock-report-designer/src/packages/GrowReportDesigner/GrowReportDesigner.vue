@@ -120,6 +120,7 @@
                 :cols="gridConfig.cols"
                 :use-style-cursor="true"
                 :transform-scale="gridConfig.transformScale"
+                @layout-updated="clearDragHint"
               >
               <GridItem
                 v-for="item in layout"
@@ -251,6 +252,7 @@
 <script setup lang="ts">
 import { computed, defineComponent, nextTick, onBeforeUnmount, onMounted, provide, reactive, ref, watch } from 'vue'
 import { GridItem, GridLayout } from 'vue3-grid-layout'
+import { domEventManager } from '@grow-admin-rock/utils'
 import {
   DesignerDataSourcePanel,
   DesignerComputedPropsPanel,
@@ -298,6 +300,44 @@ const dragHint = ref<{
   sizeText: string
 } | null>(null)
 let blockSeq = 0
+
+/**
+ * vue3-grid-layout 仅在最终尺寸/位置相对开始时发生变化才触发 resized/moved；
+ * 拖拽过程中若中间态已触发 resize/move 显示提示，松手后可能不会发结束事件，导致提示残留。
+ * 因此在显示提示时挂 pointerup/cancel 兜底清除。
+ */
+const DRAG_HINT_END_EVENTS = [
+  'pointerup',
+  'pointercancel',
+  'mouseup',
+  'blur',
+] as const
+
+let dragHintListening = false
+
+const teardownDragHintEndListeners = () => {
+  if (!dragHintListening || typeof window === 'undefined') return
+  domEventManager.remove(window, [...DRAG_HINT_END_EVENTS])
+  dragHintListening = false
+}
+
+const clearDragHint = () => {
+  dragHint.value = null
+  teardownDragHintEndListeners()
+}
+
+const ensureDragHintEndListeners = () => {
+  if (dragHintListening || typeof window === 'undefined') return
+  const onEnd = () => {
+    clearDragHint()
+    // 兜底：resizeend 偶发在 pointerup 之后再触发一次 resize，下一帧再清一次
+    requestAnimationFrame(() => {
+      if (dragHint.value) clearDragHint()
+    })
+  }
+  domEventManager.add(window, [...DRAG_HINT_END_EVENTS], onEnd, { passive: true })
+  dragHintListening = true
+}
 
 const pageData = reactive({
   pageConfig: createDefaultPageConfig() as ReportPageConfig,
@@ -410,6 +450,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  clearDragHint()
   gridBoardObserver?.disconnect()
   gridBoardObserver = null
   themeClassObserver?.disconnect()
@@ -599,6 +640,7 @@ const formatDragHint = (i: string, w: number, h: number) => {
 
 const showDragHint = (i: string, w: number, h: number) => {
   dragHint.value = formatDragHint(i, w, h)
+  ensureDragHintEndListeners()
 }
 
 const onItemMove = (i: string | number) => {
@@ -613,7 +655,7 @@ const onItemResize = (i: string | number, h: number, w: number) => {
 }
 
 const onItemInteractEnd = () => {
-  dragHint.value = null
+  clearDragHint()
 }
 
 const onSelect = (id: string) => {
