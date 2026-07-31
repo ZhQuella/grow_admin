@@ -367,6 +367,7 @@ import {
   resolveBasicText,
   resolveNodeClass,
   resolveNodeStyle,
+  resolveOverlayHostStyle,
   toRendererRelativeSize,
 } from '../utils/normalizeProps'
 import {
@@ -690,7 +691,13 @@ const popoverModuleProps = computed(() => {
   }
 })
 
-const nodeStyle = computed(() => resolveNodeStyle(rawStyles.value))
+const nodeStyle = computed(() => {
+  const styles = rawStyles.value
+  if (tag.value === 'GrowModal' || tag.value === 'GrowDrawer') {
+    return resolveOverlayHostStyle(styles)
+  }
+  return resolveNodeStyle(styles)
+})
 const nodeClass = computed(() => resolveNodeClass(rawStyles.value))
 const scrollbarBodyStyle = computed(() => {
   const height = toRendererRelativeSize(rawProps.value?.height)

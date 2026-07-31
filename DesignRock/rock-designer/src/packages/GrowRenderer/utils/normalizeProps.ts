@@ -248,6 +248,22 @@ export function resolveNodeStyle(
   return rest
 }
 
+/**
+ * 弹窗/抽屉：width/height 为 auto 时改为 fit-content，避免被布局撑成通屏。
+ */
+export function resolveOverlayHostStyle(
+  styles: Record<string, any> | undefined,
+): Record<string, any> {
+  const style = { ...resolveNodeStyle(styles) }
+  if (String(style.width) === 'auto') {
+    style.width = 'fit-content'
+  }
+  if (String(style.height) === 'auto') {
+    style.height = 'fit-content'
+  }
+  return style
+}
+
 export function resolveNodeClass(
   styles: Record<string, any> | undefined,
 ): string | undefined {

@@ -15,6 +15,7 @@
     <GrowScrollbar class="ele-options__scroll">
       <component
         :is="renderConfigComponent"
+        :key="`${tabModel}-${activeUUID}`"
         :activeUUID="activeUUID"
         :currentBasicConfig="currentBasicConfig"
         :currentPropsConfig="currentPropsConfig"

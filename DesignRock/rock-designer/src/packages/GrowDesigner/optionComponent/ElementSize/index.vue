@@ -209,8 +209,9 @@ const parseUnit = (value: unknown, fallback = 'px') => {
 watch(
   styleOption,
   (styles) => {
-    widthUnit.value = parseUnit(styles?.width, widthUnit.value)
-    heightUnit.value = parseUnit(styles?.height, heightUnit.value)
+    // 切换选中组件时按当前样式重置单位，勿沿用上一组件的 unit
+    widthUnit.value = parseUnit(styles?.width, 'px')
+    heightUnit.value = parseUnit(styles?.height, 'px')
   },
   { immediate: true, deep: true },
 )
