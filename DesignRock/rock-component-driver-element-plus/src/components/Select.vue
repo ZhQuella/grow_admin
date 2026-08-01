@@ -6,7 +6,13 @@
       :key="String(item.value)"
       :label="item.label"
       :value="item.value"
-    />
+    >
+      <div v-if="item.description" class="grow-select-option">
+        <span class="grow-select-option__label">{{ item.label }}</span>
+        <span class="grow-select-option__desc">{{ item.description }}</span>
+      </div>
+      <template v-else>{{ item.label }}</template>
+    </ElOption>
   </ElSelect>
 </template>
 
@@ -16,7 +22,11 @@ import { ElSelect, ElOption } from 'element-plus'
 
 defineOptions({ name: 'ElSelect' })
 
-type SelectOption = { label: string; value: string | number | boolean }
+type SelectOption = {
+  label: string
+  value: string | number | boolean
+  description?: string
+}
 
 const attrs = useAttrs()
 
@@ -30,3 +40,24 @@ const selectAttrs = computed(() => {
   return rest
 })
 </script>
+
+<style scoped>
+.grow-select-option {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px 0;
+  line-height: 1.3;
+}
+
+.grow-select-option__label {
+  color: var(--el-text-color-primary);
+  font-size: 13px;
+}
+
+.grow-select-option__desc {
+  color: var(--el-text-color-secondary);
+  font-size: 11px;
+  white-space: normal;
+}
+</style>

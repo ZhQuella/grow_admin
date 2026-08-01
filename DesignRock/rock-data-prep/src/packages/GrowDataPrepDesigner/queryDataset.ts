@@ -9,7 +9,14 @@ import type {
   DatasetQueryResult,
 } from './types'
 import { sourceTableRowsKey } from './types'
-import { parseFieldKey } from './factories'
+import {
+  DATA_PREP_AGG_LABELS,
+  isCompareAgg,
+  isCompareRateAgg,
+  isDerivedAgg,
+  measureOutputKey,
+  parseFieldKey,
+} from './factories'
 
 export function mergeSchemaBundlesToRowsMap(
   bundles: DataPrepSchemaBundle[],
@@ -39,15 +46,387 @@ const toNumber = (value: unknown): number => {
 }
 
 function aggregateValues(values: unknown[], agg: DataPrepAgg): number {
-  if (agg === 'count') return values.length
-  if (agg === 'count_distinct') return new Set(values.map((v) => String(v))).size
+  // 占比 / 累计 / 同比环比等在分组结果上二次计算，此处先按求和取基数
+  const effective = isDerivedAgg(agg) ? 'sum' : agg
+  if (effective === 'count') return values.length
+  if (effective === 'count_distinct') return new Set(values.map((v) => String(v))).size
   const nums = values.map(toNumber)
   if (!nums.length) return 0
-  if (agg === 'sum') return nums.reduce((a, b) => a + b, 0)
-  if (agg === 'avg') return nums.reduce((a, b) => a + b, 0) / nums.length
-  if (agg === 'max') return Math.max(...nums)
-  if (agg === 'min') return Math.min(...nums)
+  if (effective === 'sum') return nums.reduce((a, b) => a + b, 0)
+  if (effective === 'avg') return nums.reduce((a, b) => a + b, 0) / nums.length
+  if (effective === 'max') return Math.max(...nums)
+  if (effective === 'min') return Math.min(...nums)
   return 0
+}
+
+type PeriodUnit = 'day' | 'month' | 'quarter' | 'year'
+
+type ParsedPeriod = {
+  unit: PeriodUnit
+  year: number
+  month: number
+  day: number
+  quarter: number
+  /** 规范化键，用于查找同期 */
+  key: string
+}
+
+function pad2(n: number) {
+  return String(n).padStart(2, '0')
+}
+
+function periodKey(unit: PeriodUnit, year: number, month: number, day: number, quarter: number) {
+  if (unit === 'year') return `${year}`
+  if (unit === 'quarter') return `${year}-Q${quarter}`
+  if (unit === 'month') return `${year}-${pad2(month)}`
+  return `${year}-${pad2(month)}-${pad2(day)}`
+}
+
+/** 解析常见时间维度：YYYY / YYYY-MM / YYYY-MM-DD / YYYY-Qn / 2024年1月 */
+export function parsePeriod(value: unknown): ParsedPeriod | null {
+  const raw = String(value ?? '').trim()
+  if (!raw) return null
+
+  let m = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (m) {
+    const year = Number(m[1])
+    const month = Number(m[2])
+    const day = Number(m[3])
+    if (month < 1 || month > 12 || day < 1 || day > 31) return null
+    return {
+      unit: 'day',
+      year,
+      month,
+      day,
+      quarter: Math.ceil(month / 3),
+      key: periodKey('day', year, month, day, 0),
+    }
+  }
+
+  m = raw.match(/^(\d{4})-(\d{2})$/)
+  if (m) {
+    const year = Number(m[1])
+    const month = Number(m[2])
+    if (month < 1 || month > 12) return null
+    return {
+      unit: 'month',
+      year,
+      month,
+      day: 1,
+      quarter: Math.ceil(month / 3),
+      key: periodKey('month', year, month, 1, 0),
+    }
+  }
+
+  m = raw.match(/^(\d{4})-[Qq]([1-4])$/)
+  if (m) {
+    const year = Number(m[1])
+    const quarter = Number(m[2])
+    const month = (quarter - 1) * 3 + 1
+    return {
+      unit: 'quarter',
+      year,
+      month,
+      day: 1,
+      quarter,
+      key: periodKey('quarter', year, month, 1, quarter),
+    }
+  }
+
+  m = raw.match(/^(\d{4})$/)
+  if (m) {
+    const year = Number(m[1])
+    return {
+      unit: 'year',
+      year,
+      month: 1,
+      day: 1,
+      quarter: 1,
+      key: periodKey('year', year, 1, 1, 1),
+    }
+  }
+
+  m = raw.match(/^(\d{4})年(?:(\d{1,2})月)?(?:(\d{1,2})日)?$/)
+  if (m) {
+    const year = Number(m[1])
+    const month = m[2] ? Number(m[2]) : 0
+    const day = m[3] ? Number(m[3]) : 0
+    if (day) {
+      return {
+        unit: 'day',
+        year,
+        month,
+        day,
+        quarter: Math.ceil(month / 3),
+        key: periodKey('day', year, month, day, 0),
+      }
+    }
+    if (month) {
+      return {
+        unit: 'month',
+        year,
+        month,
+        day: 1,
+        quarter: Math.ceil(month / 3),
+        key: periodKey('month', year, month, 1, 0),
+      }
+    }
+    return {
+      unit: 'year',
+      year,
+      month: 1,
+      day: 1,
+      quarter: 1,
+      key: periodKey('year', year, 1, 1, 1),
+    }
+  }
+
+  return null
+}
+
+function shiftPeriod(period: ParsedPeriod, mode: 'yoy' | 'mom'): ParsedPeriod {
+  if (mode === 'yoy') {
+    const year = period.year - 1
+    return {
+      ...period,
+      year,
+      key: periodKey(period.unit, year, period.month, period.day, period.quarter),
+    }
+  }
+
+  // 环比：上一日 / 上一月 / 上一季 / 上一年
+  if (period.unit === 'year') {
+    const year = period.year - 1
+    return { ...period, year, key: periodKey('year', year, 1, 1, 1) }
+  }
+  if (period.unit === 'quarter') {
+    let { year, quarter } = period
+    quarter -= 1
+    if (quarter < 1) {
+      quarter = 4
+      year -= 1
+    }
+    const month = (quarter - 1) * 3 + 1
+    return {
+      unit: 'quarter',
+      year,
+      month,
+      day: 1,
+      quarter,
+      key: periodKey('quarter', year, month, 1, quarter),
+    }
+  }
+  if (period.unit === 'month') {
+    let { year, month } = period
+    month -= 1
+    if (month < 1) {
+      month = 12
+      year -= 1
+    }
+    return {
+      unit: 'month',
+      year,
+      month,
+      day: 1,
+      quarter: Math.ceil(month / 3),
+      key: periodKey('month', year, month, 1, 0),
+    }
+  }
+  const date = new Date(period.year, period.month - 1, period.day)
+  date.setDate(date.getDate() - 1)
+  const year = date.getFullYear()
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  return {
+    unit: 'day',
+    year,
+    month,
+    day,
+    quarter: Math.ceil(month / 3),
+    key: periodKey('day', year, month, day, 0),
+  }
+}
+
+function growthRate(current: number, previous: number | null | undefined): number | null {
+  if (previous == null || !Number.isFinite(previous) || previous === 0) return null
+  if (!Number.isFinite(current)) return null
+  return (current - previous) / previous
+}
+
+function growthDiff(current: number, previous: number | null | undefined): number | null {
+  if (previous == null || !Number.isFinite(previous)) return null
+  if (!Number.isFinite(current)) return null
+  return current - previous
+}
+
+function compareKind(agg: DataPrepAgg): 'yoy' | 'mom' {
+  return agg === 'yoy' || agg === 'yoy_diff' ? 'yoy' : 'mom'
+}
+
+function sortRowsBySeriesAndTime(
+  resultRows: Record<string, unknown>[],
+  seriesDims: DataPrepDataset['dimensions'],
+  orderDim: DataPrepDataset['dimensions'][number],
+) {
+  return [...resultRows].sort((a, b) => {
+    const seriesA = seriesDims.map((d) => String(a[d.id] ?? '')).join('\u0001')
+    const seriesB = seriesDims.map((d) => String(b[d.id] ?? '')).join('\u0001')
+    if (seriesA !== seriesB) return seriesA.localeCompare(seriesB, 'zh-CN')
+    const pa = parsePeriod(a[orderDim.id])
+    const pb = parsePeriod(b[orderDim.id])
+    if (pa && pb) return pa.key.localeCompare(pb.key)
+    return String(a[orderDim.id] ?? '').localeCompare(String(b[orderDim.id] ?? ''), 'zh-CN')
+  })
+}
+
+function resolveTimeLayout(
+  resultRows: Record<string, unknown>[],
+  dimensions: DataPrepDataset['dimensions'],
+) {
+  const timeDimIndex = dimensions.findIndex((d) =>
+    resultRows.some((row) => parsePeriod(row[d.id])),
+  )
+  const timeDim = timeDimIndex >= 0 ? dimensions[timeDimIndex] : null
+  const seriesDims = timeDim
+    ? dimensions.filter((d) => d.id !== timeDim.id)
+    : dimensions.slice(1)
+  const orderDim = timeDim || dimensions[0]
+  return { timeDim, seriesDims, orderDim }
+}
+
+/**
+ * 同比 / 环比（比率或差值）。
+ * - 优先用可解析的时间维度定位对比期
+ * - 时间维度无法解析时：环比类取同系列排序相邻上期；同比类无法计算则为 null
+ */
+function applyCompareMeasures(
+  resultRows: Record<string, unknown>[],
+  dimensions: DataPrepDataset['dimensions'],
+  measures: DataPrepDataset['measures'],
+): Record<string, unknown>[] {
+  const compareMeasures = measures.filter((m) => isCompareAgg(m.agg))
+  if (!compareMeasures.length || !resultRows.length || !dimensions.length) {
+    return resultRows
+  }
+
+  const { seriesDims, orderDim } = resolveTimeLayout(resultRows, dimensions)
+  const sorted = sortRowsBySeriesAndTime(resultRows, seriesDims, orderDim)
+
+  type LookupEntry = { row: Record<string, unknown>; period: ParsedPeriod | null }
+  const bySeriesPeriod = new Map<string, LookupEntry>()
+  const seriesBucket = new Map<string, LookupEntry[]>()
+
+  for (const row of sorted) {
+    const seriesKey = seriesDims.map((d) => String(row[d.id] ?? '')).join('\u0001')
+    const period = parsePeriod(row[orderDim.id])
+    const entry: LookupEntry = { row, period }
+    if (period) {
+      bySeriesPeriod.set(`${seriesKey}\u0001${period.key}`, entry)
+    }
+    const list = seriesBucket.get(seriesKey)
+    if (list) list.push(entry)
+    else seriesBucket.set(seriesKey, [entry])
+  }
+
+  return sorted.map((row) => {
+    const next = { ...row }
+    const seriesKey = seriesDims.map((d) => String(row[d.id] ?? '')).join('\u0001')
+    const period = parsePeriod(row[orderDim.id])
+
+    for (const measure of compareMeasures) {
+      const key = measureOutputKey(measure)
+      const current = toNumber(row[key])
+      let previous: number | null = null
+      const kind = compareKind(measure.agg)
+
+      if (period) {
+        const target = shiftPeriod(period, kind)
+        const hit = bySeriesPeriod.get(`${seriesKey}\u0001${target.key}`)
+        if (hit) previous = toNumber(hit.row[key])
+      } else if (kind === 'mom') {
+        const bucket = seriesBucket.get(seriesKey) || []
+        const idx = bucket.findIndex((item) => item.row === row)
+        if (idx > 0) previous = toNumber(bucket[idx - 1].row[key])
+      }
+
+      next[key] = isCompareRateAgg(measure.agg)
+        ? growthRate(current, previous)
+        : growthDiff(current, previous)
+    }
+    return next
+  })
+}
+
+/** 占比：本组求和 / 全部组合计 */
+function applyRatioMeasures(
+  resultRows: Record<string, unknown>[],
+  measures: DataPrepDataset['measures'],
+): Record<string, unknown>[] {
+  const ratioMeasures = measures.filter((m) => m.agg === 'ratio')
+  if (!ratioMeasures.length || !resultRows.length) return resultRows
+
+  const totals = new Map<string, number>()
+  for (const measure of ratioMeasures) {
+    const key = measureOutputKey(measure)
+    totals.set(
+      key,
+      resultRows.reduce((sum, row) => sum + toNumber(row[key]), 0),
+    )
+  }
+
+  return resultRows.map((row) => {
+    const next = { ...row }
+    for (const measure of ratioMeasures) {
+      const key = measureOutputKey(measure)
+      const total = totals.get(key) || 0
+      next[key] = total === 0 ? null : toNumber(row[key]) / total
+    }
+    return next
+  })
+}
+
+/** 累计：同系列按时间（或首维）顺序累加 */
+function applyRunningSumMeasures(
+  resultRows: Record<string, unknown>[],
+  dimensions: DataPrepDataset['dimensions'],
+  measures: DataPrepDataset['measures'],
+): Record<string, unknown>[] {
+  const runningMeasures = measures.filter((m) => m.agg === 'running_sum')
+  if (!runningMeasures.length || !resultRows.length || !dimensions.length) {
+    return resultRows
+  }
+
+  const { seriesDims, orderDim } = resolveTimeLayout(resultRows, dimensions)
+  const sorted = sortRowsBySeriesAndTime(resultRows, seriesDims, orderDim)
+  const acc = new Map<string, number>()
+
+  return sorted.map((row) => {
+    const next = { ...row }
+    const seriesKey = seriesDims.map((d) => String(row[d.id] ?? '')).join('\u0001')
+    for (const measure of runningMeasures) {
+      const outKey = measureOutputKey(measure)
+      const key = `${seriesKey}\u0001${outKey}`
+      const current = toNumber(row[outKey])
+      const nextAcc = (acc.get(key) || 0) + current
+      acc.set(key, nextAcc)
+      next[outKey] = nextAcc
+    }
+    return next
+  })
+}
+
+function applyDerivedMeasures(
+  resultRows: Record<string, unknown>[],
+  dimensions: DataPrepDataset['dimensions'],
+  measures: DataPrepDataset['measures'],
+): Record<string, unknown>[] {
+  let rows = resultRows
+  // 先占比 / 累计（基于原始求和），再同比环比（同样基于原始求和行）
+  // 注意：同比环比查找依赖未改写的求和值，故 compare 内部用原 row 取值
+  rows = applyRatioMeasures(rows, measures)
+  rows = applyRunningSumMeasures(rows, dimensions, measures)
+  rows = applyCompareMeasures(rows, dimensions, measures)
+  return rows
 }
 
 function flattenRow(alias: string, row: Record<string, unknown>): Record<string, unknown> {
@@ -212,8 +591,8 @@ export function queryDatasetLocal(
       role: 'dimension' as const,
     })),
     ...measures.map((m) => ({
-      key: m.id,
-      title: `${m.name}(${m.agg})`,
+      key: measureOutputKey(m),
+      title: `${m.name}(${DATA_PREP_AGG_LABELS[m.agg] || m.agg})`,
       role: 'measure' as const,
     })),
   ]
@@ -228,8 +607,19 @@ export function queryDatasetLocal(
   if (!dimensions.length) {
     const resultRow: Record<string, unknown> = {}
     for (const measure of measures) {
+      const key = measureOutputKey(measure)
+      if (isCompareAgg(measure.agg)) {
+        // 无维度时无法定位对比期
+        resultRow[key] = null
+        continue
+      }
       const values = rows.map((row) => resolveCell(row, measure.field))
-      resultRow[measure.id] = aggregateValues(values, measure.agg)
+      if (measure.agg === 'ratio') {
+        // 仅一行时占比为 100%
+        resultRow[key] = values.length ? 1 : null
+        continue
+      }
+      resultRow[key] = aggregateValues(values, measure.agg)
     }
     return { columns, rows: [resultRow] }
   }
@@ -251,17 +641,12 @@ export function queryDatasetLocal(
     }
     for (const measure of measures) {
       const values = groupRows.map((row) => resolveCell(row, measure.field))
-      resultRow[measure.id] = aggregateValues(values, measure.agg)
+      resultRow[measureOutputKey(measure)] = aggregateValues(values, measure.agg)
     }
     resultRows.push(resultRow)
   }
 
-  if (dimensions[0]) {
-    const dimId = dimensions[0].id
-    resultRows = resultRows.sort((a, b) =>
-      String(a[dimId] ?? '').localeCompare(String(b[dimId] ?? ''), 'zh-CN'),
-    )
-  }
+  resultRows = applyDerivedMeasures(resultRows, dimensions, measures)
 
   const limit = request.limit
   if (limit != null && limit > 0) {

@@ -27,17 +27,27 @@ export type {
 export { sourceTableRowsKey } from './types'
 export {
   DATA_PREP_AGG_OPTIONS,
+  DATA_PREP_AGG_LABELS,
+  getDataPrepAggDescription,
+  isCompareAgg,
+  isCompareRateAgg,
+  isDerivedAgg,
+  isPercentDisplayAgg,
   createDataPrepDataset,
   createDataPrepDimension,
   createDataPrepMeasure,
   createDataPrepSource,
   createDataPrepJoin,
+  measureOutputKey,
+  defaultMeasureOutputKey,
+  ensureUniqueMeasureOutputKey,
   fieldKey,
   parseFieldKey,
   ensureUniqueAlias,
   upsertSchemaRef,
   normalizeSchemaRefs,
 } from './factories'
+export type { DataPrepAggOption } from './factories'
 export {
   createDemoSalesSchemaBundle,
   createDemoRegionSchemaBundle,

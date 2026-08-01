@@ -11,8 +11,6 @@ export type {
   ReportBlockDataBinding,
   ReportDataBindRef,
   ReportDataBindMode,
-  ReportDatasetBinding,
-  ReportDataBindingSourceMode,
 } from './src/packages/GrowReportRenderer'
 export {
   createReportSchema,

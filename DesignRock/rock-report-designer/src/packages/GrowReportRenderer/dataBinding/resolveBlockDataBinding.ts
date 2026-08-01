@@ -35,17 +35,20 @@ export function resolveDataBindRef(
   if (!ref) return undefined
   const source = String(ref.source ?? '').trim()
   if (!source) return undefined
+  const mode = ref.mode || 'bind'
 
   let value: unknown
   try {
-    value = looksLikeBoundScript(source)
-      ? resolveBoundExpression(source, state)
-      : evaluateExpression(source)
+    // code 模式始终按函数体求值；其它模式按内容形态自动判断
+    value =
+      mode === 'code' || looksLikeBoundScript(source)
+        ? resolveBoundExpression(source, state)
+        : evaluateExpression(source)
   } catch {
     value = undefined
   }
 
-  if ((ref.mode || 'bind') === 'bind') return value
+  if (mode !== 'map') return value
 
   const mapped = getBySimplePath(value, ref.mapping?.path)
   const fields = ref.mapping?.fields

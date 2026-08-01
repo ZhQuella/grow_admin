@@ -1,11 +1,20 @@
 export {
   GrowDataPrepDesigner,
   DATA_PREP_AGG_OPTIONS,
+  DATA_PREP_AGG_LABELS,
+  getDataPrepAggDescription,
+  isCompareAgg,
+  isCompareRateAgg,
+  isDerivedAgg,
+  isPercentDisplayAgg,
   createDataPrepDataset,
   createDataPrepDimension,
   createDataPrepMeasure,
   createDataPrepSource,
   createDataPrepJoin,
+  measureOutputKey,
+  defaultMeasureOutputKey,
+  ensureUniqueMeasureOutputKey,
   fieldKey,
   parseFieldKey,
   ensureUniqueAlias,
@@ -34,6 +43,7 @@ export {
 } from './src/packages/GrowDataPrepDesigner'
 export type {
   DataPrepAgg,
+  DataPrepAggOption,
   DataPrepJoinType,
   DataPrepJoinOnLogic,
   DataPrepJoinOnCondition,

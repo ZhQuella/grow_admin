@@ -57,9 +57,16 @@ const emit = defineEmits<{
   close: []
 }>()
 
-const formatCell = (value: unknown) => {
+const isPercentTitle = (title?: string) =>
+  !!title &&
+  (title.endsWith('(占比)') || title.endsWith('(同比)') || title.endsWith('(环比)'))
+
+const formatCell = (value: unknown, title?: string) => {
   if (value == null) return '-'
   if (typeof value === 'number') {
+    if (isPercentTitle(title)) {
+      return `${(value * 100).toFixed(2)}%`
+    }
     return Number.isInteger(value) ? String(value) : value.toFixed(2)
   }
   return String(value)
@@ -76,7 +83,7 @@ const tableData = computed(() =>
   (props.result?.rows || []).map((row) => {
     const next: Record<string, string> = {}
     for (const col of props.result?.columns || []) {
-      next[col.key] = formatCell(row[col.key])
+      next[col.key] = formatCell(row[col.key], col.title)
     }
     return next
   }),
