@@ -63,5 +63,6 @@ export type {
   DataPrepSchemaColumn,
   DataPrepSchemaTable,
   DataPrepSchemaRelation,
+  DataPrepColumnType,
   DataPrepMysqlColumnType,
 } from './src/packages/GrowDataPrepDesigner'

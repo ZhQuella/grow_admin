@@ -44,7 +44,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { RELATION_TYPE_OPTIONS, REFERENTIAL_ACTION_OPTIONS } from '../mysqlTypes'
+import { RELATION_TYPE_OPTIONS, REFERENTIAL_ACTION_OPTIONS } from '../postgresTypes'
 import type { DatabaseSchema, SchemaRelation, SchemaRelationType } from '../types'
 
 defineOptions({

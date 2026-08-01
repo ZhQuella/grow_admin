@@ -71,13 +71,13 @@
           <GrowFormItem label="类型">
             <GrowSelect
               :model-value="col.type"
-              :options="MYSQL_COLUMN_TYPE_OPTIONS"
+              :options="SCHEMA_COLUMN_TYPE_OPTIONS"
               size="small"
               class="w-full"
               @update:model-value="(v) => onTypeChange(col.id, String(v))"
             />
           </GrowFormItem>
-          <GrowFormItem v-if="typeNeedsLength(col.type)" :label="col.type === 'DECIMAL' ? '精度' : '长度'">
+          <GrowFormItem v-if="typeNeedsLength(col.type)" :label="col.type === 'NUMERIC' ? '精度' : '长度'">
             <GrowInputNumber
               :model-value="col.length ?? undefined"
               size="small"
@@ -125,7 +125,7 @@
                   :model-value="col.autoIncrement"
                   @update:model-value="(v) => patchColumn(col.id, { autoIncrement: !!v })"
                 />
-                自增
+                自增 (IDENTITY)
               </label>
               <label class="inline-flex items-center gap-1 text-xs text-text">
                 <GrowCheckbox
@@ -158,14 +158,14 @@
 
 <script setup lang="ts">
 import {
-  MYSQL_COLUMN_TYPE_OPTIONS,
+  SCHEMA_COLUMN_TYPE_OPTIONS,
   MAX_TABLE_NAME_LENGTH,
   MAX_COLUMN_NAME_LENGTH,
   clampIdentifier,
   typeNeedsLength,
   typeNeedsScale,
-} from '../mysqlTypes'
-import type { MysqlColumnType, SchemaColumn, SchemaTable } from '../types'
+} from '../postgresTypes'
+import type { SchemaColumn, SchemaColumnType, SchemaTable } from '../types'
 
 defineOptions({
   name: 'TableConfigPanel',
@@ -197,16 +197,16 @@ const patchColumn = (columnId: string, patch: Partial<SchemaColumn>) => {
 }
 
 const onTypeChange = (columnId: string, typeRaw: string) => {
-  const type = typeRaw as MysqlColumnType
+  const type = typeRaw as SchemaColumnType
   const patch: Partial<SchemaColumn> = { type }
   if (type === 'VARCHAR' || type === 'CHAR') {
     const col = props.table.columns.find((c) => c.id === columnId)
     if (!col?.length) patch.length = 255
-  } else if (type === 'DECIMAL') {
+  } else if (type === 'NUMERIC') {
     const col = props.table.columns.find((c) => c.id === columnId)
     if (!col?.length) patch.length = 10
     if (col?.scale == null) patch.scale = 2
-  } else if (type !== 'DECIMAL') {
+  } else {
     patch.scale = null
     if (type !== 'VARCHAR' && type !== 'CHAR') patch.length = null
   }

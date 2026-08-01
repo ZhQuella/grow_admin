@@ -1,34 +1,33 @@
-import type { MysqlColumnType, SchemaRelationType, SchemaReferentialAction } from './types'
+import type { SchemaColumnType, SchemaRelationType, SchemaReferentialAction } from './types'
 
-/** MySQL 标识符最大长度 */
-export const MAX_TABLE_NAME_LENGTH = 64
-export const MAX_COLUMN_NAME_LENGTH = 64
-export const MAX_DATABASE_NAME_LENGTH = 64
+/** PostgreSQL 标识符最大长度（NAMEDATALEN - 1） */
+export const MAX_TABLE_NAME_LENGTH = 63
+export const MAX_COLUMN_NAME_LENGTH = 63
+export const MAX_DATABASE_NAME_LENGTH = 63
 
 export function clampIdentifier(value: string, maxLength: number): string {
   return String(value ?? '').slice(0, maxLength)
 }
 
-export const MYSQL_COLUMN_TYPE_OPTIONS: { label: string; value: MysqlColumnType }[] = [
-  { label: 'TINYINT', value: 'TINYINT' },
+export const SCHEMA_COLUMN_TYPE_OPTIONS: { label: string; value: SchemaColumnType }[] = [
   { label: 'SMALLINT', value: 'SMALLINT' },
-  { label: 'INT', value: 'INT' },
+  { label: 'INTEGER', value: 'INTEGER' },
   { label: 'BIGINT', value: 'BIGINT' },
-  { label: 'DECIMAL', value: 'DECIMAL' },
-  { label: 'FLOAT', value: 'FLOAT' },
-  { label: 'DOUBLE', value: 'DOUBLE' },
+  { label: 'NUMERIC', value: 'NUMERIC' },
+  { label: 'REAL', value: 'REAL' },
+  { label: 'DOUBLE PRECISION', value: 'DOUBLE PRECISION' },
   { label: 'VARCHAR', value: 'VARCHAR' },
   { label: 'CHAR', value: 'CHAR' },
   { label: 'TEXT', value: 'TEXT' },
-  { label: 'MEDIUMTEXT', value: 'MEDIUMTEXT' },
-  { label: 'LONGTEXT', value: 'LONGTEXT' },
   { label: 'DATE', value: 'DATE' },
-  { label: 'DATETIME', value: 'DATETIME' },
-  { label: 'TIMESTAMP', value: 'TIMESTAMP' },
   { label: 'TIME', value: 'TIME' },
+  { label: 'TIMESTAMP', value: 'TIMESTAMP' },
+  { label: 'TIMESTAMPTZ', value: 'TIMESTAMPTZ' },
   { label: 'BOOLEAN', value: 'BOOLEAN' },
   { label: 'JSON', value: 'JSON' },
-  { label: 'BLOB', value: 'BLOB' },
+  { label: 'JSONB', value: 'JSONB' },
+  { label: 'BYTEA', value: 'BYTEA' },
+  { label: 'UUID', value: 'UUID' },
 ]
 
 export const RELATION_TYPE_OPTIONS: { label: string; value: SchemaRelationType }[] = [
@@ -50,19 +49,23 @@ export const RELATION_TYPE_LABEL: Record<SchemaRelationType, string> = {
   'many-to-many': 'N:N',
 }
 
-export function typeNeedsLength(type: MysqlColumnType): boolean {
-  return type === 'VARCHAR' || type === 'CHAR' || type === 'DECIMAL'
+export function typeNeedsLength(type: SchemaColumnType): boolean {
+  return type === 'VARCHAR' || type === 'CHAR' || type === 'NUMERIC'
 }
 
-export function typeNeedsScale(type: MysqlColumnType): boolean {
-  return type === 'DECIMAL'
+export function typeNeedsScale(type: SchemaColumnType): boolean {
+  return type === 'NUMERIC'
 }
 
-export function formatColumnType(type: MysqlColumnType, length?: number | null, scale?: number | null): string {
-  if (type === 'DECIMAL') {
+export function formatColumnType(
+  type: SchemaColumnType,
+  length?: number | null,
+  scale?: number | null,
+): string {
+  if (type === 'NUMERIC') {
     const p = length ?? 10
     const s = scale ?? 0
-    return `DECIMAL(${p},${s})`
+    return `NUMERIC(${p},${s})`
   }
   if ((type === 'VARCHAR' || type === 'CHAR') && length) {
     return `${type}(${length})`

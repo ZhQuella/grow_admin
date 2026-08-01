@@ -1,23 +1,23 @@
-export type MysqlColumnType =
-  | 'TINYINT'
+/** PostgreSQL 常用列类型（建模 / 导出） */
+export type SchemaColumnType =
   | 'SMALLINT'
-  | 'INT'
+  | 'INTEGER'
   | 'BIGINT'
-  | 'DECIMAL'
-  | 'FLOAT'
-  | 'DOUBLE'
+  | 'NUMERIC'
+  | 'REAL'
+  | 'DOUBLE PRECISION'
   | 'VARCHAR'
   | 'CHAR'
   | 'TEXT'
-  | 'MEDIUMTEXT'
-  | 'LONGTEXT'
   | 'DATE'
-  | 'DATETIME'
-  | 'TIMESTAMP'
   | 'TIME'
+  | 'TIMESTAMP'
+  | 'TIMESTAMPTZ'
   | 'BOOLEAN'
   | 'JSON'
-  | 'BLOB'
+  | 'JSONB'
+  | 'BYTEA'
+  | 'UUID'
 
 export type SchemaRelationType = 'one-to-one' | 'one-to-many' | 'many-to-many'
 
@@ -26,12 +26,15 @@ export type SchemaReferentialAction = 'CASCADE' | 'SET NULL' | 'RESTRICT' | 'NO 
 export interface SchemaColumn {
   id: string
   name: string
-  type: MysqlColumnType
-  /** VARCHAR / CHAR 长度；DECIMAL 精度 */
+  type: SchemaColumnType
+  /** VARCHAR / CHAR 长度；NUMERIC 精度 */
   length?: number | null
-  /** DECIMAL 小数位 */
+  /** NUMERIC 小数位 */
   scale?: number | null
   primaryKey: boolean
+  /**
+   * 自增：对应 PostgreSQL IDENTITY / SERIAL 语义（非 MySQL AUTO_INCREMENT）
+   */
   autoIncrement: boolean
   unique: boolean
   nullable: boolean
@@ -76,7 +79,7 @@ export interface SchemaSqlQuery {
 
 export interface DatabaseSchema {
   version: 1
-  dialect: 'mysql'
+  dialect: 'postgresql'
   name: string
   comment?: string
   tables: SchemaTable[]

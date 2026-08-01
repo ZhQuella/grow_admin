@@ -6,7 +6,7 @@ export type {
   SchemaRelation,
   SchemaRelationType,
   SchemaSqlQuery,
-  MysqlColumnType,
+  SchemaColumnType,
   SchemaReferentialAction,
 } from './src/packages/GrowSchemaDesigner'
 export {
@@ -15,7 +15,7 @@ export {
   createSchemaColumn,
   createSchemaRelation,
   createSchemaSqlQuery,
-  MYSQL_COLUMN_TYPE_OPTIONS,
+  SCHEMA_COLUMN_TYPE_OPTIONS,
   RELATION_TYPE_OPTIONS,
   MAX_TABLE_NAME_LENGTH,
   MAX_COLUMN_NAME_LENGTH,

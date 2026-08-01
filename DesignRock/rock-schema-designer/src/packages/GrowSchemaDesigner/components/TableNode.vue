@@ -47,7 +47,7 @@
         />
         <div class="schema-table-node__flags">
           <span v-if="col.primaryKey" title="主键">PK</span>
-          <span v-if="col.autoIncrement" title="自增">AI</span>
+          <span v-if="col.autoIncrement" title="自增 (IDENTITY)">AI</span>
           <span v-if="col.unique" title="唯一">UQ</span>
           <span v-if="!col.nullable" title="非空">NN</span>
           <span v-if="col.indexed && !col.primaryKey && !col.unique" title="索引">IX</span>
@@ -69,7 +69,7 @@
 
 <script setup lang="ts">
 import { Handle, Position } from '@vue-flow/core'
-import { formatColumnType } from '../mysqlTypes'
+import { formatColumnType } from '../postgresTypes'
 import type { TableNodeData } from '../flowMapper'
 
 defineOptions({

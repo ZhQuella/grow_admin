@@ -1,9 +1,14 @@
 import { nanoid } from 'nanoid'
-import { clampIdentifier, MAX_COLUMN_NAME_LENGTH, MAX_DATABASE_NAME_LENGTH, MAX_TABLE_NAME_LENGTH } from './mysqlTypes'
+import {
+  clampIdentifier,
+  MAX_COLUMN_NAME_LENGTH,
+  MAX_DATABASE_NAME_LENGTH,
+  MAX_TABLE_NAME_LENGTH,
+} from './postgresTypes'
 import type {
   DatabaseSchema,
-  MysqlColumnType,
   SchemaColumn,
+  SchemaColumnType,
   SchemaRelation,
   SchemaRelationType,
   SchemaSqlQuery,
@@ -13,13 +18,13 @@ import type {
 export function createSchemaColumn(
   patch: Partial<SchemaColumn> & Pick<SchemaColumn, 'name'> = { name: 'column' },
 ): SchemaColumn {
-  const type: MysqlColumnType = patch.type ?? 'VARCHAR'
+  const type: SchemaColumnType = patch.type ?? 'VARCHAR'
   return {
     id: patch.id ?? nanoid(10),
     name: clampIdentifier(patch.name, MAX_COLUMN_NAME_LENGTH),
     type,
-    length: patch.length ?? (type === 'VARCHAR' ? 255 : type === 'DECIMAL' ? 10 : null),
-    scale: patch.scale ?? (type === 'DECIMAL' ? 2 : null),
+    length: patch.length ?? (type === 'VARCHAR' ? 255 : type === 'NUMERIC' ? 10 : null),
+    scale: patch.scale ?? (type === 'NUMERIC' ? 2 : null),
     primaryKey: patch.primaryKey ?? false,
     autoIncrement: patch.autoIncrement ?? false,
     unique: patch.unique ?? false,
@@ -95,7 +100,7 @@ export function createDatabaseSchema(
 ): DatabaseSchema {
   return {
     version: 1,
-    dialect: 'mysql',
+    dialect: 'postgresql',
     name: clampIdentifier(patch.name ?? 'untitled_db', MAX_DATABASE_NAME_LENGTH),
     comment: patch.comment ?? '',
     tables: patch.tables ?? [],

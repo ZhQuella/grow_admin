@@ -14,8 +14,8 @@ function col(
     Pick<DataPrepDatabaseSchema['tables'][number]['columns'][number], 'id' | 'name' | 'type'>,
 ): DataPrepDatabaseSchema['tables'][number]['columns'][number] {
   return {
-    length: patch.length ?? (patch.type === 'VARCHAR' ? 255 : patch.type === 'DECIMAL' ? 10 : null),
-    scale: patch.scale ?? (patch.type === 'DECIMAL' ? 2 : null),
+    length: patch.length ?? (patch.type === 'VARCHAR' ? 255 : patch.type === 'NUMERIC' ? 10 : null),
+    scale: patch.scale ?? (patch.type === 'NUMERIC' ? 2 : null),
     primaryKey: patch.primaryKey ?? false,
     autoIncrement: patch.autoIncrement ?? false,
     unique: patch.unique ?? false,
@@ -102,7 +102,7 @@ export function createDemoSalesSchemaBundle(): DataPrepSchemaBundle {
       col({
         id: AMOUNT_COL,
         name: 'amount',
-        type: 'DECIMAL',
+        type: 'NUMERIC',
         length: 12,
         scale: 2,
         comment: '订单金额',
@@ -110,7 +110,7 @@ export function createDemoSalesSchemaBundle(): DataPrepSchemaBundle {
       col({
         id: QTY_COL,
         name: 'quantity',
-        type: 'INT',
+        type: 'INTEGER',
         length: null,
         comment: '数量',
       }),
@@ -119,7 +119,7 @@ export function createDemoSalesSchemaBundle(): DataPrepSchemaBundle {
 
   const schema: DataPrepDatabaseSchema = {
     version: 1,
-    dialect: 'mysql',
+    dialect: 'postgresql',
     name: 'demo_sales',
     comment: '销售演示库（Mock，格式对齐 Schema 设计器）',
     tables: [customers, orders],
@@ -211,7 +211,7 @@ export function createDemoRegionSchemaBundle(): DataPrepSchemaBundle {
       col({
         id: REG_TARGET,
         name: 'target_amount',
-        type: 'DECIMAL',
+        type: 'NUMERIC',
         length: 12,
         scale: 2,
         comment: '区域目标金额',
@@ -221,7 +221,7 @@ export function createDemoRegionSchemaBundle(): DataPrepSchemaBundle {
 
   const schema: DataPrepDatabaseSchema = {
     version: 1,
-    dialect: 'mysql',
+    dialect: 'postgresql',
     name: 'demo_region',
     comment: '区域主数据建模（Mock，用于跨建模演示）',
     tables: [regions],
