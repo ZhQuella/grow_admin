@@ -57,6 +57,11 @@ export const DESIGNER_ROUTE_STRUCTURES: DesignerRouteStructure[] = [
         name: 'SchemaDesignerPlayground',
         componentKey: 'SchemaDesignerPlayground',
       },
+      {
+        path: 'data-prep-playground',
+        name: 'DataPrepPlayground',
+        componentKey: 'DataPrepPlayground',
+      },
     ],
   },
 ]
@@ -128,12 +133,14 @@ export const DESIGNER_COMPONENT_KEYS = new Set([
   'DesignerPlayground',
   'ReportDesignerPlayground',
   'SchemaDesignerPlayground',
+  'DataPrepPlayground',
 ])
 
 export const DESIGNER_COMPONENT_PAGE_NAMES: Record<string, string> = {
   DesignerPlayground: 'DesignerPlaygroundPage',
   ReportDesignerPlayground: 'ReportDesignerPlaygroundPage',
   SchemaDesignerPlayground: 'SchemaDesignerPlaygroundPage',
+  DataPrepPlayground: 'DataPrepPlaygroundPage',
 }
 
 export function resolveDesignerPageComponentName(componentKey: string): string {

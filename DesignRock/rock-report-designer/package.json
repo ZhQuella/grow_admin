@@ -15,6 +15,7 @@
     "@esmjs/geo": "^1.0.0",
     "@grow-admin-rock/code-sandbox": "workspace:*",
     "@grow-admin-rock/components": "workspace:*",
+    "@grow-admin-rock/data-prep": "workspace:*",
     "@grow-admin-rock/designer": "workspace:*",
     "@grow-admin-rock/hooks": "workspace:*",
     "@grow-admin-rock/utils": "workspace:*",

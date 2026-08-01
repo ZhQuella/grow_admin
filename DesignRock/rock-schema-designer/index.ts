@@ -13,6 +13,7 @@ export {
   createDatabaseSchema,
   createSchemaTable,
   createSchemaColumn,
+  createSchemaRelation,
   createSchemaSqlQuery,
   MYSQL_COLUMN_TYPE_OPTIONS,
   RELATION_TYPE_OPTIONS,
