@@ -152,16 +152,6 @@
             zoomable
           />
         </VueFlow>
-
-        <div
-          v-if="!dataset.sources.length"
-          class="pointer-events-none absolute inset-0 flex items-center justify-center"
-        >
-          <div class="rounded-lg bg-component/90 px-6 py-4 text-center text-sm text-text-secondary shadow">
-            点击「添加表」，可从多个数据建模中选择表；多表请在「关联」中配置 Join
-          </div>
-        </div>
-
       </div>
     </div>
 
