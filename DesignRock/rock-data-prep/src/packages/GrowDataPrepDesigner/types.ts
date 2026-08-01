@@ -8,8 +8,26 @@ export type {
   DataPrepDatabaseSchema,
 } from '../../core/schemaTypes'
 
-/** 聚合函数（Phase 1） */
-export type DataPrepAgg = 'sum' | 'avg' | 'count' | 'count_distinct' | 'max' | 'min'
+/** 聚合 / 计算方式（Phase 1） */
+export type DataPrepAgg =
+  | 'sum'
+  | 'avg'
+  | 'count'
+  | 'count_distinct'
+  | 'max'
+  | 'min'
+  /** 占比：本组求和 / 全部组合计 */
+  | 'ratio'
+  /** 累计：同系列按时间维度累加求和 */
+  | 'running_sum'
+  /** 同比：(本期 - 去年同期) / 去年同期；需时间类维度 */
+  | 'yoy'
+  /** 环比：(本期 - 上期) / 上期；需时间类维度，否则按排序相邻行 */
+  | 'mom'
+  /** 同比差值：本期 - 去年同期 */
+  | 'yoy_diff'
+  /** 环比差值：本期 - 上期 */
+  | 'mom_diff'
 
 export type DataPrepJoinType = 'inner' | 'left' | 'right'
 

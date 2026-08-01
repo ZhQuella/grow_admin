@@ -77,44 +77,48 @@
             <GrowIconify icon="carbon:close" :size="15" />
           </GrowButton>
         </div>
-        <div class="absolute bottom-0 left-0 right-0 top-10 overflow-auto">
-          <FieldRolePanel
-            v-if="sidePanel === 'fields'"
-            :columns="activeColumns"
-            :dimensions="dataset.dimensions"
-            :measures="dataset.measures"
-            @add-dimension="onAddDimension"
-            @add-measure="onAddMeasure"
-            @remove-dimension="onRemoveDimension"
-            @remove-measure="onRemoveMeasure"
-            @update-dimension="onUpdateDimension"
-            @update-measure="onUpdateMeasure"
-          />
-          <JoinPanel
-            v-else-if="sidePanel === 'joins'"
-            :joins="dataset.joins"
-            :sources="dataset.sources"
-            @add="openCreateJoin()"
-            @edit="openEditJoin"
-            @remove="removeJoin"
-          />
-          <div v-else-if="sidePanel === 'meta'" class="px-3 py-3">
-            <GrowForm label-width="72px" label-position="left" size="small" :show-message="false">
-              <GrowFormItem label="名称">
-                <GrowInput v-model="dataset.name" size="small" />
-              </GrowFormItem>
-              <GrowFormItem label="说明">
-                <GrowInput v-model="dataset.description" size="small" type="textarea" :rows="3" />
-              </GrowFormItem>
-            </GrowForm>
-            <div
-              class="mt-3 rounded border border-solid border-border bg-layout px-3 py-2 text-xs text-text-secondary"
-            >
-              <div>建模：{{ schemaRefLabels || '-' }}</div>
-              <div class="mt-1">来源表：{{ dataset.sources.length }}</div>
-              <div class="mt-1">Join：{{ dataset.joins.length }}</div>
-              <div class="mt-1">维度：{{ dataset.dimensions.length }}</div>
-              <div class="mt-1">度量：{{ dataset.measures.length }}</div>
+        <div class="absolute bottom-0 left-0 right-0 top-10 flex min-h-0 flex-col overflow-hidden">
+          <GrowScrollbar v-if="sidePanel === 'fields'" class="min-h-0 h-full flex-1">
+            <FieldRolePanel
+              :columns="activeColumns"
+              :dimensions="dataset.dimensions"
+              :measures="dataset.measures"
+              :source-alias="activeSource?.alias"
+              @add-dimension="toggleDimension"
+              @add-measure="toggleMeasure"
+              @remove-dimension="onRemoveDimension"
+              @remove-measure="onRemoveMeasure"
+              @update-dimension="onUpdateDimension"
+              @update-measure="onUpdateMeasure"
+            />
+          </GrowScrollbar>
+          <div v-else class="min-h-0 flex-1 overflow-auto">
+            <JoinPanel
+              v-if="sidePanel === 'joins'"
+              :joins="dataset.joins"
+              :sources="dataset.sources"
+              @add="openCreateJoin()"
+              @edit="openEditJoin"
+              @remove="removeJoin"
+            />
+            <div v-else-if="sidePanel === 'meta'" class="px-3 py-3">
+              <GrowForm label-width="72px" label-position="left" size="small" :show-message="false">
+                <GrowFormItem label="名称">
+                  <GrowInput v-model="dataset.name" size="small" />
+                </GrowFormItem>
+                <GrowFormItem label="说明">
+                  <GrowInput v-model="dataset.description" size="small" type="textarea" :rows="3" />
+                </GrowFormItem>
+              </GrowForm>
+              <div
+                class="mt-3 rounded border border-solid border-border bg-layout px-3 py-2 text-xs text-text-secondary"
+              >
+                <div>建模：{{ schemaRefLabels || '-' }}</div>
+                <div class="mt-1">来源表：{{ dataset.sources.length }}</div>
+                <div class="mt-1">Join：{{ dataset.joins.length }}</div>
+                <div class="mt-1">维度：{{ dataset.dimensions.length }}</div>
+                <div class="mt-1">度量：{{ dataset.measures.length }}</div>
+              </div>
             </div>
           </div>
         </div>

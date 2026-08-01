@@ -33,6 +33,12 @@ export { sourceTableRowsKey } from '../packages/GrowDataPrepDesigner/types'
 
 export {
   DATA_PREP_AGG_OPTIONS,
+  DATA_PREP_AGG_LABELS,
+  getDataPrepAggDescription,
+  isCompareAgg,
+  isCompareRateAgg,
+  isDerivedAgg,
+  isPercentDisplayAgg,
   createDataPrepDataset,
   createDataPrepDimension,
   createDataPrepMeasure,
@@ -44,6 +50,7 @@ export {
   upsertSchemaRef,
   normalizeSchemaRefs,
 } from '../packages/GrowDataPrepDesigner/factories'
+export type { DataPrepAggOption } from '../packages/GrowDataPrepDesigner/factories'
 
 export {
   createDemoSalesSchemaBundle,

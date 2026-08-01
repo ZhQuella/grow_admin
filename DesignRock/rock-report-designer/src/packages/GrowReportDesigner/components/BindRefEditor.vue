@@ -2,70 +2,65 @@
   <div class="flex flex-col gap-2">
     <div class="flex items-center gap-2">
       <span class="w-16 shrink-0 text-xs text-text-secondary">{{ label }}</span>
-      <GrowSelect
-        class="min-w-0 flex-1"
-        size="small"
-        :options="modeOptions"
-        :model-value="mode"
-        @update:model-value="onModeChange"
-      />
+      <div
+        class="report-bind-source min-w-0 flex-1"
+        :class="{ 'is-bound': isCodeBound }"
+      >
+        <GrowInput
+          class="report-bind-source__input"
+          size="small"
+          :clearable="!isCodeBound"
+          :readonly="isCodeBound"
+          :model-value="sourceDisplay"
+          :placeholder="placeholder"
+          @update:model-value="onSourceInput"
+        />
+        <GrowButton
+          class="report-bind-source__bind"
+          size="small"
+          :type="isCodeBound ? 'primary' : 'default'"
+          :title="isCodeBound ? '已绑定，点击编辑表达式' : '绑定变量 / 表达式计算'"
+          @click="openCodeDialog"
+        >
+          <GrowIconify icon="carbon:function" :size="14" />
+        </GrowButton>
+      </div>
     </div>
     <p v-if="describe" class="m-0 pl-[4.5rem] text-[11px] text-text-secondary">
       {{ describe }}
     </p>
-    <div class="flex items-center gap-2">
-      <span class="w-16 shrink-0 text-xs text-text-secondary">来源</span>
-      <GrowInput
-        class="min-w-0 flex-1"
-        size="small"
-        clearable
-        list="report-bind-vars"
-        :model-value="modelValue?.source || ''"
-        placeholder="如 return state.sales"
-        @update:model-value="(v) => emitPatch({ source: String(v ?? '') })"
-      />
-    </div>
-    <div v-if="variableOptions.length" class="flex flex-wrap gap-1 pl-[4.5rem]">
+
+    <div
+      v-if="variableOptions.length && !isCodeBound"
+      class="flex flex-wrap gap-1 pl-[4.5rem]"
+    >
       <button
         v-for="opt in variableOptions"
         :key="opt.value"
         type="button"
         class="rounded border border-solid border-border px-1.5 py-0.5 text-[11px] text-text-secondary hover:border-primary hover:text-primary"
-        @click="emitPatch({ source: opt.value })"
+        :title="opt.value"
+        @click="onPickVariable(opt.value)"
       >
         {{ opt.label }}
       </button>
     </div>
-    <template v-if="mode === 'map'">
-      <div class="flex items-center gap-2">
-        <span class="w-16 shrink-0 text-xs text-text-secondary">路径</span>
-        <GrowInput
-          class="min-w-0 flex-1"
-          size="small"
-          clearable
-          :model-value="modelValue?.mapping?.path || ''"
-          placeholder="如 list / data.rows"
-          @update:model-value="(v) => emitMapping({ path: String(v ?? '') })"
-        />
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="w-16 shrink-0 text-xs text-text-secondary">字段</span>
-        <GrowInput
-          class="min-w-0 flex-1"
-          size="small"
-          clearable
-          :model-value="fieldsText"
-          placeholder="如 name,value（逗号分隔）"
-          @update:model-value="onFieldsChange"
-        />
-      </div>
-    </template>
+
+    <ReportBindCodeDialog
+      v-model:visible="codeDialogVisible"
+      :model-value="modelValue?.source || ''"
+      :bound="isCodeBound"
+      :variables="variableOptions"
+      @confirm="onCodeConfirm"
+      @remove="onCodeRemove"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { ReportDataBindRef } from '../../GrowReportRenderer/dataBinding'
+import ReportBindCodeDialog from './ReportBindCodeDialog.vue'
 
 defineOptions({
   name: 'BindRefEditor',
@@ -77,11 +72,13 @@ const props = withDefaults(
     describe?: string
     modelValue?: ReportDataBindRef | null
     variableOptions?: Array<{ label: string; value: string }>
+    placeholder?: string
   }>(),
   {
     describe: '',
     modelValue: null,
     variableOptions: () => [],
+    placeholder: '请输入或绑定变量',
   },
 )
 
@@ -89,47 +86,100 @@ const emit = defineEmits<{
   'update:modelValue': [value: ReportDataBindRef | undefined]
 }>()
 
-const modeOptions = [
-  { label: '直接绑定', value: 'bind' },
-  { label: '字段映射', value: 'map' },
-]
+const codeDialogVisible = ref(false)
 
-const mode = computed(() => props.modelValue?.mode || 'bind')
+const isCodeBound = computed(() => (props.modelValue?.mode || 'bind') === 'code')
+const sourceDisplay = computed(() => props.modelValue?.source || '')
 
-const fieldsText = computed(() => (props.modelValue?.mapping?.fields || []).join(','))
+const emitValue = (next: ReportDataBindRef | undefined) => {
+  emit('update:modelValue', next)
+}
 
 const emitPatch = (patch: Partial<ReportDataBindRef>) => {
   const next: ReportDataBindRef = {
-    mode: mode.value,
+    mode: props.modelValue?.mode || 'bind',
     source: props.modelValue?.source || '',
     mapping: props.modelValue?.mapping,
     ...patch,
   }
-  if (!String(next.source || '').trim() && next.mode === 'bind' && !next.mapping?.path) {
-    emit('update:modelValue', undefined)
+  if (!String(next.source || '').trim()) {
+    emitValue(undefined)
     return
   }
-  emit('update:modelValue', next)
+  emitValue(next)
 }
 
-const onModeChange = (value: string) => {
-  emitPatch({ mode: value === 'map' ? 'map' : 'bind' })
+const openCodeDialog = () => {
+  codeDialogVisible.value = true
 }
 
-const emitMapping = (patch: Partial<NonNullable<ReportDataBindRef['mapping']>>) => {
-  emitPatch({
-    mapping: {
-      ...(props.modelValue?.mapping || {}),
-      ...patch,
-    },
-  })
+const onSourceInput = (value: string | null) => {
+  if (isCodeBound.value) return
+  const source = value == null ? '' : String(value)
+  if (!source.trim()) {
+    emitValue(undefined)
+    return
+  }
+  emitPatch({ mode: 'bind', source })
 }
 
-const onFieldsChange = (value: unknown) => {
-  const fields = String(value ?? '')
-    .split(/[,，]/)
-    .map((item) => item.trim())
-    .filter(Boolean)
-  emitMapping({ fields })
+const onCodeConfirm = (value: string) => {
+  const next = String(value ?? '').trim()
+  if (!next) {
+    onCodeRemove()
+    return
+  }
+  let source = next
+  if (!/^\s*return\b/.test(source) && /^state\b/.test(source)) {
+    source = `return ${source}`
+  }
+  emitPatch({ mode: 'code', source })
+}
+
+const onCodeRemove = () => {
+  emitValue(undefined)
+}
+
+const onPickVariable = (expression: string) => {
+  const expr = String(expression || '').trim()
+  if (!expr) return
+  emitPatch({ mode: 'bind', source: expr })
 }
 </script>
+
+<style scoped>
+.report-bind-source {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+}
+
+.report-bind-source__input {
+  flex: 1;
+  min-width: 0;
+}
+
+.report-bind-source.is-bound .report-bind-source__input {
+  :deep(.el-input__wrapper),
+  :deep(.n-input),
+  :deep(.ant-input),
+  :deep(input) {
+    cursor: default;
+    background: var(--layout-container-background-color, #f0f2f5);
+  }
+}
+
+.report-bind-source__bind {
+  flex-shrink: 0;
+  padding: 0 8px;
+}
+
+.report-bind-source__bind :deep(.grow-iconify),
+.report-bind-source__bind :deep(svg) {
+  display: block;
+  margin: auto;
+  line-height: 0;
+}
+</style>

@@ -65,7 +65,7 @@
 
       <template v-else>
         <p class="m-0 text-xs text-text-secondary">
-          绑定页面 state（数据源 / 数据请求 / 计算属性）。支持「直接绑定」或「字段映射」。
+          绑定页面 state（数据源 / 数据请求 / 计算属性）。可直接填写，或点 f 用代码绑定。
         </p>
         <div class="text-xs font-medium text-text">坐标轴</div>
         <BindRefEditor
@@ -107,7 +107,7 @@
 
     <template v-else-if="chartType === 'radar'">
       <p class="m-0 text-xs text-text-secondary">
-        绑定页面 state（数据源 / 数据请求 / 计算属性）。支持「直接绑定」或「字段映射」。
+        绑定页面 state（数据源 / 数据请求 / 计算属性）。可直接填写，或点 f 用代码绑定。
       </p>
       <BindRefEditor
         label="指示器"
@@ -142,7 +142,7 @@
 
     <template v-else>
       <p class="m-0 text-xs text-text-secondary">
-        绑定页面 state（数据源 / 数据请求 / 计算属性）。支持「直接绑定」或「字段映射」。
+        绑定页面 state（数据源 / 数据请求 / 计算属性）。可直接填写，或点 f 用代码绑定。
       </p>
       <BindRefEditor
         label="图表 data"
