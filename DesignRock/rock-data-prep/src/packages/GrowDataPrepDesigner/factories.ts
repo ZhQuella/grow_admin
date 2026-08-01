@@ -181,13 +181,47 @@ export function createDataPrepDimension(
   }
 }
 
+/** 查询结果中度量的输出字段名 */
+export function measureOutputKey(measure: Pick<DataPrepMeasure, 'id' | 'outputKey'>): string {
+  const key = measure.outputKey?.trim()
+  return key || measure.id
+}
+
+/** 由来源字段生成默认 outputKey（取 alias.column 的列名） */
+export function defaultMeasureOutputKey(field: string): string {
+  const { column } = parseFieldKey(field)
+  const base = (column || field).replace(/[^\w\u4e00-\u9fa5]+/g, '_') || 'value'
+  return base
+}
+
+export function ensureUniqueMeasureOutputKey(
+  measures: Array<Pick<DataPrepMeasure, 'id' | 'outputKey'>>,
+  base: string,
+  excludeId?: string,
+): string {
+  const used = new Set(
+    measures
+      .filter((m) => m.id !== excludeId)
+      .map((m) => measureOutputKey(m)),
+  )
+  const seed = base.trim() || 'value'
+  if (!used.has(seed)) return seed
+  let i = 2
+  while (used.has(`${seed}_${i}`)) i += 1
+  return `${seed}_${i}`
+}
+
 export function createDataPrepMeasure(
   patch: Partial<DataPrepMeasure> & Pick<DataPrepMeasure, 'name' | 'field'>,
 ): DataPrepMeasure {
+  const id = patch.id ?? nanoid(10)
+  const outputKey =
+    patch.outputKey?.trim() || defaultMeasureOutputKey(patch.field) || id
   return {
-    id: patch.id ?? nanoid(10),
+    id,
     name: patch.name,
     field: patch.field,
+    outputKey,
     agg: patch.agg ?? 'sum',
     format: patch.format,
   }

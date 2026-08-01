@@ -556,13 +556,17 @@ function injectChartData(
 
   if (chartType === 'radar') {
     if (Array.isArray(chartData.seriesData)) {
+      const baseData = Array.isArray(series[0]?.data) ? series[0].data : []
+      // seriesData 可能比配置系列更多：按注入长度补齐
+      const length = Math.max(baseData.length, chartData.seriesData.length)
+      const data = Array.from({ length }, (_, index) => ({
+        ...(baseData[index] || { name: `系列${index + 1}` }),
+        value: chartData.seriesData![index] ?? baseData[index]?.value ?? [],
+      }))
       next.series = [
         {
           ...series[0],
-          data: (series[0]?.data || []).map((row: any, index: number) => ({
-            ...row,
-            value: chartData.seriesData![index] ?? row.value,
-          })),
+          data,
         },
         ...series.slice(1),
       ]

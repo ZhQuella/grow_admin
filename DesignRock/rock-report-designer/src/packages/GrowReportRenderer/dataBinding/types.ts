@@ -23,23 +23,8 @@ export type ReportDataBindRef = {
   }
 }
 
-/** 数据集绑定（笛卡尔图 Phase 1） */
-export type ReportDatasetBinding = {
-  datasetId: string
-  /** 类目维度字段 id → xAxisData */
-  categoryFieldId?: string
-  /** 与 seriesList 下标对齐的度量字段 id */
-  seriesFieldIds?: string[]
-}
-
-export type ReportDataBindingSourceMode = 'state' | 'dataset'
-
 /** 区块数据绑定配置 */
 export type ReportBlockDataBinding = {
-  /** 数据来源：页面 state（默认）或数据准备 Dataset */
-  sourceMode?: ReportDataBindingSourceMode
-  /** sourceMode=dataset 时生效（本版仅笛卡尔图） */
-  dataset?: ReportDatasetBinding
   /** 类目轴 / X 轴 data */
   xAxisData?: ReportDataBindRef
   /** Y 轴类目 data（热力等） */

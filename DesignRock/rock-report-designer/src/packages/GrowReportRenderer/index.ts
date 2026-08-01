@@ -12,8 +12,6 @@ export type {
   ReportBlockDataBinding,
   ReportDataBindRef,
   ReportDataBindMode,
-  ReportDatasetBinding,
-  ReportDataBindingSourceMode,
 } from './types'
 export {
   REPORT_GRID_COL_NUM,

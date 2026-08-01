@@ -286,7 +286,9 @@ import {
   createDataPrepJoin,
   createDataPrepMeasure,
   createDataPrepSource,
+  defaultMeasureOutputKey,
   ensureUniqueAlias,
+  ensureUniqueMeasureOutputKey,
   fieldKey,
   upsertSchemaRef,
 } from './factories'
@@ -788,6 +790,10 @@ function onAddMeasure(columnId: string) {
     createDataPrepMeasure({
       name: col.comment || col.name,
       field,
+      outputKey: ensureUniqueMeasureOutputKey(
+        dataset.measures,
+        defaultMeasureOutputKey(field),
+      ),
       agg: numeric ? 'sum' : 'count',
     }),
   )
@@ -832,7 +838,14 @@ function onUpdateDimension(id: string, patch: Partial<DataPrepDimension>) {
 
 function onUpdateMeasure(id: string, patch: Partial<DataPrepMeasure>) {
   const target = dataset.measures.find((m) => m.id === id)
-  if (target) Object.assign(target, patch)
+  if (!target) return
+  if (patch.outputKey !== undefined) {
+    const nextKey = String(patch.outputKey || '').trim()
+    patch.outputKey = nextKey
+      ? ensureUniqueMeasureOutputKey(dataset.measures, nextKey, id)
+      : defaultMeasureOutputKey(target.field)
+  }
+  Object.assign(target, patch)
 }
 
 async function onPreview() {

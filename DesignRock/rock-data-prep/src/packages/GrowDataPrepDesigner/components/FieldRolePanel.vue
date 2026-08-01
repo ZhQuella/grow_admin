@@ -66,13 +66,13 @@
     </div>
 
     <div class="mb-2 text-xs font-medium text-text">度量</div>
-    <div class="flex flex-col gap-1.5">
+    <div class="flex flex-col gap-2">
       <div
         v-for="item in measures"
         :key="item.id"
-        class="flex flex-col gap-1.5 rounded border border-solid border-border px-2 py-1.5"
+        class="flex flex-col gap-2 rounded border border-solid border-border px-2.5 py-2"
       >
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5">
           <GrowInput
             :model-value="item.name"
             size="small"
@@ -83,24 +83,34 @@
             <GrowIconify icon="carbon:close" :size="14" />
           </GrowButton>
         </div>
-        <div class="flex flex-col gap-1">
-          <div class="flex items-center gap-2">
-            <span class="shrink-0 text-[11px] text-text-secondary">{{ item.field }}</span>
-            <GrowSelect
-              :model-value="item.agg"
-              :options="DATA_PREP_AGG_OPTIONS"
-              size="small"
-              class="min-w-0 flex-1"
-              @update:model-value="(v) => emit('update-measure', item.id, { agg: v as DataPrepAgg })"
-            />
-          </div>
-          <p
-            v-if="getDataPrepAggDescription(item.agg)"
-            class="m-0 text-[11px] leading-snug text-text-secondary"
-          >
-            {{ getDataPrepAggDescription(item.agg) }}
-          </p>
+        <div class="truncate font-mono text-[11px] leading-none text-text-secondary">
+          {{ item.field }}
         </div>
+        <div class="flex items-center gap-2">
+          <span class="shrink-0 text-[11px] text-text-secondary">输出 key</span>
+          <GrowInput
+            :model-value="item.outputKey || ''"
+            size="small"
+            class="min-w-0 flex-1"
+            placeholder="结果对象字段名"
+            @update:model-value="
+              (v) => emit('update-measure', item.id, { outputKey: String(v ?? '').trim() })
+            "
+          />
+        </div>
+        <GrowSelect
+          :model-value="item.agg"
+          :options="DATA_PREP_AGG_OPTIONS"
+          size="small"
+          class="w-full"
+          @update:model-value="(v) => emit('update-measure', item.id, { agg: v as DataPrepAgg })"
+        />
+        <p
+          v-if="getDataPrepAggDescription(item.agg)"
+          class="m-0 text-[11px] leading-relaxed text-text-secondary"
+        >
+          {{ getDataPrepAggDescription(item.agg) }}
+        </p>
       </div>
       <div v-if="!measures.length" class="text-xs text-text-secondary">暂无度量</div>
     </div>

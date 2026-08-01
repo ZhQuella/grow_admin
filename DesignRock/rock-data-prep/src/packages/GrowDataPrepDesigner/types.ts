@@ -79,6 +79,11 @@ export type DataPrepMeasure = {
   name: string
   /** alias.column */
   field: string
+  /**
+   * 查询结果行对象中的字段名。
+   * 缺省时回退为 `id`。
+   */
+  outputKey?: string
   agg: DataPrepAgg
   format?: 'number' | 'percent' | 'currency'
 }

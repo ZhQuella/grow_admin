@@ -26,8 +26,6 @@ export type {
   ReportBlockDataBinding,
   ReportDataBindRef,
   ReportDataBindMode,
-  ReportDatasetBinding,
-  ReportDataBindingSourceMode,
 } from './dataBinding'
 
 export type ReportLayoutItem = {

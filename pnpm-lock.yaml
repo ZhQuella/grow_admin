@@ -832,9 +832,6 @@ importers:
       '@grow-admin-rock/components':
         specifier: workspace:*
         version: link:../rock-components
-      '@grow-admin-rock/data-prep':
-        specifier: workspace:*
-        version: link:../rock-data-prep
       '@grow-admin-rock/designer':
         specifier: workspace:*
         version: link:../rock-designer

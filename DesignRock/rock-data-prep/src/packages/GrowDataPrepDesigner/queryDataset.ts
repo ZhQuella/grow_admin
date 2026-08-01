@@ -14,6 +14,7 @@ import {
   isCompareAgg,
   isCompareRateAgg,
   isDerivedAgg,
+  measureOutputKey,
   parseFieldKey,
 } from './factories'
 
@@ -333,21 +334,22 @@ function applyCompareMeasures(
     const period = parsePeriod(row[orderDim.id])
 
     for (const measure of compareMeasures) {
-      const current = toNumber(row[measure.id])
+      const key = measureOutputKey(measure)
+      const current = toNumber(row[key])
       let previous: number | null = null
       const kind = compareKind(measure.agg)
 
       if (period) {
         const target = shiftPeriod(period, kind)
         const hit = bySeriesPeriod.get(`${seriesKey}\u0001${target.key}`)
-        if (hit) previous = toNumber(hit.row[measure.id])
+        if (hit) previous = toNumber(hit.row[key])
       } else if (kind === 'mom') {
         const bucket = seriesBucket.get(seriesKey) || []
         const idx = bucket.findIndex((item) => item.row === row)
-        if (idx > 0) previous = toNumber(bucket[idx - 1].row[measure.id])
+        if (idx > 0) previous = toNumber(bucket[idx - 1].row[key])
       }
 
-      next[measure.id] = isCompareRateAgg(measure.agg)
+      next[key] = isCompareRateAgg(measure.agg)
         ? growthRate(current, previous)
         : growthDiff(current, previous)
     }
@@ -365,17 +367,19 @@ function applyRatioMeasures(
 
   const totals = new Map<string, number>()
   for (const measure of ratioMeasures) {
+    const key = measureOutputKey(measure)
     totals.set(
-      measure.id,
-      resultRows.reduce((sum, row) => sum + toNumber(row[measure.id]), 0),
+      key,
+      resultRows.reduce((sum, row) => sum + toNumber(row[key]), 0),
     )
   }
 
   return resultRows.map((row) => {
     const next = { ...row }
     for (const measure of ratioMeasures) {
-      const total = totals.get(measure.id) || 0
-      next[measure.id] = total === 0 ? null : toNumber(row[measure.id]) / total
+      const key = measureOutputKey(measure)
+      const total = totals.get(key) || 0
+      next[key] = total === 0 ? null : toNumber(row[key]) / total
     }
     return next
   })
@@ -400,11 +404,12 @@ function applyRunningSumMeasures(
     const next = { ...row }
     const seriesKey = seriesDims.map((d) => String(row[d.id] ?? '')).join('\u0001')
     for (const measure of runningMeasures) {
-      const key = `${seriesKey}\u0001${measure.id}`
-      const current = toNumber(row[measure.id])
+      const outKey = measureOutputKey(measure)
+      const key = `${seriesKey}\u0001${outKey}`
+      const current = toNumber(row[outKey])
       const nextAcc = (acc.get(key) || 0) + current
       acc.set(key, nextAcc)
-      next[measure.id] = nextAcc
+      next[outKey] = nextAcc
     }
     return next
   })
@@ -586,7 +591,7 @@ export function queryDatasetLocal(
       role: 'dimension' as const,
     })),
     ...measures.map((m) => ({
-      key: m.id,
+      key: measureOutputKey(m),
       title: `${m.name}(${DATA_PREP_AGG_LABELS[m.agg] || m.agg})`,
       role: 'measure' as const,
     })),
@@ -602,18 +607,19 @@ export function queryDatasetLocal(
   if (!dimensions.length) {
     const resultRow: Record<string, unknown> = {}
     for (const measure of measures) {
+      const key = measureOutputKey(measure)
       if (isCompareAgg(measure.agg)) {
         // 无维度时无法定位对比期
-        resultRow[measure.id] = null
+        resultRow[key] = null
         continue
       }
       const values = rows.map((row) => resolveCell(row, measure.field))
       if (measure.agg === 'ratio') {
         // 仅一行时占比为 100%
-        resultRow[measure.id] = values.length ? 1 : null
+        resultRow[key] = values.length ? 1 : null
         continue
       }
-      resultRow[measure.id] = aggregateValues(values, measure.agg)
+      resultRow[key] = aggregateValues(values, measure.agg)
     }
     return { columns, rows: [resultRow] }
   }
@@ -635,7 +641,7 @@ export function queryDatasetLocal(
     }
     for (const measure of measures) {
       const values = groupRows.map((row) => resolveCell(row, measure.field))
-      resultRow[measure.id] = aggregateValues(values, measure.agg)
+      resultRow[measureOutputKey(measure)] = aggregateValues(values, measure.agg)
     }
     resultRows.push(resultRow)
   }
