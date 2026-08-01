@@ -32,6 +32,7 @@
     "@grow-admin-rock/component-driver-naive": "workspace:*",
     "@grow-admin-rock/components": "workspace:*",
     "@grow-admin-rock/constants": "workspace:*",
+    "@grow-admin-rock/data-prep": "workspace:*",
     "@grow-admin-rock/infrastructure": "workspace:*",
     "@grow-admin-rock/ioc": "workspace:*",
     "@grow-admin-rock/locale": "workspace:*",

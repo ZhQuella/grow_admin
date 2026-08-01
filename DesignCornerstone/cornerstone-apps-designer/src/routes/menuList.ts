@@ -37,6 +37,15 @@ export const DESIGNER_MENU_LIST: DesignerMenuApiItem[] = [
         isKeepAlive: true,
         sort: 30,
       },
+      {
+        name: 'DataPrepPlayground',
+        title: '数据准备',
+        icon: 'ant-design:partition-outlined',
+        menuType: MenuTypeEnum.MENU,
+        isVisible: true,
+        isKeepAlive: true,
+        sort: 40,
+      },
     ],
   },
 ]

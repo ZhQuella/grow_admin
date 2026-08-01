@@ -16,7 +16,9 @@ import {
 } from '../chartConfig'
 import {
   resolveBlockDataBinding,
+  resolveDatasetBinding,
   type ReportBlockDataBinding,
+  type ResolvedChartDataPayload,
 } from '../dataBinding'
 
 defineOptions({
@@ -38,9 +40,14 @@ const resolvedConfig = computed(
   () => props.chartConfig ?? createDefaultChartConfig(props.chartType),
 )
 
-const resolvedChartData = computed(() =>
-  resolveBlockDataBinding(props.dataBinding, runtimeState || {}),
-)
+const datasetPayload = ref<ResolvedChartDataPayload | null>(null)
+
+const resolvedChartData = computed(() => {
+  if ((props.dataBinding?.sourceMode || 'state') === 'dataset') {
+    return datasetPayload.value || {}
+  }
+  return resolveBlockDataBinding(props.dataBinding, runtimeState || {})
+})
 
 const renderChart = async () => {
   const option = buildEChartsOption(
@@ -48,16 +55,34 @@ const renderChart = async () => {
     resolvedConfig.value,
     resolvedChartData.value,
   )
-  // setOptions 内部异步执行 setOption；勿紧跟 resize，否则会触发
-  //「resize should not be called during main process」
   await setOptions(option)
 }
 
+const refreshDataset = async () => {
+  if ((props.dataBinding?.sourceMode || 'state') !== 'dataset') {
+    datasetPayload.value = null
+    return
+  }
+  try {
+    datasetPayload.value = await resolveDatasetBinding(props.dataBinding)
+  } catch {
+    datasetPayload.value = { xAxisData: [], seriesData: [] }
+  }
+}
+
 watch(
-  [() => props.chartType, () => props.chartConfig, () => props.dataBinding, runtimeState],
+  () => props.dataBinding,
+  () => {
+    void refreshDataset().then(() => renderChart())
+  },
+  { deep: true, immediate: true },
+)
+
+watch(
+  [() => props.chartType, () => props.chartConfig, runtimeState, datasetPayload],
   () => {
     void renderChart()
   },
-  { deep: true, immediate: true },
+  { deep: true },
 )
 </script>
