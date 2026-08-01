@@ -3,31 +3,33 @@
  * 刻意不从 schema-designer 运行时导入，避免 mock(esbuild) 拉入 .vue。
  */
 
-export type DataPrepMysqlColumnType =
-  | 'TINYINT'
+export type DataPrepColumnType =
   | 'SMALLINT'
-  | 'INT'
+  | 'INTEGER'
   | 'BIGINT'
-  | 'DECIMAL'
-  | 'FLOAT'
-  | 'DOUBLE'
+  | 'NUMERIC'
+  | 'REAL'
+  | 'DOUBLE PRECISION'
   | 'VARCHAR'
   | 'CHAR'
   | 'TEXT'
-  | 'MEDIUMTEXT'
-  | 'LONGTEXT'
   | 'DATE'
-  | 'DATETIME'
-  | 'TIMESTAMP'
   | 'TIME'
+  | 'TIMESTAMP'
+  | 'TIMESTAMPTZ'
   | 'BOOLEAN'
   | 'JSON'
-  | 'BLOB'
+  | 'JSONB'
+  | 'BYTEA'
+  | 'UUID'
+
+/** @deprecated 使用 DataPrepColumnType */
+export type DataPrepMysqlColumnType = DataPrepColumnType
 
 export type DataPrepSchemaColumn = {
   id: string
   name: string
-  type: DataPrepMysqlColumnType
+  type: DataPrepColumnType
   length?: number | null
   scale?: number | null
   primaryKey: boolean
@@ -64,7 +66,7 @@ export type DataPrepSchemaRelation = {
 
 export type DataPrepDatabaseSchema = {
   version: 1
-  dialect: 'mysql'
+  dialect: 'postgresql'
   name: string
   comment?: string
   tables: DataPrepSchemaTable[]

@@ -1,6 +1,6 @@
 import type { Edge, Node } from '@vue-flow/core'
 import { MarkerType } from '@vue-flow/core'
-import { RELATION_TYPE_LABEL } from './mysqlTypes'
+import { RELATION_TYPE_LABEL } from './postgresTypes'
 import type { DatabaseSchema, SchemaRelation, SchemaTable } from './types'
 
 export type TableNodeData = {

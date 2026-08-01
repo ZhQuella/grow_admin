@@ -3,6 +3,7 @@
  * 勿从此处 re-export 任何 .vue 组件。
  */
 export type {
+  DataPrepColumnType,
   DataPrepMysqlColumnType,
   DataPrepSchemaColumn,
   DataPrepSchemaTable,

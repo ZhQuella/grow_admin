@@ -63,7 +63,7 @@
 
 <script setup lang="ts">
 import { computed, reactive, watch } from 'vue'
-import { RELATION_TYPE_OPTIONS, REFERENTIAL_ACTION_OPTIONS } from '../mysqlTypes'
+import { RELATION_TYPE_OPTIONS, REFERENTIAL_ACTION_OPTIONS } from '../postgresTypes'
 import type { SchemaReferentialAction, SchemaRelationType, SchemaTable } from '../types'
 
 defineOptions({

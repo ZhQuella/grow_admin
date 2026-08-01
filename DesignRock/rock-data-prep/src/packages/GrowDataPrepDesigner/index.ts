@@ -22,6 +22,7 @@ export type {
   DataPrepSchemaColumn,
   DataPrepSchemaTable,
   DataPrepSchemaRelation,
+  DataPrepColumnType,
   DataPrepMysqlColumnType,
 } from './types'
 export { sourceTableRowsKey } from './types'

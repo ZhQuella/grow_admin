@@ -773,9 +773,14 @@ function onAddMeasure(columnId: string) {
   if (!col || !activeSource.value) return
   const field = fieldKey(activeSource.value.alias, col.name)
   if (dataset.measures.some((m) => m.field === field)) return
-  const numeric = ['INT', 'BIGINT', 'DECIMAL', 'FLOAT', 'DOUBLE', 'TINYINT', 'SMALLINT'].includes(
-    col.type,
-  )
+  const numeric = [
+    'SMALLINT',
+    'INTEGER',
+    'BIGINT',
+    'NUMERIC',
+    'REAL',
+    'DOUBLE PRECISION',
+  ].includes(col.type)
   dataset.measures.push(
     createDataPrepMeasure({
       name: col.comment || col.name,

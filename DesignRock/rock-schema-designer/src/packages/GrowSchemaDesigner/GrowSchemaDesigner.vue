@@ -203,7 +203,7 @@ import {
   MAX_COLUMN_NAME_LENGTH,
   MAX_DATABASE_NAME_LENGTH,
   MAX_TABLE_NAME_LENGTH,
-} from './mysqlTypes'
+} from './postgresTypes'
 import {
   findRelationByEdgeId,
   relationsToEdges,

@@ -4,7 +4,7 @@ import type { DatabaseSchema } from './types'
 export function exportSchemaJson(schema: DatabaseSchema, pretty = true): string {
   const payload: DatabaseSchema = {
     version: 1,
-    dialect: 'mysql',
+    dialect: 'postgresql',
     name: schema.name,
     comment: schema.comment ?? '',
     tables: schema.tables.map((table) => ({

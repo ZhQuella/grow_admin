@@ -1,6 +1,7 @@
 import type { DataPrepDatabaseSchema } from '../../core/schemaTypes'
 
 export type {
+  DataPrepColumnType,
   DataPrepMysqlColumnType,
   DataPrepSchemaColumn,
   DataPrepSchemaTable,

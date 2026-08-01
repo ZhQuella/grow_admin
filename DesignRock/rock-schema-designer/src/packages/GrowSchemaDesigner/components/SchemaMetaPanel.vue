@@ -20,7 +20,7 @@
         />
       </GrowFormItem>
       <GrowFormItem label="方言">
-        <GrowInput model-value="MySQL" size="small" disabled />
+        <GrowInput model-value="PostgreSQL" size="small" disabled />
       </GrowFormItem>
     </GrowForm>
 
@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { MAX_DATABASE_NAME_LENGTH, clampIdentifier } from '../mysqlTypes'
+import { MAX_DATABASE_NAME_LENGTH, clampIdentifier } from '../postgresTypes'
 import type { DatabaseSchema } from '../types'
 
 defineOptions({

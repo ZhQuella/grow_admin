@@ -8,7 +8,7 @@ export type {
   SchemaRelation,
   SchemaRelationType,
   SchemaSqlQuery,
-  MysqlColumnType,
+  SchemaColumnType,
   SchemaReferentialAction,
   SchemaSelection,
 } from './types'
@@ -20,7 +20,7 @@ export {
   createSchemaSqlQuery,
 } from './factories'
 export {
-  MYSQL_COLUMN_TYPE_OPTIONS,
+  SCHEMA_COLUMN_TYPE_OPTIONS,
   RELATION_TYPE_OPTIONS,
   REFERENTIAL_ACTION_OPTIONS,
   RELATION_TYPE_LABEL,
@@ -29,5 +29,5 @@ export {
   MAX_DATABASE_NAME_LENGTH,
   clampIdentifier,
   formatColumnType,
-} from './mysqlTypes'
+} from './postgresTypes'
 export { exportSchemaJson, downloadSchemaJson, copySchemaJson } from './exportSchema'
