@@ -7,7 +7,9 @@ export const FORM_MODULE_FULL_WIDTH_TAGS = new Set([
   'GrowTimePicker',
   'GrowDatePicker',
   'GrowTreeSelect',
+  'GrowAutoComplete',
   'GrowMention',
+  'GrowDynamicTags',
   'GrowSlider',
   'GrowTransfer',
   'GrowRadioGroup',
@@ -419,10 +421,28 @@ export const AtomicComponent = new Map([
           childName: ""
         },
         {
+          elName: "自动填充",
+          elType: "eleModule",
+          elTagName: "GrowAutoComplete",
+          elIcon: "AutoComplete",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
           elName: "提及",
           elType: "eleModule",
           elTagName: "GrowMention",
           elIcon: "Mention",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "动态标签",
+          elType: "eleModule",
+          elTagName: "GrowDynamicTags",
+          elIcon: "DynamicTags",
           isChild: false,
           isAdd: false,
           childName: ""

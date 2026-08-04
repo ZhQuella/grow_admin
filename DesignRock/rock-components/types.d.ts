@@ -88,6 +88,7 @@ declare module 'vue' {
     GrowDropdownMenu: import('vue').Component;
     GrowDropdownItem: import('vue').Component;
     GrowTreeSelect: import('vue').Component;
+    GrowAutoComplete: import('vue').Component;
     GrowMention: import('vue').Component;
     GrowBadge: import('vue').Component;
     GrowListItem: import('vue').Component;

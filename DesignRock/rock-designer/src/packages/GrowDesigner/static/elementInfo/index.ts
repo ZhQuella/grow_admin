@@ -61,7 +61,9 @@ import {
   sliderConfig,
   transferConfig,
   treeSelectConfig,
+  autoCompleteConfig,
   mentionConfig,
+  dynamicTagsConfig,
   uploadConfig,
 } from './formControlConfigs'
 import { conditionConfig, loopConfig } from './logicConfigs'
@@ -118,7 +120,9 @@ export const elementPropsMap: Record<string, any[]> = {
   GrowRadioGroup: radioGroupConfig.props,
   GrowCheckboxGroup: checkboxGroupConfig.props,
   GrowTreeSelect: treeSelectConfig.props,
+  GrowAutoComplete: autoCompleteConfig.props,
   GrowMention: mentionConfig.props,
+  GrowDynamicTags: dynamicTagsConfig.props,
   GrowUpload: uploadConfig.props,
 
   // 数据展示

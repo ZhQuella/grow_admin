@@ -180,6 +180,7 @@ const allComponents = {
   [RockComponent.DropdownMenu]: null,
   [RockComponent.DropdownItem]: null,
   [RockComponent.TreeSelect]: NTreeSelect,
+  [RockComponent.AutoComplete]: NAutoComplete,
   [RockComponent.Mention]: NMention,
   [RockComponent.Badge]: NBadge,
   [RockComponent.ListItem]: NListItem,

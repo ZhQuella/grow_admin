@@ -72,6 +72,7 @@ export enum RockComponent {
   DropdownMenu = 'DropdownMenu',
   DropdownItem = 'DropdownItem',
   TreeSelect = 'TreeSelect',
+  AutoComplete = 'AutoComplete',
   Mention = 'Mention',
   Badge = 'Badge',
   ListItem = 'ListItem',

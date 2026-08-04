@@ -135,7 +135,21 @@ export const elementEventsMap: Record<string, ComponentEventOption[]> = {
   GrowRadioGroup: [change],
   GrowCheckboxGroup: [change],
   GrowTreeSelect: SELECT_LIKE,
+  GrowAutoComplete: [
+    change,
+    input,
+    focus,
+    blur,
+    clear,
+    {
+      type: 'update:value',
+      label: '值更新',
+      describe: '可控值更新时触发（Naive on-update:value）',
+    },
+    { type: 'select', label: '选择选项', describe: '选中候选选项时触发（Naive on-select）' },
+  ],
   GrowMention: [change, input, focus, blur, clear],
+  GrowDynamicTags: [change],
   GrowUpload: [
     { type: 'change', label: '文件变化', describe: '文件列表变化时触发' },
     { type: 'success', label: '上传成功' },

@@ -71,6 +71,7 @@ import Drawer from '#/components/Drawer.vue'
 import DrawerContent from '#/components/DrawerContent.vue'
 import DynamicInput from '#/components/DynamicInput.vue'
 import DynamicTags from '#/components/DynamicTags.vue'
+import AutoComplete from '#/components/AutoComplete.vue'
 import Ellipsis from '#/components/Ellipsis.vue'
 import Image from '#/components/Image.vue'
 import Highlight from '#/components/Highlight.vue'
@@ -214,6 +215,7 @@ const allComponents: Partial<Record<RockComponent, any>> = {
   [RockComponent.Tree]: ElTree,
   [RockComponent.TreeSelect]: ElTreeSelect,
   [RockComponent.Mention]: ElMention,
+  [RockComponent.AutoComplete]: AutoComplete,
   [RockComponent.TimePicker]: ElTimePicker,
   [RockComponent.Upload]: ElUpload,
   [RockComponent.UploadDragger]: UploadDragger,

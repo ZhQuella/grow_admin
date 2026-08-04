@@ -272,6 +272,74 @@ export const normalizeGrowMentionProps = (info: Record<string, any>) => {
   }
 }
 
+export const normalizeGrowAutoCompleteProps = (info: Record<string, any>) => {
+  syncValueModelValue(info)
+  // 空 status 不是合法值，避免落到 NAutoComplete / EP 校验
+  if (info.status === '' || info.status == null) {
+    Reflect.deleteProperty(info, 'status')
+  }
+  if (info['z-index'] != null && info['z-index'] !== '') {
+    const n = Number(info['z-index'])
+    if (Number.isFinite(n)) info['z-index'] = n
+    else Reflect.deleteProperty(info, 'z-index')
+  }
+  if (info.zIndex != null && info.zIndex !== '') {
+    const n = Number(info.zIndex)
+    if (Number.isFinite(n)) info.zIndex = n
+    else Reflect.deleteProperty(info, 'zIndex')
+  }
+  // EP ElAutocomplete 不支持 left/right placement，非法值改为默认
+  const placement = info.placement ?? info['placement']
+  if (placement != null && placement !== '') {
+    const allowed = new Set([
+      'top',
+      'top-start',
+      'top-end',
+      'bottom',
+      'bottom-start',
+      'bottom-end',
+    ])
+    if (!allowed.has(String(placement))) {
+      info.placement = 'bottom-start'
+    }
+  }
+  // 文本模式误填 JSON 字符串时尝试解析为 options
+  if (typeof info.options === 'string') {
+    const raw = info.options.trim()
+    if (!raw) {
+      info.options = []
+    } else {
+      try {
+        const parsed = JSON.parse(raw)
+        info.options = Array.isArray(parsed) ? parsed : []
+      } catch {
+        info.options = raw
+          .split(/[,，\n]/)
+          .map((item: string) => item.trim())
+          .filter(Boolean)
+      }
+    }
+  }
+  if (info.options != null && !Array.isArray(info.options)) {
+    info.options = []
+  }
+}
+
+export const normalizeGrowDynamicTagsProps = (info: Record<string, any>) => {
+  syncValueModelValue(info)
+  if (!Array.isArray(info.value) && info.value != null && info.value !== '') {
+    info.value = [String(info.value)]
+  }
+  if (!Array.isArray(info.modelValue) && info.modelValue != null && info.modelValue !== '') {
+    info.modelValue = [String(info.modelValue)]
+  }
+  if (info.max != null && info.max !== '') {
+    const n = Number(info.max)
+    if (Number.isFinite(n)) info.max = n
+    else Reflect.deleteProperty(info, 'max')
+  }
+}
+
 export const normalizeGrowTimePickerProps = (info: Record<string, any>) => {
   syncValueModelValue(info)
   if (info.valueFormat && !info.format) {
@@ -372,6 +440,8 @@ const applyValueTagRules = (
     })
   }
   if (tag === 'GrowMention') normalizeGrowMentionProps(info)
+  if (tag === 'GrowAutoComplete') normalizeGrowAutoCompleteProps(info)
+  if (tag === 'GrowDynamicTags') normalizeGrowDynamicTagsProps(info)
   if (tag === 'GrowTimePicker') normalizeGrowTimePickerProps(info)
   if (tag === 'GrowTime') normalizeGrowTimeProps(info)
   if (tag === 'GrowSearchBar') normalizeGrowSearchBarDefaultData(info)
