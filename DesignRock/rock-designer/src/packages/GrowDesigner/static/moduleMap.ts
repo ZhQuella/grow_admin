@@ -572,26 +572,6 @@ export const AtomicComponent = new Map([
           isChild: false,
           isAdd: false,
           childName: ""
-        },
-        {
-          elName: "虚拟树形组件",
-          elType: "eleModule",
-          elTagName: "GrowTreeV2",
-          unsupported: true,
-          elIcon: "TreeViewAlt",
-          isChild: false,
-          isAdd: false,
-          childName: ""
-        },
-        {
-          elName: "提示",
-          elType: "eleModule",
-          elTagName: "GrowAlert",
-          unsupported: true,
-          elIcon: "Drought",
-          isChild: false,
-          isAdd: false,
-          childName: ""
         }
       ]
     }

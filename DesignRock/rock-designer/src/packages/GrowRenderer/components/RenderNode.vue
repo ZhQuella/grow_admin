@@ -380,6 +380,7 @@ import {
   writeModelBinding,
   writePaginationProp,
 } from '../utils/resolveBoundProps'
+import { resolveSearchBarFields } from '@grow-admin-rock/hooks'
 import {
   applyColumnBarVisibleToTableColumns,
   tableColumnsSignature,
@@ -635,6 +636,14 @@ const moduleProps = computed(() => {
   if (tag.value === 'GrowTable' && useLayoutMainHeight.value) {
     // 走本地 WatchBox 分支时不在这里写 height
     Reflect.deleteProperty(info, 'height')
+  }
+  // 高级搜索：字段内 options / remote-method 等先解析再交给组件
+  if (tag.value === 'GrowSearchBar') {
+    info.search = resolveSearchBarFields(
+      Array.isArray(info.search) ? info.search : [],
+      runtimeState.value,
+      { refs: runtimeRefs.value },
+    )
   }
   const eventProps = { ...runtimeEventProps.value }
   if (tag.value === 'GrowColumnBar') {

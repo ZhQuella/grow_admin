@@ -9,7 +9,9 @@ import {
   sizeSelect,
   textInput,
   variableBindInput,
+  variableBindOnlyInput,
   tableColumnsInput,
+  searchFieldsInput,
 } from './shared'
 
 /** 弹窗：设计态用面板壳编辑；运行时由 modelValue / 事件控制显隐 */
@@ -309,7 +311,7 @@ export const timelineConfig = createConfig([
 
 /** 时间线项 */
 export const timelineItemConfig = createConfig([
-  textInput('时间戳', 'timestamp', '时间戳'),
+  variableBindInput('时间戳', 'timestamp', '时间戳，支持变量绑定'),
   boolSwitch('隐藏时间戳', 'hide-timestamp', '是否隐藏时间戳'),
   boolSwitch('垂直居中', 'center', '是否垂直居中'),
   selectInput(
@@ -321,17 +323,11 @@ export const timelineItemConfig = createConfig([
     ],
     '时间戳位置',
   ),
-  selectInput(
+  variableBindInput(
     '节点类型',
     'type',
-    [
-      { label: 'primary', value: 'primary' },
-      { label: 'success', value: 'success' },
-      { label: 'warning', value: 'warning' },
-      { label: 'danger', value: 'danger' },
-      { label: 'info', value: 'info' },
-    ],
-    '节点类型',
+    '节点类型，支持变量绑定；可选 primary / success / warning / danger / info',
+    '请输入类型或绑定变量',
   ),
   textInput('节点颜色', 'color', '节点背景色，如 #0bbd87'),
   selectInput(
@@ -641,8 +637,16 @@ export const paginationConfig = createConfig([
   ),
 ])
 
-/** 高级搜索栏 SearchBar：字段由 props.search 配置，拖入后带示例条件 */
-export const searchBarConfig = createConfig([])
+/** 高级搜索栏 SearchBar：字段由 props.search 可视化配置 */
+export const searchBarConfig = createConfig([
+  searchFieldsInput(),
+  variableBindOnlyInput(
+    '默认值',
+    'defaultData',
+    '各字段默认搜索值对象，仅支持变量绑定（如 return state.defaultSearch）',
+    '请绑定默认值对象',
+  ),
+])
 
 /** 列设置 ColumnBar */
 export const columnBarConfig = createConfig([

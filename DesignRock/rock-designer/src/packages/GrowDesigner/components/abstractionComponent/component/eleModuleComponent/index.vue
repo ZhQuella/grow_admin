@@ -38,6 +38,7 @@ import {
 import { tableColumnsSignature } from '../../../../static/tableColumnUtils'
 import { normalizePaginationBindProps } from '../../../../static/paginationProps'
 import { writePaginationProp } from '../../../../../GrowRenderer/utils/resolveBoundProps'
+import { resolveSearchBarFields } from '@grow-admin-rock/hooks'
 import TableColumnNodes from '../../../shared/TableColumnNodes.vue'
 
 interface PropsType {
@@ -146,6 +147,20 @@ const bindProps = computed(() => {
     Reflect.deleteProperty(info, 'columnsSource')
     Reflect.deleteProperty(info, 'tableUuid')
     info.disabled = true
+  }
+  if (config.value?.elTagName === 'GrowSearchBar') {
+    info.search = resolveSearchBarFields(
+      Array.isArray(info.search) ? info.search : [],
+      injectedRuntimeState || {},
+    )
+    if (
+      info.defaultData == null ||
+      info.defaultData === '' ||
+      typeof info.defaultData !== 'object' ||
+      Array.isArray(info.defaultData)
+    ) {
+      info.defaultData = {}
+    }
   }
   if (['GrowButton', 'GrowLink', 'GrowEllipsis'].includes(config.value?.elTagName)) {
     Reflect.deleteProperty(info, 'content')

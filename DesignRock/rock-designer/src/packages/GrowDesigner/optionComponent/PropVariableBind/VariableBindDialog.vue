@@ -5,6 +5,7 @@
     width="720px"
     append-to-body
     destroy-on-close
+    :z-index="5200"
     class="variable-bind-dialog"
     @update:model-value="onVisibleChange"
   >

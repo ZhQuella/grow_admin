@@ -1,5 +1,6 @@
 import { FORM_MODULE_FULL_WIDTH_TAGS } from './moduleMap'
 import { createDefaultTableColumns, createDefaultColumnBarColumns } from './tableColumnUtils'
+import { createDefaultSearchFields, toPersistedSearchFields } from './searchFieldUtils'
 
 /** 行内块元素的默认画布样式 */
 export const INLINE_BLOCK_STYLES: Record<string, string> = {
@@ -64,30 +65,8 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
     underline: true,
   },
   GrowSearchBar: {
-    search: [
-      {
-        labelText: '关键词',
-        placeholder: '请输入关键词',
-        elType: 'GrowInput',
-        isDefault: true,
-        model: 'keyword',
-        noDelete: true,
-      },
-      {
-        labelText: '状态',
-        elType: 'GrowSelect',
-        isDefault: true,
-        model: 'status',
-        label: 'label',
-        value: 'value',
-        placeholder: '请选择状态',
-        options: [
-          { label: '启用', value: '1' },
-          { label: '禁用', value: '0' },
-        ],
-      },
-    ],
-    defaultData: {},
+    search: toPersistedSearchFields(createDefaultSearchFields()),
+    defaultData: '',
   },
   GrowColumnBar: {
     nodeKey: 'field',

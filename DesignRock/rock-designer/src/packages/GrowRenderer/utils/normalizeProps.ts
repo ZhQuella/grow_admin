@@ -217,6 +217,17 @@ export function normalizeModuleProps(
     }
   }
 
+  if (tag === 'GrowSearchBar') {
+    if (
+      info.defaultData == null ||
+      info.defaultData === '' ||
+      typeof info.defaultData !== 'object' ||
+      Array.isArray(info.defaultData)
+    ) {
+      info.defaultData = {}
+    }
+  }
+
   // 滚动条：% 高度相对渲染根实测高度（--grow-renderer-height）
   if (tag === 'GrowScrollbar') {
     if (info.height != null && info.height !== '') {
