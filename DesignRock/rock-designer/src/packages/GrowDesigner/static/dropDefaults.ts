@@ -36,6 +36,9 @@ export const defaultStylesByTag: Record<string, Record<string, string>> = {
     'font-size': '14px',
     'line-height': '1.4',
   },
+  GrowBadge: {
+    'min-width': '50px',
+  },
   GrowEllipsis: {
     width: '240px',
     'max-width': '100%',

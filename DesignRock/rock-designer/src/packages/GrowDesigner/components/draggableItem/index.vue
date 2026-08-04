@@ -330,7 +330,6 @@ const onCopyItem = () => {
     max-width: 100%;
     min-width: 0;
     min-height: 0;
-    margin: 0 6px 6px 0;
 
     /* body 也必须 fit-content：普通 block 会按包含块撑满整行 */
     .draggable-item__body {

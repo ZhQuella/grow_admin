@@ -486,7 +486,8 @@ export const AtomicComponent = new Map([
           elIcon: "Badge",
           isChild: true,
           isAdd: false,
-          childName: ""
+          childName: "",
+          isInlineBlock: true
         },
         {
           elName: "时间",

@@ -237,8 +237,8 @@ export const calendarConfig = createConfig([
 
 /** 徽章 */
 export const badgeConfig = createConfig([
-  numberInput('显示值', 'value', '显示值'),
-  numberInput('最大值', 'max', '最大值，超过最大值会显示 {max}+'),
+  variableBindInput('显示值', 'value', '显示值，支持变量绑定'),
+  variableBindInput('最大值', 'max', '最大值，超过最大值会显示 {max}+，支持变量绑定'),
   boolSwitch('小圆点', 'is-dot', '是否显示小圆点'),
   boolSwitch('隐藏', 'hidden', '是否隐藏 Badge'),
   selectInput(
