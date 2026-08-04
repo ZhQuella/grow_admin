@@ -322,6 +322,11 @@ const onCopyItem = () => {
   background: var(--component-background-color);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
+  /* 时间项：连接线/节点为绝对定位，不能被 overflow 裁掉 */
+  &.is-timeline-item {
+    overflow: visible;
+  }
+
   &.is-inline-level {
     display: inline-block;
     vertical-align: top;

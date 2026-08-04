@@ -34,7 +34,7 @@ import {
 } from 'vue'
 import RenderNode from './components/RenderNode.vue'
 import type { DesignerSchema } from './types'
-import { GROW_RUNTIME_STATE, GROW_RUNTIME_APIS, GROW_RUNTIME_REFS } from '../GrowDesigner/config/designation'
+import { GROW_RUNTIME_STATE, GROW_RUNTIME_APIS, GROW_RUNTIME_REFS, GROW_DESIGN_CANVAS } from '../GrowDesigner/config/designation'
 import { buildRuntimeState, syncRuntimeState } from './utils/resolveBoundProps'
 import {
   recomputeComputedProps,
@@ -109,6 +109,9 @@ watch(
   { deep: true, immediate: true },
 )
 provide(GROW_RUNTIME_STATE, runtimeState)
+
+/** 预览 / 运行态：显式关闭设计画布标记（抽屉可能仍挂在设计师 provide 树下） */
+provide(GROW_DESIGN_CANVAS, false)
 
 /** 依赖字段变化时自动重算计算属性 */
 setupComputedPropReactivity(

@@ -12,6 +12,7 @@ import {
   variableBindOnlyInput,
   tableColumnsInput,
   searchFieldsInput,
+  carouselItemsInput,
 } from './shared'
 
 /** 弹窗：设计态用面板壳编辑；运行时由 modelValue / 事件控制显隐 */
@@ -339,7 +340,12 @@ export const timelineItemConfig = createConfig([
     ],
     '节点尺寸',
   ),
-  textInput('节点图标', 'icon', '自定义节点图标组件名'),
+  variableBindInput(
+    '节点图标',
+    'icon',
+    '节点图标，支持变量绑定；填写 Iconify 名，如 carbon:checkmark',
+    '如 carbon:checkmark',
+  ),
   boolSwitch('空心点', 'hollow', '是否空心点'),
 ])
 
@@ -509,6 +515,7 @@ export const tableConfig = createConfig([
 
 /** 走马灯 */
 export const carouselConfig = createConfig([
+  carouselItemsInput(),
   textInput('高度', 'height', '走马灯高度', '如 200px'),
   numberInput('初始索引', 'initial-index', '初始状态激活的幻灯片索引，从 0 开始'),
   selectInput(
@@ -566,8 +573,56 @@ export const carouselConfig = createConfig([
 
 /** 走马灯项 */
 export const carouselItemConfig = createConfig([
-  textInput('标识', 'name', '幻灯片对应的 name，可用作 setActiveItem 参数'),
-  textInput('标签', 'label', '幻灯片文本说明（用于指示器）'),
+  textInput(
+    '名字',
+    'name',
+    '幻灯片的名字，可用作 setActiveItem 的参数',
+  ),
+  textInput(
+    '指示器文本',
+    'label',
+    '该幻灯片所对应指示器的文本；可为空，为空时指示器不显示文字',
+  ),
+  variableBindInput(
+    '图片地址',
+    'src',
+    '幻灯片图片地址，支持变量绑定',
+    '请输入 URL 或绑定变量',
+  ),
+  selectInput(
+    '展示方式',
+    'imageFit',
+    [
+      { label: '覆盖', value: 'cover' },
+      { label: '铺满', value: 'full' },
+      { label: '自适应', value: 'contain' },
+      { label: '拉伸', value: 'fill' },
+      { label: '平铺', value: 'tile' },
+      { label: '原始尺寸', value: 'none' },
+    ],
+    '图片在轮播区域内的展示方式',
+  ),
+  variableBindInput(
+    '替代文本',
+    'alt',
+    '图片替代文本，提高可访问性，支持变量绑定',
+    '请输入 alt 或绑定变量',
+  ),
+  selectInput(
+    '链接类型',
+    'linkType',
+    [
+      { label: '网页', value: 'web' },
+      { label: '系统内部地址', value: 'internal' },
+    ],
+    '网页默认新窗口打开；系统内部地址默认在 tab 中打开',
+  ),
+  variableBindInput(
+    '跳转地址',
+    'href',
+    '网页填完整 URL；系统内部地址填路由路径（如 /dashboard）。打开方式按链接类型内置，无需另选',
+    '请输入 URL 或路由路径',
+  ),
 ])
 
 /** 分页（对齐 Element Plus ElPagination） */

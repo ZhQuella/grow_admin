@@ -534,7 +534,7 @@ export const AtomicComponent = new Map([
           elTagName: "GrowCarousel",
           elIcon: "CarouselHorizontal",
           isChild: true,
-          isAdd: true,
+          isAdd: false,
           childName: "GrowCarouselItem"
         },
         {

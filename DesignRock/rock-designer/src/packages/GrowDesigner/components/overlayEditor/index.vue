@@ -119,10 +119,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, watch } from 'vue'
+import { computed, inject, provide, watch } from 'vue'
 import draggable from 'vuedraggable'
 import { findByUUID } from '@grow-admin-rock/utils'
-import { GROW_RUNTIME_STATE } from '../../config/designation'
+import { GROW_DESIGN_CANVAS, GROW_RUNTIME_STATE } from '../../config/designation'
 import {
   buildRuntimeState,
   resolveBoundProps,
@@ -149,6 +149,9 @@ const emit = defineEmits<{
   copy: [payload: any]
   active: [payload: any]
 }>()
+
+/** overlay 编辑层同属设计态 */
+provide(GROW_DESIGN_CANVAS, true)
 
 const injectedRuntimeState = inject<Record<string, unknown> | null>(
   GROW_RUNTIME_STATE,
@@ -419,6 +422,9 @@ const onActive = (payload: any) => emit('active', payload)
   height: auto;
   overflow: visible;
   box-sizing: border-box;
+  border: 1px dashed var(--layout-border-color);
+  border-radius: 6px;
+  background-color: var(--color-primary-a04, rgba(64, 158, 255, 0.04));
 
   &.is-footer {
     min-height: 56px;

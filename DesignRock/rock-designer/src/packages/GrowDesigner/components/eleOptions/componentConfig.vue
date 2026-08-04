@@ -62,6 +62,10 @@
             :bind-mode="getBindMode(item.modelKey)"
             @update:bind-mode="(mode) => setBindMode(item.modelKey, mode)"
           />
+          <PropCarouselItems
+            v-else-if="item.eleType === 'PropCarouselItems'"
+            v-bind="item.props || {}"
+          />
           <PropVariableBind
             v-else-if="item.eleType === 'PropVariableBind'"
             v-bind="item.props || {}"
@@ -109,6 +113,7 @@ import PropTableColumns from '../../optionComponent/PropTableColumns/index.vue'
 import PropPaginationLayout from '../../optionComponent/PropPaginationLayout/index.vue'
 import PropColumnBarColumns from '../../optionComponent/PropColumnBarColumns/index.vue'
 import PropSearchFields from '../../optionComponent/PropSearchFields/index.vue'
+import PropCarouselItems from '../../optionComponent/PropCarouselItems/index.vue'
 import PropVariableBind from '../../optionComponent/PropVariableBind/index.vue'
 import PropSwitchBind from '../../optionComponent/PropSwitchBind/index.vue'
 import PropFunctionBind from '../../optionComponent/PropFunctionBind/index.vue'
@@ -157,6 +162,7 @@ const CUSTOM_OPTION_TYPES = new Set([
   'PropPaginationLayout',
   'PropColumnBarColumns',
   'PropSearchFields',
+  'PropCarouselItems',
   'PropVariableBind',
   'PropSwitchBind',
   'PropFunctionBind',

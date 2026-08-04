@@ -121,6 +121,56 @@
           </draggable>
         </component>
       </div>
+      <!-- 时间线：投放区必须纵向排列，且子项不能 height:100% 以免被撑成横向 -->
+      <component
+        v-else-if="config.elTagName === 'GrowTimeline'"
+        :is="config.elTagName"
+        v-bind="propsInfo"
+        class="grow-timeline-host"
+        :style="styleInfo"
+      >
+        <draggable
+          group="draggable-group"
+          :animation="200"
+          item-key="uuid"
+          :component-data="{
+            tag: 'div',
+            type: 'transition-group',
+            name: 'draggable-group'
+          }"
+          :disabled="false"
+          ghostClass="ghost"
+          chosenClass="chosen-item"
+          dragClass="drag-item"
+          class="draggable-grop-wrap is-timeline"
+          handle=".draggable-content-bar"
+          v-model="structure.children"
+          @add="onChildAdd"
+        >
+          <template #item="{ element }">
+            <DraggableItem
+              :structure="element"
+              class="is-timeline-item"
+              @active="onActive"
+              @delete="onSpecialDelete"
+              @copy="onCopyItem"
+              @special="onDraggableAdd"
+            >
+              <abstractionComponent
+                :config="draggableConfig.renderArgument[element.uuid]"
+                :propsInfo="draggableConfig.props[element.uuid]"
+                :structure="element"
+                :drag="drag"
+                @add="onAbstractionAdd"
+                @special="onDraggableAdd"
+                @delete="onSpecialDelete"
+                @copy="onCopyItem"
+                @active="onActive"
+              />
+            </DraggableItem>
+          </template>
+        </draggable>
+      </component>
       <component
         v-else
         :is="config.elTagName"
@@ -181,7 +231,7 @@
         ].includes(config.elTagName)
       "
       :is="config.elTagName"
-      v-bind="propsInfo"
+      v-bind="resolvedPropsInfo"
       :style="styleInfo"
     >
       <draggable
@@ -198,6 +248,7 @@
         chosenClass="chosen-item"
         dragClass="drag-item"
         class="draggable-grop-wrap"
+        :class="{ 'is-carousel-item': config.elTagName === 'GrowCarouselItem' }"
         handle=".draggable-content-bar"
         v-model="structure.children"
         @add="onChildAdd"
@@ -888,7 +939,7 @@
     </template>
 
     <template v-if="['GrowRow', 'GrowCarousel'].includes(config.elTagName)">
-      <component :is="config.elTagName" v-bind="propsInfo" :style="styleInfo">
+      <component :is="config.elTagName" v-bind="resolvedPropsInfo" :style="styleInfo">
         <abstractionComponent
           v-for="ele in structure.children"
           :structure="ele"
@@ -1254,6 +1305,15 @@ const styleInfo = computed(() => {
       styles.height = '100%'
     }
   }
+
+  // 时间线必须纵向；样式面板开 flex 时默认 row 会把时间项排成横向
+  if (tag === 'GrowTimeline') {
+    const display = styles.display
+    if (display === 'flex' || display === 'inline-flex') {
+      styles['flex-direction'] = 'column'
+    }
+  }
+
   return styles
 })
 
@@ -1344,12 +1404,17 @@ const onCopyItem = (event) => {
   overflow: hidden;
   border: 1px dashed var(--layout-border-color);
   border-radius: 6px;
-  background-color: var(--color-primary-a04);
+  background-color: var(--color-primary-a04, rgba(64, 158, 255, 0.04));
   box-sizing: border-box;
 
   &.is-full {
     width: 100%;
     height: 100%;
+  }
+
+  /* 走马灯项：投放区透明，避免盖住背景图 */
+  &.is-carousel-item {
+    background-color: transparent;
   }
 }
 
@@ -1475,15 +1540,59 @@ const onCopyItem = (event) => {
   width: 100%;
   min-height: 48px;
   height: auto;
-  border: none;
-  border-radius: 0;
-  background-color: transparent;
+  border: 1px dashed var(--layout-border-color);
+  border-radius: 4px;
+  background-color: var(--color-primary-a04, rgba(64, 158, 255, 0.04));
   overflow: visible;
 }
 
 .is-full {
   width: 100%;
   height: 100%;
+}
+
+/* 时间线投放区：强制纵向；保留可拖入区浅底，避免看不出投放范围 */
+.draggable-grop-wrap.is-timeline {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  height: auto;
+  min-height: 48px;
+  overflow: visible;
+  border: 1px dashed var(--layout-border-color);
+  background-color: var(--color-primary-a04, rgba(64, 158, 255, 0.04));
+}
+
+.draggable-item.is-timeline-item {
+  display: block;
+  width: 100%;
+  height: auto !important;
+  max-width: 100%;
+  overflow: visible;
+  background: transparent;
+}
+
+.draggable-item.is-timeline-item .draggable-item__body {
+  overflow: visible;
+  padding-left: 4px;
+}
+
+/* 设计态：li 被外框包裹时 EP 的 :last-child 会误伤全部线；按外框判断最后一项 */
+.draggable-grop-wrap.is-timeline > .draggable-item.is-timeline-item :deep(.el-timeline-item__tail) {
+  display: block !important;
+}
+
+.draggable-grop-wrap.is-timeline > .draggable-item.is-timeline-item:last-child :deep(.el-timeline-item__tail) {
+  display: none !important;
+}
+
+.grow-timeline-host {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: visible;
+  padding-left: 4px;
 }
 
 .grow-logic-block {

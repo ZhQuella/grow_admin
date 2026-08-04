@@ -85,6 +85,10 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
     direction: 'horizontal',
     'pause-on-hover': true,
   },
+  GrowCarouselItem: {
+    linkType: 'web',
+    imageFit: 'cover',
+  },
   GrowScrollbar: {
     height: '200px',
   },

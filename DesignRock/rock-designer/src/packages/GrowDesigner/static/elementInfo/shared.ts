@@ -255,6 +255,17 @@ export const searchFieldsInput = (
   modelKey: 'search',
 })
 
+/** 走马灯轮播项配置 */
+export const carouselItemsInput = (
+  name = '轮播项',
+  describe = '配置走马灯每一项的图片、跳转地址与打开方式',
+): PropConfigItem => ({
+  eleType: 'PropCarouselItems',
+  name,
+  describe,
+  modelKey: '__carouselItems__',
+})
+
 /** 分页 layout：勾选 + 拖拽排序 */
 export const paginationLayoutInput = (
   name = '布局',
