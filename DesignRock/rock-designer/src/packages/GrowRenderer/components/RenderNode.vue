@@ -3,6 +3,27 @@
     <!-- 未接入组件：预览阶段跳过 -->
   </template>
 
+  <!--
+    走马灯项：不要包 grow-render-node。
+    额外 DOM 会插在 el-carousel__container 与 item 之间，导致项无法正确 ready/显示图片。
+  -->
+  <component
+    v-else-if="isNodeRenderable && isChild && tag === 'GrowCarouselItem'"
+    v-show="isNodeVisible"
+    :is="tag"
+    :ref="setComponentRef"
+    v-bind="moduleProps"
+    :class="[nodeClass, { 'w-full': isFormFullWidth }]"
+    :style="nodeStyle"
+  >
+    <RenderNode
+      v-for="child in children"
+      :key="child.uuid"
+      :node="child"
+      :schema="schema"
+    />
+  </component>
+
   <!-- render=false → 不创建；visible=false → 隐藏 -->
   <div
     v-else-if="isNodeRenderable"
@@ -274,9 +295,9 @@
     </template>
   </component>
 
-  <!-- 容器：表单 / 栅格 / Tabs / 弹层等（isChild） -->
+  <!-- 容器：表单 / 栅格 / Tabs / 弹层等（isChild）；走马灯项已在上方单独处理 -->
   <component
-    v-else-if="isChild && tag"
+    v-else-if="isChild && tag && tag !== 'GrowCarouselItem'"
     :is="tag"
     :ref="setComponentRef"
     v-bind="moduleProps"
@@ -380,6 +401,7 @@ import {
   writeModelBinding,
   writePaginationProp,
 } from '../utils/resolveBoundProps'
+import { resolveSearchBarFields } from '@grow-admin-rock/hooks'
 import {
   applyColumnBarVisibleToTableColumns,
   tableColumnsSignature,
@@ -618,7 +640,8 @@ const basicProps = computed(() => ({
   ...runtimeEventProps.value,
 }))
 const basicText = computed(() => resolveBasicText(tag.value, rawProps.value))
-const moduleProps = computed(() => {
+/** 归一化模块 props（含 Tabs/Collapse 激活态、SearchBar 字段） */
+const buildNormalizedModuleInfo = () => {
   const modes = props.schema.propBindModes?.[uuid.value]
   const sourceRaw = props.schema.props?.[uuid.value] || {}
   let source = rawProps.value
@@ -633,9 +656,20 @@ const moduleProps = computed(() => {
   }
   const info = normalizeModuleProps(tag.value || '', source)
   if (tag.value === 'GrowTable' && useLayoutMainHeight.value) {
-    // 走本地 WatchBox 分支时不在这里写 height
     Reflect.deleteProperty(info, 'height')
   }
+  if (tag.value === 'GrowSearchBar') {
+    info.search = resolveSearchBarFields(
+      Array.isArray(info.search) ? info.search : [],
+      runtimeState.value,
+      { refs: runtimeRefs.value },
+    )
+  }
+  return info
+}
+
+/** 包装 ColumnBar / Pagination 的运行时事件，先走内部回写再调用户回调 */
+const wrapModuleEventProps = () => {
   const eventProps = { ...runtimeEventProps.value }
   if (tag.value === 'GrowColumnBar') {
     const userConfirm = eventProps.onConfirm
@@ -656,11 +690,14 @@ const moduleProps = computed(() => {
       if (typeof userSize === 'function') userSize(...args)
     }
   }
-  return {
-    ...info,
-    ...eventProps,
-  }
-})
+  return eventProps
+}
+
+const moduleProps = computed(() => ({
+  ...buildNormalizedModuleInfo(),
+  ...wrapModuleEventProps(),
+}))
+
 /** 适应主区域时透传除 height 外的表格 props */
 const tableBaseProps = computed(() => {
   const info = normalizeModuleProps('GrowTable', rawProps.value)

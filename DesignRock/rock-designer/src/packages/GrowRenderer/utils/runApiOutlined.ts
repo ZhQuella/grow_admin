@@ -210,6 +210,64 @@ export type BuildApiOutlinedMethodsOptions = {
   computedProps?: unknown
 }
 
+/** 组装单次请求配置，并应用 willFetch */
+const buildApiRequest = (
+  item: DesignerApiOutlinedItem,
+  state: Record<string, unknown>,
+): ReportHttpRequestConfig => {
+  const url = String(item.url ?? '').trim()
+  const method = item.method || 'GET'
+  let request: ReportHttpRequestConfig = {
+    url: applyPathParams(url, resolveParams(item.pathParams, state)),
+    method,
+    params: resolveParams(item.params, state),
+  }
+  if (method !== 'GET') {
+    request.data = resolveParams(item.body, state)
+  }
+  const willFetch = findProcessor(item, 'willFetch')
+  if (!willFetch) return request
+  const next = runProcessor(willFetch, { request, state, config: item })
+  if (next && typeof next === 'object') {
+    return { ...request, ...(next as ReportHttpRequestConfig) }
+  }
+  return request
+}
+
+/** 请求成功：fit → 写 state → didFetch */
+const applyApiSuccess = (
+  item: DesignerApiOutlinedItem,
+  name: string,
+  state: Record<string, unknown>,
+  response: unknown,
+) => {
+  let next = response
+  const fit = findProcessor(item, 'fit')
+  if (fit) {
+    const fitted = runProcessor(fit, { response: next, state, config: item })
+    if (fitted !== undefined) next = fitted
+  }
+  state[name] = next
+  const didFetch = findProcessor(item, 'didFetch')
+  if (didFetch) {
+    runProcessor(didFetch, { response: next, state, config: item })
+  }
+}
+
+const applyApiError = (
+  item: DesignerApiOutlinedItem,
+  name: string,
+  state: Record<string, unknown>,
+  error: unknown,
+) => {
+  const onError = findProcessor(item, 'onError')
+  if (onError) {
+    runProcessor(onError, { error, state, config: item })
+    return
+  }
+  console.error(`[GrowApiOutlined:${name}]`, error)
+}
+
 /** 执行单个 API，结果写入 state[name] */
 export const runSingleApiOutlined = async (
   item: DesignerApiOutlinedItem,
@@ -220,50 +278,14 @@ export const runSingleApiOutlined = async (
   const name = String(item.name ?? '').trim()
   if (!name) return
   if (!options.force && !shouldFetchItem(item, state)) return
+  if (!String(item.url ?? '').trim()) return
 
-  const url = String(item.url ?? '').trim()
-  if (!url) return
-
-  const method = item.method || 'GET'
-  let request: ReportHttpRequestConfig = {
-    url: applyPathParams(url, resolveParams(item.pathParams, state)),
-    method,
-    params: resolveParams(item.params, state),
-  }
-  if (method !== 'GET') {
-    request.data = resolveParams(item.body, state)
-  }
-
-  const willFetch = findProcessor(item, 'willFetch')
-  if (willFetch) {
-    const next = runProcessor(willFetch, { request, state, config: item })
-    if (next && typeof next === 'object') {
-      request = { ...request, ...(next as ReportHttpRequestConfig) }
-    }
-  }
-
+  const request = buildApiRequest(item, state)
   try {
-    let response = await httpClient(request)
-
-    const fit = findProcessor(item, 'fit')
-    if (fit) {
-      const fitted = runProcessor(fit, { response, state, config: item })
-      if (fitted !== undefined) response = fitted
-    }
-
-    state[name] = response
-
-    const didFetch = findProcessor(item, 'didFetch')
-    if (didFetch) {
-      runProcessor(didFetch, { response, state, config: item })
-    }
+    const response = await httpClient(request)
+    applyApiSuccess(item, name, state, response)
   } catch (error) {
-    const onError = findProcessor(item, 'onError')
-    if (onError) {
-      runProcessor(onError, { error, state, config: item })
-    } else {
-      console.error(`[GrowApiOutlined:${name}]`, error)
-    }
+    applyApiError(item, name, state, error)
   }
 }
 

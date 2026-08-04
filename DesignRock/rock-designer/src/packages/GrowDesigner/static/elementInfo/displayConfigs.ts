@@ -9,7 +9,10 @@ import {
   sizeSelect,
   textInput,
   variableBindInput,
+  variableBindOnlyInput,
   tableColumnsInput,
+  searchFieldsInput,
+  carouselItemsInput,
 } from './shared'
 
 /** 弹窗：设计态用面板壳编辑；运行时由 modelValue / 事件控制显隐 */
@@ -237,8 +240,8 @@ export const calendarConfig = createConfig([
 
 /** 徽章 */
 export const badgeConfig = createConfig([
-  numberInput('显示值', 'value', '显示值'),
-  numberInput('最大值', 'max', '最大值，超过最大值会显示 {max}+'),
+  variableBindInput('显示值', 'value', '显示值，支持变量绑定'),
+  variableBindInput('最大值', 'max', '最大值，超过最大值会显示 {max}+，支持变量绑定'),
   boolSwitch('小圆点', 'is-dot', '是否显示小圆点'),
   boolSwitch('隐藏', 'hidden', '是否隐藏 Badge'),
   selectInput(
@@ -309,7 +312,7 @@ export const timelineConfig = createConfig([
 
 /** 时间线项 */
 export const timelineItemConfig = createConfig([
-  textInput('时间戳', 'timestamp', '时间戳'),
+  variableBindInput('时间戳', 'timestamp', '时间戳，支持变量绑定'),
   boolSwitch('隐藏时间戳', 'hide-timestamp', '是否隐藏时间戳'),
   boolSwitch('垂直居中', 'center', '是否垂直居中'),
   selectInput(
@@ -321,17 +324,11 @@ export const timelineItemConfig = createConfig([
     ],
     '时间戳位置',
   ),
-  selectInput(
+  variableBindInput(
     '节点类型',
     'type',
-    [
-      { label: 'primary', value: 'primary' },
-      { label: 'success', value: 'success' },
-      { label: 'warning', value: 'warning' },
-      { label: 'danger', value: 'danger' },
-      { label: 'info', value: 'info' },
-    ],
-    '节点类型',
+    '节点类型，支持变量绑定；可选 primary / success / warning / danger / info',
+    '请输入类型或绑定变量',
   ),
   textInput('节点颜色', 'color', '节点背景色，如 #0bbd87'),
   selectInput(
@@ -343,7 +340,12 @@ export const timelineItemConfig = createConfig([
     ],
     '节点尺寸',
   ),
-  textInput('节点图标', 'icon', '自定义节点图标组件名'),
+  variableBindInput(
+    '节点图标',
+    'icon',
+    '节点图标，支持变量绑定；填写 Iconify 名，如 carbon:checkmark',
+    '如 carbon:checkmark',
+  ),
   boolSwitch('空心点', 'hollow', '是否空心点'),
 ])
 
@@ -513,6 +515,7 @@ export const tableConfig = createConfig([
 
 /** 走马灯 */
 export const carouselConfig = createConfig([
+  carouselItemsInput(),
   textInput('高度', 'height', '走马灯高度', '如 200px'),
   numberInput('初始索引', 'initial-index', '初始状态激活的幻灯片索引，从 0 开始'),
   selectInput(
@@ -570,8 +573,56 @@ export const carouselConfig = createConfig([
 
 /** 走马灯项 */
 export const carouselItemConfig = createConfig([
-  textInput('标识', 'name', '幻灯片对应的 name，可用作 setActiveItem 参数'),
-  textInput('标签', 'label', '幻灯片文本说明（用于指示器）'),
+  textInput(
+    '名字',
+    'name',
+    '幻灯片的名字，可用作 setActiveItem 的参数',
+  ),
+  textInput(
+    '指示器文本',
+    'label',
+    '该幻灯片所对应指示器的文本；可为空，为空时指示器不显示文字',
+  ),
+  variableBindInput(
+    '图片地址',
+    'src',
+    '幻灯片图片地址，支持变量绑定',
+    '请输入 URL 或绑定变量',
+  ),
+  selectInput(
+    '展示方式',
+    'imageFit',
+    [
+      { label: '覆盖', value: 'cover' },
+      { label: '铺满', value: 'full' },
+      { label: '自适应', value: 'contain' },
+      { label: '拉伸', value: 'fill' },
+      { label: '平铺', value: 'tile' },
+      { label: '原始尺寸', value: 'none' },
+    ],
+    '图片在轮播区域内的展示方式',
+  ),
+  variableBindInput(
+    '替代文本',
+    'alt',
+    '图片替代文本，提高可访问性，支持变量绑定',
+    '请输入 alt 或绑定变量',
+  ),
+  selectInput(
+    '链接类型',
+    'linkType',
+    [
+      { label: '网页', value: 'web' },
+      { label: '系统内部地址', value: 'internal' },
+    ],
+    '网页默认新窗口打开；系统内部地址默认在 tab 中打开',
+  ),
+  variableBindInput(
+    '跳转地址',
+    'href',
+    '网页填完整 URL；系统内部地址填路由路径（如 /dashboard）。打开方式按链接类型内置，无需另选',
+    '请输入 URL 或路由路径',
+  ),
 ])
 
 /** 分页（对齐 Element Plus ElPagination） */
@@ -641,8 +692,16 @@ export const paginationConfig = createConfig([
   ),
 ])
 
-/** 高级搜索栏 SearchBar：字段由 props.search 配置，拖入后带示例条件 */
-export const searchBarConfig = createConfig([])
+/** 高级搜索栏 SearchBar：字段由 props.search 可视化配置 */
+export const searchBarConfig = createConfig([
+  searchFieldsInput(),
+  variableBindOnlyInput(
+    '默认值',
+    'defaultData',
+    '各字段默认搜索值对象，仅支持变量绑定（如 return state.defaultSearch）',
+    '请绑定默认值对象',
+  ),
+])
 
 /** 列设置 ColumnBar */
 export const columnBarConfig = createConfig([

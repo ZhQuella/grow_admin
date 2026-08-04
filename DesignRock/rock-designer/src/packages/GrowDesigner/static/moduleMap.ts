@@ -486,7 +486,8 @@ export const AtomicComponent = new Map([
           elIcon: "Badge",
           isChild: true,
           isAdd: false,
-          childName: ""
+          childName: "",
+          isInlineBlock: true
         },
         {
           elName: "时间",
@@ -533,7 +534,7 @@ export const AtomicComponent = new Map([
           elTagName: "GrowCarousel",
           elIcon: "CarouselHorizontal",
           isChild: true,
-          isAdd: true,
+          isAdd: false,
           childName: "GrowCarouselItem"
         },
         {
@@ -568,26 +569,6 @@ export const AtomicComponent = new Map([
           elType: "eleModule",
           elTagName: "GrowTree",
           elIcon: "TreeViewAlt",
-          isChild: false,
-          isAdd: false,
-          childName: ""
-        },
-        {
-          elName: "虚拟树形组件",
-          elType: "eleModule",
-          elTagName: "GrowTreeV2",
-          unsupported: true,
-          elIcon: "TreeViewAlt",
-          isChild: false,
-          isAdd: false,
-          childName: ""
-        },
-        {
-          elName: "提示",
-          elType: "eleModule",
-          elTagName: "GrowAlert",
-          unsupported: true,
-          elIcon: "Drought",
           isChild: false,
           isAdd: false,
           childName: ""

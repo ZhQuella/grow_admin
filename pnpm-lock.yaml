@@ -596,6 +596,9 @@ importers:
       '@grow-admin-rock/components':
         specifier: workspace:*
         version: link:../rock-components
+      '@grow-admin-rock/hooks':
+        specifier: workspace:*
+        version: link:../rock-hooks
       '@grow-admin-rock/infrastructure':
         specifier: workspace:*
         version: link:../rock-infrastructure

@@ -1,10 +1,13 @@
 <template>
-  <div class="prop-variable-bind" :class="{ 'is-bound': isBound }">
+  <div
+    class="prop-variable-bind"
+    :class="{ 'is-bound': isBound, 'is-bind-only': bindOnly }"
+  >
     <GrowInput
       class="prop-variable-bind__input"
       size="small"
-      :clearable="!isBound"
-      :readonly="isBound"
+      :clearable="!isBound && !bindOnly"
+      :readonly="isBound || bindOnly"
       :placeholder="placeholder"
       :model-value="displayValue"
       @update:model-value="onInput"
@@ -13,7 +16,7 @@
       class="prop-variable-bind__bind"
       size="small"
       :type="isBound ? 'primary' : 'default'"
-      :title="isBound ? '已绑定，点击编辑表达式' : '绑定变量 / 表达式计算'"
+      :title="bindButtonTitle"
       @click="visible = true"
     >
       <GrowIconify icon="carbon:function" :size="14" />
@@ -47,11 +50,14 @@ const props = withDefaults(
     placeholder?: string
     /** 持久化的输入模式：text | bind */
     bindMode?: PropBindMode | string
+    /** 仅允许变量绑定，禁止手输 */
+    bindOnly?: boolean
   }>(),
   {
     modelValue: '',
     placeholder: '请输入或绑定变量',
     bindMode: PROP_BIND_MODE_TEXT,
+    bindOnly: false,
   },
 )
 
@@ -62,16 +68,25 @@ const emit = defineEmits<{
 
 const visible = ref(false)
 
-const isBound = computed(
-  () => normalizePropBindMode(props.bindMode) === PROP_BIND_MODE_BIND,
-)
+const bindOnly = computed(() => Boolean(props.bindOnly))
 
 const displayValue = computed(() =>
   props.modelValue == null ? '' : String(props.modelValue),
 )
 
+/** 已绑定且有内容时，配置按钮才为选中态（避免仅默认 bindMode 就高亮） */
+const isBound = computed(
+  () =>
+    normalizePropBindMode(props.bindMode) === PROP_BIND_MODE_BIND &&
+    Boolean(displayValue.value.trim()),
+)
+
+const bindButtonTitle = computed(() =>
+  isBound.value ? '已绑定，点击编辑表达式' : '绑定变量 / 表达式计算',
+)
+
 const onInput = (value: string | null) => {
-  if (isBound.value) return
+  if (isBound.value || bindOnly.value) return
   emit('update:bindMode', PROP_BIND_MODE_TEXT)
   emit('update:modelValue', value == null ? '' : String(value))
 }
@@ -106,7 +121,8 @@ const onBindRemove = () => {
   min-width: 0;
 }
 
-.prop-variable-bind.is-bound .prop-variable-bind__input {
+.prop-variable-bind.is-bound .prop-variable-bind__input,
+.prop-variable-bind.is-bind-only .prop-variable-bind__input {
   :deep(.el-input__wrapper),
   :deep(.n-input),
   :deep(.ant-input),

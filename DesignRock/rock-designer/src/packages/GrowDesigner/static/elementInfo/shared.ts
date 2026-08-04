@@ -156,15 +156,28 @@ export const variableBindInput = (
   modelKey: string,
   describe?: string,
   placeholder?: string,
+  options?: { bindOnly?: boolean },
 ): PropConfigItem => ({
   eleType: 'PropVariableBind',
   name,
   describe,
   modelKey,
   props: {
-    placeholder: placeholder || `请输入${name}或绑定变量`,
+    placeholder:
+      placeholder ||
+      (options?.bindOnly ? `请绑定${name}` : `请输入${name}或绑定变量`),
+    bindOnly: Boolean(options?.bindOnly),
   },
 })
+
+/** 仅变量绑定（不可手输文本） */
+export const variableBindOnlyInput = (
+  name: string,
+  modelKey: string,
+  describe?: string,
+  placeholder?: string,
+): PropConfigItem =>
+  variableBindInput(name, modelKey, describe, placeholder, { bindOnly: true })
 
 /** 表单字段 model 绑定（如 user.name），支持变量 */
 export const modelBind = (
@@ -229,6 +242,28 @@ export const columnBarColumnsInput = (
   name,
   describe,
   modelKey: '__columnBarColumns__',
+})
+
+/** 高级搜索字段配置 */
+export const searchFieldsInput = (
+  name = '搜索字段',
+  describe = '配置高级搜索条件字段（控件类型、options、远程搜索等）；也可整体绑定变量',
+): PropConfigItem => ({
+  eleType: 'PropSearchFields',
+  name,
+  describe,
+  modelKey: 'search',
+})
+
+/** 走马灯轮播项配置 */
+export const carouselItemsInput = (
+  name = '轮播项',
+  describe = '配置走马灯每一项的图片、跳转地址与打开方式',
+): PropConfigItem => ({
+  eleType: 'PropCarouselItems',
+  name,
+  describe,
+  modelKey: '__carouselItems__',
 })
 
 /** 分页 layout：勾选 + 拖拽排序 */

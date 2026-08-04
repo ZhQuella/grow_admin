@@ -1,49 +1,41 @@
 <template>
-  <Teleport to="body">
-    <div v-if="visible" class="function-bind-dialog" @click.stop>
-      <div class="function-bind-dialog__mask" @click="onCancel" />
-      <div class="function-bind-dialog__panel" role="dialog" aria-modal="true">
-        <header class="function-bind-dialog__header">
-          <h3 class="function-bind-dialog__title">
-            函数绑定{{ title ? ` · ${title}` : '' }}
-          </h3>
-          <button
-            type="button"
-            class="function-bind-dialog__close"
-            title="关闭"
-            @click="onCancel"
-          >
-            <GrowIconify icon="carbon:close" :size="16" />
-          </button>
-        </header>
-
-        <div class="function-bind-dialog__body">
-          <p class="function-bind-dialog__hint">
-            可用参数：{{ paramsHint }}；以及 state、refs
-          </p>
-          <div class="function-bind-dialog__editor">
-            <GrowCodeEditor
-              v-model="draft"
-              class="h-full"
-              default-language="javascript"
-              :language-switchable="false"
-            />
-          </div>
-          <pre class="function-bind-dialog__example">{{ exampleText }}</pre>
-        </div>
-
-        <footer class="function-bind-dialog__footer">
-          <GrowButton size="small" type="danger" plain @click="onRemove">
-            清除
-          </GrowButton>
-          <GrowButton size="small" @click="onCancel">取消</GrowButton>
-          <GrowButton size="small" type="primary" @click="onConfirm">
-            确定
-          </GrowButton>
-        </footer>
+  <GrowDialog
+    :model-value="visible"
+    :title="dialogTitle"
+    width="720px"
+    append-to-body
+    destroy-on-close
+    :z-index="5200"
+    class="function-bind-dialog"
+    @update:model-value="onVisibleChange"
+  >
+    <div class="function-bind-dialog__body" @click.stop>
+      <p class="function-bind-dialog__hint">
+        可用参数：{{ paramsHint }}；以及 state、refs
+      </p>
+      <div class="function-bind-dialog__editor">
+        <GrowCodeEditor
+          v-model="draft"
+          class="h-full"
+          default-language="javascript"
+          :language-switchable="false"
+        />
       </div>
+      <pre class="function-bind-dialog__example">{{ exampleText }}</pre>
     </div>
-  </Teleport>
+
+    <template #footer>
+      <div class="function-bind-dialog__footer">
+        <GrowButton size="small" type="danger" plain @click="onRemove">
+          清除
+        </GrowButton>
+        <GrowButton size="small" @click="onCancel">取消</GrowButton>
+        <GrowButton size="small" type="primary" @click="onConfirm">
+          确定
+        </GrowButton>
+      </div>
+    </template>
+  </GrowDialog>
 </template>
 
 <script setup lang="ts">
@@ -76,6 +68,10 @@ const emit = defineEmits<{
 
 const draft = ref('')
 
+const dialogTitle = computed(() =>
+  props.title ? `函数绑定 · ${props.title}` : '函数绑定',
+)
+
 const paramsHint = computed(() => {
   const list = props.params || []
   return list.length ? list.join('、') : 'args（数组）'
@@ -99,6 +95,10 @@ watch(
   { immediate: true },
 )
 
+const onVisibleChange = (open: boolean) => {
+  emit('update:visible', open)
+}
+
 const onCancel = () => emit('update:visible', false)
 
 const onConfirm = () => {
@@ -113,74 +113,14 @@ const onRemove = () => {
 </script>
 
 <style scoped lang="scss">
-.function-bind-dialog {
-  position: fixed;
-  inset: 0;
-  z-index: 4000;
-}
-
-.function-bind-dialog__mask {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-}
-
-.function-bind-dialog__panel {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  display: flex;
-  flex-direction: column;
-  width: min(720px, calc(100vw - 32px));
-  height: min(560px, calc(100vh - 48px));
-  transform: translate(-50%, -50%);
-  border-radius: 10px;
-  background: var(--layout-container-background-color, #fff);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
-  overflow: hidden;
-}
-
-.function-bind-dialog__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 48px;
-  padding: 0 16px;
-  border-bottom: 1px solid var(--layout-border-color);
-}
-
-.function-bind-dialog__title {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.function-bind-dialog__close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--text-color-secondary);
-  cursor: pointer;
-
-  &:hover {
-    background: var(--header-action-hover-bg-color);
-    color: var(--text-color);
-  }
-}
-
 .function-bind-dialog__body {
-  flex: 1;
-  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 12px 16px;
+  height: min(480px, calc(100vh - 220px));
+  min-height: 280px;
   overflow: hidden;
+  margin: -4px -4px 0;
 }
 
 .function-bind-dialog__hint {
@@ -213,7 +153,6 @@ const onRemove = () => {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
-  padding: 10px 16px;
-  border-top: 1px solid var(--layout-border-color);
+  width: 100%;
 }
 </style>

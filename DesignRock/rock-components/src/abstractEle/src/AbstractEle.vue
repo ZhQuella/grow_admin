@@ -37,6 +37,16 @@ const isSelect = computed(() => {
   return elType === 'GrowSelect' || elType === RockComponent.Select
 })
 
+const isCascader = computed(() => {
+  const elType = props.config.elType
+  return elType === 'GrowCascader' || elType === RockComponent.Cascader
+})
+
+const isTreeSelect = computed(() => {
+  const elType = props.config.elType
+  return elType === 'GrowTreeSelect' || elType === RockComponent.TreeSelect
+})
+
 const boundAttrs = computed(() => {
   const {
     elType: _elType,
@@ -47,10 +57,12 @@ const boundAttrs = computed(() => {
     label,
     value,
     options,
+    data,
     ...rest
   } = props.config as AbstractEleConfig & {
     isDefault?: boolean
     noDelete?: boolean
+    data?: unknown
   }
 
   // 挂到 body，避免被 SearchBar 弹层/滚动容器裁切
@@ -62,10 +74,21 @@ const boundAttrs = computed(() => {
   if (isSelect.value) {
     const labelKey = (label as string) || 'label'
     const valueKey = (value as string) || 'value'
-    attrs.options = (options || []).map((item) => ({
-      label: item[labelKey],
-      value: item[valueKey],
+    const list = Array.isArray(options) ? options : []
+    attrs.options = list.map((item) => ({
+      label: item?.[labelKey],
+      value: item?.[valueKey],
     }))
+  } else if (isCascader.value) {
+    attrs.options = Array.isArray(options) ? options : []
+  } else if (isTreeSelect.value) {
+    const list = Array.isArray(options)
+      ? options
+      : Array.isArray(data)
+        ? data
+        : []
+    attrs.data = list
+    attrs.options = list
   }
 
   return attrs

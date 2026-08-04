@@ -203,60 +203,69 @@ const overlayClass = computed(() => resolveNodeClass(rawStyles.value))
  * 设计态模拟面板：配置样式作用在面板上（对应预览时作用在弹窗/抽屉组件）。
  * 尺寸 props（width / size）仅在样式未设置对应尺寸时作为兜底。
  */
+const applyModalPanelStyle = (
+  style: Record<string, string | number>,
+  propsInfo: Record<string, any>,
+  rawStyles: Record<string, any> | undefined,
+) => {
+  const width = propsInfo.width
+  const configuredStyleWidth = rawStyles?.width
+  if (String(configuredStyleWidth) === 'auto') {
+    style.width = 'calc(100% - 32px)'
+  } else if (configuredStyleWidth == null || configuredStyleWidth === '') {
+    style.width =
+      width != null && width !== '' && String(width) !== 'auto'
+        ? String(width)
+        : '480px'
+  }
+  if (style.maxWidth == null && style['max-width'] == null) {
+    style.maxWidth = 'calc(100% - 32px)'
+  }
+}
+
+const applyDrawerPanelStyle = (
+  style: Record<string, string | number>,
+  propsInfo: Record<string, any>,
+  direction: string,
+) => {
+  const size = propsInfo.size
+  const isVertical = direction === 'ttb' || direction === 'btt'
+  if (isVertical) {
+    if (style.width == null || style.width === '' || String(style.width) === 'fit-content') {
+      style.width = '100%'
+    }
+    if (style.height == null || style.height === '') {
+      style.height = size != null && size !== '' ? String(size) : '40%'
+    }
+    if (style.maxHeight == null && style['max-height'] == null) {
+      style.maxHeight = 'calc(100% - 16px)'
+    }
+    return
+  }
+  if (style.height == null || style.height === '') style.height = '100%'
+  if (style.width == null || style.width === '') {
+    style.width = size != null && size !== '' ? String(size) : '30%'
+  } else if (String(style.width) === 'fit-content') {
+    if (style.minWidth == null && style['min-width'] == null) {
+      style.minWidth =
+        size != null && size !== '' && size !== 'auto' ? String(size) : '30%'
+    }
+  }
+  if (style.maxWidth == null && style['max-width'] == null) {
+    style.maxWidth = 'calc(100% - 16px)'
+  }
+}
+
 const panelStyle = computed(() => {
   const style: Record<string, string | number> = {
     ...resolveOverlayHostStyle(rawStyles.value),
   }
-
   if (isModal.value) {
-    const width = propsInfo.value.width
-    const configuredStyleWidth = rawStyles.value?.width
-    if (String(configuredStyleWidth) === 'auto') {
-      // 设计态 auto：接近画布宽度并左右留白（见期望效果）
-      style.width = 'calc(100% - 32px)'
-    } else if (configuredStyleWidth == null || configuredStyleWidth === '') {
-      style.width =
-        width != null && width !== '' && String(width) !== 'auto'
-          ? String(width)
-          : '480px'
-    }
-    if (style.maxWidth == null && style['max-width'] == null) {
-      style.maxWidth = 'calc(100% - 32px)'
-    }
+    applyModalPanelStyle(style, propsInfo.value, rawStyles.value)
   }
-
   if (isDrawer.value) {
-    const size = propsInfo.value.size
-    const dir = direction.value
-    const isVertical = dir === 'ttb' || dir === 'btt'
-    if (isVertical) {
-      if (style.width == null || style.width === '' || String(style.width) === 'fit-content') {
-        style.width = '100%'
-      }
-      if (style.height == null || style.height === '') {
-        style.height = size != null && size !== '' ? String(size) : '40%'
-      }
-      if (style.maxHeight == null && style['max-height'] == null) {
-        style.maxHeight = 'calc(100% - 16px)'
-      }
-    } else {
-      if (style.height == null || style.height === '') style.height = '100%'
-      if (style.width == null || style.width === '') {
-        style.width = size != null && size !== '' ? String(size) : '30%'
-      } else if (String(style.width) === 'fit-content') {
-        if (style.minWidth == null && style['min-width'] == null) {
-          style.minWidth =
-            size != null && size !== '' && size !== 'auto'
-              ? String(size)
-              : '30%'
-        }
-      }
-      if (style.maxWidth == null && style['max-width'] == null) {
-        style.maxWidth = 'calc(100% - 16px)'
-      }
-    }
+    applyDrawerPanelStyle(style, propsInfo.value, direction.value)
   }
-
   return style
 })
 
@@ -419,6 +428,9 @@ const onActive = (payload: any) => emit('active', payload)
   height: auto;
   overflow: visible;
   box-sizing: border-box;
+  border: 1px dashed var(--layout-border-color);
+  border-radius: 6px;
+  background-color: var(--color-primary-a04, rgba(64, 158, 255, 0.04));
 
   &.is-footer {
     min-height: 56px;

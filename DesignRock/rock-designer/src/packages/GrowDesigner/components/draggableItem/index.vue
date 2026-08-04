@@ -232,46 +232,40 @@ const hasExplicitHeight = computed(() => {
   return value != null && value !== ''
 })
 
-const frameStyle = computed(() => {
-  const styles = effectiveFrameStyles.value
-  const result: Record<string, string> = {
-    'box-sizing': 'border-box',
-  }
-
-  const display = styleDisplay.value
-  const tag = currentArgument.value?.elTagName
-  const isInlineFrame =
-    INLINE_DISPLAYS.has(display) &&
-    (INLINE_FRAME_TAGS.has(tag) || isInlineBlockDefault.value)
-
-  // 映射组件外层：与 GrowLink 一致，行内级用 inline-block + fit-content
+/** 外框 display / 行内级尺寸基线 */
+const applyFrameDisplay = (
+  result: Record<string, string>,
+  display: string,
+  isInlineFrame: boolean,
+) => {
   if (isInlineFrame) {
     result.display = 'inline-block'
     result['vertical-align'] = 'top'
     result.width = 'fit-content'
     result['max-width'] = '100%'
-  } else if (BLOCK_DISPLAYS.has(display)) {
+    return
+  }
+  if (BLOCK_DISPLAYS.has(display)) {
     result.display = 'block'
   }
+}
 
-  const rawWidth = styles.width
-  const isFullWidth = rawWidth === '100%'
-
-  if (!hasFrameSize.value) {
-    return result.display || result.width ? result : undefined
-  }
-
+/** 将组件尺寸样式同步到画布外框 */
+const applyFrameSizeKeys = (
+  result: Record<string, string>,
+  styles: Record<string, any>,
+  tag: string | undefined,
+  isInlineFrame: boolean,
+) => {
+  const isFullWidth = styles.width === '100%'
   for (const key of FRAME_SIZE_KEYS) {
     const value = styles[key]
     if (value == null || value === '') continue
-    // 行内级不把 width:100% 同步到外框（否则仍占满整行）
     if (key === 'width' && isInlineFrame && isFullWidth) continue
     if (key === 'width' && isInlineFrame) {
-      // 用户显式设了具体宽度时才覆盖 fit-content
       result.width = value
       continue
     }
-    // 布局容器 height:100% 相对舞台实测高度，避免父级仅有 min-height 时塌陷
     if (
       key === 'height' &&
       tag === 'GrowLayout' &&
@@ -288,6 +282,27 @@ const frameStyle = computed(() => {
   if (result.height && result['min-height'] == null) {
     result['min-height'] = '0'
   }
+}
+
+const frameStyle = computed(() => {
+  const styles = effectiveFrameStyles.value
+  const result: Record<string, string> = {
+    'box-sizing': 'border-box',
+  }
+
+  const display = styleDisplay.value
+  const tag = currentArgument.value?.elTagName
+  const isInlineFrame =
+    INLINE_DISPLAYS.has(display) &&
+    (INLINE_FRAME_TAGS.has(tag) || isInlineBlockDefault.value)
+
+  applyFrameDisplay(result, display, isInlineFrame)
+
+  if (!hasFrameSize.value) {
+    return result.display || result.width ? result : undefined
+  }
+
+  applyFrameSizeKeys(result, styles, tag, isInlineFrame)
   return result
 })
 
@@ -322,6 +337,11 @@ const onCopyItem = () => {
   background: var(--component-background-color);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
+  /* 时间项：连接线/节点为绝对定位，不能被 overflow 裁掉 */
+  &.is-timeline-item {
+    overflow: visible;
+  }
+
   &.is-inline-level {
     display: inline-block;
     vertical-align: top;
@@ -330,7 +350,6 @@ const onCopyItem = () => {
     max-width: 100%;
     min-width: 0;
     min-height: 0;
-    margin: 0 6px 6px 0;
 
     /* body 也必须 fit-content：普通 block 会按包含块撑满整行 */
     .draggable-item__body {

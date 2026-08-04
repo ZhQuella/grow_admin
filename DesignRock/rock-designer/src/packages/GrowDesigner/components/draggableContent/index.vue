@@ -92,5 +92,8 @@ const onCopyItem = (event: any) => {
    */
   min-height: var(--designer-stage-height, 100%);
   padding: 8px;
+  border: 1px dashed var(--layout-border-color);
+  border-radius: 6px;
+  background-color: var(--color-primary-a04, rgba(64, 158, 255, 0.04));
 }
 </style>

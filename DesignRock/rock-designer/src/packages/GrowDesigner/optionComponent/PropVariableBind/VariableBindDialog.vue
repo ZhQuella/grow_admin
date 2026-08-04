@@ -5,6 +5,7 @@
     width="720px"
     append-to-body
     destroy-on-close
+    :z-index="5200"
     class="variable-bind-dialog"
     @update:model-value="onVisibleChange"
   >
@@ -70,7 +71,9 @@
         </div>
         <div class="variable-bind-dialog__example">
           <p class="variable-bind-dialog__example-title">示例</p>
-          <pre class="variable-bind-dialog__example-code">{{ BIND_EXAMPLE_CODE }}</pre>
+          <GrowScrollbar class="variable-bind-dialog__example-scroll">
+            <pre class="variable-bind-dialog__example-code">{{ BIND_EXAMPLE_CODE }}</pre>
+          </GrowScrollbar>
         </div>
       </section>
     </div>
@@ -239,7 +242,10 @@ const onRemove = () => {
   flex-shrink: 0;
   margin-top: 8px;
   max-height: 120px;
-  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .variable-bind-dialog__example-title {
@@ -247,6 +253,12 @@ const onRemove = () => {
   font-size: 12px;
   font-weight: 600;
   color: var(--text-color, #303133);
+}
+
+.variable-bind-dialog__example-scroll {
+  flex: 1;
+  min-height: 0;
+  max-height: 96px;
 }
 
 .variable-bind-dialog__example-code {
