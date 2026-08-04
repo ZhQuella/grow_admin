@@ -22,7 +22,9 @@ import {
   carouselItemConfig,
   dividerConfig,
   drawerConfig,
+  dropdownConfig,
   ellipsisConfig,
+  growImageConfig,
   iconifyConfig,
   modalConfig,
   paginationConfig,
@@ -35,6 +37,7 @@ import {
   timelineItemConfig,
   tooltipConfig,
   treeConfig,
+  tagConfig,
 } from './displayConfigs'
 import {
   buttonConfig,
@@ -89,6 +92,7 @@ export const elementPropsMap: Record<string, any[]> = {
   GrowDrawer: drawerConfig.props,
   GrowPopover: popoverConfig.props,
   GrowTooltip: tooltipConfig.props,
+  GrowDropdown: dropdownConfig.props,
   GrowSearchBar: searchBarConfig.props,
   GrowColumnBar: columnBarConfig.props,
 
@@ -119,8 +123,10 @@ export const elementPropsMap: Record<string, any[]> = {
   GrowPagination: paginationConfig.props,
   GrowAvatar: avatarConfig.props,
   GrowBadge: badgeConfig.props,
+  GrowTag: tagConfig.props,
   GrowTime: timeConfig.props,
   GrowEllipsis: ellipsisConfig.props,
+  GrowImage: growImageConfig.props,
   GrowIconify: iconifyConfig.props,
   GrowCalendar: calendarConfig.props,
   GrowDivider: dividerConfig.props,

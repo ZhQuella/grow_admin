@@ -215,6 +215,31 @@
     </div>
   </component>
 
+  <!-- GrowDropdown：拆分按钮用 content；否则默认插槽为触发元素 -->
+  <component
+    v-else-if="isChild && tag === 'GrowDropdown'"
+    :is="tag"
+    :ref="setComponentRef"
+    v-bind="moduleProps"
+    :class="nodeClass"
+    :style="nodeStyle"
+  >
+    <template v-if="isDropdownSplitButton">
+      {{ rawProps.content || '下拉菜单' }}
+    </template>
+    <div v-else class="grow-dropdown-trigger">
+      <template v-if="children.length">
+        <RenderNode
+          v-for="child in children"
+          :key="child.uuid"
+          :node="child"
+          :schema="schema"
+        />
+      </template>
+      <span v-else class="grow-dropdown-trigger__placeholder">触发元素</span>
+    </div>
+  </component>
+
   <!-- GrowUpload：行内块；默认插槽为触发内容 -->
   <component
     v-else-if="isChild && tag === 'GrowUpload'"
@@ -365,6 +390,7 @@
   >
     <span v-if="tag === 'GrowButton'">{{ rawProps.content }}</span>
     <span v-else-if="tag === 'GrowLink'">{{ rawProps.content }}</span>
+    <span v-else-if="tag === 'GrowTag'">{{ rawProps.content }}</span>
     <template v-else-if="tag === 'GrowEllipsis'">{{ rawProps.content }}</template>
   </component>
   </div>
@@ -613,6 +639,9 @@ const isBasicLeaf = computed(
 const isModuleLeaf = computed(
   () => config.value?.elType === 'eleModule' && !config.value?.isChild,
 )
+const isDropdownSplitButton = computed(() =>
+  Boolean(rawProps.value?.['split-button'] ?? rawProps.value?.splitButton),
+)
 const showFooter = computed(() => Boolean(rawProps.value.showFooter))
 const showHeaderExtra = computed(() => Boolean(rawProps.value.showHeaderExtra))
 
@@ -733,7 +762,12 @@ const nodeStyle = computed(() => {
   if (tag.value === 'GrowModal' || tag.value === 'GrowDrawer') {
     return resolveOverlayHostStyle(styles)
   }
-  return resolveNodeStyle(styles)
+  const style = resolveNodeStyle(styles)
+  // Tag：历史 schema 的 inline-block 会覆盖 EP 的 inline-flex，文字无法垂直居中
+  if (tag.value === 'GrowTag' && style.display === 'inline-block') {
+    style.display = 'inline-flex'
+  }
+  return style
 })
 const nodeClass = computed(() => resolveNodeClass(rawStyles.value))
 const scrollbarBodyStyle = computed(() => {
@@ -815,6 +849,22 @@ const loopEntries = computed(() => {
 }
 
 .grow-tooltip-trigger__placeholder {
+  display: inline-block;
+  padding: 4px 10px;
+  border: 1px dashed var(--layout-border-color, #dcdfe6);
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--text-color-secondary, #909399);
+}
+
+.grow-dropdown-trigger {
+  display: inline-block;
+  vertical-align: top;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.grow-dropdown-trigger__placeholder {
   display: inline-block;
   padding: 4px 10px;
   border: 1px dashed var(--layout-border-color, #dcdfe6);

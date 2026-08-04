@@ -47,6 +47,7 @@ export enum RockComponent {
   Grid = 'Grid',
   GridItem = 'GridItem',
   Ellipsis = 'Ellipsis',
+  Image = 'Image',
   Pagination = 'Pagination',
   Radio = 'Radio',
   RadioGroup = 'RadioGroup',

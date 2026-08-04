@@ -40,12 +40,14 @@ const CarouselItem = useDriverComponent(RockComponent.CarouselItem)
 const slots = useSlots()
 
 type CarouselImageFit =
-  | 'cover'
-  | 'full'
-  | 'contain'
   | 'fill'
-  | 'tile'
+  | 'contain'
+  | 'cover'
   | 'none'
+  | 'scale-down'
+  /** 历史值兼容 */
+  | 'full'
+  | 'tile'
 
 const src = computed(() => {
   const value = props.src
@@ -67,15 +69,17 @@ const linkType = computed(() =>
   props.linkType === 'internal' ? 'internal' : 'web',
 )
 
-/** 覆盖 / 铺满 / 自适应 / 拉伸 / 平铺 / 原始 */
+/** 与 GrowImage object-fit 一致；full/tile 为历史兼容 */
 const imageFit = computed<CarouselImageFit>(() => {
   const value = props.imageFit
+  if (value === 'full') return 'cover'
+  if (value === 'tile') return 'tile'
   if (
-    value === 'full' ||
-    value === 'contain' ||
     value === 'fill' ||
-    value === 'tile' ||
-    value === 'none'
+    value === 'contain' ||
+    value === 'cover' ||
+    value === 'none' ||
+    value === 'scale-down'
   ) {
     return value
   }
@@ -189,7 +193,7 @@ const onClick = () => {
   object-position: center;
 }
 
-/* 铺满：宽高都拉到 100%，保持比例并裁剪超出部分 */
+/* 历史「铺满」：行为接近等比覆盖 */
 .grow-carousel-item__media.is-fit-full .grow-carousel-item__img {
   width: 100%;
   height: 100%;
@@ -206,6 +210,11 @@ const onClick = () => {
 
 .grow-carousel-item__media.is-fit-fill .grow-carousel-item__img {
   object-fit: fill;
+}
+
+.grow-carousel-item__media.is-fit-scale-down .grow-carousel-item__img {
+  object-fit: scale-down;
+  object-position: center;
 }
 
 .grow-carousel-item__media.is-fit-none .grow-carousel-item__img {

@@ -3,14 +3,13 @@ import type { PropBindMode } from '../../static/propBindModes'
 /** 网页：新窗口；系统内部：当前系统 tab 打开 */
 export type CarouselLinkType = 'web' | 'internal'
 
-/** 覆盖 / 铺满 / 自适应 / 拉伸 / 平铺 / 原始 */
+/** 与 GrowImage object-fit 一致 */
 export type CarouselImageFit =
-  | 'cover'
-  | 'full'
-  | 'contain'
   | 'fill'
-  | 'tile'
+  | 'contain'
+  | 'cover'
   | 'none'
+  | 'scale-down'
 
 export type CarouselItemDraft = {
   id: string
@@ -32,23 +31,24 @@ export const CAROUSEL_IMAGE_FIT_OPTIONS: {
   label: string
   value: CarouselImageFit
 }[] = [
-  { label: '覆盖', value: 'cover' },
-  { label: '铺满', value: 'full' },
-  { label: '自适应', value: 'contain' },
-  { label: '拉伸', value: 'fill' },
-  { label: '平铺', value: 'tile' },
-  { label: '原始尺寸', value: 'none' },
+  { label: '拉伸填充', value: 'fill' },
+  { label: '等比包含', value: 'contain' },
+  { label: '等比覆盖', value: 'cover' },
+  { label: '保持原尺寸', value: 'none' },
+  { label: '缩小适配', value: 'scale-down' },
 ]
 
 export const normalizeCarouselImageFit = (
   value: unknown,
 ): CarouselImageFit => {
+  if (value === 'full') return 'cover'
+  if (value === 'tile') return 'none'
   if (
-    value === 'full' ||
-    value === 'contain' ||
     value === 'fill' ||
-    value === 'tile' ||
-    value === 'none'
+    value === 'contain' ||
+    value === 'cover' ||
+    value === 'none' ||
+    value === 'scale-down'
   ) {
     return value
   }

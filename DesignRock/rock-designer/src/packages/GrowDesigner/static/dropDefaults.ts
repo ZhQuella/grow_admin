@@ -59,6 +59,11 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
   p: { context: '正文内容' },
   span: { context: '短语文本' },
   GrowButton: { content: '按钮', type: 'primary' },
+  GrowTag: {
+    content: '标签',
+    type: 'primary',
+    effect: 'light',
+  },
   GrowLink: {
     content: '链接文字',
     type: 'primary',
@@ -111,6 +116,21 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
     placement: 'top',
     trigger: 'hover',
     effect: 'dark',
+  },
+  GrowDropdown: {
+    trigger: 'hover',
+    placement: 'bottom',
+    effect: 'light',
+    'hide-on-click': true,
+    'show-arrow': true,
+    teleported: true,
+    'split-button': false,
+    content: '下拉菜单',
+    items: [
+      { label: '操作一', command: 'action1' },
+      { label: '操作二', command: 'action2' },
+      { label: '操作三', command: 'action3', divided: true },
+    ],
   },
   GrowPopover: {
     title: '标题',
@@ -221,6 +241,14 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
       '这是一段很长的文本内容，超出容器宽度或设定行数后会被省略显示，悬浮可查看完整内容。',
     'line-clamp': 1,
     tooltip: true,
+  },
+  GrowImage: {
+    src: 'https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg',
+    width: 120,
+    'object-fit': 'cover',
+    'show-toolbar': true,
+    lazy: false,
+    'preview-disabled': false,
   },
   GrowIconify: {
     icon: 'carbon:application',
@@ -339,14 +367,21 @@ export const resolveDefaultStyles = (
   if (
     elTagName === 'GrowLink' ||
     elTagName === 'GrowButton' ||
+    elTagName === 'GrowTag' ||
     elTagName === 'GrowSearchBar' ||
     elTagName === 'GrowColumnBar' ||
     elTagName === 'GrowSwitch' ||
     elTagName === 'GrowAvatar' ||
-    elTagName === 'GrowIconify'
+    elTagName === 'GrowIconify' ||
+    elTagName === 'GrowImage' ||
+    elTagName === 'GrowDropdown'
   ) {
     Reflect.deleteProperty(styles, 'min-width')
     Reflect.deleteProperty(styles, 'min-height')
+  }
+  // Tag 依赖自身 inline-flex + align-items 垂直居中，勿用 inline-block 覆盖
+  if (elTagName === 'GrowTag') {
+    styles.display = 'inline-flex'
   }
   return styles
 }

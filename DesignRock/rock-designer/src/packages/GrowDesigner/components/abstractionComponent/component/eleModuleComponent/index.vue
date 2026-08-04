@@ -18,6 +18,7 @@
     >
       <span v-if="config.elTagName === 'GrowButton'">{{ propsInfo.content }}</span>
       <span v-else-if="config.elTagName === 'GrowLink'">{{ propsInfo.content }}</span>
+      <span v-else-if="config.elTagName === 'GrowTag'">{{ propsInfo.content }}</span>
       <template v-else-if="config.elTagName === 'GrowEllipsis'">{{ propsInfo.content }}</template>
       <TableColumnNodes
         v-else-if="config.elTagName === 'GrowTable'"
@@ -105,13 +106,14 @@ const isSocket = computed(() => {
     'GrowTabs',
     'GrowRow',
     'GrowScrollbar',
-    'GrowTooltip',
-    'GrowPopover',
-    'GrowModal',
-    'GrowDrawer',
-    'GrowLayout',
-    'GrowUpload',
-  ]
+  'GrowTooltip',
+  'GrowDropdown',
+  'GrowPopover',
+  'GrowModal',
+  'GrowDrawer',
+  'GrowLayout',
+  'GrowUpload',
+]
   return slotMap.includes(config.value.elTagName)
 })
 

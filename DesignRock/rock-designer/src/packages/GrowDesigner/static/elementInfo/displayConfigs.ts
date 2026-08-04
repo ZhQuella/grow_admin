@@ -2,6 +2,7 @@ import {
   boolSwitch,
   columnBarColumnsInput,
   createConfig,
+  dropdownItemsInput,
   functionBind,
   numberInput,
   paginationLayoutInput,
@@ -159,6 +160,73 @@ export const tooltipConfig = createConfig([
   numberInput('延迟隐藏', 'hide-after', '延迟关闭，单位毫秒'),
 ])
 
+/** 下拉菜单 Dropdown（Element Plus） */
+export const dropdownConfig = createConfig([
+  dropdownItemsInput(
+    '菜单项',
+    '增删菜单项，并设置显示文案与指令标识；分割线按钮可在项前显示分隔',
+  ),
+  selectInput(
+    '触发方式',
+    'trigger',
+    [
+      { label: '悬停', value: 'hover' },
+      { label: '点击', value: 'click' },
+      { label: '右键', value: 'contextmenu' },
+    ],
+    '如何触发下拉菜单',
+  ),
+  selectInput(
+    '出现位置',
+    'placement',
+    [
+      { label: '上', value: 'top' },
+      { label: '上-起始', value: 'top-start' },
+      { label: '上-结束', value: 'top-end' },
+      { label: '下', value: 'bottom' },
+      { label: '下-起始', value: 'bottom-start' },
+      { label: '下-结束', value: 'bottom-end' },
+    ],
+    '菜单弹出位置',
+  ),
+  selectInput(
+    '主题',
+    'effect',
+    [
+      { label: '浅色', value: 'light' },
+      { label: '深色', value: 'dark' },
+    ],
+    '下拉菜单主题',
+  ),
+  boolSwitch('禁用', 'disabled', '是否禁用'),
+  boolSwitch('拆分按钮', 'split-button', '是否将触发元素渲染为按钮组'),
+  textInput(
+    '按钮文本',
+    'content',
+    '仅在开启拆分按钮时生效，作为左侧按钮文案；关闭时使用子级触发元素',
+  ),
+  selectInput(
+    '按钮类型',
+    'type',
+    [
+      { label: '默认', value: '' },
+      { label: 'primary', value: 'primary' },
+      { label: 'success', value: 'success' },
+      { label: 'warning', value: 'warning' },
+      { label: 'danger', value: 'danger' },
+      { label: 'info', value: 'info' },
+    ],
+    '菜单按钮类型，仅在开启拆分按钮时生效',
+  ),
+  sizeSelect('菜单尺寸，拆分按钮时同时作用于按钮'),
+  boolSwitch('点击后隐藏', 'hide-on-click', '点击菜单项后是否隐藏菜单'),
+  boolSwitch('显示箭头', 'show-arrow', '下拉层是否显示箭头'),
+  boolSwitch('插入至 body', 'teleported', '是否将下拉层插入至 body'),
+  numberInput('延迟显示', 'show-timeout', '触发方式为 hover 时显示延迟（毫秒）'),
+  numberInput('延迟隐藏', 'hide-timeout', '触发方式为 hover 时隐藏延迟（毫秒）'),
+  textInput('最大高度', 'max-height', '菜单最大高度，如 200 或 200px'),
+])
+
 /** 分割线 */
 export const dividerConfig = createConfig([
   selectInput(
@@ -258,6 +326,39 @@ export const badgeConfig = createConfig([
   ),
 ])
 
+/** 标签（Element Plus Tag） */
+export const tagConfig = createConfig([
+  variableBindInput('文字', 'content', '标签显示文字，支持变量绑定', '请输入标签文字或绑定变量'),
+  selectInput(
+    '类型',
+    'type',
+    [
+      { label: 'primary', value: 'primary' },
+      { label: 'success', value: 'success' },
+      { label: 'info', value: 'info' },
+      { label: 'warning', value: 'warning' },
+      { label: 'danger', value: 'danger' },
+    ],
+    'Tag 的类型',
+  ),
+  boolSwitch('可关闭', 'closable', '是否可关闭'),
+  boolSwitch('禁用渐变动画', 'disable-transitions', '是否禁用关闭时的渐变动画'),
+  boolSwitch('边框描边', 'hit', '是否有边框描边'),
+  textInput('背景色', 'color', '自定义背景色，设置后优先于 type', '如 #409eff'),
+  sizeSelect('Tag 的尺寸'),
+  selectInput(
+    '主题',
+    'effect',
+    [
+      { label: '浅色', value: 'light' },
+      { label: '深色', value: 'dark' },
+      { label: '朴素', value: 'plain' },
+    ],
+    'Tag 的主题，默认为 light',
+  ),
+  boolSwitch('圆形', 'round', 'Tag 是否为圆形'),
+])
+
 /** 时间（Naive UI NTime） */
 export const timeConfig = createConfig([
   textInput('时间戳', 'time', '要展示的时间（毫秒时间戳；开启 unix 时为秒）', '如 1710000000000'),
@@ -292,6 +393,33 @@ export const ellipsisConfig = createConfig([
     '设置点击后切换展开/收起；留空则仅省略展示',
   ),
   boolSwitch('悬浮提示', 'tooltip', '省略时是否通过 Tooltip 展示完整内容'),
+])
+
+/** 图片（Naive UI NImage） */
+export const growImageConfig = createConfig([
+  variableBindInput('图片地址', 'src', '图片路径，支持变量绑定', '请输入 URL 或绑定变量'),
+  variableBindInput('替代文本', 'alt', '图片无法加载时的替代文字，支持变量绑定'),
+  textInput('宽度', 'width', '图片宽度，数字按 px；也可填 100% / 120px 等'),
+  textInput('高度', 'height', '图片高度，数字按 px；也可填 100% / 80px 等'),
+  selectInput(
+    '填充方式',
+    'object-fit',
+    [
+      { label: '拉伸填充', value: 'fill' },
+      { label: '等比包含', value: 'contain' },
+      { label: '等比覆盖', value: 'cover' },
+      { label: '保持原尺寸', value: 'none' },
+      { label: '缩小适配', value: 'scale-down' },
+    ],
+    '图片在容器中的填充方式，默认为拉伸填充',
+  ),
+  variableBindInput('预览地址', 'preview-src', '大图预览地址；为空时使用图片地址'),
+  variableBindInput('失败回退', 'fallback-src', '加载失败时展示的图片地址'),
+  boolSwitch('禁用预览', 'preview-disabled', '是否禁用点击预览'),
+  boolSwitch('懒加载', 'lazy', '是否启用懒加载'),
+  boolSwitch('显示工具栏', 'show-toolbar', '预览时是否显示工具栏，默认开启'),
+  boolSwitch('工具栏提示', 'show-toolbar-tooltip', '预览工具栏按钮是否显示 Tooltip'),
+  textInput('加载描述', 'load-description', '图片加载时的无障碍描述文案'),
 ])
 
 /** Iconify 图标 */
@@ -593,12 +721,11 @@ export const carouselItemConfig = createConfig([
     '展示方式',
     'imageFit',
     [
-      { label: '覆盖', value: 'cover' },
-      { label: '铺满', value: 'full' },
-      { label: '自适应', value: 'contain' },
-      { label: '拉伸', value: 'fill' },
-      { label: '平铺', value: 'tile' },
-      { label: '原始尺寸', value: 'none' },
+      { label: '拉伸填充', value: 'fill' },
+      { label: '等比包含', value: 'contain' },
+      { label: '等比覆盖', value: 'cover' },
+      { label: '保持原尺寸', value: 'none' },
+      { label: '缩小适配', value: 'scale-down' },
     ],
     '图片在轮播区域内的展示方式',
   ),

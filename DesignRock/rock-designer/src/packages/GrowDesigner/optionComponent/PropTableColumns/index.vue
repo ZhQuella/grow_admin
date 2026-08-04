@@ -4,10 +4,10 @@
       <GrowBadge
         class="prop-table-columns__badge"
         :value="columnCount"
-        :hidden="isBound || columnCount <= 0"
+        :hidden="!isConfigured"
       >
         <GrowButton
-          :type="isBound ? 'default' : 'primary'"
+          :type="isConfigured ? 'primary' : 'default'"
           size="small"
           :disabled="isBound"
           @click="visible = true"
@@ -100,6 +100,9 @@ const countColumns = (list: DesignerTableColumn[]): number =>
   }, 0)
 
 const columnCount = computed(() => countColumns(manualColumns.value))
+
+/** 手动配置且有列时才选中；绑定模式或空列不高亮 */
+const isConfigured = computed(() => !isBound.value && columnCount.value > 0)
 
 const onConfirm = (next: DesignerTableColumn[]) => {
   if (isBound.value) return

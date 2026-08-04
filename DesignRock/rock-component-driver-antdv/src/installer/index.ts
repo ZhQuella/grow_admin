@@ -63,6 +63,7 @@ import DrawerContent from '#/components/DrawerContent.vue'
 import DynamicInput from '#/components/DynamicInput.vue'
 import DynamicTags from '#/components/DynamicTags.vue'
 import Ellipsis from '#/components/Ellipsis.vue'
+import Image from '#/components/Image.vue'
 import FormItemGi from '#/components/FormItemGi.vue'
 import GradientText from '#/components/GradientText.vue'
 import Grid from '#/components/Grid.vue'
@@ -125,6 +126,7 @@ const allComponents: Partial<Record<RockComponent, any>> = {
   [RockComponent.DynamicInput]: DynamicInput,
   [RockComponent.DynamicTags]: DynamicTags,
   [RockComponent.Ellipsis]: Ellipsis,
+  [RockComponent.Image]: Image,
   [RockComponent.Empty]: Empty,
   [RockComponent.Form]: Form,
   [RockComponent.FormItem]: Form.Item,

@@ -152,6 +152,7 @@ const allComponents = {
   [RockComponent.Grid]: NGrid,
   [RockComponent.GridItem]: NGridItem,
   [RockComponent.Ellipsis]: NEllipsis,
+  [RockComponent.Image]: NImage,
   [RockComponent.Pagination]: NPagination,
   [RockComponent.Radio]: NRadio,
   [RockComponent.RadioButton]: NRadioButton,

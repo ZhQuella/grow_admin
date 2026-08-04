@@ -3,9 +3,13 @@
     <GrowBadge
       class="prop-carousel-items__badge"
       :value="itemCount"
-      :hidden="itemCount <= 0"
+      :hidden="!isConfigured"
     >
-      <GrowButton type="primary" size="small" @click="visible = true">
+      <GrowButton
+        :type="isConfigured ? 'primary' : 'default'"
+        size="small"
+        @click="visible = true"
+      >
         设置轮播项
       </GrowButton>
     </GrowBadge>
@@ -37,6 +41,9 @@ const parentStructure = computed(() =>
 const itemCount = computed(
   () => parentStructure.value?.children?.length || 0,
 )
+
+/** 有轮播项时按钮才为选中态，避免拖入后未配置就高亮 */
+const isConfigured = computed(() => itemCount.value > 0)
 
 const onConfirm = (_items: CarouselItemDraft[]) => {
   // 弹窗内已直接写回 structure / props，这里仅关闭

@@ -2,7 +2,12 @@
 
 import { normalizePaginationBindProps } from '../../GrowDesigner/static/paginationProps'
 
-export const TEXT_CONTENT_TAGS = new Set(['GrowButton', 'GrowLink', 'GrowEllipsis'])
+export const TEXT_CONTENT_TAGS = new Set([
+  'GrowButton',
+  'GrowLink',
+  'GrowEllipsis',
+  'GrowTag',
+])
 
 const stripEmptyTimezone = (info: Record<string, any>) => {
   if (info['time-zone'] === '' || info['time-zone'] == null) {
@@ -112,6 +117,44 @@ export const normalizeGrowEllipsisProps = (info: Record<string, any>) => {
   if (info['expand-trigger'] === '' || info['expand-trigger'] == null) {
     Reflect.deleteProperty(info, 'expand-trigger')
   }
+}
+
+export const normalizeGrowDropdownProps = (info: Record<string, any>) => {
+  if (info.type === '' || info.type == null) {
+    Reflect.deleteProperty(info, 'type')
+  }
+}
+
+/**
+ * NImage 的 width/height 会落到 img HTML 属性（需无单位数字）。
+ * 纯数字 / "120" / "120px" → number；带 %/vw 等单位时保留字符串（由驱动侧或 style 承接）。
+ */
+export const normalizeGrowImageProps = (info: Record<string, any>) => {
+  const normalizeSize = (key: 'width' | 'height') => {
+    const value = info[key]
+    if (value == null || value === '') {
+      Reflect.deleteProperty(info, key)
+      return
+    }
+    if (typeof value === 'number' && Number.isFinite(value)) return
+    const raw = String(value).trim()
+    if (!raw) {
+      Reflect.deleteProperty(info, key)
+      return
+    }
+    if (/^-?\d+(\.\d+)?$/.test(raw)) {
+      info[key] = Number(raw)
+      return
+    }
+    const px = raw.match(/^(-?\d+(?:\.\d+)?)px$/i)
+    if (px) {
+      info[key] = Number(px[1])
+      return
+    }
+    info[key] = raw
+  }
+  normalizeSize('width')
+  normalizeSize('height')
 }
 
 export const normalizeGrowCalendarProps = (info: Record<string, any>) => {
@@ -246,6 +289,8 @@ const applyValueTagRules = (
   options?: NormalizeModulePropsOptions,
 ) => {
   if (tag === 'GrowEllipsis') normalizeGrowEllipsisProps(info)
+  if (tag === 'GrowDropdown') normalizeGrowDropdownProps(info)
+  if (tag === 'GrowImage') normalizeGrowImageProps(info)
   if (tag === 'GrowCalendar') normalizeGrowCalendarProps(info)
   if (tag === 'GrowTreeSelect') {
     normalizeGrowTreeSelectProps(info, {

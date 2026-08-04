@@ -63,6 +63,7 @@ declare module 'vue' {
     GrowGrid: import('vue').Component;
     GrowGridItem: import('vue').Component;
     GrowEllipsis: import('vue').Component;
+    GrowImage: import('vue').Component;
     GrowPagination: import('vue').Component;
     GrowRadio: import('vue').Component;
     GrowRadioGroup: import('vue').Component;

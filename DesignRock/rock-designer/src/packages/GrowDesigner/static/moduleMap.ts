@@ -201,6 +201,16 @@ export const BaseComponent = new Map([
           isAdd: false,
           childName: "",
           isInlineBlock: true
+        },
+        {
+          elName: "下拉菜单",
+          elType: "eleModule",
+          elTagName: "GrowDropdown",
+          elIcon: "Dropdown",
+          isChild: true,
+          isAdd: false,
+          childName: "",
+          isInlineBlock: true
         }
       ]
     }
@@ -294,6 +304,16 @@ export const AtomicComponent = new Map([
           elType: "eleModule",
           elTagName: "GrowColumnBar",
           elIcon: "ColumnBar",
+          isChild: false,
+          isAdd: false,
+          childName: "",
+          isInlineBlock: true
+        },
+        {
+          elName: "图片",
+          elType: "eleModule",
+          elTagName: "GrowImage",
+          elIcon: "Image",
           isChild: false,
           isAdd: false,
           childName: "",
@@ -485,6 +505,16 @@ export const AtomicComponent = new Map([
           elTagName: "GrowBadge",
           elIcon: "Badge",
           isChild: true,
+          isAdd: false,
+          childName: "",
+          isInlineBlock: true
+        },
+        {
+          elName: "标签",
+          elType: "eleModule",
+          elTagName: "GrowTag",
+          elIcon: "Tag",
+          isChild: false,
           isAdd: false,
           childName: "",
           isInlineBlock: true
