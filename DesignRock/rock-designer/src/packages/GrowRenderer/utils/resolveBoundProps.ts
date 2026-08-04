@@ -350,15 +350,18 @@ export const writeBoundPropValue = (
   return setByStateExpression(state, expr, value)
 }
 
-/** 分页 current-page / page-size 写回（支持 state 绑定；未绑定时写字面量） */
-export const writePaginationProp = (
+/**
+ * 受控字段写回（支持 state 绑定；未绑定时写字面量）。
+ * 用于分页、步骤条等需要配套 update 监听才能交互的组件。
+ */
+export const writeControlledProp = (
   state: Record<string, unknown> | null | undefined,
   rawProps: Record<string, any> | undefined,
   bindModes: Record<string, string> | undefined,
-  key: 'current-page' | 'page-size',
+  key: string,
   value: unknown,
 ): boolean => {
-  if (!rawProps) return false
+  if (!rawProps || !key) return false
   const mode = bindModes?.[key]
   const expr = rawProps[key]
   if (
@@ -372,6 +375,23 @@ export const writePaginationProp = (
   rawProps[key] = value
   return true
 }
+
+/** 分页 current-page / page-size 写回 */
+export const writePaginationProp = (
+  state: Record<string, unknown> | null | undefined,
+  rawProps: Record<string, any> | undefined,
+  bindModes: Record<string, string> | undefined,
+  key: 'current-page' | 'page-size',
+  value: unknown,
+): boolean => writeControlledProp(state, rawProps, bindModes, key, value)
+
+/** 步骤条 current 写回（Naive 需 onUpdate:current 才可点击切换） */
+export const writeStepsCurrent = (
+  state: Record<string, unknown> | null | undefined,
+  rawProps: Record<string, any> | undefined,
+  bindModes: Record<string, string> | undefined,
+  value: unknown,
+): boolean => writeControlledProp(state, rawProps, bindModes, 'current', value)
 
 /**
  * 按 propBindModes 解析 props：

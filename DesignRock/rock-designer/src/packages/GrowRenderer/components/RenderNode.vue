@@ -426,6 +426,7 @@ import {
   writeContainerActiveValue,
   writeModelBinding,
   writePaginationProp,
+  writeStepsCurrent,
 } from '../utils/resolveBoundProps'
 import { resolveSearchBarFields } from '@grow-admin-rock/hooks'
 import {
@@ -596,6 +597,17 @@ const onPaginationPageSize = (value: number) => {
   )
 }
 
+/** 步骤条 current 回写（Naive 要求配套 onUpdate:current 才可点击切换） */
+const onStepsCurrent = (value: number) => {
+  if (tag.value !== 'GrowSteps') return
+  writeStepsCurrent(
+    injectedRuntimeState,
+    props.schema.props?.[uuid.value],
+    props.schema.propBindModes?.[uuid.value],
+    value,
+  )
+}
+
 /** ColumnBar 确认：回写自身 columns，并同步关联表格可见列 */
 const onColumnBarConfirm = (columns: unknown) => {
   const raw = props.schema.props?.[uuid.value]
@@ -697,7 +709,7 @@ const buildNormalizedModuleInfo = () => {
   return info
 }
 
-/** 包装 ColumnBar / Pagination 的运行时事件，先走内部回写再调用户回调 */
+/** 包装 ColumnBar / Pagination / Steps 的运行时事件，先走内部回写再调用户回调 */
 const wrapModuleEventProps = () => {
   const eventProps = { ...runtimeEventProps.value }
   if (tag.value === 'GrowColumnBar') {
@@ -717,6 +729,13 @@ const wrapModuleEventProps = () => {
     eventProps['onUpdate:page-size'] = (...args: unknown[]) => {
       onPaginationPageSize(args[0] as number)
       if (typeof userSize === 'function') userSize(...args)
+    }
+  }
+  if (tag.value === 'GrowSteps') {
+    const userCurrent = eventProps['onUpdate:current']
+    eventProps['onUpdate:current'] = (...args: unknown[]) => {
+      onStepsCurrent(args[0] as number)
+      if (typeof userCurrent === 'function') userCurrent(...args)
     }
   }
   return eventProps
