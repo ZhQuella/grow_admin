@@ -597,7 +597,7 @@ const onPaginationPageSize = (value: number) => {
   )
 }
 
-/** 步骤条 current 回写（Naive 要求配套 onUpdate:current 才可点击切换） */
+/** 步骤条 current 回写（仅在已有 update:current 事件时由包装逻辑调用） */
 const onStepsCurrent = (value: number) => {
   if (tag.value !== 'GrowSteps') return
   writeStepsCurrent(
@@ -732,10 +732,13 @@ const wrapModuleEventProps = () => {
     }
   }
   if (tag.value === 'GrowSteps') {
+    // 仅在配置了 update:current 事件时注入回写，避免无事件也可点击切换
     const userCurrent = eventProps['onUpdate:current']
-    eventProps['onUpdate:current'] = (...args: unknown[]) => {
-      onStepsCurrent(args[0] as number)
-      if (typeof userCurrent === 'function') userCurrent(...args)
+    if (typeof userCurrent === 'function') {
+      eventProps['onUpdate:current'] = (...args: unknown[]) => {
+        onStepsCurrent(args[0] as number)
+        userCurrent(...args)
+      }
     }
   }
   return eventProps

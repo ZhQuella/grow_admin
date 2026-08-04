@@ -630,7 +630,7 @@ export const AtomicComponent = new Map([
           elTagName: "GrowSteps",
           elIcon: "Steps",
           isChild: true,
-          isAdd: true,
+          isAdd: false,
           childName: "GrowStep"
         },
         {

@@ -19,24 +19,32 @@ defineOptions({
   inheritAttrs: false,
 })
 
-const emit = defineEmits<{
-  'update:current': [value: number]
-}>()
-
+// 不 declare emit：否则 onUpdate:current 会从 attrs 剔除，无法判断是否配置了事件
 const Steps = useDriverComponent(RockComponent.Steps)
 const attrs = useAttrs()
+
+const getUpdateCurrentHandler = (): ((value: number) => void) | null => {
+  const raw = attrs as Record<string, unknown>
+  const fn = raw['onUpdate:current'] ?? raw.onUpdateCurrent
+  return typeof fn === 'function' ? (fn as (value: number) => void) : null
+}
+
+/** 仅当父级传入 onUpdate:current（如配置了事件）时才允许点击切换 */
+const isCurrentClickable = computed(() => Boolean(getUpdateCurrentHandler()))
 
 /** 同一点击可能冒泡多次，短防抖 */
 let lastReportAt = 0
 let lastReportIndex = -1
 const reportCurrent = (index: number) => {
+  const handler = getUpdateCurrentHandler()
+  if (!handler) return
   const n = Number(index)
   if (!Number.isFinite(n) || n < 1) return
   const now = Date.now()
   if (n === lastReportIndex && now - lastReportAt < 50) return
   lastReportAt = now
   lastReportIndex = n
-  emit('update:current', n)
+  handler(n)
 }
 
 const driverKind = computed(() => {
@@ -109,9 +117,14 @@ const boundAttrs = computed(() => {
     if (Number.isFinite(n)) raw.current = n
   }
 
-  // 传给 Naive 用于 clickable 样式；实际切换由 DOM 点击委托保证
-  raw['onUpdate:current'] = reportCurrent
-  raw.onUpdateCurrent = reportCurrent
+  // Naive：有 onUpdate:current 才可点击；无事件时不注入，避免误切换
+  if (isCurrentClickable.value) {
+    raw['onUpdate:current'] = reportCurrent
+    raw.onUpdateCurrent = reportCurrent
+  } else {
+    Reflect.deleteProperty(raw, 'onUpdate:current')
+    Reflect.deleteProperty(raw, 'onUpdateCurrent')
+  }
 
   const kind = driverKind.value
   if (kind === 'naive') return raw
@@ -169,6 +182,7 @@ const resolveHostEl = (): HTMLElement | null => {
 }
 
 const onHostClick = (event: Event) => {
+  if (!isCurrentClickable.value) return
   const target = event.target as HTMLElement | null
   if (!target) return
   const stepEl = target.closest(STEP_SELECTOR) as HTMLElement | null
@@ -196,6 +210,7 @@ const detachHostClick = () => {
 const attachHostClick = async () => {
   await nextTick()
   detachHostClick()
+  if (!isCurrentClickable.value) return
   const host = resolveHostEl()
   if (!host) return
   host.addEventListener('click', onHostClick)
@@ -211,7 +226,7 @@ onMounted(() => {
   void attachHostClick()
 })
 
-watch(DriverRef, () => {
+watch([DriverRef, isCurrentClickable], () => {
   void attachHostClick()
 })
 
@@ -226,6 +241,7 @@ onBeforeUnmount(() => {
     v-bind="boundAttrs"
     :ref="setDriverRef"
     class="grow-steps"
+    :class="{ 'grow-steps--clickable': isCurrentClickable }"
   >
     <template v-if="stepItems">
       <GrowStep
@@ -239,9 +255,9 @@ onBeforeUnmount(() => {
 </template>
 
 <style>
-.grow-steps .n-step:not(.n-step--disabled),
-.grow-steps .el-step:not(.is-disabled),
-.grow-steps .ant-steps-item:not(.ant-steps-item-disabled) {
+.grow-steps--clickable .n-step:not(.n-step--disabled),
+.grow-steps--clickable .el-step:not(.is-disabled),
+.grow-steps--clickable .ant-steps-item:not(.ant-steps-item-disabled) {
   cursor: pointer;
 }
 </style>
