@@ -49,6 +49,8 @@ export const EL_TO_GROW_TAG: Record<string, { tag: string; unsupported?: boolean
   'el-divider': { tag: 'GrowDivider' },
   'el-timeline': { tag: 'GrowTimeline' },
   'el-timeline-item': { tag: 'GrowTimelineItem' },
+  'el-steps': { tag: 'GrowSteps' },
+  'el-step': { tag: 'GrowStep' },
   'el-tree': { tag: 'GrowTree' },
   'el-tree-v2': { tag: 'GrowTreeV2', unsupported: true },
   'el-alert': { tag: 'GrowAlert', unsupported: true },

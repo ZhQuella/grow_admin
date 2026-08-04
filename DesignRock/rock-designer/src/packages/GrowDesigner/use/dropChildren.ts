@@ -149,7 +149,12 @@ export const applyDropInitByTag = (
   parentUuid: string,
 ) => {
   const action = dropInitActionsByTag[elTagName]
-  if (action) runDropInitAction(draggableConfig, action, structure, renderArgument, parentUuid)
+  if (!action) return
+  // 步骤条默认生成 3 项，便于直接看到效果
+  const times = elTagName === 'GrowSteps' ? 3 : 1
+  for (let i = 0; i < times; i++) {
+    runDropInitAction(draggableConfig, action, structure, renderArgument, parentUuid)
+  }
 }
 
 /** 「添加子项」：优先走特殊映射，否则追加通用子项 */

@@ -540,6 +540,16 @@ export const AtomicComponent = new Map([
           isInlineBlock: true
         },
         {
+          elName: "文本高亮",
+          elType: "eleModule",
+          elTagName: "GrowHighlight",
+          elIcon: "Highlight",
+          isChild: false,
+          isAdd: false,
+          childName: "",
+          isInlineBlock: true
+        },
+        {
           elName: "图标",
           elType: "eleModule",
           elTagName: "GrowIconify",
@@ -593,6 +603,15 @@ export const AtomicComponent = new Map([
           isChild: true,
           isAdd: false,
           childName: ""
+        },
+        {
+          elName: "步骤条",
+          elType: "eleModule",
+          elTagName: "GrowSteps",
+          elIcon: "Steps",
+          isChild: true,
+          isAdd: true,
+          childName: "GrowStep"
         },
         {
           elName: "树形组件",
@@ -653,6 +672,18 @@ export const specificComponent = new Map([
       elTagName: "GrowCarouselItem",
       elIcon: "CarouselHorizontal",
       isChild: true,
+      isAdd: false,
+      childName: ""
+    }
+  ],
+  [
+    "GrowStep",
+    {
+      elName: "步骤项",
+      elType: "eleModule",
+      elTagName: "GrowStep",
+      elIcon: "Step",
+      isChild: false,
       isAdd: false,
       childName: ""
     }

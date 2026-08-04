@@ -1008,6 +1008,17 @@
       </component>
     </template>
 
+    <!-- 步骤条：单组件；绑定 items 时由 GrowSteps 内部渲染，否则用结构子节点 -->
+    <template v-if="config.elTagName === 'GrowSteps'">
+      <GrowSteps v-bind="resolvedPropsInfo" :style="styleInfo">
+        <GrowStep
+          v-for="ele in structure.children"
+          :key="ele.uuid"
+          v-bind="stepDesignProps(ele)"
+        />
+      </GrowSteps>
+    </template>
+
     <template v-if="['GrowDrawer', 'GrowModal'].includes(config.elTagName)">
       <!-- 画布仅占位；内容在工具栏打开的模拟编辑层中拖入 -->
       <div
@@ -1176,6 +1187,29 @@ const childModuleDesignProps = computed(() => {
   }
   return info
 })
+
+/** 步骤项设计态 props（直接挂到 GrowStep，供 NSteps 识别） */
+const stepDesignProps = (ele: { uuid: string }) => {
+  const raw = { ...(draggableConfig?.props?.[ele.uuid] || {}) }
+  const uuid = ele.uuid
+  const state =
+    injectedRuntimeState ??
+    (draggableConfig
+      ? buildRuntimeState(draggableConfig.dataSource, draggableConfig.computedProps)
+      : {})
+  const resolved = resolveBoundProps(
+    raw,
+    draggableConfig?.propBindModes?.[uuid],
+    state,
+  )
+  Reflect.deleteProperty(resolved, 'visible')
+  Reflect.deleteProperty(resolved, 'render')
+  Reflect.deleteProperty(resolved, 'name')
+  if (resolved.status === '' || resolved.status == null) {
+    Reflect.deleteProperty(resolved, 'status')
+  }
+  return resolved
+}
 
 /** GrowTabs：剥离 model；激活值走解析后的 modelValue，并支持写回绑定 */
 const tabsBindProps = computed(() => {

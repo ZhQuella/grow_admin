@@ -53,6 +53,8 @@ import {
   ElTag,
   ElTimeline,
   ElTimelineItem,
+  ElSteps,
+  ElStep,
   ElTooltip,
   ElTree,
   ElTreeSelect,
@@ -71,6 +73,7 @@ import DynamicInput from '#/components/DynamicInput.vue'
 import DynamicTags from '#/components/DynamicTags.vue'
 import Ellipsis from '#/components/Ellipsis.vue'
 import Image from '#/components/Image.vue'
+import Highlight from '#/components/Highlight.vue'
 import FormItemGi from '#/components/FormItemGi.vue'
 import GradientText from '#/components/GradientText.vue'
 import Grid from '#/components/Grid.vue'
@@ -141,6 +144,7 @@ const allComponents: Partial<Record<RockComponent, any>> = {
   [RockComponent.DynamicTags]: DynamicTags,
   [RockComponent.Ellipsis]: Ellipsis,
   [RockComponent.Image]: Image,
+  [RockComponent.Highlight]: Highlight,
   [RockComponent.Empty]: ElEmpty,
   [RockComponent.Form]: ElForm,
   [RockComponent.FormItem]: ElFormItem,
@@ -203,6 +207,8 @@ const allComponents: Partial<Record<RockComponent, any>> = {
   [RockComponent.Thing]: Thing,
   [RockComponent.Timeline]: ElTimeline,
   [RockComponent.TimelineItem]: ElTimelineItem,
+  [RockComponent.Steps]: ElSteps,
+  [RockComponent.Step]: ElStep,
   [RockComponent.Time]: Time,
   [RockComponent.Tooltip]: ElTooltip,
   [RockComponent.Tree]: ElTree,

@@ -64,6 +64,7 @@ declare module 'vue' {
     GrowGridItem: import('vue').Component;
     GrowEllipsis: import('vue').Component;
     GrowImage: import('vue').Component;
+    GrowHighlight: import('vue').Component;
     GrowPagination: import('vue').Component;
     GrowRadio: import('vue').Component;
     GrowRadioGroup: import('vue').Component;
@@ -108,6 +109,8 @@ declare module 'vue' {
     GrowPopSelect: import('vue').Component;
     GrowTimeline: import('vue').Component;
     GrowTimelineItem: import('vue').Component;
+    GrowSteps: import('vue').Component;
+    GrowStep: import('vue').Component;
     GrowTime: import('vue').Component;
     GrowScrollbar: import('vue').Component;
     GrowSkeleton: import('vue').Component;

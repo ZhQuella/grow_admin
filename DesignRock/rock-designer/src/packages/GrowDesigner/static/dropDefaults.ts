@@ -242,6 +242,25 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
     'line-clamp': 1,
     tooltip: true,
   },
+  GrowHighlight: {
+    text: 'Naive UI 全量使用 TypeScript 编写，和你的 TypeScript 项目无缝衔接',
+    patterns: ['Naive UI', 'TypeScript'],
+    'case-sensitive': false,
+    'auto-escape': true,
+    'highlight-tag': 'mark',
+  },
+  GrowSteps: {
+    current: 1,
+    status: 'process',
+    size: 'medium',
+    vertical: false,
+    'content-placement': 'right',
+  },
+  GrowStep: {
+    title: '步骤',
+    description: '',
+    disabled: false,
+  },
   GrowImage: {
     src: 'https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg',
     width: 120,
@@ -326,6 +345,11 @@ export const dropInitActionsByTag: Record<string, DropInitAction> = {
     titleKey: 'title',
     setModelValue: true,
   },
+  GrowSteps: {
+    type: 'specificChild',
+    titlePrefix: '步骤',
+    titleKey: 'title',
+  },
   GrowRow: {
     type: 'colChild',
     span: 12,
@@ -342,6 +366,11 @@ export const specialAddByChildName: Record<string, DropInitAction> = {
   GrowCollapseItem: {
     type: 'specificChild',
     titlePrefix: '面板',
+    titleKey: 'title',
+  },
+  GrowStep: {
+    type: 'specificChild',
+    titlePrefix: '步骤',
     titleKey: 'title',
   },
   GrowCol: {
@@ -374,6 +403,7 @@ export const resolveDefaultStyles = (
     elTagName === 'GrowAvatar' ||
     elTagName === 'GrowIconify' ||
     elTagName === 'GrowImage' ||
+    elTagName === 'GrowHighlight' ||
     elTagName === 'GrowDropdown'
   ) {
     Reflect.deleteProperty(styles, 'min-width')

@@ -200,6 +200,7 @@ export const elementEventsMap: Record<string, ComponentEventOption[]> = {
   ],
   GrowTime: [],
   GrowEllipsis: [click],
+  GrowHighlight: [],
   GrowImage: [
     click,
     { type: 'load', label: '加载完成', describe: '图片加载成功时触发' },
@@ -210,6 +211,14 @@ export const elementEventsMap: Record<string, ComponentEventOption[]> = {
   GrowDivider: [],
   GrowTimeline: [],
   GrowTimelineItem: [click],
+  GrowSteps: [
+    {
+      type: 'update:current',
+      label: '当前步骤变化',
+      describe: '点击步骤切换当前项时触发（Naive onUpdate:current）',
+    },
+  ],
+  GrowStep: [click],
   GrowCarousel: [
     { type: 'change', label: '切换幻灯片', describe: '幻灯片切换时触发' },
   ],

@@ -125,6 +125,77 @@ export const normalizeGrowDropdownProps = (info: Record<string, any>) => {
   }
 }
 
+/** 保证 patterns 为字符串数组，便于 NHighlight 匹配 */
+export const normalizeGrowHighlightProps = (info: Record<string, any>) => {
+  const raw = info.patterns
+  if (raw == null || raw === '') {
+    info.patterns = []
+    return
+  }
+  if (Array.isArray(raw)) {
+    info.patterns = raw
+      .map((item) => (item == null ? '' : String(item).trim()))
+      .filter(Boolean)
+    return
+  }
+  if (typeof raw === 'string') {
+    const trimmed = raw.trim()
+    if (!trimmed) {
+      info.patterns = []
+      return
+    }
+    try {
+      const parsed = JSON.parse(trimmed)
+      if (Array.isArray(parsed)) {
+        info.patterns = parsed
+          .map((item) => (item == null ? '' : String(item).trim()))
+          .filter(Boolean)
+        return
+      }
+    } catch {
+      // 非 JSON：按逗号分隔
+    }
+    info.patterns = trimmed
+      .split(/[,，]/)
+      .map((item) => item.trim())
+      .filter(Boolean)
+  }
+}
+
+/** Naive current 从 1 起；items 由包装层消费，不透传底层 */
+export const normalizeGrowStepsProps = (info: Record<string, any>) => {
+  Reflect.deleteProperty(info, 'name')
+  Reflect.deleteProperty(info, '__stepsItems__')
+  if (info.current != null && info.current !== '') {
+    const n = Number(info.current)
+    if (Number.isFinite(n)) info.current = n
+  }
+  // 绑定模式下 items 为表达式字符串，由 resolveBoundProps 解析；此处仅规范化数组
+  if (Array.isArray(info.items)) {
+    info.items = info.items.map((item: any, index: number) => {
+      if (!item || typeof item !== 'object') {
+        return { title: String(item ?? `步骤 ${index + 1}`) }
+      }
+      const next = { ...item }
+      if (next.status === '' || next.status == null) {
+        Reflect.deleteProperty(next, 'status')
+      }
+      Reflect.deleteProperty(next, 'name')
+      Reflect.deleteProperty(next, 'id')
+      Reflect.deleteProperty(next, 'bindModes')
+      return next
+    })
+  }
+}
+
+export const normalizeGrowStepProps = (info: Record<string, any>) => {
+  // ChildPaneNames 写入的 name 非 Naive Step 属性
+  Reflect.deleteProperty(info, 'name')
+  if (info.status === '' || info.status == null) {
+    Reflect.deleteProperty(info, 'status')
+  }
+}
+
 /**
  * NImage 的 width/height 会落到 img HTML 属性（需无单位数字）。
  * 纯数字 / "120" / "120px" → number；带 %/vw 等单位时保留字符串（由驱动侧或 style 承接）。
@@ -290,6 +361,9 @@ const applyValueTagRules = (
 ) => {
   if (tag === 'GrowEllipsis') normalizeGrowEllipsisProps(info)
   if (tag === 'GrowDropdown') normalizeGrowDropdownProps(info)
+  if (tag === 'GrowHighlight') normalizeGrowHighlightProps(info)
+  if (tag === 'GrowSteps') normalizeGrowStepsProps(info)
+  if (tag === 'GrowStep') normalizeGrowStepProps(info)
   if (tag === 'GrowImage') normalizeGrowImageProps(info)
   if (tag === 'GrowCalendar') normalizeGrowCalendarProps(info)
   if (tag === 'GrowTreeSelect') {

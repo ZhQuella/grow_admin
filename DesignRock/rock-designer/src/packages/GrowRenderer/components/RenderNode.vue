@@ -4,11 +4,11 @@
   </template>
 
   <!--
-    走马灯项：不要包 grow-render-node。
-    额外 DOM 会插在 el-carousel__container 与 item 之间，导致项无法正确 ready/显示图片。
+    走马灯项 / 步骤项：不要包 grow-render-node。
+    额外 DOM 会插在容器与子项之间，导致底层库无法正确识别子节点。
   -->
   <component
-    v-else-if="isNodeRenderable && isChild && tag === 'GrowCarouselItem'"
+    v-else-if="isNodeRenderable && (tag === 'GrowCarouselItem' || tag === 'GrowStep')"
     v-show="isNodeVisible"
     :is="tag"
     :ref="setComponentRef"
@@ -320,9 +320,9 @@
     </template>
   </component>
 
-  <!-- 容器：表单 / 栅格 / Tabs / 弹层等（isChild）；走马灯项已在上方单独处理 -->
+  <!-- 容器：表单 / 栅格 / Tabs / 弹层等（isChild）；走马灯项 / 步骤项已在上方单独处理 -->
   <component
-    v-else-if="isChild && tag && tag !== 'GrowCarouselItem'"
+    v-else-if="isChild && tag && tag !== 'GrowCarouselItem' && tag !== 'GrowStep'"
     :is="tag"
     :ref="setComponentRef"
     v-bind="moduleProps"
