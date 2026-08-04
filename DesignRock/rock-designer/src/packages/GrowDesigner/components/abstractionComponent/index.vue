@@ -231,7 +231,7 @@
         ].includes(config.elTagName)
       "
       :is="config.elTagName"
-      v-bind="resolvedPropsInfo"
+      v-bind="childModuleDesignProps"
       :style="styleInfo"
     >
       <draggable
@@ -1109,6 +1109,18 @@ const cardBindProps = computed(() => {
   }
   if (propsInfo.value?.showFooter) {
     Reflect.deleteProperty(info, 'footer')
+  }
+  return info
+})
+
+/**
+ * 子模块设计态 props。
+ * 走马灯项不透传 href：画布点击只用于选中（与表单控件 pointer-events 一致），预览仍带完整跳转。
+ */
+const childModuleDesignProps = computed(() => {
+  const info = { ...(resolvedPropsInfo.value || {}) }
+  if (props.config?.elTagName === 'GrowCarouselItem') {
+    Reflect.deleteProperty(info, 'href')
   }
   return info
 })

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Comment, computed, inject, ref, useSlots } from 'vue'
+import { Comment, computed, ref, useSlots } from 'vue'
 import { useDriverComponent, RockComponent } from '#/index'
 import { DriverRefKey } from '#/utils/refSupport'
 import { diKT, type ServiceIdentifier } from '@grow-admin-rock/ioc'
@@ -38,9 +38,6 @@ const props = withDefaults(
 
 const CarouselItem = useDriverComponent(RockComponent.CarouselItem)
 const slots = useSlots()
-
-/** 仅设计画布 / overlay 编辑层为 true；预览会显式 provide false */
-const isDesignCanvas = inject('__growDesignCanvas__', false) === true
 
 type CarouselImageFit =
   | 'cover'
@@ -100,14 +97,11 @@ const navigateInternal = (path: string) => {
     )
     routeOperator.go(path)
   } catch {
-    // 设计态或未注入路由时忽略
+    // 未注入路由时忽略
   }
 }
 
 const onClick = () => {
-  // 设计区域仅用于选中/编辑，不执行跳转
-  if (isDesignCanvas) return
-
   const url = href.value
   if (!url) return
 
@@ -129,7 +123,7 @@ const onClick = () => {
     :label="label"
     :ref="DriverRefKey"
     class="grow-carousel-item"
-    :class="{ 'is-linkable': Boolean(href) && !isDesignCanvas }"
+    :class="{ 'is-linkable': Boolean(href) }"
     @click="onClick"
   >
     <!-- 媒体层独立铺满，不改写 el-carousel__item 的 position -->

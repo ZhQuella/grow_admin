@@ -16,9 +16,8 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, provide, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import draggableContent from '../draggableContent/index.vue'
-import { GROW_DESIGN_CANVAS } from '../../config/designation'
 import { useEvents } from './use/useEvents'
 
 const emits = defineEmits(['add', 'special', 'active', 'delete', 'copy'])
@@ -30,9 +29,6 @@ interface Props {
 }
 
 defineProps<Props>()
-
-/** 设计画布：子组件据此禁止链接跳转等运行态行为 */
-provide(GROW_DESIGN_CANVAS, true)
 
 const { onDraggableAdd, onSpecialAdd, onActive, onDeleteItem, onCopyItem } = useEvents({
   emits,
