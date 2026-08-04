@@ -91,8 +91,7 @@ export const normalizeSpecialColumns = (
   const seen = new Set<TableColumnSpecialType>()
 
   const takeSpecial = (col: DesignerTableColumn) => {
-    if (!isSpecialTableColumn(col)) return null
-    if (seen.has(col.type)) return null
+    if (!isSpecialTableColumn(col) || seen.has(col.type)) return null
     seen.add(col.type)
     return {
       ...col,
@@ -102,23 +101,20 @@ export const normalizeSpecialColumns = (
     }
   }
 
-  const cleanNested = (cols: DesignerTableColumn[]): DesignerTableColumn[] => {
-    const next: DesignerTableColumn[] = []
-    for (const col of cols) {
-      if (!col) continue
+  const cleanNested = (cols: DesignerTableColumn[]): DesignerTableColumn[] =>
+    cols.flatMap((col) => {
+      if (!col) return []
       if (isSpecialTableColumn(col)) {
         const taken = takeSpecial(col)
         if (taken) lifted.push(taken)
-        continue
+        return []
       }
-      next.push(
+      return [
         col.children?.length
           ? { ...col, children: cleanNested(col.children) }
           : col,
-      )
-    }
-    return next
-  }
+      ]
+    })
 
   const rootNext: DesignerTableColumn[] = []
   for (const col of list) {
@@ -272,34 +268,15 @@ export const coerceToDesignerTableColumns = (
   return result
 }
 
-const coerceToDesignerTableColumn = (
-  raw: unknown,
-  index: number,
-): DesignerTableColumn | null => {
-  if (!raw || typeof raw !== 'object') return null
-  const item = raw as Record<string, any>
-  const type =
-    item.type === 'selection' || item.type === 'index' ? item.type : undefined
+const resolveColumnSortable = (
+  sortableRaw: unknown,
+): DesignerTableColumn['sortable'] => {
+  if (sortableRaw === true || sortableRaw === 'custom') return sortableRaw
+  if (sortableRaw === 'true') return true
+  return ''
+}
 
-  const childRaw = Array.isArray(item.children) ? item.children : []
-  const children = childRaw
-    .map((child: unknown, childIndex: number) =>
-      coerceToDesignerTableColumn(child, childIndex),
-    )
-    .filter(Boolean) as DesignerTableColumn[]
-
-  const title = String(item.title ?? item.label ?? '')
-  const field = type ? '' : String(item.field ?? item.prop ?? '')
-  const id =
-    item.id != null && String(item.id)
-      ? String(item.id)
-      : `bound_${type || field || title || 'col'}_${index}`
-
-  const sortableRaw = item.sortable
-  let sortable: DesignerTableColumn['sortable'] = ''
-  if (sortableRaw === true || sortableRaw === 'custom') sortable = sortableRaw
-  else if (sortableRaw === 'true') sortable = true
-
+const pickColumnOptionalFields = (item: Record<string, any>) => {
   const minWidth = item.minWidth ?? item['min-width']
   const headerAlign = item.headerAlign ?? item['header-align']
   const showOverflowTooltip =
@@ -307,12 +284,9 @@ const coerceToDesignerTableColumn = (
   const className = item.className ?? item['class-name']
   const labelClassName = item.labelClassName ?? item['label-class-name']
   const columnKey = item.columnKey ?? item['column-key']
+  const sortable = resolveColumnSortable(item.sortable)
 
   return {
-    id,
-    ...(type ? { type } : {}),
-    title,
-    field,
     ...(item.width != null && item.width !== '' ? { width: item.width } : {}),
     ...(minWidth != null && minWidth !== '' ? { minWidth } : {}),
     ...(item.align ? { align: item.align } : {}),
@@ -328,6 +302,37 @@ const coerceToDesignerTableColumn = (
     ...(className ? { className: String(className) } : {}),
     ...(labelClassName ? { labelClassName: String(labelClassName) } : {}),
     ...(columnKey ? { columnKey: String(columnKey) } : {}),
+  }
+}
+
+const coerceToDesignerTableColumn = (
+  raw: unknown,
+  index: number,
+): DesignerTableColumn | null => {
+  if (!raw || typeof raw !== 'object') return null
+  const item = raw as Record<string, any>
+  const type =
+    item.type === 'selection' || item.type === 'index' ? item.type : undefined
+
+  const children = (Array.isArray(item.children) ? item.children : [])
+    .map((child: unknown, childIndex: number) =>
+      coerceToDesignerTableColumn(child, childIndex),
+    )
+    .filter(Boolean) as DesignerTableColumn[]
+
+  const title = String(item.title ?? item.label ?? '')
+  const field = type ? '' : String(item.field ?? item.prop ?? '')
+  const id =
+    item.id != null && String(item.id)
+      ? String(item.id)
+      : `bound_${type || field || title || 'col'}_${index}`
+
+  return {
+    id,
+    ...(type ? { type } : {}),
+    title,
+    field,
+    ...pickColumnOptionalFields(item),
     visible: item.visible !== false,
     ...(children.length ? { children } : {}),
   }

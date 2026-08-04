@@ -640,7 +640,8 @@ const basicProps = computed(() => ({
   ...runtimeEventProps.value,
 }))
 const basicText = computed(() => resolveBasicText(tag.value, rawProps.value))
-const moduleProps = computed(() => {
+/** 归一化模块 props（含 Tabs/Collapse 激活态、SearchBar 字段） */
+const buildNormalizedModuleInfo = () => {
   const modes = props.schema.propBindModes?.[uuid.value]
   const sourceRaw = props.schema.props?.[uuid.value] || {}
   let source = rawProps.value
@@ -655,10 +656,8 @@ const moduleProps = computed(() => {
   }
   const info = normalizeModuleProps(tag.value || '', source)
   if (tag.value === 'GrowTable' && useLayoutMainHeight.value) {
-    // 走本地 WatchBox 分支时不在这里写 height
     Reflect.deleteProperty(info, 'height')
   }
-  // 高级搜索：字段内 options / remote-method 等先解析再交给组件
   if (tag.value === 'GrowSearchBar') {
     info.search = resolveSearchBarFields(
       Array.isArray(info.search) ? info.search : [],
@@ -666,6 +665,11 @@ const moduleProps = computed(() => {
       { refs: runtimeRefs.value },
     )
   }
+  return info
+}
+
+/** 包装 ColumnBar / Pagination 的运行时事件，先走内部回写再调用户回调 */
+const wrapModuleEventProps = () => {
   const eventProps = { ...runtimeEventProps.value }
   if (tag.value === 'GrowColumnBar') {
     const userConfirm = eventProps.onConfirm
@@ -686,11 +690,14 @@ const moduleProps = computed(() => {
       if (typeof userSize === 'function') userSize(...args)
     }
   }
-  return {
-    ...info,
-    ...eventProps,
-  }
-})
+  return eventProps
+}
+
+const moduleProps = computed(() => ({
+  ...buildNormalizedModuleInfo(),
+  ...wrapModuleEventProps(),
+}))
+
 /** 适应主区域时透传除 height 外的表格 props */
 const tableBaseProps = computed(() => {
   const info = normalizeModuleProps('GrowTable', rawProps.value)

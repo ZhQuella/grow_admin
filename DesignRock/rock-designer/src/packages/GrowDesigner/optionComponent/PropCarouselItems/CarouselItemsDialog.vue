@@ -348,6 +348,67 @@ const cleanupNode = (node: any) => {
   }
 }
 
+const removeDroppedCarouselNodes = (
+  oldMap: Map<string, any>,
+  keepIds: Set<string>,
+) => {
+  for (const [uuid, node] of oldMap) {
+    if (!keepIds.has(uuid)) cleanupNode(node)
+  }
+}
+
+const ensureCarouselChildNode = (
+  item: CarouselItemDraft,
+  oldMap: Map<string, any>,
+  childMeta: Record<string, any>,
+) => {
+  let node = oldMap.get(item.id)
+  if (node) return node
+  node = { uuid: item.id }
+  if (childMeta.isChild) node.children = []
+  draggableConfig.styles[item.id] = {}
+  draggableConfig.events[item.id] = {}
+  return node
+}
+
+const writeCarouselItemConfig = (
+  item: CarouselItemDraft,
+  index: number,
+  childMeta: Record<string, any>,
+) => {
+  const slideName =
+    (typeof item.name === 'string' && item.name.trim()) ||
+    `轮播项 ${index + 1}`
+  // 指示器文本保持用户输入（可为空），勿用设计侧显示名回填
+  const indicatorLabel = typeof item.label === 'string' ? item.label : ''
+
+  draggableConfig.renderArgument[item.id] = {
+    ...(draggableConfig.renderArgument[item.id] || childMeta),
+    ...childMeta,
+    elName: slideName,
+  }
+  const nextProps = {
+    ...(draggableConfig.props[item.id] || {}),
+    name: slideName,
+    label: indicatorLabel,
+    src: item.src || '',
+    href: item.href || '',
+    linkType: item.linkType === 'internal' ? 'internal' : 'web',
+    imageFit: normalizeCarouselImageFit(item.imageFit),
+  }
+  Reflect.deleteProperty(nextProps, 'target')
+  draggableConfig.props[item.id] = nextProps
+
+  if (!draggableConfig.propBindModes) {
+    draggableConfig.propBindModes = {}
+  }
+  draggableConfig.propBindModes[item.id] = {
+    ...(draggableConfig.propBindModes[item.id] || {}),
+    src: item.bindModes.src || PROP_BIND_MODE_TEXT,
+    href: item.bindModes.href || PROP_BIND_MODE_TEXT,
+  }
+}
+
 const applyDraft = (items: CarouselItemDraft[]) => {
   const structure = parentStructure()
   if (!structure) return
@@ -359,63 +420,16 @@ const applyDraft = (items: CarouselItemDraft[]) => {
   const oldMap = new Map<string, any>(
     (structure.children || []).map((child: any) => [child.uuid, child]),
   )
-  const keepIds = new Set(items.map((item) => item.id))
+  removeDroppedCarouselNodes(
+    oldMap,
+    new Set(items.map((item) => item.id)),
+  )
 
-  for (const [uuid, node] of oldMap) {
-    if (!keepIds.has(uuid)) {
-      cleanupNode(node)
-    }
-  }
-
-  const nextChildren: any[] = []
-  items.forEach((item, index) => {
-    let node = oldMap.get(item.id)
-    if (!node) {
-      node = { uuid: item.id }
-      if (childMeta.isChild) {
-        node.children = []
-      }
-      draggableConfig.styles[item.id] = {}
-      draggableConfig.events[item.id] = {}
-    }
-
-    const slideName =
-      (typeof item.name === 'string' && item.name.trim()) ||
-      `轮播项 ${index + 1}`
-    // 指示器文本保持用户输入（可为空），勿用设计侧显示名回填
-    const indicatorLabel = typeof item.label === 'string' ? item.label : ''
-
-    draggableConfig.renderArgument[item.id] = {
-      ...(draggableConfig.renderArgument[item.id] || childMeta),
-      ...childMeta,
-      elName: slideName,
-    }
-    const nextProps = {
-      ...(draggableConfig.props[item.id] || {}),
-      name: slideName,
-      label: indicatorLabel,
-      src: item.src || '',
-      href: item.href || '',
-      linkType: item.linkType === 'internal' ? 'internal' : 'web',
-      imageFit: normalizeCarouselImageFit(item.imageFit),
-    }
-    // 兼容清理旧「打开方式」字段
-    Reflect.deleteProperty(nextProps, 'target')
-    draggableConfig.props[item.id] = nextProps
-
-    if (!draggableConfig.propBindModes) {
-      draggableConfig.propBindModes = {}
-    }
-    draggableConfig.propBindModes[item.id] = {
-      ...(draggableConfig.propBindModes[item.id] || {}),
-      src: item.bindModes.src || PROP_BIND_MODE_TEXT,
-      href: item.bindModes.href || PROP_BIND_MODE_TEXT,
-    }
-
-    nextChildren.push(node)
+  structure.children = items.map((item, index) => {
+    const node = ensureCarouselChildNode(item, oldMap, childMeta)
+    writeCarouselItemConfig(item, index, childMeta)
+    return node
   })
-
-  structure.children = nextChildren
 }
 
 const onCancel = () => emit('update:visible', false)
