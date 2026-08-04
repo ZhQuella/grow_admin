@@ -657,6 +657,137 @@ export const mentionConfig = createConfig([
   ),
 ])
 
+/** 自动填充（Naive UI NAutoComplete） */
+export const autoCompleteConfig = createConfig([
+  modelBind(),
+  defaultValueBind('自动填充初始默认值，支持变量绑定'),
+  variableBindInput(
+    '选项数据',
+    'options',
+    '候选列表：string[] 或 { label, value }[]，也支持分组 { type: "group", label, key, children }；可绑定 state.options',
+    '请输入数据或绑定变量',
+  ),
+  textInput('占位文本', 'placeholder', '未输入时的占位文案', '请输入'),
+  boolSwitch('可清空', 'clearable', '是否显示清空按钮'),
+  boolSwitch('禁用', 'disabled', '是否禁用'),
+  boolSwitch('加载中', 'loading', '是否显示加载状态'),
+  boolSwitch('显示边框', 'bordered', '是否显示输入框边框'),
+  boolSwitch('选中后失焦', 'blur-after-select', '选择选项后是否自动失焦'),
+  boolSwitch('选中后清空', 'clear-after-select', '选择选项后是否清空输入'),
+  boolSwitch('追加模式', 'append', '选中后是否将选项值追加到当前输入'),
+  boolSwitch('显示空状态', 'show-empty', '无匹配选项时是否仍展示菜单空状态'),
+  selectInput(
+    '尺寸',
+    'size',
+    [
+      { label: 'small', value: 'small' },
+      { label: 'medium', value: 'medium' },
+      { label: 'large', value: 'large' },
+    ],
+    '组件尺寸（Naive AutoComplete：small / medium / large）',
+  ),
+  selectInput(
+    '验证状态',
+    'status',
+    [
+      { label: '默认', value: '' },
+      { label: 'success', value: 'success' },
+      { label: 'warning', value: 'warning' },
+      { label: 'error', value: 'error' },
+    ],
+    '输入框验证状态',
+  ),
+  selectInput(
+    '面板位置',
+    'placement',
+    [
+      { label: 'bottom-start', value: 'bottom-start' },
+      { label: 'bottom', value: 'bottom' },
+      { label: 'bottom-end', value: 'bottom-end' },
+      { label: 'top-start', value: 'top-start' },
+      { label: 'top', value: 'top' },
+      { label: 'top-end', value: 'top-end' },
+      { label: 'left-start', value: 'left-start' },
+      { label: 'left', value: 'left' },
+      { label: 'left-end', value: 'left-end' },
+      { label: 'right-start', value: 'right-start' },
+      { label: 'right', value: 'right' },
+      { label: 'right-end', value: 'right-end' },
+    ],
+    '下拉面板弹出位置',
+  ),
+  numberInput('菜单 z-index', 'z-index', '下拉菜单的 z-index'),
+  functionBind(
+    '是否展示菜单',
+    'get-show',
+    '根据输入值在聚焦时决定是否显示菜单（Naive get-show）',
+    {
+      params: ['inputValue'],
+      example: `// return inputValue.length > 0\nreturn Boolean(inputValue)`,
+    },
+  ),
+  functionBind(
+    '渲染标签',
+    'render-label',
+    '自定义选项标签渲染（Naive render-label）',
+    {
+      params: ['option', 'selected'],
+      example: `// return option.label\nreturn option.label`,
+    },
+  ),
+  functionBind(
+    '渲染选项',
+    'render-option',
+    '自定义整个选项节点渲染（Naive render-option）',
+    {
+      params: ['info'],
+      example: `// return info.node\nreturn info.node`,
+    },
+  ),
+])
+
+/** 动态标签（Naive UI NDynamicTags） */
+export const dynamicTagsConfig = createConfig([
+  modelBind(),
+  defaultValueBind('标签列表初始默认值，支持变量绑定（字符串数组）'),
+  boolSwitch('可关闭', 'closable', '标签是否可关闭（删除）'),
+  boolSwitch('圆形', 'round', '标签是否为圆形'),
+  boolSwitch('禁用', 'disabled', '是否禁用'),
+  numberInput('最大数量', 'max', '最多可创建的标签数量；不填则不限制'),
+  selectInput(
+    '尺寸',
+    'size',
+    [
+      { label: 'small', value: 'small' },
+      { label: 'medium', value: 'medium' },
+      { label: 'large', value: 'large' },
+    ],
+    '标签尺寸（Naive UI）',
+  ),
+  selectInput(
+    '类型',
+    'type',
+    [
+      { label: 'default', value: 'default' },
+      { label: 'primary', value: 'primary' },
+      { label: 'info', value: 'info' },
+      { label: 'success', value: 'success' },
+      { label: 'warning', value: 'warning' },
+      { label: 'error', value: 'error' },
+    ],
+    '标签类型',
+  ),
+  functionBind(
+    '创建标签',
+    'on-create',
+    '输入确认时生成标签；可返回 string 或 { label, value }',
+    {
+      params: ['label'],
+      example: `// return label.trim()\nreturn label`,
+    },
+  ),
+])
+
 /** 上传 */
 export const uploadConfig = createConfig([
   modelBind(),

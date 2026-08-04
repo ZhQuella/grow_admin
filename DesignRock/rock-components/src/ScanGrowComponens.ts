@@ -18,7 +18,11 @@ const scanGrowComponens = (
       forIn(pkg, (component) => {
         if (typeof component !== 'object' || component === null) return;
         const comp = component as GrowComponent<any>;
-        const name = (comp as { name?: string }).name || get(comp, 'name');
+        const name =
+          (comp as { name?: string; __name?: string }).name ||
+          (comp as { __name?: string }).__name ||
+          get(comp, 'name') ||
+          get(comp, '__name');
         if (!name || !validRockComponents.has(name)) return;
         if (get(component, 'isPresetComponent', false)) {
           presetComponents[name] = comp;

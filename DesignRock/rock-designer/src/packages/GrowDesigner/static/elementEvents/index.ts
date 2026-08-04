@@ -93,6 +93,15 @@ export const elementEventsMap: Record<string, ComponentEventOption[]> = {
     { type: 'hide', label: '隐藏', describe: '隐藏时触发' },
   ],
   GrowTooltip: [],
+  GrowDropdown: [
+    click,
+    { type: 'command', label: '菜单指令', describe: '点击菜单项时触发，参数为对应 command' },
+    {
+      type: 'visible-change',
+      label: '显隐变化',
+      describe: '下拉菜单显示/隐藏时触发',
+    },
+  ],
   GrowSearchBar: [
     { type: 'search', label: '搜索', describe: '触发搜索时触发' },
     { type: 'reset', label: '重置', describe: '重置时触发' },
@@ -126,7 +135,21 @@ export const elementEventsMap: Record<string, ComponentEventOption[]> = {
   GrowRadioGroup: [change],
   GrowCheckboxGroup: [change],
   GrowTreeSelect: SELECT_LIKE,
+  GrowAutoComplete: [
+    change,
+    input,
+    focus,
+    blur,
+    clear,
+    {
+      type: 'update:value',
+      label: '值更新',
+      describe: '可控值更新时触发（Naive on-update:value）',
+    },
+    { type: 'select', label: '选择选项', describe: '选中候选选项时触发（Naive on-select）' },
+  ],
   GrowMention: [change, input, focus, blur, clear],
+  GrowDynamicTags: [change],
   GrowUpload: [
     { type: 'change', label: '文件变化', describe: '文件列表变化时触发' },
     { type: 'success', label: '上传成功' },
@@ -185,13 +208,31 @@ export const elementEventsMap: Record<string, ComponentEventOption[]> = {
   ],
   GrowAvatar: [click],
   GrowBadge: [click],
+  GrowTag: [
+    click,
+    { type: 'close', label: '关闭', describe: '关闭 Tag 时触发' },
+  ],
   GrowTime: [],
   GrowEllipsis: [click],
+  GrowHighlight: [],
+  GrowImage: [
+    click,
+    { type: 'load', label: '加载完成', describe: '图片加载成功时触发' },
+    { type: 'error', label: '加载失败', describe: '图片加载失败时触发' },
+  ],
   GrowIconify: [click],
   GrowCalendar: [change],
   GrowDivider: [],
   GrowTimeline: [],
   GrowTimelineItem: [click],
+  GrowSteps: [
+    {
+      type: 'update:current',
+      label: '当前步骤变化',
+      describe: '点击步骤切换当前项时触发（Naive onUpdate:current）',
+    },
+  ],
+  GrowStep: [click],
   GrowCarousel: [
     { type: 'change', label: '切换幻灯片', describe: '幻灯片切换时触发' },
   ],

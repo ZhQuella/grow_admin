@@ -102,6 +102,32 @@ export interface CodeEditorOptions {
   wordWrap?: boolean
 }
 
+/** 函数体 ambient 全局（对应运行时注入的参数） */
+export type CodeEditorGlobal = {
+  name: string
+  /** TS 类型文本，默认 any */
+  type?: string
+}
+
+/** 常用设计器事件函数体参数 */
+export const CODE_EDITOR_EVENT_GLOBALS = [
+  'event',
+  'state',
+  'apis',
+  'refs',
+] as const
+
+/** 常用设计器 watch 函数体参数 */
+export const CODE_EDITOR_WATCH_GLOBALS = [
+  'value',
+  'oldValue',
+  'state',
+  'refs',
+] as const
+
+/** 常用 state 求值函数体参数 */
+export const CODE_EDITOR_STATE_GLOBALS = ['state'] as const
+
 /** 沙箱运行态 */
 export interface CodeSandboxState {
   code: string

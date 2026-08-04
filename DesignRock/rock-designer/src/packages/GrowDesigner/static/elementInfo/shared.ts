@@ -266,6 +266,32 @@ export const carouselItemsInput = (
   modelKey: '__carouselItems__',
 })
 
+/** 步骤条步骤项配置（交互对齐走马灯；支持整体绑定数据） */
+export const stepsItemsInput = (
+  name = '步骤项',
+  describe = '配置步骤条每一项；也可整体绑定变量（如 state.steps）',
+): PropConfigItem => ({
+  eleType: 'PropStepsItems',
+  name,
+  describe,
+  modelKey: 'items',
+})
+
+/** 下拉菜单项配置（增删改 label / command，同选项卡选项名称交互） */
+export const dropdownItemsInput = (
+  name = '菜单项',
+  describe = '增删菜单项，并设置显示文案与指令标识',
+  options?: { titlePrefix?: string },
+): PropConfigItem => ({
+  eleType: 'PropDropdownItems',
+  name,
+  describe,
+  modelKey: 'items',
+  props: {
+    titlePrefix: options?.titlePrefix || '菜单项',
+  },
+})
+
 /** 分页 layout：勾选 + 拖拽排序 */
 export const paginationLayoutInput = (
   name = '布局',

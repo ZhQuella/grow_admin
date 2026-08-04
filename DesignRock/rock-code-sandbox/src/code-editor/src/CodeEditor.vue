@@ -22,6 +22,7 @@ import type { editor as MonacoEditor } from 'monaco-editor'
 import {
   CODE_EDITOR_LANGUAGE_OPTIONS,
   type CodeEditorBeforeLanguageChangePayload,
+  type CodeEditorGlobal,
   type CodeEditorLanguage,
   type CodeEditorLanguageChangePayload,
   type CodeEditorOptions,
@@ -30,6 +31,7 @@ import {
   createMonacoEditor,
   setMonacoLanguage,
   setMonacoTheme,
+  type MonacoEditorHandle,
   type MonacoTheme,
 } from '#/utils/monaco'
 
@@ -45,12 +47,18 @@ const props = withDefaults(
     /** 是否展示语言切换 Select，默认 true */
     languageSwitchable?: boolean
     options?: CodeEditorOptions
+    /**
+     * 函数体可用参数（注入 JS ambient globals）。
+     * 如事件：['event','state','apis','refs']，避免 `event` 被当成废弃的 window.event。
+     */
+    globals?: Array<string | CodeEditorGlobal>
   }>(),
   {
     modelValue: '',
     defaultLanguage: 'javascript',
     languageSwitchable: true,
     options: () => ({}),
+    globals: () => [],
   },
 )
 
@@ -63,6 +71,7 @@ const emit = defineEmits<{
 const languageOptions = CODE_EDITOR_LANGUAGE_OPTIONS
 const currentLanguage = ref<CodeEditorLanguage>(props.defaultLanguage)
 const editorEl = ref<HTMLElement | null>(null)
+let handle: MonacoEditorHandle | null = null
 let editor: MonacoEditor.IStandaloneCodeEditor | null = null
 let applyingExternal = false
 
@@ -94,6 +103,7 @@ function changeLanguage(next: CodeEditorLanguage) {
   currentLanguage.value = next
   if (editor) {
     setMonacoLanguage(editor, next)
+    handle?.setGlobals(next === 'javascript' ? props.globals : [])
   }
   emit('afterLanguageChange', { from, to: next })
 }
@@ -120,20 +130,23 @@ defineExpose({
 onMounted(async () => {
   await nextTick()
   if (!editorEl.value) return
-  editor = createMonacoEditor(editorEl.value, {
+  handle = createMonacoEditor(editorEl.value, {
     value: props.modelValue,
     language: currentLanguage.value,
     theme: monacoTheme.value,
     readOnly: props.options.readonly,
+    globals: props.globals,
     onChange: (value) => {
       if (applyingExternal) return
       emit('update:modelValue', value)
     },
   })
+  editor = handle.editor
 })
 
 onBeforeUnmount(() => {
-  editor?.dispose()
+  handle?.dispose()
+  handle = null
   editor = null
 })
 
@@ -158,5 +171,17 @@ watch(
   (readOnly) => {
     editor?.updateOptions({ readOnly: Boolean(readOnly) })
   },
+)
+
+watch(
+  () => props.globals,
+  (globals) => {
+    if (currentLanguage.value !== 'javascript') {
+      handle?.setGlobals([])
+      return
+    }
+    handle?.setGlobals(globals)
+  },
+  { deep: true },
 )
 </script>

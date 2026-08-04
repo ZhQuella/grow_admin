@@ -30,6 +30,7 @@ import {
   NGridItem,
   NEllipsis,
   NImage,
+  NHighlight,
   NMessageProvider,
   NPagination,
   NRadio,
@@ -98,7 +99,9 @@ import {
   NPageHeader,
   NNumberAnimation,
   NTimeline,
-  NTimelineItem
+  NTimelineItem,
+  NSteps,
+  NStep,
 } from 'naive-ui';
 import Config from '#/components/Config.vue'
 import Drawer from '#/components/Drawer.vue'
@@ -152,6 +155,8 @@ const allComponents = {
   [RockComponent.Grid]: NGrid,
   [RockComponent.GridItem]: NGridItem,
   [RockComponent.Ellipsis]: NEllipsis,
+  [RockComponent.Image]: NImage,
+  [RockComponent.Highlight]: NHighlight,
   [RockComponent.Pagination]: NPagination,
   [RockComponent.Radio]: NRadio,
   [RockComponent.RadioButton]: NRadioButton,
@@ -175,6 +180,7 @@ const allComponents = {
   [RockComponent.DropdownMenu]: null,
   [RockComponent.DropdownItem]: null,
   [RockComponent.TreeSelect]: NTreeSelect,
+  [RockComponent.AutoComplete]: NAutoComplete,
   [RockComponent.Mention]: NMention,
   [RockComponent.Badge]: NBadge,
   [RockComponent.ListItem]: NListItem,
@@ -210,6 +216,8 @@ const allComponents = {
   [RockComponent.NumberAnimation]: NNumberAnimation,
   [RockComponent.Timeline]: NTimeline,
   [RockComponent.TimelineItem]: NTimelineItem,
+  [RockComponent.Steps]: NSteps,
+  [RockComponent.Step]: NStep,
   [RockComponent.Time]: NTime,
 };
 export const install: (

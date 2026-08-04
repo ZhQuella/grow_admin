@@ -50,6 +50,7 @@
         class="h-full"
         default-language="javascript"
         :language-switchable="false"
+        :globals="CODE_EDITOR_WATCH_GLOBALS"
       />
     </div>
 
@@ -60,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { GrowCodeEditor } from '@grow-admin-rock/code-sandbox'
+import { GrowCodeEditor, CODE_EDITOR_WATCH_GLOBALS } from '@grow-admin-rock/code-sandbox'
 import type { DesignerWatcherItem } from '../../static/pageWatchers'
 
 defineOptions({ name: 'WatchForm' })

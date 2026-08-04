@@ -66,6 +66,18 @@
             v-else-if="item.eleType === 'PropCarouselItems'"
             v-bind="item.props || {}"
           />
+          <PropStepsItems
+            v-else-if="item.eleType === 'PropStepsItems'"
+            v-bind="item.props || {}"
+            v-model="currentPropsConfig[item.modelKey]"
+            :bind-mode="getBindMode(item.modelKey)"
+            @update:bind-mode="(mode) => setBindMode(item.modelKey, mode)"
+          />
+          <PropDropdownItems
+            v-else-if="item.eleType === 'PropDropdownItems'"
+            v-bind="item.props || {}"
+            v-model="currentPropsConfig[item.modelKey]"
+          />
           <PropVariableBind
             v-else-if="item.eleType === 'PropVariableBind'"
             v-bind="item.props || {}"
@@ -114,6 +126,8 @@ import PropPaginationLayout from '../../optionComponent/PropPaginationLayout/ind
 import PropColumnBarColumns from '../../optionComponent/PropColumnBarColumns/index.vue'
 import PropSearchFields from '../../optionComponent/PropSearchFields/index.vue'
 import PropCarouselItems from '../../optionComponent/PropCarouselItems/index.vue'
+import PropStepsItems from '../../optionComponent/PropStepsItems/index.vue'
+import PropDropdownItems from '../../optionComponent/PropDropdownItems/index.vue'
 import PropVariableBind from '../../optionComponent/PropVariableBind/index.vue'
 import PropSwitchBind from '../../optionComponent/PropSwitchBind/index.vue'
 import PropFunctionBind from '../../optionComponent/PropFunctionBind/index.vue'
@@ -163,6 +177,8 @@ const CUSTOM_OPTION_TYPES = new Set([
   'PropColumnBarColumns',
   'PropSearchFields',
   'PropCarouselItems',
+  'PropStepsItems',
+  'PropDropdownItems',
   'PropVariableBind',
   'PropSwitchBind',
   'PropFunctionBind',

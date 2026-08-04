@@ -50,7 +50,7 @@
     "element-plus": "^2.4.4",
     "lodash-es": "^4.17.21",
     "mitt": "^3.0.0",
-    "naive-ui": "^2.38.1",
+    "naive-ui": "^2.44.1",
     "pinia": "~2.0.34",
     "vue": "~3.3.4",
     "vue-router": "^4.1.6"

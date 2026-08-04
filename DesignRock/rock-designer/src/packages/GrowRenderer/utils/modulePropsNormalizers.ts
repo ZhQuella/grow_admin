@@ -2,7 +2,12 @@
 
 import { normalizePaginationBindProps } from '../../GrowDesigner/static/paginationProps'
 
-export const TEXT_CONTENT_TAGS = new Set(['GrowButton', 'GrowLink', 'GrowEllipsis'])
+export const TEXT_CONTENT_TAGS = new Set([
+  'GrowButton',
+  'GrowLink',
+  'GrowEllipsis',
+  'GrowTag',
+])
 
 const stripEmptyTimezone = (info: Record<string, any>) => {
   if (info['time-zone'] === '' || info['time-zone'] == null) {
@@ -114,6 +119,115 @@ export const normalizeGrowEllipsisProps = (info: Record<string, any>) => {
   }
 }
 
+export const normalizeGrowDropdownProps = (info: Record<string, any>) => {
+  if (info.type === '' || info.type == null) {
+    Reflect.deleteProperty(info, 'type')
+  }
+}
+
+/** 保证 patterns 为字符串数组，便于 NHighlight 匹配 */
+export const normalizeGrowHighlightProps = (info: Record<string, any>) => {
+  const raw = info.patterns
+  if (raw == null || raw === '') {
+    info.patterns = []
+    return
+  }
+  if (Array.isArray(raw)) {
+    info.patterns = raw
+      .map((item) => (item == null ? '' : String(item).trim()))
+      .filter(Boolean)
+    return
+  }
+  if (typeof raw === 'string') {
+    const trimmed = raw.trim()
+    if (!trimmed) {
+      info.patterns = []
+      return
+    }
+    try {
+      const parsed = JSON.parse(trimmed)
+      if (Array.isArray(parsed)) {
+        info.patterns = parsed
+          .map((item) => (item == null ? '' : String(item).trim()))
+          .filter(Boolean)
+        return
+      }
+    } catch {
+      // 非 JSON：按逗号分隔
+    }
+    info.patterns = trimmed
+      .split(/[,，]/)
+      .map((item) => item.trim())
+      .filter(Boolean)
+  }
+}
+
+/** Naive current 从 1 起；items 由包装层消费，不透传底层 */
+export const normalizeGrowStepsProps = (info: Record<string, any>) => {
+  Reflect.deleteProperty(info, 'name')
+  Reflect.deleteProperty(info, '__stepsItems__')
+  if (info.current != null && info.current !== '') {
+    const n = Number(info.current)
+    if (Number.isFinite(n)) info.current = n
+  }
+  // 绑定模式下 items 为表达式字符串，由 resolveBoundProps 解析；此处仅规范化数组
+  if (Array.isArray(info.items)) {
+    info.items = info.items.map((item: any, index: number) => {
+      if (!item || typeof item !== 'object') {
+        return { title: String(item ?? `步骤 ${index + 1}`) }
+      }
+      const next = { ...item }
+      if (next.status === '' || next.status == null) {
+        Reflect.deleteProperty(next, 'status')
+      }
+      Reflect.deleteProperty(next, 'name')
+      Reflect.deleteProperty(next, 'id')
+      Reflect.deleteProperty(next, 'bindModes')
+      return next
+    })
+  }
+}
+
+export const normalizeGrowStepProps = (info: Record<string, any>) => {
+  // ChildPaneNames 写入的 name 非 Naive Step 属性
+  Reflect.deleteProperty(info, 'name')
+  if (info.status === '' || info.status == null) {
+    Reflect.deleteProperty(info, 'status')
+  }
+}
+
+/**
+ * NImage 的 width/height 会落到 img HTML 属性（需无单位数字）。
+ * 纯数字 / "120" / "120px" → number；带 %/vw 等单位时保留字符串（由驱动侧或 style 承接）。
+ */
+export const normalizeGrowImageProps = (info: Record<string, any>) => {
+  const normalizeSize = (key: 'width' | 'height') => {
+    const value = info[key]
+    if (value == null || value === '') {
+      Reflect.deleteProperty(info, key)
+      return
+    }
+    if (typeof value === 'number' && Number.isFinite(value)) return
+    const raw = String(value).trim()
+    if (!raw) {
+      Reflect.deleteProperty(info, key)
+      return
+    }
+    if (/^-?\d+(\.\d+)?$/.test(raw)) {
+      info[key] = Number(raw)
+      return
+    }
+    const px = raw.match(/^(-?\d+(?:\.\d+)?)px$/i)
+    if (px) {
+      info[key] = Number(px[1])
+      return
+    }
+    info[key] = raw
+  }
+  normalizeSize('width')
+  normalizeSize('height')
+}
+
 export const normalizeGrowCalendarProps = (info: Record<string, any>) => {
   const start = info['range-start']
   const end = info['range-end']
@@ -155,6 +269,74 @@ export const normalizeGrowMentionProps = (info: Record<string, any>) => {
   }
   if (info.options && !info.mentions) {
     info.mentions = info.options
+  }
+}
+
+export const normalizeGrowAutoCompleteProps = (info: Record<string, any>) => {
+  syncValueModelValue(info)
+  // 空 status 不是合法值，避免落到 NAutoComplete / EP 校验
+  if (info.status === '' || info.status == null) {
+    Reflect.deleteProperty(info, 'status')
+  }
+  if (info['z-index'] != null && info['z-index'] !== '') {
+    const n = Number(info['z-index'])
+    if (Number.isFinite(n)) info['z-index'] = n
+    else Reflect.deleteProperty(info, 'z-index')
+  }
+  if (info.zIndex != null && info.zIndex !== '') {
+    const n = Number(info.zIndex)
+    if (Number.isFinite(n)) info.zIndex = n
+    else Reflect.deleteProperty(info, 'zIndex')
+  }
+  // EP ElAutocomplete 不支持 left/right placement，非法值改为默认
+  const placement = info.placement ?? info['placement']
+  if (placement != null && placement !== '') {
+    const allowed = new Set([
+      'top',
+      'top-start',
+      'top-end',
+      'bottom',
+      'bottom-start',
+      'bottom-end',
+    ])
+    if (!allowed.has(String(placement))) {
+      info.placement = 'bottom-start'
+    }
+  }
+  // 文本模式误填 JSON 字符串时尝试解析为 options
+  if (typeof info.options === 'string') {
+    const raw = info.options.trim()
+    if (!raw) {
+      info.options = []
+    } else {
+      try {
+        const parsed = JSON.parse(raw)
+        info.options = Array.isArray(parsed) ? parsed : []
+      } catch {
+        info.options = raw
+          .split(/[,，\n]/)
+          .map((item: string) => item.trim())
+          .filter(Boolean)
+      }
+    }
+  }
+  if (info.options != null && !Array.isArray(info.options)) {
+    info.options = []
+  }
+}
+
+export const normalizeGrowDynamicTagsProps = (info: Record<string, any>) => {
+  syncValueModelValue(info)
+  if (!Array.isArray(info.value) && info.value != null && info.value !== '') {
+    info.value = [String(info.value)]
+  }
+  if (!Array.isArray(info.modelValue) && info.modelValue != null && info.modelValue !== '') {
+    info.modelValue = [String(info.modelValue)]
+  }
+  if (info.max != null && info.max !== '') {
+    const n = Number(info.max)
+    if (Number.isFinite(n)) info.max = n
+    else Reflect.deleteProperty(info, 'max')
   }
 }
 
@@ -246,6 +428,11 @@ const applyValueTagRules = (
   options?: NormalizeModulePropsOptions,
 ) => {
   if (tag === 'GrowEllipsis') normalizeGrowEllipsisProps(info)
+  if (tag === 'GrowDropdown') normalizeGrowDropdownProps(info)
+  if (tag === 'GrowHighlight') normalizeGrowHighlightProps(info)
+  if (tag === 'GrowSteps') normalizeGrowStepsProps(info)
+  if (tag === 'GrowStep') normalizeGrowStepProps(info)
+  if (tag === 'GrowImage') normalizeGrowImageProps(info)
   if (tag === 'GrowCalendar') normalizeGrowCalendarProps(info)
   if (tag === 'GrowTreeSelect') {
     normalizeGrowTreeSelectProps(info, {
@@ -253,6 +440,8 @@ const applyValueTagRules = (
     })
   }
   if (tag === 'GrowMention') normalizeGrowMentionProps(info)
+  if (tag === 'GrowAutoComplete') normalizeGrowAutoCompleteProps(info)
+  if (tag === 'GrowDynamicTags') normalizeGrowDynamicTagsProps(info)
   if (tag === 'GrowTimePicker') normalizeGrowTimePickerProps(info)
   if (tag === 'GrowTime') normalizeGrowTimeProps(info)
   if (tag === 'GrowSearchBar') normalizeGrowSearchBarDefaultData(info)

@@ -7,7 +7,9 @@ export const FORM_MODULE_FULL_WIDTH_TAGS = new Set([
   'GrowTimePicker',
   'GrowDatePicker',
   'GrowTreeSelect',
+  'GrowAutoComplete',
   'GrowMention',
+  'GrowDynamicTags',
   'GrowSlider',
   'GrowTransfer',
   'GrowRadioGroup',
@@ -201,6 +203,16 @@ export const BaseComponent = new Map([
           isAdd: false,
           childName: "",
           isInlineBlock: true
+        },
+        {
+          elName: "下拉菜单",
+          elType: "eleModule",
+          elTagName: "GrowDropdown",
+          elIcon: "Dropdown",
+          isChild: true,
+          isAdd: false,
+          childName: "",
+          isInlineBlock: true
         }
       ]
     }
@@ -294,6 +306,16 @@ export const AtomicComponent = new Map([
           elType: "eleModule",
           elTagName: "GrowColumnBar",
           elIcon: "ColumnBar",
+          isChild: false,
+          isAdd: false,
+          childName: "",
+          isInlineBlock: true
+        },
+        {
+          elName: "图片",
+          elType: "eleModule",
+          elTagName: "GrowImage",
+          elIcon: "Image",
           isChild: false,
           isAdd: false,
           childName: "",
@@ -399,10 +421,28 @@ export const AtomicComponent = new Map([
           childName: ""
         },
         {
+          elName: "自动填充",
+          elType: "eleModule",
+          elTagName: "GrowAutoComplete",
+          elIcon: "AutoComplete",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
           elName: "提及",
           elType: "eleModule",
           elTagName: "GrowMention",
           elIcon: "Mention",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "动态标签",
+          elType: "eleModule",
+          elTagName: "GrowDynamicTags",
+          elIcon: "DynamicTags",
           isChild: false,
           isAdd: false,
           childName: ""
@@ -490,6 +530,16 @@ export const AtomicComponent = new Map([
           isInlineBlock: true
         },
         {
+          elName: "标签",
+          elType: "eleModule",
+          elTagName: "GrowTag",
+          elIcon: "Tag",
+          isChild: false,
+          isAdd: false,
+          childName: "",
+          isInlineBlock: true
+        },
+        {
           elName: "时间",
           elType: "eleModule",
           elTagName: "GrowTime",
@@ -504,6 +554,16 @@ export const AtomicComponent = new Map([
           elType: "eleModule",
           elTagName: "GrowEllipsis",
           elIcon: "Ellipsis",
+          isChild: false,
+          isAdd: false,
+          childName: "",
+          isInlineBlock: true
+        },
+        {
+          elName: "文本高亮",
+          elType: "eleModule",
+          elTagName: "GrowHighlight",
+          elIcon: "Highlight",
           isChild: false,
           isAdd: false,
           childName: "",
@@ -565,6 +625,15 @@ export const AtomicComponent = new Map([
           childName: ""
         },
         {
+          elName: "步骤条",
+          elType: "eleModule",
+          elTagName: "GrowSteps",
+          elIcon: "Steps",
+          isChild: true,
+          isAdd: false,
+          childName: "GrowStep"
+        },
+        {
           elName: "树形组件",
           elType: "eleModule",
           elTagName: "GrowTree",
@@ -623,6 +692,18 @@ export const specificComponent = new Map([
       elTagName: "GrowCarouselItem",
       elIcon: "CarouselHorizontal",
       isChild: true,
+      isAdd: false,
+      childName: ""
+    }
+  ],
+  [
+    "GrowStep",
+    {
+      elName: "步骤项",
+      elType: "eleModule",
+      elTagName: "GrowStep",
+      elIcon: "Step",
+      isChild: false,
       isAdd: false,
       childName: ""
     }

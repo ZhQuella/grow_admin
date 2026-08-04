@@ -551,6 +551,58 @@
       </div>
     </GrowTooltip>
 
+    <!-- 下拉菜单：拆分按钮用 content；否则可拖入触发元素 -->
+    <GrowDropdown
+      v-if="config.elTagName === 'GrowDropdown'"
+      v-bind="dropdownBindProps"
+    >
+      <template v-if="isDropdownSplitButton">
+        {{ propsInfo?.content || '下拉菜单' }}
+      </template>
+      <div v-else class="grow-dropdown-host" :style="styleInfo">
+        <draggable
+          group="draggable-group"
+          :animation="200"
+          item-key="uuid"
+          :component-data="{
+            tag: 'div',
+            type: 'transition-group',
+            name: 'draggable-group'
+          }"
+          :disabled="false"
+          ghostClass="ghost"
+          chosenClass="chosen-item"
+          dragClass="drag-item"
+          class="draggable-grop-wrap grow-dropdown-drop"
+          handle=".draggable-content-bar"
+          v-model="structure.children"
+          @add="onChildAdd"
+        >
+          <template #item="{ element }">
+            <DraggableItem
+              :structure="element"
+              @active="onActive"
+              @delete="onSpecialDelete"
+              @copy="onCopyItem"
+              @special="onDraggableAdd"
+            >
+              <abstractionComponent
+                :config="draggableConfig.renderArgument[element.uuid]"
+                :propsInfo="draggableConfig.props[element.uuid]"
+                :structure="element"
+                :drag="drag"
+                @add="onAbstractionAdd"
+                @special="onDraggableAdd"
+                @delete="onSpecialDelete"
+                @copy="onCopyItem"
+                @active="onActive"
+              />
+            </DraggableItem>
+          </template>
+        </draggable>
+      </div>
+    </GrowDropdown>
+
     <!-- 上传：行内块；默认插槽为触发内容投放区 -->
     <GrowUpload
       v-if="config.elTagName === 'GrowUpload'"
@@ -956,6 +1008,17 @@
       </component>
     </template>
 
+    <!-- 步骤条：单组件；绑定 items 时由 GrowSteps 内部渲染，否则用结构子节点 -->
+    <template v-if="config.elTagName === 'GrowSteps'">
+      <GrowSteps v-bind="resolvedPropsInfo" :style="styleInfo">
+        <GrowStep
+          v-for="ele in structure.children"
+          :key="ele.uuid"
+          v-bind="stepDesignProps(ele)"
+        />
+      </GrowSteps>
+    </template>
+
     <template v-if="['GrowDrawer', 'GrowModal'].includes(config.elTagName)">
       <!-- 画布仅占位；内容在工具栏打开的模拟编辑层中拖入 -->
       <div
@@ -1125,6 +1188,29 @@ const childModuleDesignProps = computed(() => {
   return info
 })
 
+/** 步骤项设计态 props（直接挂到 GrowStep，供 NSteps 识别） */
+const stepDesignProps = (ele: { uuid: string }) => {
+  const raw = { ...(draggableConfig?.props?.[ele.uuid] || {}) }
+  const uuid = ele.uuid
+  const state =
+    injectedRuntimeState ??
+    (draggableConfig
+      ? buildRuntimeState(draggableConfig.dataSource, draggableConfig.computedProps)
+      : {})
+  const resolved = resolveBoundProps(
+    raw,
+    draggableConfig?.propBindModes?.[uuid],
+    state,
+  )
+  Reflect.deleteProperty(resolved, 'visible')
+  Reflect.deleteProperty(resolved, 'render')
+  Reflect.deleteProperty(resolved, 'name')
+  if (resolved.status === '' || resolved.status == null) {
+    Reflect.deleteProperty(resolved, 'status')
+  }
+  return resolved
+}
+
 /** GrowTabs：剥离 model；激活值走解析后的 modelValue，并支持写回绑定 */
 const tabsBindProps = computed(() => {
   const info = { ...(resolvedPropsInfo.value || {}) }
@@ -1228,6 +1314,17 @@ const tooltipBindProps = computed(() => {
   return info
 })
 
+/** 设计器内禁用下拉，避免干扰拖拽；菜单项等属性预览生效 */
+const dropdownBindProps = computed(() => {
+  const info = { ...(propsInfo.value || {}) }
+  info.disabled = true
+  return info
+})
+
+const isDropdownSplitButton = computed(() =>
+  Boolean(propsInfo.value?.['split-button'] ?? propsInfo.value?.splitButton),
+)
+
 /** 上传：剥离设计器字段；设计态强制禁用，避免点选/拖文件交互 */
 const uploadBindProps = computed(() => {
   const info = { ...(resolvedPropsInfo.value || {}) }
@@ -1304,6 +1401,11 @@ const styleInfo = computed(() => {
   if (tag === 'GrowScrollbar') {
     Reflect.deleteProperty(styles, 'height')
     Reflect.deleteProperty(styles, 'max-height')
+  }
+
+  // Tag：历史 schema 的 inline-block 会覆盖 EP 的 inline-flex，文字无法垂直居中
+  if (tag === 'GrowTag' && styles.display === 'inline-block') {
+    styles.display = 'inline-flex'
   }
 
   if (hasWidth || hasHeight) {
@@ -1674,7 +1776,23 @@ const onCopyItem = (event) => {
 
 .grow-tooltip-drop.draggable-grop-wrap {
   width: auto;
-  min-width: 96px;
+  min-width: 48px;
+  min-height: 36px;
+  height: auto;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+.grow-dropdown-host {
+  display: inline-block;
+  vertical-align: top;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.grow-dropdown-drop.draggable-grop-wrap {
+  width: auto;
+  min-width: 48px;
   min-height: 36px;
   height: auto;
   overflow: visible;

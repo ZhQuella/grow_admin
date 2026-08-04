@@ -96,7 +96,9 @@ export const registerGrowComponent = (Vue: App, componentDict: GrowComponentDict
       }
       Vue.component(`${COMPONENT_PREFIX}${rockComponent}`, growComp);
     } else if (_comp) {
+      // 无 Grow 包裹时，直接把驱动注册为 GrowXxx，避免画布 :is 解析失败导致空白
       componentMap.register(rockComponent, _comp);
+      Vue.component(`${COMPONENT_PREFIX}${rockComponent}`, _comp);
     }
   });
 

@@ -45,6 +45,7 @@
           class="h-full"
           default-language="javascript"
           :language-switchable="false"
+          :globals="CODE_EDITOR_EVENT_GLOBALS"
         />
       </div>
       <pre class="event-edit-dialog__example">{{ EXAMPLE_CODE }}</pre>
@@ -63,7 +64,7 @@
 
 <script setup lang="ts">
 import { reactive, watch } from 'vue'
-import { GrowCodeEditor } from '@grow-admin-rock/code-sandbox'
+import { GrowCodeEditor, CODE_EDITOR_EVENT_GLOBALS } from '@grow-admin-rock/code-sandbox'
 import type { DesignerEventItem } from '../../static/elementEvents/types'
 import { isEventEnabled } from '../../static/elementEvents/types'
 

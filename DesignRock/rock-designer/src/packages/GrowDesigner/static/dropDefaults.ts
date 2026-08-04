@@ -59,6 +59,11 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
   p: { context: '正文内容' },
   span: { context: '短语文本' },
   GrowButton: { content: '按钮', type: 'primary' },
+  GrowTag: {
+    content: '标签',
+    type: 'primary',
+    effect: 'light',
+  },
   GrowLink: {
     content: '链接文字',
     type: 'primary',
@@ -111,6 +116,21 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
     placement: 'top',
     trigger: 'hover',
     effect: 'dark',
+  },
+  GrowDropdown: {
+    trigger: 'hover',
+    placement: 'bottom',
+    effect: 'light',
+    'hide-on-click': true,
+    'show-arrow': true,
+    teleported: true,
+    'split-button': false,
+    content: '下拉菜单',
+    items: [
+      { label: '操作一', command: 'action1' },
+      { label: '操作二', command: 'action2' },
+      { label: '操作三', command: 'action3', divided: true },
+    ],
   },
   GrowPopover: {
     title: '标题',
@@ -210,6 +230,30 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
       { label: '王五', value: 'wangwu' },
     ],
   },
+  GrowAutoComplete: {
+    value: '',
+    placeholder: '请输入邮箱',
+    clearable: true,
+    bordered: true,
+    size: 'medium',
+    'blur-after-select': false,
+    'clear-after-select': false,
+    append: false,
+    'show-empty': false,
+    options: [
+      { label: 'aaron@gmail.com', value: 'aaron@gmail.com' },
+      { label: 'aaron@163.com', value: 'aaron@163.com' },
+      { label: 'aaron@qq.com', value: 'aaron@qq.com' },
+    ],
+  },
+  GrowDynamicTags: {
+    value: ['标签1', '标签2'],
+    closable: true,
+    size: 'medium',
+    type: 'primary',
+    round: false,
+    disabled: false,
+  },
   GrowTime: {
     type: 'datetime',
     unix: false,
@@ -221,6 +265,33 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
       '这是一段很长的文本内容，超出容器宽度或设定行数后会被省略显示，悬浮可查看完整内容。',
     'line-clamp': 1,
     tooltip: true,
+  },
+  GrowHighlight: {
+    text: 'Naive UI 全量使用 TypeScript 编写，和你的 TypeScript 项目无缝衔接',
+    patterns: ['Naive UI', 'TypeScript'],
+    'case-sensitive': false,
+    'auto-escape': true,
+    'highlight-tag': 'mark',
+  },
+  GrowSteps: {
+    current: 1,
+    status: 'process',
+    size: 'medium',
+    vertical: false,
+    'content-placement': 'right',
+  },
+  GrowStep: {
+    title: '步骤',
+    description: '',
+    disabled: false,
+  },
+  GrowImage: {
+    src: 'https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg',
+    width: 120,
+    'object-fit': 'cover',
+    'show-toolbar': true,
+    lazy: false,
+    'preview-disabled': false,
   },
   GrowIconify: {
     icon: 'carbon:application',
@@ -298,6 +369,11 @@ export const dropInitActionsByTag: Record<string, DropInitAction> = {
     titleKey: 'title',
     setModelValue: true,
   },
+  GrowSteps: {
+    type: 'specificChild',
+    titlePrefix: '步骤',
+    titleKey: 'title',
+  },
   GrowRow: {
     type: 'colChild',
     span: 12,
@@ -314,6 +390,11 @@ export const specialAddByChildName: Record<string, DropInitAction> = {
   GrowCollapseItem: {
     type: 'specificChild',
     titlePrefix: '面板',
+    titleKey: 'title',
+  },
+  GrowStep: {
+    type: 'specificChild',
+    titlePrefix: '步骤',
     titleKey: 'title',
   },
   GrowCol: {
@@ -339,14 +420,22 @@ export const resolveDefaultStyles = (
   if (
     elTagName === 'GrowLink' ||
     elTagName === 'GrowButton' ||
+    elTagName === 'GrowTag' ||
     elTagName === 'GrowSearchBar' ||
     elTagName === 'GrowColumnBar' ||
     elTagName === 'GrowSwitch' ||
     elTagName === 'GrowAvatar' ||
-    elTagName === 'GrowIconify'
+    elTagName === 'GrowIconify' ||
+    elTagName === 'GrowImage' ||
+    elTagName === 'GrowHighlight' ||
+    elTagName === 'GrowDropdown'
   ) {
     Reflect.deleteProperty(styles, 'min-width')
     Reflect.deleteProperty(styles, 'min-height')
+  }
+  // Tag 依赖自身 inline-flex + align-items 垂直居中，勿用 inline-block 覆盖
+  if (elTagName === 'GrowTag') {
+    styles.display = 'inline-flex'
   }
   return styles
 }

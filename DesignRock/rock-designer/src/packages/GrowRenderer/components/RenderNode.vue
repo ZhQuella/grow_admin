@@ -4,11 +4,11 @@
   </template>
 
   <!--
-    走马灯项：不要包 grow-render-node。
-    额外 DOM 会插在 el-carousel__container 与 item 之间，导致项无法正确 ready/显示图片。
+    走马灯项 / 步骤项：不要包 grow-render-node。
+    额外 DOM 会插在容器与子项之间，导致底层库无法正确识别子节点。
   -->
   <component
-    v-else-if="isNodeRenderable && isChild && tag === 'GrowCarouselItem'"
+    v-else-if="isNodeRenderable && (tag === 'GrowCarouselItem' || tag === 'GrowStep')"
     v-show="isNodeVisible"
     :is="tag"
     :ref="setComponentRef"
@@ -215,6 +215,31 @@
     </div>
   </component>
 
+  <!-- GrowDropdown：拆分按钮用 content；否则默认插槽为触发元素 -->
+  <component
+    v-else-if="isChild && tag === 'GrowDropdown'"
+    :is="tag"
+    :ref="setComponentRef"
+    v-bind="moduleProps"
+    :class="nodeClass"
+    :style="nodeStyle"
+  >
+    <template v-if="isDropdownSplitButton">
+      {{ rawProps.content || '下拉菜单' }}
+    </template>
+    <div v-else class="grow-dropdown-trigger">
+      <template v-if="children.length">
+        <RenderNode
+          v-for="child in children"
+          :key="child.uuid"
+          :node="child"
+          :schema="schema"
+        />
+      </template>
+      <span v-else class="grow-dropdown-trigger__placeholder">触发元素</span>
+    </div>
+  </component>
+
   <!-- GrowUpload：行内块；默认插槽为触发内容 -->
   <component
     v-else-if="isChild && tag === 'GrowUpload'"
@@ -295,9 +320,9 @@
     </template>
   </component>
 
-  <!-- 容器：表单 / 栅格 / Tabs / 弹层等（isChild）；走马灯项已在上方单独处理 -->
+  <!-- 容器：表单 / 栅格 / Tabs / 弹层等（isChild）；走马灯项 / 步骤项已在上方单独处理 -->
   <component
-    v-else-if="isChild && tag && tag !== 'GrowCarouselItem'"
+    v-else-if="isChild && tag && tag !== 'GrowCarouselItem' && tag !== 'GrowStep'"
     :is="tag"
     :ref="setComponentRef"
     v-bind="moduleProps"
@@ -365,6 +390,7 @@
   >
     <span v-if="tag === 'GrowButton'">{{ rawProps.content }}</span>
     <span v-else-if="tag === 'GrowLink'">{{ rawProps.content }}</span>
+    <span v-else-if="tag === 'GrowTag'">{{ rawProps.content }}</span>
     <template v-else-if="tag === 'GrowEllipsis'">{{ rawProps.content }}</template>
   </component>
   </div>
@@ -400,6 +426,7 @@ import {
   writeContainerActiveValue,
   writeModelBinding,
   writePaginationProp,
+  writeStepsCurrent,
 } from '../utils/resolveBoundProps'
 import { resolveSearchBarFields } from '@grow-admin-rock/hooks'
 import {
@@ -570,6 +597,17 @@ const onPaginationPageSize = (value: number) => {
   )
 }
 
+/** 步骤条 current 回写（仅在已有 update:current 事件时由包装逻辑调用） */
+const onStepsCurrent = (value: number) => {
+  if (tag.value !== 'GrowSteps') return
+  writeStepsCurrent(
+    injectedRuntimeState,
+    props.schema.props?.[uuid.value],
+    props.schema.propBindModes?.[uuid.value],
+    value,
+  )
+}
+
 /** ColumnBar 确认：回写自身 columns，并同步关联表格可见列 */
 const onColumnBarConfirm = (columns: unknown) => {
   const raw = props.schema.props?.[uuid.value]
@@ -612,6 +650,9 @@ const isBasicLeaf = computed(
 )
 const isModuleLeaf = computed(
   () => config.value?.elType === 'eleModule' && !config.value?.isChild,
+)
+const isDropdownSplitButton = computed(() =>
+  Boolean(rawProps.value?.['split-button'] ?? rawProps.value?.splitButton),
 )
 const showFooter = computed(() => Boolean(rawProps.value.showFooter))
 const showHeaderExtra = computed(() => Boolean(rawProps.value.showHeaderExtra))
@@ -668,7 +709,7 @@ const buildNormalizedModuleInfo = () => {
   return info
 }
 
-/** 包装 ColumnBar / Pagination 的运行时事件，先走内部回写再调用户回调 */
+/** 包装 ColumnBar / Pagination / Steps 的运行时事件，先走内部回写再调用户回调 */
 const wrapModuleEventProps = () => {
   const eventProps = { ...runtimeEventProps.value }
   if (tag.value === 'GrowColumnBar') {
@@ -688,6 +729,16 @@ const wrapModuleEventProps = () => {
     eventProps['onUpdate:page-size'] = (...args: unknown[]) => {
       onPaginationPageSize(args[0] as number)
       if (typeof userSize === 'function') userSize(...args)
+    }
+  }
+  if (tag.value === 'GrowSteps') {
+    // 仅在配置了 update:current 事件时注入回写，避免无事件也可点击切换
+    const userCurrent = eventProps['onUpdate:current']
+    if (typeof userCurrent === 'function') {
+      eventProps['onUpdate:current'] = (...args: unknown[]) => {
+        onStepsCurrent(args[0] as number)
+        userCurrent(...args)
+      }
     }
   }
   return eventProps
@@ -733,7 +784,12 @@ const nodeStyle = computed(() => {
   if (tag.value === 'GrowModal' || tag.value === 'GrowDrawer') {
     return resolveOverlayHostStyle(styles)
   }
-  return resolveNodeStyle(styles)
+  const style = resolveNodeStyle(styles)
+  // Tag：历史 schema 的 inline-block 会覆盖 EP 的 inline-flex，文字无法垂直居中
+  if (tag.value === 'GrowTag' && style.display === 'inline-block') {
+    style.display = 'inline-flex'
+  }
+  return style
 })
 const nodeClass = computed(() => resolveNodeClass(rawStyles.value))
 const scrollbarBodyStyle = computed(() => {
@@ -815,6 +871,22 @@ const loopEntries = computed(() => {
 }
 
 .grow-tooltip-trigger__placeholder {
+  display: inline-block;
+  padding: 4px 10px;
+  border: 1px dashed var(--layout-border-color, #dcdfe6);
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--text-color-secondary, #909399);
+}
+
+.grow-dropdown-trigger {
+  display: inline-block;
+  vertical-align: top;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.grow-dropdown-trigger__placeholder {
   display: inline-block;
   padding: 4px 10px;
   border: 1px dashed var(--layout-border-color, #dcdfe6);
