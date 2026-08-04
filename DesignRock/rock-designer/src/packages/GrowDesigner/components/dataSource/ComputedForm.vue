@@ -45,6 +45,7 @@
         class="h-full"
         default-language="javascript"
         :language-switchable="false"
+        :globals="CODE_EDITOR_STATE_GLOBALS"
       />
     </div>
   </div>
@@ -52,7 +53,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { GrowCodeEditor } from '@grow-admin-rock/code-sandbox'
+import { GrowCodeEditor, CODE_EDITOR_STATE_GLOBALS } from '@grow-admin-rock/code-sandbox'
 import { driverRef } from '@grow-admin-rock/components'
 import type { DesignerComputedPropFormModel } from './types'
 

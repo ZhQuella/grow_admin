@@ -67,6 +67,7 @@
             class="h-full"
             default-language="javascript"
             :language-switchable="false"
+            :globals="CODE_EDITOR_STATE_GLOBALS"
           />
         </div>
         <div class="variable-bind-dialog__example">
@@ -92,7 +93,7 @@
 
 <script setup lang="ts">
 import { computed, inject, ref, watch } from 'vue'
-import { GrowCodeEditor } from '@grow-admin-rock/code-sandbox'
+import { GrowCodeEditor, CODE_EDITOR_STATE_GLOBALS } from '@grow-admin-rock/code-sandbox'
 import { ACTIVE_UUID, DRAGGABLE_CONGIG } from '../../config/designation'
 import type { DesignerDataSourceItem } from '../../components/dataSource/types'
 import { collectAncestorLoopScopes } from '../../static/loopScope'

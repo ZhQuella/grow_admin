@@ -7,10 +7,18 @@ import {
 
 export type MonacoTheme = 'vs' | 'vs-dark'
 
+/** 注入到 JS 诊断作用域的全局变量（函数体参数） */
+export type MonacoCodeGlobal = {
+  name: string
+  /** TS 类型文本，默认 any */
+  type?: string
+}
+
 /** 表达式语言 id：保留 JS 高亮，不挂载 JS/TS 语法诊断 */
 const EXPRESSION_LANGUAGE_ID = 'expression'
 
 let expressionLanguageReady = false
+let javascriptDefaultsReady = false
 
 /**
  * 注册 expression 语言。
@@ -36,6 +44,61 @@ function ensureExpressionLanguage() {
   )
 }
 
+/**
+ * JS 诊断默认配置：去掉 dom lib，避免裸标识符 `event` 命中已废弃的 window.event 删除线。
+ * 设计器函数体通过 extras/globals 声明可用参数。
+ */
+export function ensureJavascriptDefaults() {
+  if (javascriptDefaultsReady) return
+  javascriptDefaultsReady = true
+  const ts = monaco.languages.typescript
+  ts.javascriptDefaults.setCompilerOptions({
+    target: ts.ScriptTarget.ES2020,
+    allowNonTsExtensions: true,
+    allowJs: true,
+    checkJs: true,
+    noEmit: true,
+    lib: ['es2020'],
+  })
+  ts.javascriptDefaults.setDiagnosticsOptions({
+    noSemanticValidation: false,
+    noSyntaxValidation: false,
+  })
+}
+
+const SAFE_GLOBAL_NAME = /^[A-Za-z_$][\w$]*$/
+
+export function normalizeMonacoGlobals(
+  globals?: Array<string | MonacoCodeGlobal> | null,
+): MonacoCodeGlobal[] {
+  if (!globals?.length) return []
+  const seen = new Set<string>()
+  const result: MonacoCodeGlobal[] = []
+  for (const item of globals) {
+    const name = typeof item === 'string' ? item : item?.name
+    const normalized = String(name || '').trim()
+    if (!normalized || !SAFE_GLOBAL_NAME.test(normalized) || seen.has(normalized)) {
+      continue
+    }
+    seen.add(normalized)
+    const type =
+      typeof item === 'string'
+        ? 'any'
+        : String(item.type || 'any').trim() || 'any'
+    result.push({ name: normalized, type })
+  }
+  return result
+}
+
+export function buildGlobalsExtraLibSource(globals: MonacoCodeGlobal[]): string {
+  if (!globals.length) return ''
+  const lines = [
+    '/** Grow designer / sandbox function-body ambient globals */',
+    ...globals.map((item) => `declare const ${item.name}: ${item.type};`),
+  ]
+  return `${lines.join('\n')}\n`
+}
+
 /** 映射到 Monaco language id */
 function resolveLanguage(language: string) {
   if (language === 'vue') return 'html'
@@ -52,6 +115,14 @@ export interface CreateMonacoOptions {
   theme?: MonacoTheme
   readOnly?: boolean
   onChange?: (value: string) => void
+  /** 函数体可用参数，注入为 JS ambient globals */
+  globals?: Array<string | MonacoCodeGlobal>
+}
+
+export type MonacoEditorHandle = {
+  editor: MonacoEditor.IStandaloneCodeEditor
+  setGlobals: (globals?: Array<string | MonacoCodeGlobal> | null) => void
+  dispose: () => void
 }
 
 /**
@@ -61,10 +132,15 @@ export interface CreateMonacoOptions {
 export function createMonacoEditor(
   el: HTMLElement,
   options: CreateMonacoOptions,
-): MonacoEditor.IStandaloneCodeEditor {
-  const instance = monaco.editor.create(el, {
+): MonacoEditorHandle {
+  const language = resolveLanguage(options.language)
+  if (language === 'javascript') {
+    ensureJavascriptDefaults()
+  }
+
+  const editor = monaco.editor.create(el, {
     value: options.value,
-    language: resolveLanguage(options.language),
+    language,
     theme: options.theme ?? 'vs',
     readOnly: options.readOnly ?? false,
     automaticLayout: true,
@@ -78,12 +154,39 @@ export function createMonacoEditor(
   })
 
   if (options.onChange) {
-    instance.onDidChangeModelContent(() => {
-      options.onChange?.(instance.getValue())
+    editor.onDidChangeModelContent(() => {
+      options.onChange?.(editor.getValue())
     })
   }
 
-  return instance
+  const libUri = `ts:grow-code-editor-globals-${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2)}.d.ts`
+
+  let extraLib: monaco.IDisposable | null = null
+
+  const setGlobals = (globals?: Array<string | MonacoCodeGlobal> | null) => {
+    extraLib?.dispose()
+    extraLib = null
+    const normalized = normalizeMonacoGlobals(globals)
+    const languageId = editor.getModel()?.getLanguageId()
+    if (!normalized.length || languageId !== 'javascript') return
+    ensureJavascriptDefaults()
+    extraLib = monaco.languages.typescript.javascriptDefaults.addExtraLib(
+      buildGlobalsExtraLibSource(normalized),
+      libUri,
+    )
+  }
+
+  setGlobals(options.globals)
+
+  const dispose = () => {
+    extraLib?.dispose()
+    extraLib = null
+    editor.dispose()
+  }
+
+  return { editor, setGlobals, dispose }
 }
 
 export function setMonacoLanguage(
@@ -92,7 +195,9 @@ export function setMonacoLanguage(
 ) {
   const model = instance.getModel()
   if (model) {
-    monaco.editor.setModelLanguage(model, resolveLanguage(language))
+    const next = resolveLanguage(language)
+    if (next === 'javascript') ensureJavascriptDefaults()
+    monaco.editor.setModelLanguage(model, next)
   }
 }
 

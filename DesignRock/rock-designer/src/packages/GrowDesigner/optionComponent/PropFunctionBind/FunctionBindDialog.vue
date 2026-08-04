@@ -19,6 +19,7 @@
           class="h-full"
           default-language="javascript"
           :language-switchable="false"
+          :globals="editorGlobals"
         />
       </div>
       <pre class="function-bind-dialog__example">{{ exampleText }}</pre>
@@ -75,6 +76,14 @@ const dialogTitle = computed(() =>
 const paramsHint = computed(() => {
   const list = props.params || []
   return list.length ? list.join('、') : 'args（数组）'
+})
+
+const editorGlobals = computed(() => {
+  const list = props.params?.length ? [...props.params] : ['args']
+  for (const name of ['state', 'refs']) {
+    if (!list.includes(name)) list.push(name)
+  }
+  return list
 })
 
 const exampleText = computed(() => {
