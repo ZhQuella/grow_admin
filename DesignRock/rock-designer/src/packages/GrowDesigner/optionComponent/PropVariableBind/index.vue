@@ -70,12 +70,15 @@ const visible = ref(false)
 
 const bindOnly = computed(() => Boolean(props.bindOnly))
 
-const isBound = computed(
-  () => normalizePropBindMode(props.bindMode) === PROP_BIND_MODE_BIND,
-)
-
 const displayValue = computed(() =>
   props.modelValue == null ? '' : String(props.modelValue),
+)
+
+/** 已绑定且有内容时，配置按钮才为选中态（避免仅默认 bindMode 就高亮） */
+const isBound = computed(
+  () =>
+    normalizePropBindMode(props.bindMode) === PROP_BIND_MODE_BIND &&
+    Boolean(displayValue.value.trim()),
 )
 
 const bindButtonTitle = computed(() =>
