@@ -59,6 +59,15 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
   p: { context: '正文内容' },
   span: { context: '短语文本' },
   GrowButton: { content: '按钮', type: 'primary' },
+  GrowColorPicker: {
+    clearable: true,
+    'show-alpha': false,
+  },
+  GrowDatePickerPanel: {
+    type: 'date',
+    border: true,
+    clearable: true,
+  },
   GrowTag: {
     content: '标签',
     type: 'primary',
@@ -216,17 +225,22 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
     options: [],
   },
   GrowAutoComplete: {
-    value: '',
-    placeholder: '请输入邮箱',
-    clearable: true,
-    bordered: true,
-    size: 'medium',
-    'blur-after-select': false,
-    'clear-after-select': false,
-    append: false,
-    'show-empty': false,
-    // options / model 仅支持变量绑定，拖入时不写死静态选项
+    placeholder: '请输入',
+    clearable: false,
+    'trigger-on-focus': true,
+    debounce: 300,
+    placement: 'bottom-start',
+    'value-key': 'value',
+    // options / model 仅支持变量绑定
     options: [],
+  },
+  GrowInputTag: {
+    trigger: 'Enter',
+    'tag-type': 'info',
+    'tag-effect': 'light',
+    clearable: false,
+    'save-on-blur': true,
+    placeholder: '请输入后回车',
   },
   GrowDynamicTags: {
     value: ['标签1', '标签2'],
@@ -406,6 +420,9 @@ export const resolveDefaultStyles = (
     elTagName === 'GrowSearchBar' ||
     elTagName === 'GrowColumnBar' ||
     elTagName === 'GrowSwitch' ||
+    elTagName === 'GrowColorPicker' ||
+    elTagName === 'GrowDatePickerPanel' ||
+    elTagName === 'GrowTransfer' ||
     elTagName === 'GrowAvatar' ||
     elTagName === 'GrowIconify' ||
     elTagName === 'GrowImage' ||

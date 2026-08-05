@@ -417,6 +417,67 @@ export const switchConfig = createConfig([
   sizeSelect(),
 ])
 
+/** 颜色选择器（Element Plus ColorPicker） */
+export const colorPickerConfig = createConfig([
+  modelBind(),
+  defaultValueBind('颜色初始默认值，支持变量绑定（如 #409EFF）'),
+  boolSwitch('禁用', 'disabled', '是否禁用'),
+  boolSwitch('可清空', 'clearable', '是否显示清除按钮（默认 true）'),
+  boolSwitch('透明度', 'show-alpha', '是否支持透明度选择'),
+  selectInput(
+    '颜色格式',
+    'color-format',
+    [
+      { label: 'hex', value: 'hex' },
+      { label: 'rgb', value: 'rgb' },
+      { label: 'hsl', value: 'hsl' },
+      { label: 'hsv', value: 'hsv' },
+      { label: 'hex8', value: 'hex8' },
+    ],
+    '写入 v-model 的颜色格式；未设置时随 show-alpha 默认为 hex / rgb',
+  ),
+  sizeSelect(),
+  variableBindOnlyInput(
+    '预定义颜色',
+    'predefine',
+    '预定义颜色数组，仅支持变量绑定（如 state.predefineColors）',
+    '请绑定颜色数组',
+  ),
+  boolSwitch('触发表单校验', 'validate-event', '输入时是否触发表单校验（默认 true）'),
+  boolSwitch(
+    'Teleport 到 body',
+    'teleported',
+    '是否将下拉面板渲染至 body 下（默认 true）',
+  ),
+  boolSwitch(
+    '保持面板',
+    'persistent',
+    '未激活且为 false 时销毁颜色面板（默认 true，EP 2.10.5+）',
+  ),
+  textInput('下拉类名', 'popper-class', 'ColorPicker 下拉框的类名'),
+  textInput('下拉样式', 'popper-style', 'ColorPicker 下拉面板的自定义样式（字符串）'),
+  textInput(
+    '挂载目标',
+    'append-to',
+    '颜色面板挂载到的 DOM 选择器（EP 2.10.5+）',
+    '如 body',
+  ),
+  textInput('id', 'id', 'ColorPicker 的 id'),
+  textInput('tabindex', 'tabindex', 'ColorPicker 的 tabindex', '0'),
+  textInput('无障碍标签', 'aria-label', 'ColorPicker 的 aria-label'),
+  variableBindOnlyInput(
+    '空值配置',
+    'empty-values',
+    '组件的空值配置数组，仅支持变量绑定（参考 Config Provider）',
+    '请绑定空值数组',
+  ),
+  textInput(
+    '清空时的值',
+    'value-on-clear',
+    '清空选项时的返回值（参考 Config Provider）',
+  ),
+])
+
 /** 滑块 */
 export const sliderConfig = createConfig([
   modelBind(),
@@ -509,6 +570,126 @@ export const datePickerConfig = createConfig([
     {
       params: ['date'],
       example: `// return date.getTime() < Date.now() - 8.64e7\nreturn false`,
+    },
+  ),
+])
+/** 日期选择器面板（Element Plus DatePickerPanel / 文档名 DatePickerPane） */
+export const datePickerPanelConfig = createConfig([
+  modelBind(),
+  defaultValueBind('日期面板初始默认值，支持变量绑定（range 时为长度为 2 的数组）'),
+  selectInput(
+    '显示类型',
+    'type',
+    [
+      { label: '日期', value: 'date' },
+      { label: '多个日期', value: 'dates' },
+      { label: '日期时间', value: 'datetime' },
+      { label: '周', value: 'week' },
+      { label: '月', value: 'month' },
+      { label: '多个月', value: 'months' },
+      { label: '年', value: 'year' },
+      { label: '多个年', value: 'years' },
+      { label: '日期范围', value: 'daterange' },
+      { label: '日期时间范围', value: 'datetimerange' },
+      { label: '月范围', value: 'monthrange' },
+      { label: '年范围', value: 'yearrange' },
+    ],
+    '选择器类型',
+  ),
+  boolSwitch('边框', 'border', '日期选择器是否有边框（默认 true）'),
+  boolSwitch('禁用', 'disabled', '是否禁用'),
+  boolSwitch('可清空', 'clearable', '是否显示清除按钮（默认 true）'),
+  boolSwitch('可编辑', 'editable', '文本框是否可输入（默认 true，EP 2.13.0+）'),
+  textInput('值格式', 'value-format', '绑定值的格式；不指定则绑定值为 Date 对象'),
+  textInput(
+    '日期格式',
+    'date-format',
+    '面板中显示的日期格式（默认 YYYY-MM-DD）',
+    'YYYY-MM-DD',
+  ),
+  textInput(
+    '时间格式',
+    'time-format',
+    '面板中显示的时间格式（默认 HH:mm:ss）',
+    'HH:mm:ss',
+  ),
+  variableBindOnlyInput(
+    '默认显示日期',
+    'default-value',
+    '选择器打开时默认显示的时间，仅支持变量绑定',
+    '请绑定 Date 或 [Date, Date]',
+  ),
+  variableBindOnlyInput(
+    '默认时刻',
+    'default-time',
+    '范围选择时选中日期所使用的当日内具体时刻，仅支持变量绑定',
+    '请绑定 Date 或 [Date, Date]',
+  ),
+  boolSwitch(
+    '取消面板联动',
+    'unlink-panels',
+    '在范围选择器里取消两个日期面板之间的联动',
+  ),
+  boolSwitch(
+    '单面板',
+    'single-panel',
+    '在范围选择器中只显示一个面板（EP 2.14.0+）',
+  ),
+  boolSwitch('范围模式', 'is-range', '是否为范围选择（部分类型下可用）'),
+  boolSwitch('显示此刻', 'show-now', '是否显示「此刻」按钮（默认 true）'),
+  boolSwitch('显示页脚', 'show-footer', '是否显示页脚'),
+  boolSwitch('显示确定', 'show-confirm', '是否显示确定按钮'),
+  boolSwitch('显示周数', 'show-week-number', '是否在周旁显示周数'),
+  boolSwitch('箭头控制', 'arrow-control', '时间选择是否使用箭头'),
+  variableBindOnlyInput(
+    '快捷选项',
+    'shortcuts',
+    '快捷选项数组，仅支持变量绑定（如 [{ text, value }]）',
+    '请绑定 shortcuts 数组',
+  ),
+  functionBind(
+    '禁用日期',
+    'disabled-date',
+    '判断该日期是否被禁用，接受 Date，返回 true 表示禁用',
+    {
+      params: ['date'],
+      example: `// return date.getTime() < Date.now() - 8.64e7\nreturn false`,
+    },
+  ),
+  functionBind(
+    '单元格类名',
+    'cell-class-name',
+    '设置自定义类名，接受 Date，返回 class 字符串',
+    {
+      params: ['date'],
+      example: `// return 'custom-cell'\nreturn ''`,
+    },
+  ),
+  functionBind(
+    '禁用小时',
+    'disabled-hours',
+    '禁止选择部分小时，返回禁用的小时数组',
+    {
+      params: ['role', 'comparingDate'],
+      example: `// return [1, 2, 3]\nreturn []`,
+    },
+  ),
+  functionBind(
+    '禁用分钟',
+    'disabled-minutes',
+    '禁止选择部分分钟，返回禁用的分钟数组',
+    {
+      params: ['hour', 'role', 'comparingDate'],
+      example: `// return [0, 15, 30, 45]\nreturn []`,
+    },
+  ),
+  functionBind(
+    '禁用秒',
+    'disabled-seconds',
+    '禁止选择部分秒，返回禁用的秒数组',
+    {
+      params: ['hour', 'minute', 'role', 'comparingDate'],
+      example: `// return [0, 30]\nreturn []`,
     },
   ),
 ])
@@ -755,48 +936,23 @@ export const mentionConfig = createConfig([
   ),
 ])
 
-/** 自动填充（Naive UI NAutoComplete） */
+/** 自动补全输入框（Element Plus Autocomplete） */
 export const autoCompleteConfig = createConfig([
   modelBind(),
-  defaultValueBind('自动填充初始默认值，支持变量绑定'),
-  variableBindOnlyInput(
-    '数据选项',
-    'options',
-    '候选列表：string[] 或 { label, value }[]，也支持分组 { type: "group", label, key, children }；仅支持变量绑定（如 state.options）',
-    '请绑定数据选项',
-  ),
-  textInput('占位文本', 'placeholder', '未输入时的占位文案', '请输入'),
-  boolSwitch('可清空', 'clearable', '是否显示清空按钮'),
+  defaultValueBind('自动补全初始默认值，支持变量绑定'),
+  textInput('占位文本', 'placeholder', '输入框占位文本', '请输入'),
+  boolSwitch('可清空', 'clearable', '是否可清空'),
   boolSwitch('禁用', 'disabled', '是否禁用'),
-  boolSwitch('加载中', 'loading', '是否显示加载状态'),
-  boolSwitch('显示边框', 'bordered', '是否显示输入框边框'),
-  boolSwitch('选中后失焦', 'blur-after-select', '选择选项后是否自动失焦'),
-  boolSwitch('选中后清空', 'clear-after-select', '选择选项后是否清空输入'),
-  boolSwitch('追加模式', 'append', '选中后是否将选项值追加到当前输入'),
-  boolSwitch('显示空状态', 'show-empty', '无匹配选项时是否仍展示菜单空状态'),
-  selectInput(
-    '尺寸',
-    'size',
-    [
-      { label: 'small', value: 'small' },
-      { label: 'medium', value: 'medium' },
-      { label: 'large', value: 'large' },
-    ],
-    '组件尺寸（Naive AutoComplete：small / medium / large）',
+  sizeSelect(),
+  textInput(
+    '显示键名',
+    'value-key',
+    '输入建议对象中用于显示的键名（默认 value）',
+    'value',
   ),
+  numberInput('防抖延时', 'debounce', '获取输入建议的防抖延时（毫秒，默认 300）', '300'),
   selectInput(
-    '验证状态',
-    'status',
-    [
-      { label: '默认', value: '' },
-      { label: 'success', value: 'success' },
-      { label: 'warning', value: 'warning' },
-      { label: 'error', value: 'error' },
-    ],
-    '输入框验证状态',
-  ),
-  selectInput(
-    '面板位置',
+    '弹出位置',
     'placement',
     [
       { label: 'bottom-start', value: 'bottom-start' },
@@ -805,43 +961,149 @@ export const autoCompleteConfig = createConfig([
       { label: 'top-start', value: 'top-start' },
       { label: 'top', value: 'top' },
       { label: 'top-end', value: 'top-end' },
-      { label: 'left-start', value: 'left-start' },
-      { label: 'left', value: 'left' },
-      { label: 'left-end', value: 'left-end' },
-      { label: 'right-start', value: 'right-start' },
-      { label: 'right', value: 'right' },
-      { label: 'right-end', value: 'right-end' },
     ],
-    '下拉面板弹出位置',
+    '菜单弹出位置（默认 bottom-start）',
   ),
-  numberInput('菜单 z-index', 'z-index', '下拉菜单的 z-index'),
-  functionBind(
-    '是否展示菜单',
-    'get-show',
-    '根据输入值在聚焦时决定是否显示菜单（Naive get-show）',
-    {
-      params: ['inputValue'],
-      example: `// return inputValue.length > 0\nreturn Boolean(inputValue)`,
-    },
+  variableBindOnlyInput(
+    '候选数据',
+    'options',
+    '便捷候选列表（string[] 或 { label, value }[]），仅支持变量绑定；未配置「获取建议」时用于本地过滤',
+    '请绑定候选数据',
   ),
   functionBind(
-    '渲染标签',
-    'render-label',
-    '自定义选项标签渲染（Naive render-label）',
+    '获取建议',
+    'fetch-suggestions',
+    '获取输入建议；签名 (queryString, callback) => void，数据就绪时调用 callback(data)；也可直接传数组',
     {
-      params: ['option', 'selected'],
-      example: `// return option.label\nreturn option.label`,
+      params: ['queryString', 'callback'],
+      example: `// 过滤后通过 callback 返回
+const list = [
+  { value: 'vue', label: 'Vue' },
+  { value: 'react', label: 'React' },
+]
+const q = String(queryString || '').toLowerCase()
+callback(
+  q ? list.filter((i) => i.value.includes(q) || i.label.includes(q)) : list,
+)`,
     },
   ),
-  functionBind(
-    '渲染选项',
-    'render-option',
-    '自定义整个选项节点渲染（Naive render-option）',
-    {
-      params: ['info'],
-      example: `// return info.node\nreturn info.node`,
-    },
+  boolSwitch(
+    '聚焦即建议',
+    'trigger-on-focus',
+    '输入框 focus 时是否显示建议（默认 true）',
   ),
+  boolSwitch(
+    '无匹配仍选中',
+    'select-when-unmatched',
+    '无匹配建议时按回车是否触发 select 事件',
+  ),
+  boolSwitch('隐藏加载图标', 'hide-loading', '是否隐藏远程加载时的加载图标'),
+  boolSwitch(
+    '高亮第一项',
+    'highlight-first-item',
+    '是否默认高亮远程搜索建议中的第一项',
+  ),
+  boolSwitch(
+    '下拉同宽',
+    'fit-input-width',
+    '下拉框宽度是否与输入框相同',
+  ),
+  boolSwitch(
+    '循环键盘导航',
+    'loop-navigation',
+    '键盘导航是否从末项循环到首项',
+  ),
+  boolSwitch('显示箭头', 'show-arrow', '是否显示下拉箭头'),
+  boolSwitch(
+    'Teleport 到 body',
+    'teleported',
+    '是否将下拉列表插入至 body',
+  ),
+  textInput('下拉类名', 'popper-class', 'Autocomplete 下拉菜单的类名'),
+  textInput('下拉样式', 'popper-style', '下拉菜单自定义样式（字符串）'),
+  textInput(
+    '挂载目标',
+    'append-to',
+    '下拉列表挂载到的 DOM 选择器',
+    '如 body',
+  ),
+  textInput('name', 'name', '原生 input 的 name 属性'),
+  textInput('无障碍标签', 'aria-label', '原生 aria-label 属性'),
+])
+
+/** 标签输入框（Element Plus InputTag） */
+export const inputTagConfig = createConfig([
+  modelBind(),
+  defaultValueBind('标签列表初始默认值，支持变量绑定（字符串数组）'),
+  textInput('占位文本', 'placeholder', '输入框占位文本'),
+  numberInput('最大数量', 'max', '可添加标签的最大数量；不填则不限制'),
+  selectInput(
+    '标签类型',
+    'tag-type',
+    [
+      { label: 'primary', value: 'primary' },
+      { label: 'success', value: 'success' },
+      { label: 'info', value: 'info' },
+      { label: 'warning', value: 'warning' },
+      { label: 'danger', value: 'danger' },
+    ],
+    'Tag 的类型（默认 info）',
+  ),
+  selectInput(
+    '标签主题',
+    'tag-effect',
+    [
+      { label: '浅色', value: 'light' },
+      { label: '深色', value: 'dark' },
+      { label: '朴素', value: 'plain' },
+    ],
+    'Tag 的主题（默认 light）',
+  ),
+  selectInput(
+    'Tooltip 主题',
+    'effect',
+    [
+      { label: '浅色', value: 'light' },
+      { label: '深色', value: 'dark' },
+    ],
+    '折叠提示 Tooltip 主题（默认 light，EP 2.13.2+）',
+  ),
+  selectInput(
+    '触发键',
+    'trigger',
+    [
+      { label: 'Enter', value: 'Enter' },
+      { label: 'Space', value: 'Space' },
+    ],
+    '触发输入标签的按键（默认 Enter）',
+  ),
+  boolSwitch('可拖拽', 'draggable', '标签是否可拖动排序'),
+  textInput('分隔符', 'delimiter', '匹配到分隔符时添加标签（EP 2.9.9+）', '如 ,'),
+  sizeSelect(),
+  boolSwitch('折叠标签', 'collapse-tags', '是否将标签折叠为文字（EP 2.11.0+）'),
+  boolSwitch(
+    '折叠悬停提示',
+    'collapse-tags-tooltip',
+    '悬停折叠文字时是否显示全部标签；需开启折叠标签',
+  ),
+  numberInput(
+    '最多显示标签数',
+    'max-collapse-tags',
+    '折叠时最多显示的 Tag 数量（默认 1）',
+  ),
+  boolSwitch('失焦保存', 'save-on-blur', '失焦时是否保存当前输入值（默认 true）'),
+  boolSwitch('可清空', 'clearable', '是否显示清除按钮'),
+  textInput('清除图标', 'clear-icon', '自定义清除图标组件名', 'CircleClose'),
+  boolSwitch('禁用', 'disabled', '是否禁用'),
+  boolSwitch('只读', 'readonly', '原生 input 只读'),
+  boolSwitch('自动聚焦', 'autofocus', '原生 input 自动聚焦'),
+  boolSwitch('触发表单校验', 'validate-event', '是否触发表单校验（默认 true）'),
+  textInput('id', 'id', '原生 input 的 id'),
+  textInput('tabindex', 'tabindex', '原生 input 的 tabindex', '0'),
+  numberInput('最大输入长度', 'maxlength', '原生 maxlength'),
+  numberInput('最小输入长度', 'minlength', '原生 minlength'),
+  textInput('自动填充', 'autocomplete', '原生 autocomplete（默认 off）', 'off'),
+  textInput('无障碍标签', 'aria-label', '原生 aria-label'),
 ])
 
 /** 动态标签（Naive UI NDynamicTags） */

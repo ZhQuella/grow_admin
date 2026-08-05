@@ -9,8 +9,8 @@ export const FORM_MODULE_FULL_WIDTH_TAGS = new Set([
   'GrowTreeSelect',
   'GrowAutoComplete',
   'GrowMention',
+  'GrowInputTag',
   'GrowSlider',
-  'GrowTransfer',
   'GrowRadioGroup',
   'GrowCheckboxGroup',
   'GrowPagination',
@@ -375,6 +375,16 @@ export const AtomicComponent = new Map([
           isInlineBlock: true
         },
         {
+          elName: "颜色选择器",
+          elType: "eleModule",
+          elTagName: "GrowColorPicker",
+          elIcon: "ColorPalette",
+          isChild: false,
+          isAdd: false,
+          childName: "",
+          isInlineBlock: true
+        },
+        {
           elName: "时间选择器",
           elType: "eleModule",
           elTagName: "GrowTimePicker",
@@ -391,6 +401,16 @@ export const AtomicComponent = new Map([
           isChild: false,
           isAdd: false,
           childName: ""
+        },
+        {
+          elName: "日期选择器面板",
+          elType: "eleModule",
+          elTagName: "GrowDatePickerPanel",
+          elIcon: "CalendarHeatMap",
+          isChild: false,
+          isAdd: false,
+          childName: "",
+          isInlineBlock: true
         },
         {
           elName: "单选",
@@ -420,7 +440,7 @@ export const AtomicComponent = new Map([
           childName: ""
         },
         {
-          elName: "自动填充",
+          elName: "自动补全输入框",
           elType: "eleModule",
           elTagName: "GrowAutoComplete",
           elIcon: "AutoComplete",
@@ -433,6 +453,15 @@ export const AtomicComponent = new Map([
           elType: "eleModule",
           elTagName: "GrowMention",
           elIcon: "Mention",
+          isChild: false,
+          isAdd: false,
+          childName: ""
+        },
+        {
+          elName: "标签输入框",
+          elType: "eleModule",
+          elTagName: "GrowInputTag",
+          elIcon: "Tag",
           isChild: false,
           isAdd: false,
           childName: ""
@@ -473,7 +502,8 @@ export const AtomicComponent = new Map([
           elIcon: "StudyTransfer",
           isChild: false,
           isAdd: false,
-          childName: ""
+          childName: "",
+          isInlineBlock: true
         }
       ]
     }

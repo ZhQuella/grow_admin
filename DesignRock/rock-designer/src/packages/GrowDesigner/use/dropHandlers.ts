@@ -67,15 +67,18 @@ export const bindDroppedNodeConfig = (
     'GrowSelect',
     'GrowCascader',
     'GrowSwitch',
+    'GrowColorPicker',
     'GrowSlider',
     'GrowTransfer',
     'GrowDatePicker',
+    'GrowDatePickerPanel',
     'GrowTimePicker',
     'GrowRadioGroup',
     'GrowCheckboxGroup',
     'GrowTreeSelect',
     'GrowAutoComplete',
     'GrowMention',
+    'GrowInputTag',
     'GrowDynamicTags',
     'GrowUpload',
     'GrowTabs',
@@ -110,6 +113,15 @@ export const bindDroppedNodeConfig = (
   // 判断条件：仅变量绑定
   if (tag === 'GrowCondition') {
     defaultBindModes.when = 'bind'
+  }
+  if (tag === 'GrowColorPicker') {
+    defaultBindModes.predefine = 'bind'
+    defaultBindModes['empty-values'] = 'bind'
+  }
+  if (tag === 'GrowDatePickerPanel') {
+    defaultBindModes.shortcuts = 'bind'
+    defaultBindModes['default-value'] = 'bind'
+    defaultBindModes['default-time'] = 'bind'
   }
 
   draggableConfig.propBindModes[uuid] = {

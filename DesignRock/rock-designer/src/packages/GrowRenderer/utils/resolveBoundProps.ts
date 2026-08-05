@@ -225,6 +225,7 @@ const isLikelyFunctionPropKey = (key: string): boolean => {
     'get-show',
     'on-create',
     'lazy-load',
+    'fetch-suggestions',
   ].includes(kebab)
 }
 

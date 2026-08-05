@@ -409,21 +409,10 @@ export const normalizeGrowMentionProps = (info: Record<string, any>) => {
 
 export const normalizeGrowAutoCompleteProps = (info: Record<string, any>) => {
   syncValueModelValue(info)
-  // 空 status 不是合法值，避免落到 NAutoComplete / EP 校验
+  // 兼容历史 Naive 配置：空 status / 非法 placement
   if (info.status === '' || info.status == null) {
     Reflect.deleteProperty(info, 'status')
   }
-  if (info['z-index'] != null && info['z-index'] !== '') {
-    const n = Number(info['z-index'])
-    if (Number.isFinite(n)) info['z-index'] = n
-    else Reflect.deleteProperty(info, 'z-index')
-  }
-  if (info.zIndex != null && info.zIndex !== '') {
-    const n = Number(info.zIndex)
-    if (Number.isFinite(n)) info.zIndex = n
-    else Reflect.deleteProperty(info, 'zIndex')
-  }
-  // EP ElAutocomplete 不支持 left/right placement，非法值改为默认
   const placement = info.placement ?? info['placement']
   if (placement != null && placement !== '') {
     const allowed = new Set([
@@ -437,6 +426,11 @@ export const normalizeGrowAutoCompleteProps = (info: Record<string, any>) => {
     if (!allowed.has(String(placement))) {
       info.placement = 'bottom-start'
     }
+  }
+  if (info.debounce != null && info.debounce !== '') {
+    const n = Number(info.debounce)
+    if (Number.isFinite(n)) info.debounce = n
+    else Reflect.deleteProperty(info, 'debounce')
   }
   // 文本模式误填 JSON 字符串时尝试解析为 options
   if (typeof info.options === 'string') {

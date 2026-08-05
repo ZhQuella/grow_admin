@@ -18,6 +18,12 @@ type SuggestionItem = {
   disabled?: boolean
 }
 
+type FetchSuggestions = (
+  queryString: string,
+  cb: (items: SuggestionItem[]) => void,
+) => void | SuggestionItem[] | Promise<void | SuggestionItem[]>
+
+/** Naive 专属属性，不透传给 ElAutocomplete */
 const NAIVE_ONLY_ATTR_KEYS = new Set([
   'bordered',
   'blur-after-select',
@@ -31,6 +37,8 @@ const NAIVE_ONLY_ATTR_KEYS = new Set([
   'getShow',
   'render-label',
   'renderLabel',
+  'render-option',
+  'renderOption',
   'status',
   'z-index',
   'zIndex',
@@ -38,6 +46,8 @@ const NAIVE_ONLY_ATTR_KEYS = new Set([
   'value',
   'modelValue',
   'model-value',
+  'fetch-suggestions',
+  'fetchSuggestions',
 ])
 
 const EP_PLACEMENTS = new Set([
@@ -75,8 +85,9 @@ const normalizeOptions = (raw: unknown): SuggestionItem[] => {
 }
 
 /**
- * Element Plus 侧对齐 Naive NAutoComplete：
- * options / value → ElAutocomplete fetch-suggestions / modelValue
+ * Element Plus ElAutocomplete 驱动。
+ * - 优先使用 fetch-suggestions（函数或数组）
+ * - 未配置时用 options 做本地过滤（设计器便捷候选）
  */
 export default defineComponent({
   name: 'AutoComplete',
@@ -94,18 +105,24 @@ export default defineComponent({
     placeholder: { type: String, default: '请输入' },
     clearable: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false },
-    loading: { type: Boolean, default: false },
     size: {
-      type: String as PropType<'small' | 'medium' | 'large' | 'default'>,
+      type: String as PropType<'small' | 'medium' | 'large' | 'default' | ''>,
       default: 'default',
     },
     triggerOnFocus: { type: Boolean, default: true },
     placement: { type: String, default: 'bottom-start' },
+    valueKey: { type: String, default: 'value' },
+    debounce: { type: Number, default: 300 },
+    fetchSuggestions: {
+      type: [Function, Array] as PropType<FetchSuggestions | SuggestionItem[]>,
+      default: undefined,
+    },
   },
   emits: [
     'update:value',
     'update:modelValue',
     'change',
+    'input',
     'select',
     'blur',
     'focus',
@@ -121,7 +138,7 @@ export default defineComponent({
     })
 
     const epSize = computed(() => {
-      if (props.size === 'medium') return 'default'
+      if (props.size === 'medium' || props.size === '') return 'default'
       if (props.size === 'large' || props.size === 'small') return props.size
       return 'default'
     })
@@ -142,10 +159,16 @@ export default defineComponent({
       return next
     })
 
-    const fetchSuggestions = (
-      queryString: string,
-      cb: (items: SuggestionItem[]) => void,
-    ) => {
+    const resolveCustomFetch = (): FetchSuggestions | SuggestionItem[] | undefined => {
+      if (props.fetchSuggestions != null) return props.fetchSuggestions
+      const fromAttrs = attrs.fetchSuggestions ?? attrs['fetch-suggestions']
+      if (typeof fromAttrs === 'function' || Array.isArray(fromAttrs)) {
+        return fromAttrs as FetchSuggestions | SuggestionItem[]
+      }
+      return undefined
+    }
+
+    const builtInFetch: FetchSuggestions = (queryString, cb) => {
       try {
         const q = String(queryString ?? '')
           .trim()
@@ -167,20 +190,32 @@ export default defineComponent({
       }
     }
 
-    const onUpdate = (next: string) => {
+    const fetchSuggestions: FetchSuggestions = (queryString, cb) => {
+      const custom = resolveCustomFetch()
+      if (Array.isArray(custom)) {
+        cb(normalizeOptions(custom))
+        return
+      }
+      if (typeof custom === 'function') {
+        return custom(queryString, cb)
+      }
+      return builtInFetch(queryString, cb)
+    }
+
+    const onUpdate = (next: string | number) => {
       emit('update:value', next)
       emit('update:modelValue', next)
       emit('change', next)
+      emit('input', next)
     }
 
     const onSelect = (item: Record<string, any>) => {
-      emit('select', String(item?.value ?? ''))
+      emit('select', item)
     }
 
     return () => {
       const extra = passthroughAttrs.value
       const { class: extraClass, style: extraStyle, ...restAttrs } = extra
-      // 外层占整行（对齐 GrowInput）；勿把 display:block 透传到内部 ElInput
       return h(
         'div',
         {
@@ -201,12 +236,12 @@ export default defineComponent({
               placeholder: props.placeholder,
               clearable: props.clearable,
               disabled: props.disabled,
-              loading: props.loading,
               size: epSize.value,
               triggerOnFocus: props.triggerOnFocus,
               placement: epPlacement.value,
+              valueKey: props.valueKey || 'value',
+              debounce: props.debounce,
               fetchSuggestions,
-              valueKey: 'value',
               'onUpdate:modelValue': onUpdate,
               onSelect,
               onBlur: (e: FocusEvent) => emit('blur', e),
@@ -245,4 +280,3 @@ export default defineComponent({
   box-sizing: border-box;
 }
 </style>
-
