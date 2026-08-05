@@ -1,14 +1,17 @@
 import {
   boolSwitch,
+  COMMON_VISIBILITY_PROPS,
   createConfig,
   defaultValueBind,
   functionBind,
   modelBind,
   numberInput,
+  propSection,
   selectInput,
   sizeSelect,
   textInput,
   variableBindInput,
+  variableBindOnlyInput,
 } from './shared'
 
 /** 表单 GrowForm */
@@ -236,11 +239,11 @@ export const inputNumberConfig = createConfig([
 export const selectConfig = createConfig([
   modelBind(),
   defaultValueBind('选择器初始默认值，支持变量绑定'),
-  variableBindInput(
+  variableBindOnlyInput(
     '选项数据',
     'options',
-    '下拉选项，支持变量绑定（如 state.options）',
-    '请输入数据或绑定变量',
+    '下拉选项，仅支持变量绑定（如 state.options）',
+    '请绑定选项数据',
   ),
   textInput('占位文本', 'placeholder', '占位符'),
   boolSwitch('多选', 'multiple', '是否多选'),
@@ -275,11 +278,11 @@ export const selectConfig = createConfig([
 export const cascaderConfig = createConfig([
   modelBind(),
   defaultValueBind('级联选择器初始默认值，支持变量绑定'),
-  variableBindInput(
+  variableBindOnlyInput(
     '选项数据',
     'options',
-    '级联选项，支持变量绑定（如 state.options）',
-    '请输入数据或绑定变量',
+    '级联选项，仅支持变量绑定（如 state.options）',
+    '请绑定选项数据',
   ),
   textInput('占位文本', 'placeholder', '输入框占位文本'),
   boolSwitch('禁用', 'disabled', '是否禁用'),
@@ -305,6 +308,101 @@ export const cascaderConfig = createConfig([
       params: ['node', 'keyword'],
       example: `// return node.text?.includes(keyword)\nreturn true`,
     },
+  ),
+  ...COMMON_VISIBILITY_PROPS,
+  propSection('级联属性'),
+  selectInput(
+    '展开方式',
+    'expand-trigger',
+    [
+      { label: '点击', value: 'click' },
+      { label: '悬停', value: 'hover' },
+    ],
+    '次级菜单的展开方式',
+  ),
+  boolSwitch('多选', 'multiple', '是否多选'),
+  boolSwitch(
+    '父子不关联',
+    'check-strictly',
+    '是否严格的遵守父子节点不互相关联',
+  ),
+  boolSwitch(
+    '返回完整路径',
+    'emit-path',
+    '在选中节点改变时，是否返回由该节点所在的各级菜单的值所组成的数组；若为 false，则只返回该节点的值（默认 true）',
+  ),
+  boolSwitch(
+    '动态加载',
+    'lazy',
+    '是否动态加载子节点，需与动态加载方法结合使用',
+  ),
+  functionBind(
+    '动态加载方法',
+    'lazy-load',
+    '加载动态数据的方法，仅在开启动态加载时有效；签名 (node, resolve, reject) => void，reject 需 EP 2.11.5+',
+    {
+      params: ['node', 'resolve', 'reject'],
+      example: `// (node: Node, resolve: Resolve, reject: () => void) => void
+// 根节点加载时 node 可能为空；resolve(子节点数组)；失败调用 reject()
+const { level } = node || { level: 0 }
+const nodes = Array.from({ length: level + 1 }).map((_, i) => ({
+  value: \`选项\${level}-\${i}\`,
+  label: \`选项\${level}-\${i}\`,
+  leaf: level >= 2,
+}))
+setTimeout(() => resolve(nodes), 300)`,
+    },
+  ),
+  textInput(
+    'value 字段',
+    'value-key',
+    '指定选项的值为选项对象的某个属性名（默认 value）',
+    'value',
+  ),
+  textInput(
+    'label 字段',
+    'label-key',
+    '指定选项标签为选项对象的某个属性名（默认 label）',
+    'label',
+  ),
+  textInput(
+    'children 字段',
+    'children-key',
+    '指定选项的子选项为选项对象的某个属性名（默认 children）',
+    'children',
+  ),
+  textInput(
+    'disabled 字段',
+    'disabled-key',
+    '指定选项的禁用为选项对象的某个属性名（默认 disabled）；与组件顶层「禁用」无关',
+    'disabled',
+  ),
+  textInput(
+    'leaf 字段',
+    'leaf-key',
+    '指定选项的叶子节点标志位为选项对象的某个属性名（默认 leaf）',
+    'leaf',
+  ),
+  numberInput(
+    '悬停展开阈值',
+    'hover-threshold',
+    'hover 时展开菜单的灵敏度阈值（毫秒，默认 500）',
+    '500',
+  ),
+  boolSwitch(
+    '点击节点选中',
+    'check-on-click-node',
+    '点击节点时是否选中或取消选中该节点（EP 2.10.5+）',
+  ),
+  boolSwitch(
+    '点击叶子选中',
+    'check-on-click-leaf',
+    '点击叶子节点（最后一级子节点）时，是否选中或取消选中该节点（默认 true，EP 2.10.5+）',
+  ),
+  boolSwitch(
+    '显示前缀',
+    'show-prefix',
+    '是否显示单选框或复选框的前缀图标（默认 true，EP 2.10.5+）',
   ),
 ])
 /** 开关 */
@@ -350,11 +448,11 @@ export const sliderConfig = createConfig([
 export const transferConfig = createConfig([
   modelBind(),
   defaultValueBind('穿梭框选中值（右侧列表 key 数组），支持变量绑定'),
-  variableBindInput(
+  variableBindOnlyInput(
     '数据源',
     'data',
-    '穿梭框数据源，支持变量绑定（如 state.list）',
-    '请输入数据或绑定变量',
+    '穿梭框数据源，仅支持变量绑定（如 state.list）',
+    '请绑定数据源',
   ),
   boolSwitch('可搜索', 'filterable', '是否可搜索'),
   textInput('搜索占位', 'filter-placeholder', '搜索框占位符'),
@@ -504,11 +602,11 @@ export const checkboxConfig = createConfig([
 export const radioGroupConfig = createConfig([
   modelBind(),
   defaultValueBind('单选组初始默认值，支持变量绑定'),
-  variableBindInput(
+  variableBindOnlyInput(
     '选项数据',
     'options',
-    '单选选项，支持变量绑定（如 state.options）',
-    '请输入数据或绑定变量',
+    '单选选项，仅支持变量绑定（如 state.options）',
+    '请绑定选项数据',
   ),
   boolSwitch('禁用', 'disabled', '是否禁用'),
   sizeSelect(),
@@ -518,11 +616,11 @@ export const radioGroupConfig = createConfig([
 export const checkboxGroupConfig = createConfig([
   modelBind(),
   defaultValueBind('多选组初始默认值（数组），支持变量绑定'),
-  variableBindInput(
+  variableBindOnlyInput(
     '选项数据',
     'options',
-    '多选选项，支持变量绑定（如 state.options）',
-    '请输入数据或绑定变量',
+    '多选选项，仅支持变量绑定（如 state.options）',
+    '请绑定选项数据',
   ),
   boolSwitch('禁用', 'disabled', '是否禁用'),
   numberInput('最小数量', 'min', '可被勾选的最小数量'),
@@ -534,11 +632,11 @@ export const checkboxGroupConfig = createConfig([
 export const treeSelectConfig = createConfig([
   modelBind(),
   defaultValueBind('树形选择初始默认值，支持变量绑定'),
-  variableBindInput(
+  variableBindOnlyInput(
     '数据源',
     'data',
-    '树形数据，支持变量绑定（如 state.tree）；也可使用 options',
-    '请输入数据或绑定变量',
+    '树形数据，仅支持变量绑定（如 state.tree）；也可使用 options',
+    '请绑定数据源',
   ),
   textInput('占位文本', 'placeholder', '未选择时的占位文案'),
   boolSwitch('多选', 'multiple', '是否支持多选'),
@@ -600,11 +698,11 @@ export const treeSelectConfig = createConfig([
 export const mentionConfig = createConfig([
   modelBind(),
   defaultValueBind('提及初始默认值，支持变量绑定'),
-  variableBindInput(
+  variableBindOnlyInput(
     '选项数据',
     'options',
-    '提及候选列表，支持变量绑定（如 state.mentions）',
-    '请输入数据或绑定变量',
+    '提及候选列表，仅支持变量绑定（如 state.mentions）',
+    '请绑定选项数据',
   ),
   textInput('占位文本', 'placeholder', '未输入时的占位文案'),
   textInput('触发前缀', 'prefix', '触发提及的前缀字符，长度须为 1', '@'),
@@ -661,11 +759,11 @@ export const mentionConfig = createConfig([
 export const autoCompleteConfig = createConfig([
   modelBind(),
   defaultValueBind('自动填充初始默认值，支持变量绑定'),
-  variableBindInput(
-    '选项数据',
+  variableBindOnlyInput(
+    '数据选项',
     'options',
-    '候选列表：string[] 或 { label, value }[]，也支持分组 { type: "group", label, key, children }；可绑定 state.options',
-    '请输入数据或绑定变量',
+    '候选列表：string[] 或 { label, value }[]，也支持分组 { type: "group", label, key, children }；仅支持变量绑定（如 state.options）',
+    '请绑定数据选项',
   ),
   textInput('占位文本', 'placeholder', '未输入时的占位文案', '请输入'),
   boolSwitch('可清空', 'clearable', '是否显示清空按钮'),

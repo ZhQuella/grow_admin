@@ -1,10 +1,23 @@
 /** 将设计器中的函数 prop 源码编译为运行时可调用函数 */
 
 import { decodeFunctionPropValue } from '../../GrowDesigner/static/functionPropCodec'
-import { getFunctionPropParams } from '../../GrowDesigner/static/functionPropParams'
+import { getFunctionPropParamMeta } from '../../GrowDesigner/static/functionPropParams'
 import type { DesignerRuntimeRefs } from './runtimeRefs'
 
 const SAFE_NAME_RE = /^[A-Za-z_$][\w$]*$/
+
+const buildParamPrelude = (
+  params: string[],
+  objectArgs: boolean,
+): string => {
+  if (!params.length) return ''
+  if (objectArgs) {
+    return `const { ${params.join(', ')} } = (args[0] && typeof args[0] === 'object') ? args[0] : {};`
+  }
+  return params
+    .map((param, index) => `const ${param} = args[${index}];`)
+    .join('\n')
+}
 
 /**
  * 将函数体编译为可传入组件的 prop 回调。
@@ -17,6 +30,7 @@ export const compileDesignerPropFunction = (
     name?: string
     modelKey?: string
     params?: string[]
+    objectArgs?: boolean
     refs?: DesignerRuntimeRefs
   },
 ): ((...args: unknown[]) => unknown) | undefined => {
@@ -29,16 +43,20 @@ export const compileDesignerPropFunction = (
     ? rawName.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase()).replace(/-/g, '')
     : 'handler'
 
+  const registry = getFunctionPropParamMeta(String(options?.modelKey || ''))
   const params = (
-    options?.params ||
-    decoded.params ||
-    getFunctionPropParams(String(options?.modelKey || ''))
+    options?.params ??
+    (decoded.params.length ? decoded.params : undefined) ??
+    registry.params
   ).filter((item) => SAFE_NAME_RE.test(item))
 
-  const prelude = params
-    .map((param, index) => `const ${param} = args[${index}];`)
-    .join('\n')
+  const objectArgs =
+    options?.objectArgs ??
+    (decoded.params.length > 0 || decoded.objectArgs
+      ? decoded.objectArgs
+      : Boolean(registry.objectArgs))
 
+  const prelude = buildParamPrelude(params, objectArgs)
   const refs = options?.refs || {}
 
   try {

@@ -75,7 +75,7 @@ export const cardConfig = createConfig([
 
 /** 选项卡 */
 export const tabsConfig = createConfig([
-  modelBind('选项卡激活值绑定路径，支持变量绑定（如 state.activeTab）'),
+  modelBind('选项卡激活值绑定路径，仅支持变量绑定（如 state.activeTab）'),
   variableBindInput(
     '默认激活',
     'modelValue',
@@ -189,7 +189,7 @@ export const colConfig = createConfig([
 
 /** 折叠面板 */
 export const collapseConfig = createConfig([
-  modelBind('当前展开的面板绑定路径；手风琴为单个 name，否则为 name 数组，支持变量绑定'),
+  modelBind('当前展开的面板绑定路径；手风琴为单个 name，否则为 name 数组，仅支持变量绑定'),
   variableBindInput(
     '默认激活',
     'modelValue',

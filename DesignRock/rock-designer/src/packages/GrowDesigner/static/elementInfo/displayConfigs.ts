@@ -614,11 +614,11 @@ export const treeConfig = createConfig([
 /** 表格（常用项） */
 export const tableConfig = createConfig([
   tableColumnsInput(),
-  variableBindInput(
+  variableBindOnlyInput(
     '数据源',
     'data',
-    '表格行数据，支持变量绑定（如 state.list）',
-    '请输入数据或绑定变量',
+    '表格行数据，仅支持变量绑定（如 state.list）',
+    '请绑定数据源',
   ),
   boolSwitch('斑马纹', 'stripe', '是否为斑马纹 table'),
   boolSwitch('边框', 'border', '是否带有纵向边框'),
@@ -641,8 +641,9 @@ export const tableConfig = createConfig([
     'summary-method',
     '自定义合计行的计算方法（需开启「显示合计行」）；不填则按数值列自动求和',
     {
-      params: ['param'],
-      example: `// const { columns, data } = param\n// return columns.map((column, index) => {\n//   if (index === 0) return '合计'\n//   // 按列汇总…\n//   return ''\n// })\nreturn []`,
+      params: ['columns', 'data'],
+      objectArgs: true,
+      example: `// return columns.map((column, index) => {\n//   if (index === 0) return '合计'\n//   // 按列汇总…\n//   return ''\n// })\nreturn []`,
     },
   ),
   functionBind(
@@ -651,6 +652,7 @@ export const tableConfig = createConfig([
     '合并行或列的计算方法，需返回 [rowspan, colspan] 或 { rowspan, colspan }',
     {
       params: ['row', 'column', 'rowIndex', 'columnIndex'],
+      objectArgs: true,
       example: `// return [1, 1]\nreturn [1, 1]`,
     },
   ),
@@ -660,6 +662,7 @@ export const tableConfig = createConfig([
     '行的 className 回调；也可直接绑字符串',
     {
       params: ['row', 'rowIndex'],
+      objectArgs: true,
       example: `// return rowIndex % 2 === 0 ? 'even' : 'odd'\nreturn ''`,
     },
   ),
@@ -669,6 +672,7 @@ export const tableConfig = createConfig([
     '行的 style 回调',
     {
       params: ['row', 'rowIndex'],
+      objectArgs: true,
       example: `// return {}\nreturn {}`,
     },
   ),
@@ -678,6 +682,7 @@ export const tableConfig = createConfig([
     '单元格的 className 回调',
     {
       params: ['row', 'column', 'rowIndex', 'columnIndex'],
+      objectArgs: true,
       example: `return ''`,
     },
   ),
@@ -687,6 +692,7 @@ export const tableConfig = createConfig([
     '单元格的 style 回调',
     {
       params: ['row', 'column', 'rowIndex', 'columnIndex'],
+      objectArgs: true,
       example: `return {}`,
     },
   ),
@@ -696,6 +702,7 @@ export const tableConfig = createConfig([
     '表头行的 className 回调',
     {
       params: ['row', 'rowIndex'],
+      objectArgs: true,
       example: `return ''`,
     },
   ),
@@ -705,6 +712,7 @@ export const tableConfig = createConfig([
     '表头行的 style 回调',
     {
       params: ['row', 'rowIndex'],
+      objectArgs: true,
       example: `return {}`,
     },
   ),
@@ -714,6 +722,7 @@ export const tableConfig = createConfig([
     '表头单元格的 className 回调',
     {
       params: ['row', 'column', 'rowIndex', 'columnIndex'],
+      objectArgs: true,
       example: `return ''`,
     },
   ),
@@ -723,6 +732,7 @@ export const tableConfig = createConfig([
     '表头单元格的 style 回调',
     {
       params: ['row', 'column', 'rowIndex', 'columnIndex'],
+      objectArgs: true,
       example: `return {}`,
     },
   ),

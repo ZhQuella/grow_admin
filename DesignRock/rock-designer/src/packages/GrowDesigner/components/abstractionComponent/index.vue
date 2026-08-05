@@ -1403,8 +1403,11 @@ const styleInfo = computed(() => {
     Reflect.deleteProperty(styles, 'max-height')
   }
 
-  // Tag：历史 schema 的 inline-block 会覆盖 EP 的 inline-flex，文字无法垂直居中
-  if (tag === 'GrowTag' && styles.display === 'inline-block') {
+  // Tag / 动态标签：历史 schema 的 inline-block 会覆盖 EP 的 inline-flex
+  if (
+    (tag === 'GrowTag' || tag === 'GrowDynamicTags') &&
+    styles.display === 'inline-block'
+  ) {
     styles.display = 'inline-flex'
   }
 

@@ -785,8 +785,11 @@ const nodeStyle = computed(() => {
     return resolveOverlayHostStyle(styles)
   }
   const style = resolveNodeStyle(styles)
-  // Tag：历史 schema 的 inline-block 会覆盖 EP 的 inline-flex，文字无法垂直居中
-  if (tag.value === 'GrowTag' && style.display === 'inline-block') {
+  // Tag / 动态标签：历史 schema 的 inline-block 会覆盖 EP 的 inline-flex
+  if (
+    (tag.value === 'GrowTag' || tag.value === 'GrowDynamicTags') &&
+    style.display === 'inline-block'
+  ) {
     style.display = 'inline-flex'
   }
   return style

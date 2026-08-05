@@ -200,21 +200,9 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
     clearable: true,
     filterable: true,
     size: 'medium',
-    options: [
-      {
-        label: '选项组 1',
-        key: '1',
-        children: [
-          { label: '选项 1-1', key: '1-1' },
-          { label: '选项 1-2', key: '1-2' },
-        ],
-      },
-      {
-        label: '选项组 2',
-        key: '2',
-        children: [{ label: '选项 2-1', key: '2-1' }],
-      },
-    ],
+    // data / options 仅支持变量绑定
+    data: [],
+    options: [],
   },
   GrowMention: {
     value: '',
@@ -224,11 +212,8 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
     type: 'text',
     bordered: true,
     size: 'medium',
-    options: [
-      { label: '张三', value: 'zhangsan' },
-      { label: '李四', value: 'lisi' },
-      { label: '王五', value: 'wangwu' },
-    ],
+    // options 仅支持变量绑定
+    options: [],
   },
   GrowAutoComplete: {
     value: '',
@@ -240,11 +225,8 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
     'clear-after-select': false,
     append: false,
     'show-empty': false,
-    options: [
-      { label: 'aaron@gmail.com', value: 'aaron@gmail.com' },
-      { label: 'aaron@163.com', value: 'aaron@163.com' },
-      { label: 'aaron@qq.com', value: 'aaron@qq.com' },
-    ],
+    // options / model 仅支持变量绑定，拖入时不写死静态选项
+    options: [],
   },
   GrowDynamicTags: {
     value: ['标签1', '标签2'],
@@ -428,13 +410,14 @@ export const resolveDefaultStyles = (
     elTagName === 'GrowIconify' ||
     elTagName === 'GrowImage' ||
     elTagName === 'GrowHighlight' ||
-    elTagName === 'GrowDropdown'
+    elTagName === 'GrowDropdown' ||
+    elTagName === 'GrowDynamicTags'
   ) {
     Reflect.deleteProperty(styles, 'min-width')
     Reflect.deleteProperty(styles, 'min-height')
   }
-  // Tag 依赖自身 inline-flex + align-items 垂直居中，勿用 inline-block 覆盖
-  if (elTagName === 'GrowTag') {
+  // Tag / 动态标签依赖自身 inline-flex，勿用 inline-block 覆盖
+  if (elTagName === 'GrowTag' || elTagName === 'GrowDynamicTags') {
     styles.display = 'inline-flex'
   }
   return styles

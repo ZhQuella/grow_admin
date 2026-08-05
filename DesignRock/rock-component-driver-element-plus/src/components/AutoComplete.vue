@@ -179,38 +179,70 @@ export default defineComponent({
 
     return () => {
       const extra = passthroughAttrs.value
+      const { class: extraClass, style: extraStyle, ...restAttrs } = extra
+      // 外层占整行（对齐 GrowInput）；勿把 display:block 透传到内部 ElInput
       return h(
-        ElAutocomplete,
+        'div',
         {
-          ...extra,
-          class: ['grow-ep-auto-complete', extra.class],
-          style: [{ width: '100%', display: 'inline-block' }, extra.style as any],
-          modelValue: mergedValue.value,
-          placeholder: props.placeholder,
-          clearable: props.clearable,
-          disabled: props.disabled,
-          loading: props.loading,
-          size: epSize.value,
-          triggerOnFocus: props.triggerOnFocus,
-          placement: epPlacement.value,
-          fetchSuggestions,
-          valueKey: 'value',
-          'onUpdate:modelValue': onUpdate,
-          onSelect,
-          onBlur: (e: FocusEvent) => emit('blur', e),
-          onFocus: (e: FocusEvent) => emit('focus', e),
-          onClear: () => emit('clear'),
+          class: ['grow-ep-auto-complete', extraClass],
+          style: [
+            { width: '100%', display: 'block', boxSizing: 'border-box' },
+            extraStyle as any,
+          ],
         },
-        {
-          default: (slotProps: { item?: SuggestionItem }) => {
-            const item = slotProps?.item
-            return h('span', null, item?.label || item?.value || '')
-          },
-          ...(slots.prefix ? { prefix: () => slots.prefix?.() } : {}),
-          ...(slots.suffix ? { suffix: () => slots.suffix?.() } : {}),
-        },
+        [
+          h(
+            ElAutocomplete,
+            {
+              ...restAttrs,
+              class: 'grow-ep-auto-complete__inner',
+              style: { width: '100%' },
+              modelValue: mergedValue.value,
+              placeholder: props.placeholder,
+              clearable: props.clearable,
+              disabled: props.disabled,
+              loading: props.loading,
+              size: epSize.value,
+              triggerOnFocus: props.triggerOnFocus,
+              placement: epPlacement.value,
+              fetchSuggestions,
+              valueKey: 'value',
+              'onUpdate:modelValue': onUpdate,
+              onSelect,
+              onBlur: (e: FocusEvent) => emit('blur', e),
+              onFocus: (e: FocusEvent) => emit('focus', e),
+              onClear: () => emit('clear'),
+            },
+            {
+              default: (slotProps: { item?: SuggestionItem }) => {
+                const item = slotProps?.item
+                return h('span', null, item?.label || item?.value || '')
+              },
+              ...(slots.prefix ? { prefix: () => slots.prefix?.() } : {}),
+              ...(slots.suffix ? { suffix: () => slots.suffix?.() } : {}),
+            },
+          ),
+        ],
       )
     }
   },
 })
 </script>
+
+<style scoped>
+.grow-ep-auto-complete {
+  width: 100%;
+  display: block;
+  box-sizing: border-box;
+}
+
+.grow-ep-auto-complete :deep(.el-tooltip__trigger),
+.grow-ep-auto-complete :deep(.el-only-child),
+.grow-ep-auto-complete :deep(.el-autocomplete),
+.grow-ep-auto-complete :deep(.el-input) {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+</style>
+

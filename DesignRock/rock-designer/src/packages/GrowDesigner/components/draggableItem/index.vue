@@ -123,6 +123,7 @@ const INLINE_FRAME_TAGS = new Set([
   'GrowSearchBar',
   'GrowColumnBar',
   'GrowUpload',
+  'GrowDynamicTags',
   'GrowAvatar',
   'GrowIconify',
 ])

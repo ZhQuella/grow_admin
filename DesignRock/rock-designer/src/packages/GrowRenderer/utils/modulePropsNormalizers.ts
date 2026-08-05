@@ -90,6 +90,141 @@ export const normalizeGrowUploadProps = (info: Record<string, any>) => {
   }
 }
 
+/**
+ * 设计器平铺字段 → ElCascader CascaderProps（camelCase）
+ * value/label/children/disabled/leaf 用 *-key，避免与顶层 disabled 等冲突
+ */
+const CASCADER_PROPS_FLAT_MAP: Array<{
+  flat: string
+  nested: string
+  kind: 'bool' | 'string' | 'number' | 'function' | 'enum'
+  aliases?: string[]
+}> = [
+  { flat: 'expand-trigger', nested: 'expandTrigger', kind: 'enum' },
+  { flat: 'multiple', nested: 'multiple', kind: 'bool' },
+  { flat: 'check-strictly', nested: 'checkStrictly', kind: 'bool' },
+  { flat: 'emit-path', nested: 'emitPath', kind: 'bool' },
+  { flat: 'lazy', nested: 'lazy', kind: 'bool' },
+  {
+    flat: 'lazy-load',
+    nested: 'lazyLoad',
+    kind: 'function',
+    aliases: ['lazyLoad'],
+  },
+  { flat: 'value-key', nested: 'value', kind: 'string', aliases: ['valueKey'] },
+  { flat: 'label-key', nested: 'label', kind: 'string', aliases: ['labelKey'] },
+  {
+    flat: 'children-key',
+    nested: 'children',
+    kind: 'string',
+    aliases: ['childrenKey'],
+  },
+  {
+    flat: 'disabled-key',
+    nested: 'disabled',
+    kind: 'string',
+    aliases: ['disabledKey'],
+  },
+  { flat: 'leaf-key', nested: 'leaf', kind: 'string', aliases: ['leafKey'] },
+  {
+    flat: 'hover-threshold',
+    nested: 'hoverThreshold',
+    kind: 'number',
+    aliases: ['hoverThreshold'],
+  },
+  {
+    flat: 'check-on-click-node',
+    nested: 'checkOnClickNode',
+    kind: 'bool',
+    aliases: ['checkOnClickNode'],
+  },
+  {
+    flat: 'check-on-click-leaf',
+    nested: 'checkOnClickLeaf',
+    kind: 'bool',
+    aliases: ['checkOnClickLeaf'],
+  },
+  {
+    flat: 'show-prefix',
+    nested: 'showPrefix',
+    kind: 'bool',
+    aliases: ['showPrefix'],
+  },
+]
+
+const readCascaderPropFlatValue = (
+  info: Record<string, any>,
+  flat: string,
+  aliases?: string[],
+) => {
+  if (Object.prototype.hasOwnProperty.call(info, flat)) return info[flat]
+  if (aliases) {
+    for (const alias of aliases) {
+      if (Object.prototype.hasOwnProperty.call(info, alias)) return info[alias]
+    }
+  }
+  return undefined
+}
+
+const coerceCascaderPropValue = (
+  kind: 'bool' | 'string' | 'number' | 'function' | 'enum',
+  raw: unknown,
+) => {
+  if (raw == null || raw === '') return undefined
+  if (kind === 'bool') return Boolean(raw)
+  if (kind === 'number') {
+    const n = Number(raw)
+    return Number.isFinite(n) ? n : undefined
+  }
+  if (kind === 'function') {
+    return typeof raw === 'function' ? raw : undefined
+  }
+  if (kind === 'enum' || kind === 'string') {
+    const s = String(raw).trim()
+    return s || undefined
+  }
+  return undefined
+}
+
+/**
+ * 级联：设计器平铺的 CascaderProps 字段写入 ElCascader 的 props
+ * 预览 / 运行时必须走此归一化，否则顶层 lazy 等不会生效
+ */
+export const normalizeGrowCascaderProps = (info: Record<string, any>) => {
+  const existing =
+    info.props && typeof info.props === 'object' && !Array.isArray(info.props)
+      ? { ...info.props }
+      : {}
+
+  for (const { flat, nested, kind, aliases } of CASCADER_PROPS_FLAT_MAP) {
+    const hasFlat =
+      Object.prototype.hasOwnProperty.call(info, flat) ||
+      Boolean(aliases?.some((a) => Object.prototype.hasOwnProperty.call(info, a)))
+
+    if (hasFlat) {
+      const coerced = coerceCascaderPropValue(
+        kind,
+        readCascaderPropFlatValue(info, flat, aliases),
+      )
+      if (coerced !== undefined) {
+        existing[nested] = coerced
+      } else {
+        // 未编译成功的函数 / 空值不要塞进 CascaderProps
+        Reflect.deleteProperty(existing, nested)
+      }
+    }
+
+    Reflect.deleteProperty(info, flat)
+    aliases?.forEach((alias) => Reflect.deleteProperty(info, alias))
+  }
+
+  if (Object.keys(existing).length) {
+    info.props = existing
+  } else {
+    Reflect.deleteProperty(info, 'props')
+  }
+}
+
 export const normalizeGrowTableProps = (info: Record<string, any>) => {
   Reflect.deleteProperty(info, 'fitLayoutMainHeight')
   Reflect.deleteProperty(info, 'columns')
@@ -416,6 +551,7 @@ const applyStructuralTagRules = (
   }
   if (tag === 'GrowLayout') normalizeGrowLayoutProps(info)
   if (tag === 'GrowUpload') normalizeGrowUploadProps(info)
+  if (tag === 'GrowCascader') normalizeGrowCascaderProps(info)
   if (tag === 'GrowTable') {
     normalizeGrowTableProps(info)
     applyGrowTableLayoutMainHeight(info, raw, options)

@@ -58,13 +58,60 @@ export const bindDroppedNodeConfig = (
   }
   if (!draggableConfig.propBindModes) draggableConfig.propBindModes = {}
   const defaultBindModes: Record<string, string> = {}
-  // 循环数据源、判断条件：与变量绑定输入框一致，默认走 bind
-  if (renderArgument.elTagName === 'GrowLoop') {
+  const tag = renderArgument.elTagName as string | undefined
+
+  // model：仅变量绑定
+  const MODEL_BIND_ONLY_TAGS = new Set([
+    'GrowInput',
+    'GrowInputNumber',
+    'GrowSelect',
+    'GrowCascader',
+    'GrowSwitch',
+    'GrowSlider',
+    'GrowTransfer',
+    'GrowDatePicker',
+    'GrowTimePicker',
+    'GrowRadioGroup',
+    'GrowCheckboxGroup',
+    'GrowTreeSelect',
+    'GrowAutoComplete',
+    'GrowMention',
+    'GrowDynamicTags',
+    'GrowUpload',
+    'GrowTabs',
+    'GrowCollapse',
+  ])
+  // 选项数据 options：仅变量绑定
+  const OPTIONS_BIND_ONLY_TAGS = new Set([
+    'GrowSelect',
+    'GrowCascader',
+    'GrowRadioGroup',
+    'GrowCheckboxGroup',
+    'GrowAutoComplete',
+    'GrowMention',
+  ])
+  // 数据源 data：仅变量绑定
+  const DATA_BIND_ONLY_TAGS = new Set([
+    'GrowTransfer',
+    'GrowTreeSelect',
+    'GrowTable',
+    'GrowLoop',
+  ])
+
+  if (tag && MODEL_BIND_ONLY_TAGS.has(tag)) {
+    defaultBindModes.model = 'bind'
+  }
+  if (tag && OPTIONS_BIND_ONLY_TAGS.has(tag)) {
+    defaultBindModes.options = 'bind'
+  }
+  if (tag && DATA_BIND_ONLY_TAGS.has(tag)) {
     defaultBindModes.data = 'bind'
   }
-  if (renderArgument.elTagName === 'GrowCondition') {
+  // 判断条件：仅变量绑定
+  if (tag === 'GrowCondition') {
     defaultBindModes.when = 'bind'
   }
+
   draggableConfig.propBindModes[uuid] = {
     ...defaultBindModes,
     ...(draggableConfig.propBindModes[uuid] || {}),

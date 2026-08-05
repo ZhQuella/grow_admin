@@ -9,7 +9,6 @@ export const FORM_MODULE_FULL_WIDTH_TAGS = new Set([
   'GrowTreeSelect',
   'GrowAutoComplete',
   'GrowMention',
-  'GrowDynamicTags',
   'GrowSlider',
   'GrowTransfer',
   'GrowRadioGroup',
@@ -445,7 +444,8 @@ export const AtomicComponent = new Map([
           elIcon: "DynamicTags",
           isChild: false,
           isAdd: false,
-          childName: ""
+          childName: "",
+          isInlineBlock: true
         },
         {
           elName: "上传",
