@@ -76,6 +76,7 @@ declare module 'vue' {
     GrowDescriptions: import('vue').Component;
     GrowDescriptionsItem: import('vue').Component;
     GrowSwitch: import('vue').Component;
+    GrowColorPicker: import('vue').Component;
     GrowSlider: import('vue').Component;
     GrowTransfer: import('vue').Component;
     GrowCalendar: import('vue').Component;
@@ -90,11 +91,13 @@ declare module 'vue' {
     GrowTreeSelect: import('vue').Component;
     GrowAutoComplete: import('vue').Component;
     GrowMention: import('vue').Component;
+    GrowInputTag: import('vue').Component;
     GrowBadge: import('vue').Component;
     GrowListItem: import('vue').Component;
     GrowList: import('vue').Component;
     GrowCascader: import('vue').Component;
     GrowDatePicker: import('vue').Component;
+    GrowDatePickerPanel: import('vue').Component;
     GrowTimePicker: import('vue').Component;
     GrowFormItemGi: import('vue').Component;
     GrowTree: import('vue').Component;

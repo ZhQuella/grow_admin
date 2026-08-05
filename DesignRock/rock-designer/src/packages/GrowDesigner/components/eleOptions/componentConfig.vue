@@ -7,11 +7,20 @@
       size="small"
       :show-message="false"
     >
-      <GrowFormItem
-        v-for="(item, index) in renderList"
-        :key="index"
-        :class="{ 'component-config__item--custom': isCustomOption(item) }"
-      >
+      <template v-for="(item, index) in renderList" :key="index">
+        <div
+          v-if="item.eleType === 'PropSection'"
+          class="component-config__section"
+        >
+          <div class="component-config__section-title">{{ item.name }}</div>
+          <p v-if="item.describe" class="component-config__section-desc">
+            {{ item.describe }}
+          </p>
+        </div>
+        <GrowFormItem
+          v-else
+          :class="{ 'component-config__item--custom': isCustomOption(item) }"
+        >
         <template #label>
           {{ item.name }}
           <GrowTooltip v-if="item.describe" :content="item.describe" placement="left">
@@ -95,8 +104,9 @@
           <PropFunctionBind
             v-else-if="item.eleType === 'PropFunctionBind'"
             v-bind="item.props || {}"
-            v-model="currentPropsConfig[item.modelKey]"
+            :model-value="currentPropsConfig[item.modelKey]"
             :bind-mode="getBindMode(item.modelKey)"
+            @update:model-value="(v) => setPropValue(item.modelKey, v)"
             @update:bind-mode="(mode) => setBindMode(item.modelKey, mode)"
           />
           <component
@@ -108,7 +118,8 @@
             v-model="currentPropsConfig[item.modelKey]"
           />
         </template>
-      </GrowFormItem>
+        </GrowFormItem>
+      </template>
     </GrowForm>
     <p v-else class="component-config__empty">当前组件暂无属性配置</p>
   </div>
@@ -189,7 +200,11 @@ const isCustomOption = (item: PropConfigItem) => CUSTOM_OPTION_TYPES.has(item.el
 const renderList = computed(() => {
   const tag = currentBasicConfig.value?.elTagName
   const list = elementPropsMap[tag] || []
-  return [...list, ...COMMON_VISIBILITY_PROPS]
+  // 组件配置已内联「显示/渲染」时不再追加，便于自定义排序
+  const hasVisibility = list.some(
+    (item) => item.modelKey === 'visible' || item.modelKey === 'render',
+  )
+  return hasVisibility ? list : [...list, ...COMMON_VISIBILITY_PROPS]
 })
 
 const getBindMode = (modelKey: string): PropBindMode =>
@@ -200,6 +215,17 @@ const setBindMode = (modelKey: string, mode: PropBindMode) => {
     ...(currentBindModes.value || {}),
     [modelKey]: normalizePropBindMode(mode) || PROP_BIND_MODE_TEXT,
   })
+}
+
+/** 函数 prop 清空时删除键，避免 "" 覆盖组件默认回调（如 beforeFilter） */
+const setPropValue = (modelKey: string, value: unknown) => {
+  const target = currentPropsConfig.value
+  if (!target || typeof target !== 'object') return
+  if (value == null || value === '') {
+    Reflect.deleteProperty(target, modelKey)
+    return
+  }
+  target[modelKey] = value
 }
 </script>
 
@@ -213,6 +239,29 @@ const setBindMode = (modelKey: string, mode: PropBindMode) => {
   display: flex;
   justify-content: center;
   padding-top: 5px;
+}
+
+.component-config__section {
+  margin: 12px 0 8px;
+  padding: 8px 0 4px;
+  border-top: 1px dashed var(--layout-border-color, #dcdfe6);
+}
+
+.component-config__section-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--text-color, #303133);
+}
+
+.component-config__section-desc {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--text-color-secondary, #909399);
 }
 
 .component-config__control {

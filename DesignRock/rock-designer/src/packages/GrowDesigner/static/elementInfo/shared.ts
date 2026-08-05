@@ -10,6 +10,17 @@ export type PropConfigItem = {
   props?: Record<string, any>
 }
 
+/** 属性面板分组标题（非表单项） */
+export const propSection = (
+  name: string,
+  describe?: string,
+): PropConfigItem => ({
+  eleType: 'PropSection',
+  name,
+  describe,
+  modelKey: `__section_${name}__`,
+})
+
 export type ElementInfoConfig = {
   props: PropConfigItem[]
   styles?: Record<string, any>
@@ -179,12 +190,12 @@ export const variableBindOnlyInput = (
 ): PropConfigItem =>
   variableBindInput(name, modelKey, describe, placeholder, { bindOnly: true })
 
-/** 表单字段 model 绑定（如 user.name），支持变量 */
+/** 表单字段 model 绑定（如 user.name），仅允许变量绑定 */
 export const modelBind = (
-  describe = '表单字段 model 绑定，支持变量绑定',
+  describe = '表单字段 model 绑定，仅支持变量绑定',
   modelKey = 'model',
 ): PropConfigItem =>
-  variableBindInput('model', modelKey, describe, '请输入 model 或绑定变量')
+  variableBindOnlyInput('model', modelKey, describe, '请绑定 model')
 
 /** 组件默认值（绑定到 modelValue，支持变量） */
 export const defaultValueBind = (
@@ -310,11 +321,15 @@ export const functionBind = (
   describe?: string,
   options?: {
     params?: string[]
+    /** 组件回调只传一个对象参数时，从 args[0] 解构具名参数 */
+    objectArgs?: boolean
     example?: string
     placeholder?: string
   },
 ): PropConfigItem => {
-  registerFunctionPropParams(modelKey, options?.params || [])
+  registerFunctionPropParams(modelKey, options?.params || [], {
+    objectArgs: options?.objectArgs,
+  })
   return {
     eleType: 'PropFunctionBind',
     name,
@@ -323,6 +338,7 @@ export const functionBind = (
     props: {
       label: name,
       params: options?.params || [],
+      objectArgs: Boolean(options?.objectArgs),
       example: options?.example || '',
       placeholder: options?.placeholder || '点击右侧绑定函数',
     },

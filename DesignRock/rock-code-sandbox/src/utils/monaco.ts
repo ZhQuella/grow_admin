@@ -47,6 +47,7 @@ function ensureExpressionLanguage() {
 /**
  * JS 诊断默认配置：去掉 dom lib，避免裸标识符 `event` 命中已废弃的 window.event 删除线。
  * 设计器函数体通过 extras/globals 声明可用参数。
+ * 另注入 console ambient，避免示例中的 console.log 被标红。
  */
 export function ensureJavascriptDefaults() {
   if (javascriptDefaultsReady) return
@@ -63,7 +64,29 @@ export function ensureJavascriptDefaults() {
   ts.javascriptDefaults.setDiagnosticsOptions({
     noSemanticValidation: false,
     noSyntaxValidation: false,
+    // 设计器编辑的是函数体（运行时 new Function 包裹），允许顶层 return
+    diagnosticCodesToIgnore: [
+      1108, // A 'return' statement can only be used within a function body.
+    ],
   })
+  // 无 dom lib 时 console 不存在；设计器示例普遍使用 console.log
+  ts.javascriptDefaults.addExtraLib(
+    [
+      '/** Grow designer console ambient (no dom lib) */',
+      'declare const console: {',
+      '  log(...data: any[]): void;',
+      '  info(...data: any[]): void;',
+      '  warn(...data: any[]): void;',
+      '  error(...data: any[]): void;',
+      '  debug(...data: any[]): void;',
+      '  dir(...data: any[]): void;',
+      '  table(...data: any[]): void;',
+      '  clear(): void;',
+      '};',
+      '',
+    ].join('\n'),
+    'ts:grow-code-editor-console.d.ts',
+  )
 }
 
 const SAFE_GLOBAL_NAME = /^[A-Za-z_$][\w$]*$/

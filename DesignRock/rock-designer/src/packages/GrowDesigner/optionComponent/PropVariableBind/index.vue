@@ -94,7 +94,10 @@ const onInput = (value: string | null) => {
 const onBindConfirm = (value: string) => {
   const next = value == null ? '' : String(value)
   if (!next.trim()) {
-    emit('update:bindMode', PROP_BIND_MODE_TEXT)
+    emit(
+      'update:bindMode',
+      bindOnly.value ? PROP_BIND_MODE_BIND : PROP_BIND_MODE_TEXT,
+    )
     emit('update:modelValue', '')
     return
   }
@@ -103,7 +106,8 @@ const onBindConfirm = (value: string) => {
 }
 
 const onBindRemove = () => {
-  emit('update:bindMode', PROP_BIND_MODE_TEXT)
+  // bindOnly 字段移除后仍保持 bind 模式，禁止回退到手输
+  emit('update:bindMode', bindOnly.value ? PROP_BIND_MODE_BIND : PROP_BIND_MODE_TEXT)
   emit('update:modelValue', '')
 }
 </script>

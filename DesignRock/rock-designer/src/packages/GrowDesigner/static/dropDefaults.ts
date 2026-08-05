@@ -59,6 +59,15 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
   p: { context: '正文内容' },
   span: { context: '短语文本' },
   GrowButton: { content: '按钮', type: 'primary' },
+  GrowColorPicker: {
+    clearable: true,
+    'show-alpha': false,
+  },
+  GrowDatePickerPanel: {
+    type: 'date',
+    border: true,
+    clearable: true,
+  },
   GrowTag: {
     content: '标签',
     type: 'primary',
@@ -200,21 +209,9 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
     clearable: true,
     filterable: true,
     size: 'medium',
-    options: [
-      {
-        label: '选项组 1',
-        key: '1',
-        children: [
-          { label: '选项 1-1', key: '1-1' },
-          { label: '选项 1-2', key: '1-2' },
-        ],
-      },
-      {
-        label: '选项组 2',
-        key: '2',
-        children: [{ label: '选项 2-1', key: '2-1' }],
-      },
-    ],
+    // data / options 仅支持变量绑定
+    data: [],
+    options: [],
   },
   GrowMention: {
     value: '',
@@ -224,11 +221,34 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
     type: 'text',
     bordered: true,
     size: 'medium',
-    options: [
-      { label: '张三', value: 'zhangsan' },
-      { label: '李四', value: 'lisi' },
-      { label: '王五', value: 'wangwu' },
-    ],
+    // options 仅支持变量绑定
+    options: [],
+  },
+  GrowAutoComplete: {
+    placeholder: '请输入',
+    clearable: false,
+    'trigger-on-focus': true,
+    debounce: 300,
+    placement: 'bottom-start',
+    'value-key': 'value',
+    // options / model 仅支持变量绑定
+    options: [],
+  },
+  GrowInputTag: {
+    trigger: 'Enter',
+    'tag-type': 'info',
+    'tag-effect': 'light',
+    clearable: false,
+    'save-on-blur': true,
+    placeholder: '请输入后回车',
+  },
+  GrowDynamicTags: {
+    value: ['标签1', '标签2'],
+    closable: true,
+    size: 'medium',
+    type: 'primary',
+    round: false,
+    disabled: false,
   },
   GrowAutoComplete: {
     value: '',
@@ -424,17 +444,21 @@ export const resolveDefaultStyles = (
     elTagName === 'GrowSearchBar' ||
     elTagName === 'GrowColumnBar' ||
     elTagName === 'GrowSwitch' ||
+    elTagName === 'GrowColorPicker' ||
+    elTagName === 'GrowDatePickerPanel' ||
+    elTagName === 'GrowTransfer' ||
     elTagName === 'GrowAvatar' ||
     elTagName === 'GrowIconify' ||
     elTagName === 'GrowImage' ||
     elTagName === 'GrowHighlight' ||
-    elTagName === 'GrowDropdown'
+    elTagName === 'GrowDropdown' ||
+    elTagName === 'GrowDynamicTags'
   ) {
     Reflect.deleteProperty(styles, 'min-width')
     Reflect.deleteProperty(styles, 'min-height')
   }
-  // Tag 依赖自身 inline-flex + align-items 垂直居中，勿用 inline-block 覆盖
-  if (elTagName === 'GrowTag') {
+  // Tag / 动态标签依赖自身 inline-flex，勿用 inline-block 覆盖
+  if (elTagName === 'GrowTag' || elTagName === 'GrowDynamicTags') {
     styles.display = 'inline-flex'
   }
   return styles

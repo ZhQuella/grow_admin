@@ -1,5 +1,6 @@
 /** 变量绑定：由 dataSource / computedProps 构建 state，并按 propBindModes 求值 */
 
+import { getFunctionPropParamMeta } from '../../GrowDesigner/static/functionPropParams'
 import { compileDesignerPropFunction } from './runDesignerPropFunction'
 import type { DesignerRuntimeRefs } from './runtimeRefs'
 
@@ -186,6 +187,72 @@ export const isModelBindExpression = (
   const trimmed = String(expr ?? '').trim()
   if (!trimmed) return false
   return bindModes?.model === 'bind' || isStateBindExpression(trimmed)
+}
+
+/** 是否为编码后的函数 prop 载荷（含 __fn: 1） */
+export const isEncodedFunctionPropValue = (raw: unknown): boolean => {
+  if (typeof raw !== 'string') return false
+  const trimmed = raw.trim()
+  if (!trimmed.startsWith('{')) return false
+  try {
+    const parsed = JSON.parse(trimmed) as { __fn?: number }
+    return parsed?.__fn === 1
+  } catch {
+    return false
+  }
+}
+
+/** 是否像组件回调 prop 名（kebab / camel） */
+const isLikelyFunctionPropKey = (key: string): boolean => {
+  const kebab = key
+    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+    .replace(/_/g, '-')
+    .toLowerCase()
+  if (
+    /-(method|handler)$/.test(kebab) ||
+    /^(before|after)-/.test(kebab) ||
+    /^(on|render)-/.test(kebab)
+  ) {
+    return true
+  }
+  return [
+    'filter',
+    'formatter',
+    'parser',
+    'load',
+    'allow-drag',
+    'allow-drop',
+    'get-show',
+    'on-create',
+    'lazy-load',
+    'fetch-suggestions',
+  ].includes(kebab)
+}
+
+const isRegisteredFunctionProp = (key: string): boolean => {
+  const meta = getFunctionPropParamMeta(key)
+  return meta.params.length > 0 || Boolean(meta.objectArgs)
+}
+
+/**
+ * 去掉未编译成功的函数 prop，避免空字符串 / 源码覆盖组件默认函数
+ *（如 Cascader beforeFilter 被 "" 覆盖后报 props.beforeFilter is not a function）
+ */
+export const sanitizeNonFunctionCallbackProps = (
+  result: Record<string, any>,
+) => {
+  for (const key of Object.keys(result)) {
+    const val = result[key]
+    if (typeof val === 'function') continue
+    if (
+      !isRegisteredFunctionProp(key) &&
+      !isLikelyFunctionPropKey(key) &&
+      !isEncodedFunctionPropValue(val)
+    ) {
+      continue
+    }
+    Reflect.deleteProperty(result, key)
+  }
 }
 
 /**
@@ -415,8 +482,9 @@ export const resolveBoundProps = (
 
   for (const key of keys) {
     const mode = bindModes?.[key]
-    if (mode === 'function') {
-      const raw = result[key]
+    const raw = result[key]
+    // function 模式，或漏存 bindMode 但仍是编码函数载荷：编译为可调用函数
+    if (mode === 'function' || isEncodedFunctionPropValue(raw)) {
       const code = raw == null ? '' : String(raw)
       const fn = compileDesignerPropFunction(code, state, { modelKey: key, refs })
       if (fn) result[key] = fn
@@ -426,7 +494,6 @@ export const resolveBoundProps = (
     // model 由 applyModelBinding 处理，避免把路径替换成叶子值
     if (key === 'model') continue
 
-    const raw = result[key]
     if (raw == null || raw === '') continue
     if (!shouldEvaluateBoundProp(raw, mode)) continue
 
@@ -435,6 +502,8 @@ export const resolveBoundProps = (
     result[key] =
       evaluated === undefined ? null : formatBoundDisplayValue(evaluated)
   }
+  // 空字符串等非函数值会覆盖 ElCascader beforeFilter 等默认函数
+  sanitizeNonFunctionCallbackProps(result)
   applyModelBinding(result, bindModes, state)
   return result
 }

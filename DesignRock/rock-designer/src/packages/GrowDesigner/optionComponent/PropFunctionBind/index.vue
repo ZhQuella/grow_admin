@@ -22,6 +22,7 @@
       :title="label"
       :model-value="editorCode"
       :params="params"
+      :object-args="objectArgs"
       :example="example"
       @confirm="onConfirm"
       @remove="onRemove"
@@ -54,6 +55,8 @@ const props = withDefaults(
     bindMode?: PropBindMode | string
     /** 文档形参名 */
     params?: string[]
+    /** 从单一对象参数解构具名参数 */
+    objectArgs?: boolean
     example?: string
   }>(),
   {
@@ -62,6 +65,7 @@ const props = withDefaults(
     placeholder: '点击右侧绑定函数',
     bindMode: PROP_BIND_MODE_TEXT,
     params: () => [],
+    objectArgs: false,
     example: '',
   },
 )
@@ -103,7 +107,9 @@ const onConfirm = (value: string) => {
   emit('update:bindMode', PROP_BIND_MODE_FUNCTION)
   emit(
     'update:modelValue',
-    encodeFunctionPropValue(next, props.params || []),
+    encodeFunctionPropValue(next, props.params || [], {
+      objectArgs: props.objectArgs,
+    }),
   )
 }
 

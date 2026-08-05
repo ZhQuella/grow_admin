@@ -122,6 +122,17 @@ export const elementEventsMap: Record<string, ComponentEventOption[]> = {
   GrowSelect: SELECT_LIKE,
   GrowCascader: SELECT_LIKE,
   GrowSwitch: [change],
+  GrowColorPicker: [
+    change,
+    {
+      type: 'active-change',
+      label: '面板内变化',
+      describe: '面板中当前颜色变化时触发',
+    },
+    focus,
+    blur,
+    clear,
+  ],
   GrowSlider: [change, input],
   GrowTransfer: [
     change,
@@ -129,6 +140,20 @@ export const elementEventsMap: Record<string, ComponentEventOption[]> = {
     { type: 'right-check-change', label: '右侧勾选变化' },
   ],
   GrowDatePicker: [change, focus, blur, clear, visibleChange],
+  GrowDatePickerPanel: [
+    clear,
+    {
+      type: 'calendar-change',
+      label: '日历选中变化',
+      describe: '在日历上选中日期时触发',
+    },
+    {
+      type: 'panel-change',
+      label: '面板切换',
+      describe: '日期面板切换时触发',
+    },
+    visibleChange,
+  ],
   GrowTimePicker: [change, focus, blur, clear, visibleChange],
   GrowRadio: [change],
   GrowCheckbox: [change],
@@ -142,13 +167,34 @@ export const elementEventsMap: Record<string, ComponentEventOption[]> = {
     blur,
     clear,
     {
-      type: 'update:value',
-      label: '值更新',
-      describe: '可控值更新时触发（Naive on-update:value）',
+      type: 'select',
+      label: '选中建议',
+      describe: '点击选中建议项时触发',
     },
-    { type: 'select', label: '选择选项', describe: '选中候选选项时触发（Naive on-select）' },
   ],
   GrowMention: [change, input, focus, blur, clear],
+  GrowInputTag: [
+    change,
+    input,
+    {
+      type: 'add-tag',
+      label: '添加标签',
+      describe: '添加标签时触发',
+    },
+    {
+      type: 'remove-tag',
+      label: '移除标签',
+      describe: '移除标签时触发',
+    },
+    {
+      type: 'drag-tag',
+      label: '拖动标签',
+      describe: '拖动标签时触发（EP 2.11.3+）',
+    },
+    focus,
+    blur,
+    clear,
+  ],
   GrowDynamicTags: [change],
   GrowUpload: [
     { type: 'change', label: '文件变化', describe: '文件列表变化时触发' },

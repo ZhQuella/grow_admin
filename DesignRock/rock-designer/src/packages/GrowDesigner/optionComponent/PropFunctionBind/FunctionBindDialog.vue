@@ -51,12 +51,15 @@ const props = withDefaults(
     title?: string
     modelValue?: string
     params?: string[]
+    /** 从单一对象参数解构具名参数 */
+    objectArgs?: boolean
     example?: string
   }>(),
   {
     title: '',
     modelValue: '',
     params: () => [],
+    objectArgs: false,
     example: '',
   },
 )
@@ -75,7 +78,19 @@ const dialogTitle = computed(() =>
 
 const paramsHint = computed(() => {
   const list = props.params || []
-  return list.length ? list.join('、') : 'args（数组）'
+  if (!list.length) return 'args（数组）'
+  if (props.objectArgs) {
+    return `${list.join('、')}（从回调对象参数解构）`
+  }
+  return list.join('、')
+})
+
+const editorGlobals = computed(() => {
+  const list = props.params?.length ? [...props.params] : ['args']
+  for (const name of ['state', 'refs']) {
+    if (!list.includes(name)) list.push(name)
+  }
+  return list
 })
 
 const editorGlobals = computed(() => {
