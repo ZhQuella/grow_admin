@@ -42,14 +42,30 @@
                 {{ item.description }}
               </p>
             </div>
-            <div class="flex shrink-0 items-center gap-0.5">
-              <GrowButton text size="small" title="编辑" @click.stop="onEdit(item)">
+            <div class="flex shrink-0 items-center gap-0">
+              <GrowButton
+                text
+                size="small"
+                class="!px-1"
+                title="编辑"
+                @click.stop="onEdit(item)"
+              >
                 <GrowIconify icon="carbon:edit" :size="14" />
               </GrowButton>
               <GrowButton
                 text
                 size="small"
+                class="!px-1"
+                title="复制新增"
+                @click.stop="onDuplicate(item)"
+              >
+                <GrowIconify icon="carbon:copy" :size="14" />
+              </GrowButton>
+              <GrowButton
+                text
+                size="small"
                 type="danger"
+                class="!px-1"
                 title="删除"
                 @click.stop="onRemove(item.id)"
               >
@@ -136,6 +152,19 @@ const nextQueryName = () => {
   return name
 }
 
+/** 基于原名称生成不重复的复制名 */
+const nextCopyName = (baseRaw: string) => {
+  const names = new Set(queryList.value.map((q) => q.name))
+  const base = String(baseRaw || 'query').trim() || 'query'
+  let name = `${base}_copy`
+  let i = 2
+  while (names.has(name)) {
+    name = `${base}_copy${i}`
+    i += 1
+  }
+  return name
+}
+
 const resetForm = (name = nextQueryName()) => {
   Object.assign(formData, {
     name,
@@ -157,6 +186,17 @@ const onEdit = (item: SchemaSqlQuery) => {
     sql: item.sql ?? '',
   })
   editingId.value = item.id
+  drawerVisible.value = true
+}
+
+/** 复制当前项内容，以新建方式打开表单 */
+const onDuplicate = (item: SchemaSqlQuery) => {
+  Object.assign(formData, {
+    name: nextCopyName(item.name ?? ''),
+    description: item.description ?? '',
+    sql: item.sql ?? '',
+  })
+  editingId.value = ''
   drawerVisible.value = true
 }
 
