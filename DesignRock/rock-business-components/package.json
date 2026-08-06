@@ -1,0 +1,22 @@
+{
+  "name": "@grow-admin-rock/business-components",
+  "version": "0.0.0",
+  "main": "./index.ts",
+  "module": "./index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./person-select": "./src/person-select/index.ts",
+    "./dept-select": "./src/dept-select/index.ts"
+  },
+  "license": "MIT",
+  "description": "Grow Admin 业务通用组件（人员选择、部门选择等）",
+  "scripts": {
+    "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
+  },
+  "dependencies": {
+    "@grow-admin-rock/components": "workspace:*"
+  },
+  "peerDependencies": {
+    "vue": "~3.3.4"
+  }
+}

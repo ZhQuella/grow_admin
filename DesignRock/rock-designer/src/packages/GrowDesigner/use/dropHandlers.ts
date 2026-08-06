@@ -65,6 +65,7 @@ export const bindDroppedNodeConfig = (
     'GrowInput',
     'GrowInputNumber',
     'GrowSelect',
+    'GrowPersonSelect',
     'GrowCascader',
     'GrowSwitch',
     'GrowColorPicker',

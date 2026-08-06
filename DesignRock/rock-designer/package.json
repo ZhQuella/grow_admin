@@ -12,6 +12,7 @@
     "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
   },
   "dependencies": {
+    "@grow-admin-rock/business-components": "workspace:*",
     "@grow-admin-rock/code-sandbox": "workspace:*",
     "@grow-admin-rock/components": "workspace:*",
     "@grow-admin-rock/hooks": "workspace:*",
@@ -21,6 +22,7 @@
     "nanoid": "^4.0.2",
     "vuedraggable": "^4.1.0"
   },
+
   "peerDependencies": {
     "vue": "~3.3.4"
   }

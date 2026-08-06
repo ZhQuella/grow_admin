@@ -274,6 +274,18 @@ export const selectConfig = createConfig([
     },
   ),
 ])
+
+/** 人员选择 */
+export const personSelectConfig = createConfig([
+  modelBind(),
+  defaultValueBind('人员选择初始默认值（userId / userId[]），支持变量绑定'),
+  textInput('占位文本', 'placeholder', '未选时的占位文案', '请选择人员'),
+  boolSwitch('多选', 'multiple', '是否多选；多选时 v-model 为 string[]'),
+  boolSwitch('禁用', 'disabled', '是否禁用'),
+  boolSwitch('可清空', 'clearable', '是否显示清空按钮'),
+  sizeSelect(),
+])
+
 /** 级联选择器 */
 export const cascaderConfig = createConfig([
   modelBind(),

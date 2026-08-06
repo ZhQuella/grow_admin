@@ -3,6 +3,7 @@ export const FORM_MODULE_FULL_WIDTH_TAGS = new Set([
   'GrowInput',
   'GrowInputNumber',
   'GrowSelect',
+  'GrowPersonSelect',
   'GrowCascader',
   'GrowTimePicker',
   'GrowDatePicker',
@@ -253,7 +254,7 @@ export const BusinessComponent = new Map([
         {
           elName: "人员选择",
           elType: "eleModule",
-          elTagName: "GrowSelect",
+          elTagName: "GrowPersonSelect",
           elIcon: "UserMultiple",
           isChild: false,
           isAdd: false,
