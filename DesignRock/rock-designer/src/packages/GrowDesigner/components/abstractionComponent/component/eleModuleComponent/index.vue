@@ -8,7 +8,7 @@
     </div>
     <component
       v-else-if="config.elTagName"
-      :is="config.elTagName"
+      :is="resolvedIs"
       v-bind="bindProps"
       :key="moduleRenderKey"
       :class="{ 'w-full': isFormFullWidth }"
@@ -31,6 +31,7 @@
 <script setup lang="ts">
 import { computed, inject, toRefs } from 'vue'
 import { FORM_MODULE_FULL_WIDTH_TAGS } from '../../../../static/moduleMap'
+import { resolveBusinessComponent } from '../../../../static/businessComponentMap'
 import {
   GROW_RUNTIME_STATE,
   LAYOUT_MAIN_SIZE,
@@ -68,6 +69,8 @@ const injectedRuntimeState = inject<Record<string, unknown> | null>(
 )
 
 const isUnsupported = computed(() => Boolean(config.value.unsupported))
+
+const resolvedIs = computed(() => resolveBusinessComponent(config.value?.elTagName))
 
 const isFormFullWidth = computed(() =>
   FORM_MODULE_FULL_WIDTH_TAGS.has(config.value?.elTagName),

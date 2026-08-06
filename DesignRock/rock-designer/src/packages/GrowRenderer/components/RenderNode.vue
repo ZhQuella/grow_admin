@@ -378,7 +378,7 @@
   <!-- 模块叶子 -->
   <component
     v-else-if="isModuleLeaf && tag"
-    :is="tag"
+    :is="resolvedTag"
     :ref="setComponentRef"
     v-bind="moduleProps"
     :class="[nodeClass, { 'w-full': isFormFullWidth }]"
@@ -399,6 +399,7 @@
 <script setup lang="ts">
 import { computed, inject, onBeforeUnmount, provide, reactive, unref, watch, type Ref } from 'vue'
 import { FORM_MODULE_FULL_WIDTH_TAGS } from '../../GrowDesigner/static/moduleMap'
+import { resolveBusinessComponent } from '../../GrowDesigner/static/businessComponentMap'
 import {
   GROW_RUNTIME_STATE,
   GROW_RUNTIME_APIS,
@@ -563,6 +564,7 @@ onBeforeUnmount(() => {
 const rawStyles = computed(() => props.schema.styles?.[uuid.value])
 
 const tag = computed(() => config.value?.elTagName as string | undefined)
+const resolvedTag = computed(() => resolveBusinessComponent(tag.value))
 
 /** model 双向绑定：控件变更写回 runtime state */
 const onModelUpdate = (value: unknown) => {

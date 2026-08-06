@@ -120,6 +120,7 @@ export const elementEventsMap: Record<string, ComponentEventOption[]> = {
   GrowInput: FORM_VALUE,
   GrowInputNumber: [change, focus, blur],
   GrowSelect: SELECT_LIKE,
+  GrowPersonSelect: SELECT_LIKE,
   GrowCascader: SELECT_LIKE,
   GrowSwitch: [change],
   GrowColorPicker: [

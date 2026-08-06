@@ -59,6 +59,12 @@ export const defaultPropsByTag: Record<string, Record<string, any>> = {
   p: { context: '正文内容' },
   span: { context: '短语文本' },
   GrowButton: { content: '按钮', type: 'primary' },
+  GrowPersonSelect: {
+    placeholder: '请选择人员',
+    clearable: true,
+    multiple: true,
+    size: 'default',
+  },
   GrowColorPicker: {
     clearable: true,
     'show-alpha': false,
