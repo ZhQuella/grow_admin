@@ -40,7 +40,7 @@
         class="prep-table-node__footer-btn"
         disabled
       >
-        <GrowIconify icon="carbon:home" :size="12" class="mr-1 align-[-2px]" />
+        <GrowIconify icon="carbon:home" :size="12" />
         当前主表
       </GrowButton>
       <GrowPopover
@@ -53,7 +53,7 @@
       >
         <template #reference>
           <GrowButton size="small" class="prep-table-node__footer-btn" @mousedown.stop>
-            <GrowIconify icon="carbon:home" :size="12" class="mr-1 align-[-2px]" />
+            <GrowIconify icon="carbon:home" :size="12" />
             设为主表
           </GrowButton>
         </template>
@@ -77,7 +77,7 @@
         @click.stop="$emit('remove', data.source.id)"
         @mousedown.stop
       >
-        <GrowIconify icon="carbon:trash-can" :size="12" class="mr-1 align-[-2px]" />
+        <GrowIconify icon="carbon:trash-can" :size="12" />
         删除
       </GrowButton>
     </div>
@@ -169,6 +169,34 @@ function confirmSetPrimary() {
   gap: 6px;
 }
 
+.prep-table-node__left :deep(.grow-iconify) {
+  display: inline-flex !important;
+  flex: none !important;
+  width: 14px !important;
+  height: 14px !important;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  color: var(--text-color);
+}
+
+.prep-table-node__left :deep(.grow-iconify svg) {
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+
+.prep-table-node__footer-btn :deep(.grow-iconify) {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.prep-table-node__footer-btn :deep(.grow-iconify svg) {
+  display: block;
+}
+
 .prep-table-node__title {
   overflow: hidden;
   font-weight: 600;
@@ -201,7 +229,7 @@ function confirmSetPrimary() {
 }
 
 .prep-table-node__alias {
-  color: var(--text-secondary-color, var(--text-color-secondary));
+  color: var(--text-color-secondary, var(--text-secondary-color));
   opacity: 0.85;
 }
 
@@ -232,7 +260,7 @@ function confirmSetPrimary() {
 }
 
 .prep-table-node__col-type {
-  color: var(--text-secondary-color, var(--text-color-secondary));
+  color: var(--text-color-secondary, var(--text-secondary-color));
 }
 
 .prep-table-node__footer {
@@ -242,11 +270,16 @@ function confirmSetPrimary() {
   gap: 6px;
   padding: 8px 10px;
   border-top: 1px solid var(--layout-border-color, var(--border-color));
-  background: color-mix(in srgb, var(--layout-background-color, #f5f5f5) 65%, transparent);
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  background: color-mix(in srgb, var(--text-color) 6%, var(--component-background-color));
 }
 
 .prep-table-node__footer-btn {
+  display: inline-flex !important;
   margin: 0 !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .prep-popconfirm__title {
@@ -260,7 +293,7 @@ function confirmSetPrimary() {
   margin-bottom: 12px;
   font-size: 12px;
   line-height: 1.5;
-  color: var(--text-secondary-color, var(--text-color-secondary));
+  color: var(--text-color-secondary, var(--text-secondary-color));
 }
 
 .prep-popconfirm__actions {

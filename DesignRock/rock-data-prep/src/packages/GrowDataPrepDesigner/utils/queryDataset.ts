@@ -28,9 +28,17 @@ function rowsOfSource(
   source: DataPrepSource,
   tableRows: DataPrepTableRowsMap,
 ): Record<string, unknown>[] {
-  const keyed = tableRows[sourceTableRowsKey(source.schemaId, source.tableName)]
-  if (keyed) return keyed
-  return tableRows[source.tableName] || []
+  const map = tableRows || {}
+  const keyed = map[sourceTableRowsKey(source.schemaId, source.tableName)]
+  if (keyed?.length) return keyed
+  const byName = map[source.tableName]
+  if (byName?.length) return byName
+  // 兼容仅按表名后缀匹配（schemaId 不一致时仍可预览样例行）
+  const suffix = `::${source.tableName}`
+  for (const [key, rows] of Object.entries(map)) {
+    if (key.endsWith(suffix) && rows?.length) return rows
+  }
+  return byName || keyed || []
 }
 
 function flattenRow(alias: string, row: Record<string, unknown>) {
@@ -89,12 +97,13 @@ export function buildJoinedRows(
   dataset: DataPrepDataset,
   tableRows: DataPrepTableRowsMap,
 ): Record<string, unknown>[] {
-  const { sources, joins } = dataset
+  const sources = dataset?.sources || []
+  const joins = dataset?.joins || []
   if (!sources.length) return []
 
   if (sources.length === 1) {
     const source = sources[0]
-    return rowsOfSource(source, tableRows).map((row) => flattenRow(source.alias, row))
+    return rowsOfSource(source, tableRows || {}).map((row) => flattenRow(source.alias, row))
   }
 
   if (!joins.length) {
@@ -109,7 +118,8 @@ export function buildJoinedRows(
   const seedLeft = sourceById.get(seedJoin.leftSourceId)
   if (!seedLeft) throw new Error('Join 引用了不存在的来源表')
 
-  let rows = rowsOfSource(seedLeft, tableRows).map((row) => flattenRow(seedLeft.alias, row))
+  const rowsMap = tableRows || {}
+  let rows = rowsOfSource(seedLeft, rowsMap).map((row) => flattenRow(seedLeft.alias, row))
   included.add(seedLeft.id)
 
   let guard = 0
@@ -127,7 +137,7 @@ export function buildJoinedRows(
       const right = sourceById.get(join.rightSourceId)
       const left = sourceById.get(join.leftSourceId)
       if (!right || !left) throw new Error('Join 引用了不存在的来源表')
-      rows = applyJoin(rows, right, rowsOfSource(right, tableRows), join, left.alias)
+      rows = applyJoin(rows, right, rowsOfSource(right, rowsMap), join, left.alias)
       included.add(right.id)
       continue
     }
@@ -141,12 +151,12 @@ export function buildJoinedRows(
         leftSourceId: join.rightSourceId,
         rightSourceId: join.leftSourceId,
         onLogic: join.onLogic || 'and',
-        on: join.on.map((cond) => ({
+        on: (join.on || []).map((cond) => ({
           leftField: cond.rightField,
           rightField: cond.leftField,
         })),
       }
-      rows = applyJoin(rows, left, rowsOfSource(left, tableRows), flipped, right.alias)
+      rows = applyJoin(rows, left, rowsOfSource(left, rowsMap), flipped, right.alias)
       included.add(left.id)
     }
   }
@@ -158,20 +168,18 @@ export function buildJoinedRows(
   return rows
 }
 
-function dimensionKeyOf(config: DataPrepMetricConfig) {
-  return config.dimensionFields.join('\u0001')
-}
-
 function groupRows(
   rows: Record<string, unknown>[],
-  dimensionFields: string[],
+  dimensionFields: string[] | undefined,
 ): Array<{ keyParts: string[]; rows: Record<string, unknown>[] }> {
-  if (!dimensionFields.length) {
-    return [{ keyParts: [], rows }]
+  const dims = dimensionFields || []
+  const safeRows = rows || []
+  if (!dims.length) {
+    return [{ keyParts: [], rows: safeRows }]
   }
   const groups = new Map<string, { keyParts: string[]; rows: Record<string, unknown>[] }>()
-  for (const row of rows) {
-    const keyParts = dimensionFields.map((field) => String(resolveCell(row, field) ?? ''))
+  for (const row of safeRows) {
+    const keyParts = dims.map((field) => String(resolveCell(row, field) ?? ''))
     const key = keyParts.join('\u0001')
     const existing = groups.get(key)
     if (existing) existing.rows.push(row)
@@ -192,16 +200,17 @@ export function previewMetricConfig(
   tableRows: DataPrepTableRowsMap,
   config: Pick<DataPrepMetricConfig, 'dimensionFields' | 'measure'>,
 ): MetricPreviewResult {
+  const dimensionFields = config?.dimensionFields || []
   const rows = buildJoinedRows(dataset, tableRows)
-  const groups = groupRows(rows, config.dimensionFields)
+  const groups = groupRows(rows, dimensionFields)
   const evaluated = groups.map((group) => {
     const dimensions: Record<string, unknown> = {}
-    config.dimensionFields.forEach((field, index) => {
+    dimensionFields.forEach((field, index) => {
       dimensions[field] = group.keyParts[index]
     })
-    const value = evaluateFormulaOnGroup(config.measure.formula || '', group.rows)
+    const value = evaluateFormulaOnGroup(config?.measure?.formula || '', group.rows)
     const label =
-      config.dimensionFields.length > 0
+      dimensionFields.length > 0
         ? group.keyParts.filter(Boolean).join(' / ') || '(空)'
         : '全部'
     return { label, value, dimensions }
@@ -216,72 +225,137 @@ export function previewMetricConfig(
 }
 
 /**
- * 本地聚合：按 metricConfigs 的维度分组，用公式计算度量。
- * 若多个配置维度集合相同，合并为同一结果表的多度量列。
+ * 按 outputFields 投影输出：
+ * - 含明细字段时：关联后的明细行 + 度量按各配置维度分组回填
+ * - 仅度量时：按首个度量配置的维度聚合
+ * - outputFields 为空时返回空结果（需先配置数据输出）
  */
 export function queryDatasetLocal(
   dataset: DataPrepDataset,
   tableRows: DataPrepTableRowsMap,
   request: Pick<DatasetQueryRequest, 'configIds' | 'limit'> = {},
 ): DatasetQueryResult {
-  if (dataset.sources.length === 0) {
-    return { columns: [], rows: [] }
-  }
+  const outputFields = (dataset.outputFields || []).filter(Boolean)
+  if (!outputFields.length) return { columns: [], rows: [] }
+  if (!(dataset?.sources || []).length) return { columns: [], rows: [] }
 
-  const configs = (
+  const allConfigs = (
     request.configIds?.length
       ? request.configIds
-          .map((id) => dataset.metricConfigs.find((item) => item.id === id))
+          .map((id) => (dataset.metricConfigs || []).find((item) => item.id === id))
           .filter(Boolean)
-      : dataset.metricConfigs
+      : dataset.metricConfigs || []
   ) as DataPrepMetricConfig[]
 
-  if (!configs.length) return { columns: [], rows: [] }
-
-  const rows = buildJoinedRows(dataset, tableRows)
-
-  // 按维度集合分桶
-  const buckets = new Map<string, DataPrepMetricConfig[]>()
-  for (const config of configs) {
-    const key = dimensionKeyOf(config)
-    const list = buckets.get(key)
-    if (list) list.push(config)
-    else buckets.set(key, [config])
+  const measureMeta = new Map<
+    string,
+    { title: string; config: DataPrepMetricConfig }
+  >()
+  for (const config of allConfigs) {
+    const key = measureOutputKey(config.measure, config.id)
+    if (!key) continue
+    measureMeta.set(key, {
+      title: config.measure.name?.trim() || key,
+      config,
+    })
   }
 
-  // 预览/默认：取第一组维度集合
-  const firstBucket = buckets.values().next().value as DataPrepMetricConfig[]
-  const dimensionFields = firstBucket[0].dimensionFields
-  const groups = groupRows(rows, dimensionFields)
+  const selectedMeasureKeys = outputFields.filter((key) => measureMeta.has(key))
+  const selectedDetailKeys = outputFields.filter((key) => !measureMeta.has(key))
 
-  const columns: DatasetQueryResult['columns'] = [
-    ...dimensionFields.map((field) => ({
-      key: field,
-      title: field,
-      role: 'dimension' as const,
-    })),
-    ...firstBucket.map((config) => ({
-      key: measureOutputKey(config.measure, config.id),
-      title: config.measure.name || measureOutputKey(config.measure, config.id),
-      role: 'measure' as const,
-    })),
-  ]
+  let joined: Record<string, unknown>[] = []
+  try {
+    joined = buildJoinedRows(dataset, tableRows)
+  } catch (error) {
+    // 交给上层展示真实原因（例如多表未配置关联），避免被误判为「未配置输出字段」
+    throw error instanceof Error ? error : new Error('关联查询失败')
+  }
 
-  let resultRows: Record<string, unknown>[] = groups.map((group) => {
-    const resultRow: Record<string, unknown> = {}
-    dimensionFields.forEach((field, index) => {
-      resultRow[field] = group.keyParts[index]
-    })
-    for (const config of firstBucket) {
-      const key = measureOutputKey(config.measure, config.id)
+  const columns: DatasetQueryResult['columns'] = outputFields.map((key) => {
+    const meta = measureMeta.get(key)
+    if (meta) {
+      return { key, title: meta.title, role: 'measure' as const }
+    }
+    const { column } = parseFieldKey(key)
+    return { key, title: column || key, role: 'detail' as const }
+  })
+
+  // 无样例行时仍返回列结构，便于预览表头展示
+  if (!joined.length) {
+    return { columns, rows: [] }
+  }
+
+  const measureLookups = new Map<string, Map<string, unknown>>()
+  for (const key of selectedMeasureKeys) {
+    const meta = measureMeta.get(key)!
+    const dims = meta.config.dimensionFields || []
+    const groups = groupRows(joined, dims)
+    const lookup = new Map<string, unknown>()
+    for (const group of groups) {
+      const dimKey = group.keyParts.join('\u0001')
       try {
-        resultRow[key] = evaluateFormulaOnGroup(config.measure.formula || '', group.rows)
+        lookup.set(
+          dimKey,
+          evaluateFormulaOnGroup(meta.config.measure.formula || '', group.rows),
+        )
       } catch {
-        resultRow[key] = null
+        lookup.set(dimKey, null)
       }
     }
-    return resultRow
-  })
+    measureLookups.set(key, lookup)
+  }
+
+  let resultRows: Record<string, unknown>[] = []
+
+  if (selectedDetailKeys.length) {
+    resultRows = joined.map((row) => {
+      const out: Record<string, unknown> = {}
+      for (const key of outputFields) {
+        const meta = measureMeta.get(key)
+        if (meta) {
+          const dims = meta.config.dimensionFields || []
+          const dimKey = dims
+            .map((field) => String(resolveCell(row, field) ?? ''))
+            .join('\u0001')
+          out[key] = measureLookups.get(key)?.get(dimKey) ?? null
+        } else {
+          out[key] = resolveCell(row, key) ?? null
+        }
+      }
+      return out
+    })
+  } else if (selectedMeasureKeys.length) {
+    const seed = measureMeta.get(selectedMeasureKeys[0])!.config
+    const dims = seed.dimensionFields || []
+    const groups = groupRows(joined, dims)
+    resultRows = groups.map((group) => {
+      const out: Record<string, unknown> = {}
+      for (const key of outputFields) {
+        const meta = measureMeta.get(key)
+        if (!meta) {
+          out[key] = null
+          continue
+        }
+        // 与首个度量同维度集合时走 lookup；否则在当前分组行上重算
+        const sameDims =
+          (meta.config.dimensionFields || []).join('\u0001') === dims.join('\u0001')
+        if (sameDims) {
+          out[key] =
+            measureLookups.get(key)?.get(group.keyParts.join('\u0001')) ?? null
+        } else {
+          try {
+            out[key] = evaluateFormulaOnGroup(
+              meta.config.measure.formula || '',
+              group.rows,
+            )
+          } catch {
+            out[key] = null
+          }
+        }
+      }
+      return out
+    })
+  }
 
   const limit = request.limit
   if (limit != null && limit > 0) {

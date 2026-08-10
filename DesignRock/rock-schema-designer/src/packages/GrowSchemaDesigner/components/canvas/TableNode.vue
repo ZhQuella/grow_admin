@@ -218,7 +218,7 @@ defineEmits<{
   flex-shrink: 0;
   max-width: 120px;
   overflow: hidden;
-  color: var(--text-secondary-color, var(--text-color-secondary));
+  color: var(--text-color-secondary, var(--text-secondary-color));
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -226,11 +226,13 @@ defineEmits<{
 .schema-table-node__footer {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: end;
   gap: 6px;
   padding: 8px 10px;
   border-top: 1px solid var(--layout-border-color, var(--border-color));
-  background: color-mix(in srgb, var(--layout-background-color, #f5f5f5) 65%, transparent);
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  background: color-mix(in srgb, var(--text-color) 6%, var(--component-background-color));
 }
 
 .schema-table-node__footer-btn {

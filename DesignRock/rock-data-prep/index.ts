@@ -21,6 +21,9 @@ export {
   previewMetricConfig,
   toCartesianSeriesPayload,
   mergeSchemaBundlesToRowsMap,
+  listOutputFieldCandidates,
+  pruneOutputFields,
+  outputFieldTitle,
   evaluateFormulaOnGroup,
   extractFormulaFields,
   FORMULA_FUNCTION_DOCS,
@@ -60,4 +63,5 @@ export type {
   DataPrepColumnType,
   DataPrepMysqlColumnType,
   FormulaFunctionDoc,
+  DataPrepOutputFieldCandidate,
 } from './src/packages/GrowDataPrepDesigner'

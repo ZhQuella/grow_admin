@@ -18,7 +18,8 @@
     "@vue-flow/controls": "^1.1.2",
     "@vue-flow/core": "^1.48.2",
     "@vue-flow/minimap": "^1.5.4",
-    "nanoid": "^4.0.2"
+    "nanoid": "^4.0.2",
+    "vuedraggable": "^4.1.0"
   },
   "peerDependencies": {
     "vue": "~3.3.4"

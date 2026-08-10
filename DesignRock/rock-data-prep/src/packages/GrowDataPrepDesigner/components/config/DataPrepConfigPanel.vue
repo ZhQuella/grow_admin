@@ -6,7 +6,7 @@
           <div class="mb-2 flex items-center justify-between gap-2">
             <span class="text-sm font-medium text-text">维度</span>
             <GrowButton type="primary" size="small" @click="addDimension">
-              <GrowIconify icon="carbon:add" :size="14" class="mr-1 align-[-2px]" />
+              <GrowIconify icon="carbon:add" :size="14" />
               添加
             </GrowButton>
           </div>
@@ -27,7 +27,14 @@
                 clearable
                 @update:model-value="(v) => onDimensionChange(index, String(v ?? ''))"
               />
-              <GrowButton text size="small" type="danger" title="删除" @click="removeDimension(index)">
+              <GrowButton
+                text
+                size="small"
+                type="danger"
+                class="prep-icon-btn"
+                title="删除"
+                @click="removeDimension(index)"
+              >
                 <GrowIconify icon="carbon:trash-can" :size="14" />
               </GrowButton>
             </div>
@@ -72,7 +79,7 @@
       v-model:visible="formulaVisible"
       v-model="form.measure.formula"
       :field-options="fieldOptions"
-      :dimension-fields="form.dimensionFields.filter(Boolean)"
+      :dimension-fields="(form.dimensionFields || []).filter(Boolean)"
       :dataset="dataset"
       :table-rows="tableRows"
     />
@@ -198,11 +205,39 @@ function onDimensionChange(index: number, value: string) {
 
 .prep-formula-chip {
   display: inline-flex;
+  align-items: center;
   margin: 0 2px;
   padding: 0 6px;
+  border: 1px solid color-mix(in srgb, var(--primary-color) 28%, transparent);
   border-radius: 4px;
-  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  background: color-mix(in srgb, var(--primary-color) 10%, transparent);
   color: var(--primary-color);
+  font-size: 12px;
+  font-weight: 500;
   line-height: 18px;
+  vertical-align: middle;
+}
+
+.prep-icon-btn {
+  display: inline-flex !important;
+  width: 28px !important;
+  min-width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 0 !important;
+}
+
+.prep-icon-btn :deep(.grow-iconify) {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  margin-inline-end: 0 !important;
+  line-height: 0;
+}
+
+.prep-icon-btn :deep(.grow-iconify svg) {
+  display: block;
 }
 </style>

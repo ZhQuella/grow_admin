@@ -202,7 +202,7 @@ function onRemove() {
 }
 
 .schema-edge-label__delete:hover {
-  background: rgba(237, 111, 111, 0.45) !important;
+  background: color-mix(in srgb, var(--error-color) 45%, transparent) !important;
   color: #fff !important;
 }
 

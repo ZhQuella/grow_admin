@@ -903,6 +903,7 @@ defineExpose({
 .schema-rail-item:hover,
 .schema-rail-item.is-active {
   color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
 }
 
 .schema-rail-icon {
