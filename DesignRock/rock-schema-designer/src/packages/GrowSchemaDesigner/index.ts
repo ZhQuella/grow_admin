@@ -29,5 +29,5 @@ export {
   MAX_DATABASE_NAME_LENGTH,
   clampIdentifier,
   formatColumnType,
-} from './postgresTypes'
-export { exportSchemaJson, downloadSchemaJson, copySchemaJson } from './exportSchema'
+} from './static/postgresTypes'
+export { exportSchemaJson, downloadSchemaJson, copySchemaJson } from './utils/exportSchema'

@@ -14,20 +14,11 @@
           class="!w-[180px]"
           placeholder="数据集名称"
         />
-        <GrowButton
-          size="small"
-          type="primary"
-          :disabled="!schemaList.length"
-          @click="onAddTable"
-        >
-          <GrowIconify icon="carbon:add" :size="14" class="mr-1 align-[-2px]" />
-          添加表
-        </GrowButton>
       </div>
       <div class="flex shrink-0 items-center gap-2">
         <GrowButton
           size="small"
-          :disabled="!dataset.dimensions.length && !dataset.measures.length"
+          :disabled="!dataset.metricConfigs.length"
           :loading="previewLoading"
           @click="onPreview"
         >
@@ -51,13 +42,16 @@
         >
           <div
             class="prep-rail-item"
-            :class="{ 'is-active': sidePanel === item.type }"
+            :class="{
+              'is-active': sidePanel === item.type,
+              'is-disabled': item.type === 'tables' && !schemaList.length,
+            }"
             role="button"
             tabindex="0"
             :aria-label="item.label"
-            @click="sidePanel = item.type"
-            @keydown.enter.prevent="sidePanel = item.type"
-            @keydown.space.prevent="sidePanel = item.type"
+            @click="onRailClick(item.type)"
+            @keydown.enter.prevent="onRailClick(item.type)"
+            @keydown.space.prevent="onRailClick(item.type)"
           >
             <GrowIconify :icon="item.icon" :size="18" class="prep-rail-icon" />
           </div>
@@ -66,70 +60,194 @@
 
       <div
         v-if="sidePanel"
-        class="relative z-20 w-[320px] shrink-0 overflow-hidden border-r border-solid border-border bg-component"
+        class="relative z-20 w-[320px] shrink-0 overflow-visible border-r border-solid border-border bg-component"
         @click.stop
       >
         <div
           class="box-border flex h-10 items-center justify-between gap-2 border-b border-solid border-border px-3"
         >
           <h4 class="m-0 text-[13px] font-semibold text-text">{{ sidePanelTitle }}</h4>
-          <GrowButton text size="small" class="!px-1" @click="sidePanel = null">
+          <GrowButton text size="small" class="!px-1" @click="onCloseSidePanel">
             <GrowIconify icon="carbon:close" :size="15" />
           </GrowButton>
         </div>
-        <div class="absolute bottom-0 left-0 right-0 top-10 flex min-h-0 flex-col overflow-hidden">
-          <GrowScrollbar v-if="sidePanel === 'fields'" class="min-h-0 h-full flex-1">
-            <FieldRolePanel
-              :columns="activeColumns"
-              :dimensions="dataset.dimensions"
-              :measures="dataset.measures"
-              :source-alias="activeSource?.alias"
-              @add-dimension="toggleDimension"
-              @add-measure="toggleMeasure"
-              @remove-dimension="onRemoveDimension"
-              @remove-measure="onRemoveMeasure"
-              @update-dimension="onUpdateDimension"
-              @update-measure="onUpdateMeasure"
+        <div class="absolute bottom-0 left-0 right-0 top-10 overflow-visible">
+          <div
+            v-if="sidePanel === 'tables'"
+            class="box-border flex h-full min-h-0 flex-col gap-2 overflow-hidden px-2 py-2"
+          >
+            <GrowInput
+              v-model="tableSearchKeyword"
+              size="small"
+              clearable
+              placeholder="搜索表名 / 注释"
             />
-          </GrowScrollbar>
-          <div v-else class="min-h-0 flex-1 overflow-auto">
-            <JoinPanel
-              v-if="sidePanel === 'joins'"
-              :joins="dataset.joins"
-              :sources="dataset.sources"
-              @add="openCreateJoin()"
-              @edit="openEditJoin"
-              @remove="removeJoin"
-            />
-            <div v-else-if="sidePanel === 'meta'" class="px-3 py-3">
-              <GrowForm label-width="72px" label-position="left" size="small" :show-message="false">
-                <GrowFormItem label="名称">
-                  <GrowInput v-model="dataset.name" size="small" />
-                </GrowFormItem>
-                <GrowFormItem label="说明">
-                  <GrowInput v-model="dataset.description" size="small" type="textarea" :rows="3" />
-                </GrowFormItem>
-              </GrowForm>
-              <div
-                class="mt-3 rounded border border-solid border-border bg-layout px-3 py-2 text-xs text-text-secondary"
-              >
-                <div>建模：{{ schemaRefLabels || '-' }}</div>
-                <div class="mt-1">来源表：{{ dataset.sources.length }}</div>
-                <div class="mt-1">Join：{{ dataset.joins.length }}</div>
-                <div class="mt-1">维度：{{ dataset.dimensions.length }}</div>
-                <div class="mt-1">度量：{{ dataset.measures.length }}</div>
+
+            <GrowScrollbar v-if="filteredSchemaGroups.length" class="min-h-0 flex-1">
+              <div class="flex flex-col gap-3 pb-1">
+                <div v-for="group in filteredSchemaGroups" :key="group.schemaId">
+                  <div class="mb-1.5 px-0.5">
+                    <div class="truncate text-xs font-medium text-text">
+                      {{ group.schemaName }}
+                      <span class="font-normal text-text-secondary">（{{ group.tables.length }}）</span>
+                    </div>
+                    <div
+                      v-if="group.schemaComment"
+                      class="mt-0.5 truncate text-[11px] text-text-secondary"
+                      :title="group.schemaComment"
+                    >
+                      {{ group.schemaComment }}
+                    </div>
+                  </div>
+
+                  <div v-if="group.tables.length" class="flex flex-col gap-2">
+                    <div
+                      v-for="row in group.tables"
+                      :key="`${group.schemaId}:${row.id}`"
+                      class="prep-table-picker-item"
+                    >
+                      <div class="min-w-0 flex-1">
+                        <div class="truncate text-sm text-text">{{ row.name }}</div>
+                        <div class="mt-0.5 truncate text-xs text-text-secondary">
+                          {{ row.comment || '无注释' }}
+                        </div>
+                      </div>
+                      <GrowButton
+                        size="small"
+                        type="primary"
+                        @click="confirmAddTable(group.schemaId, row.id)"
+                      >
+                        添加
+                      </GrowButton>
+                    </div>
+                  </div>
+                  <div v-else class="px-0.5 py-2 text-xs text-text-secondary">
+                    该建模下的表已全部添加
+                  </div>
+                </div>
               </div>
+            </GrowScrollbar>
+
+            <div v-else class="py-10 text-center text-xs text-text-secondary">
+              {{
+                !schemaTabGroups.length
+                  ? '暂无可用建模'
+                  : tableSearchKeyword.trim()
+                    ? '无匹配的表'
+                    : '暂无可用建模'
+              }}
+            </div>
+          </div>
+          <div
+            v-else-if="sidePanel === 'fields'"
+            class="relative flex h-full min-h-0 w-full flex-col overflow-visible"
+          >
+            <div
+              class="flex h-10 shrink-0 items-center justify-end border-b border-solid border-border px-1"
+            >
+              <GrowButton type="primary" size="small" @click.stop="onOpenDataPrepConfig">
+                <GrowIconify icon="carbon:add" :size="16" class="mr-1" />
+                添加
+              </GrowButton>
+            </div>
+
+            <GrowScrollbar class="min-h-0 flex-1">
+              <div class="p-2">
+                <div
+                  v-if="!dataset.metricConfigs.length"
+                  class="px-2 py-6 text-center text-xs text-text-secondary"
+                >
+                  暂无配置，点击右上角添加
+                </div>
+                <div
+                  v-for="item in dataset.metricConfigs"
+                  :key="item.id"
+                  class="group mb-1.5 flex items-center gap-1 rounded px-1 py-2 hover:bg-layout"
+                  :class="{ 'bg-primary/10': editingConfigId === item.id && dataPrepConfigVisible }"
+                >
+                  <div class="min-w-0 flex-1 px-1">
+                    <p class="m-0 truncate text-sm font-medium text-text">
+                      {{ item.measure.name || '未命名度量' }}
+                    </p>
+                    <p class="m-0 mt-0.5 truncate text-xs text-text-secondary">
+                      维度 {{ item.dimensionFields.length }} 个
+                    </p>
+                  </div>
+                  <div class="flex shrink-0 items-center gap-0.5 opacity-0 group-hover:opacity-100">
+                    <GrowButton text size="small" title="编辑" @click.stop="onEditMetricConfig(item.id)">
+                      <GrowIconify icon="carbon:edit" :size="14" />
+                    </GrowButton>
+                    <GrowButton
+                      text
+                      size="small"
+                      type="danger"
+                      title="删除"
+                      @click.stop="onRemoveMetricConfig(item.id)"
+                    >
+                      <GrowIconify icon="carbon:trash-can" :size="14" />
+                    </GrowButton>
+                  </div>
+                </div>
+              </div>
+            </GrowScrollbar>
+
+            <div
+              v-if="dataPrepConfigVisible"
+              class="absolute bottom-0 left-full top-0 z-20 flex w-[520px] flex-col border-l border-solid border-border bg-component shadow-card"
+            >
+              <div
+                class="flex h-11 shrink-0 items-center justify-between gap-2 border-b border-solid border-border px-3"
+              >
+                <h4 class="m-0 text-sm font-medium text-text">
+                  {{ editingConfigId ? '编辑维度 / 度量' : '添加维度 / 度量' }}
+                </h4>
+                <div class="flex shrink-0 items-center gap-2">
+                  <GrowButton type="primary" size="small" @click.stop="onSaveDataPrepConfig">
+                    保存
+                  </GrowButton>
+                  <GrowButton type="primary" plain size="small" @click.stop="onCloseDataPrepConfig">
+                    取消
+                  </GrowButton>
+                </div>
+              </div>
+              <div class="min-h-0 flex-1 overflow-hidden">
+                <DataPrepConfigPanel
+                  v-model="draftMetricConfig"
+                  :field-options="metricFieldOptions"
+                  :dataset="dataset"
+                  :table-rows="previewTableRows"
+                />
+              </div>
+            </div>
+          </div>
+          <div v-else-if="sidePanel === 'meta'" class="h-full min-h-0 overflow-auto px-3 py-3">
+            <GrowForm label-width="72px" label-position="left" size="small" :show-message="false">
+              <GrowFormItem label="名称">
+                <GrowInput v-model="dataset.name" size="small" />
+              </GrowFormItem>
+              <GrowFormItem label="说明">
+                <GrowInput v-model="dataset.description" size="small" type="textarea" :rows="3" />
+              </GrowFormItem>
+            </GrowForm>
+            <div
+              class="mt-3 rounded border border-solid border-border bg-layout px-3 py-2 text-xs text-text-secondary"
+            >
+              <div>建模：{{ schemaRefLabels || '-' }}</div>
+              <div class="mt-1">来源表：{{ dataset.sources.length }}</div>
+              <div class="mt-1">Join：{{ dataset.joins.length }}</div>
+              <div class="mt-1">配置：{{ dataset.metricConfigs.length }}</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="relative min-h-0 min-w-0 flex-1">
+      <div class="relative min-h-0 min-w-0 flex-1 overflow-hidden">
         <VueFlow
           id="grow-data-prep-designer"
           v-model:nodes="nodes"
           v-model:edges="edges"
           :node-types="nodeTypes"
+          :edge-types="edgeTypes"
           :default-viewport="DEFAULT_VIEWPORT"
           :min-zoom="0.3"
           :max-zoom="1.4"
@@ -152,6 +270,17 @@
             zoomable
           />
         </VueFlow>
+
+        <JoinConfigDrawer
+          v-model:visible="joinDrawer.visible"
+          :mode="joinDrawer.mode"
+          :sources="dataset.sources"
+          :schemas-by-id="schemasById"
+          :join="editingJoin"
+          :preset="joinDrawer.preset"
+          @confirm="onJoinConfirm"
+          @remove="onJoinRemoveFromDrawer"
+        />
       </div>
     </div>
 
@@ -162,87 +291,6 @@
       :result="previewResult"
       @close="previewVisible = false"
     />
-
-    <JoinConfigDrawer
-      v-model:visible="joinDrawer.visible"
-      :mode="joinDrawer.mode"
-      :sources="dataset.sources"
-      :schemas-by-id="schemasById"
-      :join="editingJoin"
-      :preset="joinDrawer.preset"
-      @confirm="onJoinConfirm"
-      @remove="onJoinRemoveFromDrawer"
-    />
-
-    <GrowDrawer v-model="tablePickerVisible" title="添加表" size="480px">
-      <div class="box-border flex h-full min-h-0 flex-col gap-2 px-1">
-        <GrowInput
-          v-model="tableSearchKeyword"
-          size="small"
-          clearable
-          placeholder="搜索表名 / 注释"
-        />
-
-        <GrowTabs
-          v-if="schemaTabGroups.length"
-          v-model="activePickerSchemaId"
-          size="small"
-          class="prep-table-picker-tabs min-h-0 flex-1"
-        >
-          <GrowTabPane
-            v-for="group in schemaTabGroups"
-            :key="group.schemaId"
-            :name="group.schemaId"
-            :label="`${group.schemaName}（${group.tables.length}）`"
-          >
-            <div class="box-border flex h-full min-h-0 flex-col pt-2">
-              <p
-                v-if="group.schemaComment"
-                class="mb-2 mt-0 truncate text-xs text-text-secondary"
-                :title="group.schemaComment"
-              >
-                {{ group.schemaComment }}
-              </p>
-              <div
-                v-if="pickerTablesOf(group.schemaId).length"
-                class="flex min-h-0 flex-1 flex-col gap-2 overflow-auto pb-1"
-              >
-                <div
-                  v-for="row in pickerTablesOf(group.schemaId)"
-                  :key="`${group.schemaId}:${row.id}`"
-                  class="prep-table-picker-item"
-                >
-                  <div class="min-w-0 flex-1">
-                    <div class="truncate text-sm text-text">{{ row.name }}</div>
-                    <div class="mt-0.5 truncate text-xs text-text-secondary">
-                      {{ row.comment || '无注释' }}
-                    </div>
-                  </div>
-                  <GrowButton
-                    size="small"
-                    type="primary"
-                    @click="confirmAddTable(group.schemaId, row.id)"
-                  >
-                    添加
-                  </GrowButton>
-                </div>
-              </div>
-              <div v-else class="py-10 text-center text-xs text-text-secondary">
-                {{
-                  tableSearchKeyword.trim()
-                    ? '无匹配的表'
-                    : '该建模下的表已全部添加'
-                }}
-              </div>
-            </div>
-          </GrowTabPane>
-        </GrowTabs>
-
-        <div v-else class="py-10 text-center text-xs text-text-secondary">
-          暂无可用建模
-        </div>
-      </div>
-    </GrowDrawer>
   </div>
 </template>
 
@@ -265,32 +313,30 @@ import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 import '@vue-flow/minimap/dist/style.css'
 import type { DataPrepDatabaseSchema, DataPrepSchemaTable } from './types'
-import SourceTableNode from './components/SourceTableNode.vue'
-import FieldRolePanel from './components/FieldRolePanel.vue'
-import DataPreviewDrawer from './components/DataPreviewDrawer.vue'
-import JoinPanel from './components/JoinPanel.vue'
-import JoinConfigDrawer from './components/JoinConfigDrawer.vue'
+import SourceTableNode from './components/canvas/SourceTableNode.vue'
+import JoinEdge from './components/canvas/JoinEdge.vue'
+import DataPrepConfigPanel from './components/config/DataPrepConfigPanel.vue'
+import DataPreviewDrawer from './components/preview/DataPreviewDrawer.vue'
+import JoinConfigDrawer from './components/canvas/JoinConfigDrawer.vue'
 import {
   createDataPrepDataset,
-  createDataPrepDimension,
   createDataPrepJoin,
-  createDataPrepMeasure,
+  createDataPrepMetricConfig,
   createDataPrepSource,
-  defaultMeasureOutputKey,
   ensureUniqueAlias,
   ensureUniqueMeasureOutputKey,
   fieldKey,
   upsertSchemaRef,
 } from './factories'
-import { fetchDataPrepSchemaBundle, fetchDataPrepSchemas, queryDataPrepDataset, saveDataPrepDataset } from './api'
+import { fetchDataPrepSchemaBundle, fetchDataPrepSchemas, queryDataPrepDataset, saveDataPrepDataset } from './utils/api'
+import { mergeSchemaBundlesToRowsMap } from './utils/queryDataset'
 import type {
   DataPrepDataset,
-  DataPrepDimension,
   DataPrepJoin,
   DataPrepJoinOnCondition,
   DataPrepJoinOnLogic,
   DataPrepJoinType,
-  DataPrepMeasure,
+  DataPrepMetricConfig,
   DataPrepSchemaBundle,
   DataPrepSchemaListItem,
   DatasetQueryResult,
@@ -321,10 +367,11 @@ const dataset = reactive<DataPrepDataset>(
 const schemaList = ref<DataPrepSchemaListItem[]>([])
 const schemaBundlesById = ref<Record<string, DataPrepSchemaBundle>>({})
 const tableSearchKeyword = ref('')
-const activePickerSchemaId = ref('')
 const selectedSourceId = ref<string | null>(null)
-const sidePanel = ref<'fields' | 'joins' | 'meta' | null>('fields')
-const tablePickerVisible = ref(false)
+const sidePanel = ref<'tables' | 'fields' | 'meta' | null>('fields')
+const dataPrepConfigVisible = ref(false)
+const editingConfigId = ref('')
+const draftMetricConfig = ref<DataPrepMetricConfig>(createDataPrepMetricConfig())
 const saving = ref(false)
 const previewVisible = ref(false)
 const previewLoading = ref(false)
@@ -350,14 +397,14 @@ const joinDrawer = reactive<{
 })
 
 const railItems = [
+  { type: 'tables' as const, label: '添加表', icon: 'carbon:add' },
   { type: 'fields' as const, label: '维度 / 度量', icon: 'carbon:list-boxes' },
-  { type: 'joins' as const, label: '表关联', icon: 'carbon:connect' },
   { type: 'meta' as const, label: '数据集信息', icon: 'carbon:information' },
 ]
 
 const sidePanelTitle = computed(() => {
+  if (sidePanel.value === 'tables') return '添加表'
   if (sidePanel.value === 'meta') return '数据集信息'
-  if (sidePanel.value === 'joins') return '表关联'
   return '维度 / 度量'
 })
 
@@ -404,42 +451,120 @@ const schemaTabGroups = computed(() =>
   }),
 )
 
-const remainingAddableCount = computed(() =>
-  schemaTabGroups.value.reduce((sum, group) => sum + group.tables.length, 0),
+/** 分组列表：搜索时只展示有匹配表的建模组 */
+const filteredSchemaGroups = computed(() => {
+  const keyword = tableSearchKeyword.value.trim().toLowerCase()
+  if (!keyword) return schemaTabGroups.value
+  return schemaTabGroups.value
+    .map((group) => ({
+      ...group,
+      tables: group.tables.filter(
+        (table) =>
+          table.name.toLowerCase().includes(keyword) ||
+          table.comment.toLowerCase().includes(keyword),
+      ),
+    }))
+    .filter((group) => group.tables.length > 0)
+})
+
+const previewTableRows = computed(() =>
+  mergeSchemaBundlesToRowsMap(Object.values(schemaBundlesById.value)),
 )
 
-function pickerTablesOf(schemaId: string) {
-  const group = schemaTabGroups.value.find((item) => item.schemaId === schemaId)
-  if (!group) return []
-  const keyword = tableSearchKeyword.value.trim().toLowerCase()
-  if (!keyword) return group.tables
-  return group.tables.filter(
-    (table) =>
-      table.name.toLowerCase().includes(keyword) ||
-      table.comment.toLowerCase().includes(keyword),
-  )
+const metricFieldOptions = computed(() => {
+  const options: Array<{
+    field: string
+    label: string
+    type?: string
+    groupLabel?: string
+  }> = []
+  for (const source of dataset.sources) {
+    const bundle = schemaBundlesById.value[source.schemaId]
+    const table = bundle?.schema.tables.find((item) => item.id === source.tableId)
+    const groupLabel = `${source.alias}（${source.tableName}）`
+    for (const col of table?.columns || []) {
+      options.push({
+        field: fieldKey(source.alias, col.name),
+        label: col.comment || col.name,
+        type: col.type,
+        groupLabel,
+      })
+    }
+  }
+  return options
+})
+
+function onOpenDataPrepConfig() {
+  joinDrawer.visible = false
+  editingConfigId.value = ''
+  draftMetricConfig.value = createDataPrepMetricConfig()
+  dataPrepConfigVisible.value = true
 }
 
-watch(tableSearchKeyword, (keyword) => {
-  if (!keyword.trim() || !tablePickerVisible.value) return
-  // 搜索时自动跳到第一个有匹配结果的建模 Tab
-  const hit = schemaTabGroups.value.find((group) => pickerTablesOf(group.schemaId).length > 0)
-  if (hit) activePickerSchemaId.value = hit.schemaId
-})
+function onEditMetricConfig(id: string) {
+  const target = dataset.metricConfigs.find((item) => item.id === id)
+  if (!target) return
+  joinDrawer.visible = false
+  editingConfigId.value = id
+  draftMetricConfig.value = createDataPrepMetricConfig(JSON.parse(JSON.stringify(target)))
+  dataPrepConfigVisible.value = true
+}
 
-const activeSource = computed(() =>
-  dataset.sources.find((s) => s.id === selectedSourceId.value) || dataset.sources[0] || null,
-)
+function onRemoveMetricConfig(id: string) {
+  dataset.metricConfigs = dataset.metricConfigs.filter((item) => item.id !== id)
+  if (editingConfigId.value === id) onCloseDataPrepConfig()
+}
 
-const activeColumns = computed(() => {
-  if (!activeSource.value) return []
-  const schema = schemasById.value[activeSource.value.schemaId]
-  const table = schema?.tables.find((t) => t.id === activeSource.value!.tableId)
-  return table?.columns || []
-})
+function onSaveDataPrepConfig() {
+  const next = createDataPrepMetricConfig({
+    ...draftMetricConfig.value,
+    measure: {
+      ...draftMetricConfig.value.measure,
+      outputKey: ensureUniqueMeasureOutputKey(
+        dataset.metricConfigs,
+        draftMetricConfig.value.measure.outputKey ||
+          draftMetricConfig.value.measure.name ||
+          'value',
+        editingConfigId.value || draftMetricConfig.value.id,
+      ),
+    },
+  })
+  if (!next.dimensionFields.length) return
+  if (!next.measure.formula.trim()) return
+  if (!next.measure.name.trim()) return
 
-const dimensionFields = computed(() => new Set(dataset.dimensions.map((d) => d.field)))
-const measureFields = computed(() => new Set(dataset.measures.map((m) => m.field)))
+  const index = dataset.metricConfigs.findIndex((item) => item.id === next.id)
+  if (index >= 0) dataset.metricConfigs.splice(index, 1, next)
+  else dataset.metricConfigs.push(next)
+  onCloseDataPrepConfig()
+}
+
+function onCloseDataPrepConfig() {
+  dataPrepConfigVisible.value = false
+  editingConfigId.value = ''
+}
+
+function prepareTablesPanel() {
+  if (!schemaList.value.length) return false
+  tableSearchKeyword.value = ''
+  return true
+}
+
+function onCloseSidePanel() {
+  sidePanel.value = null
+  onCloseDataPrepConfig()
+}
+
+function onRailClick(type: 'tables' | 'fields' | 'meta') {
+  if (type === 'tables' && !schemaList.value.length) return
+  if (sidePanel.value === type) {
+    onCloseSidePanel()
+    return
+  }
+  if (type === 'tables' && !prepareTablesPanel()) return
+  if (type !== 'fields') dataPrepConfigVisible.value = false
+  sidePanel.value = type
+}
 
 const SourceNodeView = defineComponent({
   name: 'DataPrepSourceNodeView',
@@ -453,23 +578,14 @@ const SourceNodeView = defineComponent({
         data: nodeProps.data,
         onSelect: (sourceId: string) => {
           selectedSourceId.value = sourceId
-          sidePanel.value = 'fields'
         },
         onRemove: (sourceId: string) => onRemoveSource(sourceId),
         onSelectColumn: (sourceId: string, columnId: string) => {
           selectedSourceId.value = sourceId
-          sidePanel.value = 'fields'
           void columnId
         },
-        onToggleDimension: (sourceId: string, columnId: string) => {
-          selectedSourceId.value = sourceId
-          sidePanel.value = 'fields'
-          toggleDimension(columnId)
-        },
-        onToggleMeasure: (sourceId: string, columnId: string) => {
-          selectedSourceId.value = sourceId
-          sidePanel.value = 'fields'
-          toggleMeasure(columnId)
+        onSetPrimary: (sourceId: string) => {
+          void onSetPrimarySource(sourceId)
         },
       })
   },
@@ -477,6 +593,10 @@ const SourceNodeView = defineComponent({
 
 const nodeTypes = {
   prepSource: markRaw(SourceNodeView),
+}
+
+const edgeTypes = {
+  prepJoin: markRaw(JoinEdge),
 }
 
 const nodes = computed<Node[]>({
@@ -488,14 +608,18 @@ const nodes = computed<Node[]>({
         id: source.id,
         type: 'prepSource',
         position: { ...source.position },
-        data: {
-          source,
-          schemaName: bundle?.schema.name || source.schemaId,
-          columns: table?.columns || [],
-          selected: selectedSourceId.value === source.id,
-          dimensionFields: dimensionFields.value,
-          measureFields: measureFields.value,
-        },
+        data: (() => {
+          const primaryId = dataset.primarySourceId || dataset.sources[0]?.id
+          const primary = dataset.sources.find((item) => item.id === primaryId)
+          return {
+            source,
+            schemaName: bundle?.schema.name || source.schemaId,
+            columns: table?.columns || [],
+            selected: selectedSourceId.value === source.id,
+            isPrimary: primaryId === source.id,
+            primaryLabel: primary?.tableName || primary?.alias || '未命名',
+          }
+        })(),
         draggable: true,
         selectable: true,
       }
@@ -510,12 +634,21 @@ const edges = computed<Edge[]>({
   get() {
     return dataset.joins.map((join) => ({
       id: join.id,
+      type: 'prepJoin',
       source: join.leftSourceId,
       target: join.rightSourceId,
-      label: formatJoinEdgeLabel(join),
       animated: false,
       selectable: true,
       style: { stroke: 'var(--primary-color)' },
+      interactionWidth: 24,
+      selected: joinDrawer.joinId === join.id && joinDrawer.visible,
+      data: {
+        joinId: join.id,
+        label: formatJoinEdgeLabel(join),
+        active: joinDrawer.joinId === join.id && joinDrawer.visible,
+        onSelect: (joinId: string) => openEditJoin(joinId),
+        onRemove: (joinId: string) => removeJoin(joinId),
+      },
     }))
   },
   set() {
@@ -575,17 +708,6 @@ function syncSchemaRefsFromSources() {
   dataset.schemaRef = dataset.schemaRefs[0]
 }
 
-function onAddTable() {
-  if (!schemaList.value.length) return
-  tableSearchKeyword.value = ''
-  const preferred =
-    schemaTabGroups.value.find((group) => group.tables.length > 0)?.schemaId ||
-    schemaList.value[0]?.id ||
-    ''
-  activePickerSchemaId.value = preferred
-  tablePickerVisible.value = true
-}
-
 async function confirmAddTable(schemaId: string, tableId: string) {
   if (!schemaId || !tableId) return
   await ensureSchemaBundle(schemaId)
@@ -614,23 +736,19 @@ async function confirmAddTable(schemaId: string, tableId: string) {
     schemaName,
   })
   dataset.schemaRef = dataset.schemaRefs[0]
+  // 第一张表默认主表
+  if (!dataset.primarySourceId || dataset.sources.length === 1) {
+    dataset.primarySourceId = source.id
+  }
 
   selectedSourceId.value = source.id
-  // 多表时引导去配置关联，不再自动强加 Join
-  sidePanel.value = dataset.sources.length > 1 ? 'joins' : 'fields'
-  // 还有可添加表时保持抽屉打开，方便连续添加
-  if (!remainingAddableCount.value) {
-    tablePickerVisible.value = false
-  } else if (!pickerTablesOf(activePickerSchemaId.value).length) {
-    const next = schemaTabGroups.value.find((group) => group.tables.length > 0)
-    if (next) activePickerSchemaId.value = next.schemaId
-  }
 }
 
 function openCreateJoin(preset?: {
   leftSourceId?: string
   rightSourceId?: string
 } | null) {
+  dataPrepConfigVisible.value = false
   joinDrawer.mode = 'create'
   joinDrawer.joinId = null
   joinDrawer.preset = preset || null
@@ -638,11 +756,11 @@ function openCreateJoin(preset?: {
 }
 
 function openEditJoin(joinId: string) {
+  dataPrepConfigVisible.value = false
   joinDrawer.mode = 'edit'
   joinDrawer.joinId = joinId
   joinDrawer.preset = null
   joinDrawer.visible = true
-  sidePanel.value = 'joins'
 }
 
 function removeJoin(joinId: string) {
@@ -707,7 +825,6 @@ function onJoinConfirm(payload: {
   }
   joinDrawer.visible = false
   joinDrawer.joinId = null
-  sidePanel.value = 'joins'
 }
 
 function onJoinRemoveFromDrawer() {
@@ -728,6 +845,12 @@ function onEdgeClick(event: EdgeMouseEvent) {
   openEditJoin(joinId)
 }
 
+function onSetPrimarySource(sourceId: string) {
+  if (!sourceId || dataset.primarySourceId === sourceId) return
+  if (!dataset.sources.some((item) => item.id === sourceId)) return
+  dataset.primarySourceId = sourceId
+}
+
 function onRemoveSource(sourceId: string) {
   const source = dataset.sources.find((s) => s.id === sourceId)
   if (!source) return
@@ -735,8 +858,25 @@ function onRemoveSource(sourceId: string) {
   dataset.joins = dataset.joins.filter(
     (j) => j.leftSourceId !== sourceId && j.rightSourceId !== sourceId,
   )
-  dataset.dimensions = dataset.dimensions.filter((d) => !d.field.startsWith(`${source.alias}.`))
-  dataset.measures = dataset.measures.filter((m) => !m.field.startsWith(`${source.alias}.`))
+  dataset.metricConfigs = dataset.metricConfigs
+    .map((config) => ({
+      ...config,
+      dimensionFields: config.dimensionFields.filter(
+        (field) => !field.startsWith(`${source.alias}.`),
+      ),
+      measure: {
+        ...config.measure,
+        formula: config.measure.formula.replaceAll(`[${source.alias}.`, '[__removed__.'),
+      },
+    }))
+    .filter((config) => config.dimensionFields.length > 0)
+  // 公式仍引用已删表字段的配置一并移除
+  dataset.metricConfigs = dataset.metricConfigs.filter(
+    (config) => !config.measure.formula.includes('[__removed__.'),
+  )
+  if (dataset.primarySourceId === sourceId) {
+    dataset.primarySourceId = dataset.sources[0]?.id
+  }
   syncSchemaRefsFromSources()
   if (selectedSourceId.value === sourceId) selectedSourceId.value = null
 }
@@ -745,102 +885,6 @@ function onNodeDragStop(event: NodeDragEvent) {
   const source = dataset.sources.find((s) => s.id === event.node.id)
   if (!source) return
   source.position = { ...event.node.position }
-}
-
-function findColumn(columnId: string) {
-  if (!activeSource.value) return null
-  const schema = schemasById.value[activeSource.value.schemaId]
-  const table = schema?.tables.find((t) => t.id === activeSource.value!.tableId)
-  return table?.columns.find((c) => c.id === columnId) || null
-}
-
-function onAddDimension(columnId: string) {
-  const col = findColumn(columnId)
-  if (!col || !activeSource.value) return
-  const field = fieldKey(activeSource.value.alias, col.name)
-  if (dataset.dimensions.some((d) => d.field === field)) return
-  dataset.dimensions.push(
-    createDataPrepDimension({
-      name: col.comment || col.name,
-      field,
-      dataType: col.type,
-    }),
-  )
-}
-
-function onAddMeasure(columnId: string) {
-  const col = findColumn(columnId)
-  if (!col || !activeSource.value) return
-  const field = fieldKey(activeSource.value.alias, col.name)
-  if (dataset.measures.some((m) => m.field === field)) return
-  const numeric = [
-    'SMALLINT',
-    'INTEGER',
-    'BIGINT',
-    'NUMERIC',
-    'REAL',
-    'DOUBLE PRECISION',
-  ].includes(col.type)
-  dataset.measures.push(
-    createDataPrepMeasure({
-      name: col.comment || col.name,
-      field,
-      outputKey: ensureUniqueMeasureOutputKey(
-        dataset.measures,
-        defaultMeasureOutputKey(field),
-      ),
-      agg: numeric ? 'sum' : 'count',
-    }),
-  )
-}
-
-function toggleDimension(columnId: string) {
-  const col = findColumn(columnId)
-  if (!col || !activeSource.value) return
-  const field = fieldKey(activeSource.value.alias, col.name)
-  const existing = dataset.dimensions.find((d) => d.field === field)
-  if (existing) {
-    dataset.dimensions = dataset.dimensions.filter((d) => d.id !== existing.id)
-    return
-  }
-  onAddDimension(columnId)
-}
-
-function toggleMeasure(columnId: string) {
-  const col = findColumn(columnId)
-  if (!col || !activeSource.value) return
-  const field = fieldKey(activeSource.value.alias, col.name)
-  const existing = dataset.measures.find((m) => m.field === field)
-  if (existing) {
-    dataset.measures = dataset.measures.filter((m) => m.id !== existing.id)
-    return
-  }
-  onAddMeasure(columnId)
-}
-
-function onRemoveDimension(id: string) {
-  dataset.dimensions = dataset.dimensions.filter((d) => d.id !== id)
-}
-
-function onRemoveMeasure(id: string) {
-  dataset.measures = dataset.measures.filter((m) => m.id !== id)
-}
-
-function onUpdateDimension(id: string, patch: Partial<DataPrepDimension>) {
-  const target = dataset.dimensions.find((d) => d.id === id)
-  if (target) Object.assign(target, patch)
-}
-
-function onUpdateMeasure(id: string, patch: Partial<DataPrepMeasure>) {
-  const target = dataset.measures.find((m) => m.id === id)
-  if (!target) return
-  if (patch.outputKey !== undefined) {
-    const nextKey = String(patch.outputKey || '').trim()
-    patch.outputKey = nextKey
-      ? ensureUniqueMeasureOutputKey(dataset.measures, nextKey, id)
-      : defaultMeasureOutputKey(target.field)
-  }
-  Object.assign(target, patch)
 }
 
 async function onPreview() {
@@ -919,6 +963,12 @@ async function onSave() {
   background: color-mix(in srgb, var(--primary-color) 12%, transparent);
 }
 
+.prep-rail-item.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
 .prep-rail-icon {
   display: inline-flex;
   align-items: center;
@@ -941,26 +991,6 @@ async function onSave() {
   width: 18px;
   height: 18px;
   fill: currentColor;
-}
-
-.prep-table-picker-tabs {
-  display: flex;
-  min-height: 0;
-  flex: 1;
-  flex-direction: column;
-}
-
-.prep-table-picker-tabs :deep(.el-tabs__header),
-.prep-table-picker-tabs :deep(.n-tabs-nav),
-.prep-table-picker-tabs :deep(.ant-tabs-nav) {
-  margin-bottom: 0;
-}
-
-.prep-table-picker-tabs :deep(.el-tabs__content),
-.prep-table-picker-tabs :deep(.n-tab-pane),
-.prep-table-picker-tabs :deep(.ant-tabs-content) {
-  flex: 1;
-  min-height: 0;
 }
 
 .prep-table-picker-item {

@@ -2,15 +2,13 @@ import GrowDataPrepDesigner from './GrowDataPrepDesigner.vue'
 
 export { GrowDataPrepDesigner }
 export type {
-  DataPrepAgg,
   DataPrepJoinType,
   DataPrepJoinOnLogic,
   DataPrepJoinOnCondition,
   DataPrepSchemaRef,
   DataPrepSource,
   DataPrepJoin,
-  DataPrepDimension,
-  DataPrepMeasure,
+  DataPrepMetricConfig,
   DataPrepDataset,
   DatasetQueryRequest,
   DatasetQueryColumn,
@@ -27,16 +25,8 @@ export type {
 } from './types'
 export { sourceTableRowsKey } from './types'
 export {
-  DATA_PREP_AGG_OPTIONS,
-  DATA_PREP_AGG_LABELS,
-  getDataPrepAggDescription,
-  isCompareAgg,
-  isCompareRateAgg,
-  isDerivedAgg,
-  isPercentDisplayAgg,
   createDataPrepDataset,
-  createDataPrepDimension,
-  createDataPrepMeasure,
+  createDataPrepMetricConfig,
   createDataPrepSource,
   createDataPrepJoin,
   measureOutputKey,
@@ -44,21 +34,28 @@ export {
   ensureUniqueMeasureOutputKey,
   fieldKey,
   parseFieldKey,
+  formulaFieldToken,
   ensureUniqueAlias,
   upsertSchemaRef,
   normalizeSchemaRefs,
 } from './factories'
-export type { DataPrepAggOption } from './factories'
 export {
   createDemoSalesSchemaBundle,
   createDemoRegionSchemaBundle,
   DEMO_SCHEMA_BUNDLES,
-} from './demoSchema'
+} from './static/demoSchema'
 export {
   queryDatasetLocal,
+  previewMetricConfig,
   toCartesianSeriesPayload,
   mergeSchemaBundlesToRowsMap,
-} from './queryDataset'
+} from './utils/queryDataset'
+export {
+  evaluateFormulaOnGroup,
+  extractFormulaFields,
+  FORMULA_FUNCTION_DOCS,
+} from './utils/formulaEval'
+export type { FormulaFunctionDoc } from './utils/formulaEval'
 export {
   DATA_PREP_DATASETS_STORAGE_KEY,
   loadDatasetsFromStorage,
@@ -66,7 +63,7 @@ export {
   upsertDatasetInStorage,
   removeDatasetFromStorage,
   getDatasetFromStorage,
-} from './datasetStorage'
+} from './utils/datasetStorage'
 export {
   fetchDataPrepSchemas,
   fetchDataPrepSchemaBundle,
@@ -74,5 +71,5 @@ export {
   saveDataPrepDataset,
   deleteDataPrepDataset,
   queryDataPrepDataset,
-} from './api'
-export { ensureDemoDataset } from './ensureDemoDataset'
+} from './utils/api'
+export { ensureDemoDataset } from './utils/ensureDemoDataset'

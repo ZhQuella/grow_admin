@@ -1130,9 +1130,9 @@ export const dynamicTagsConfig = createConfig([
     '尺寸',
     'size',
     [
-      { label: 'small', value: 'small' },
-      { label: 'medium', value: 'medium' },
-      { label: 'large', value: 'large' },
+      { label: '小', value: 'small' },
+      { label: '中', value: 'medium' },
+      { label: '大', value: 'large' },
     ],
     '标签尺寸（Naive UI）',
   ),

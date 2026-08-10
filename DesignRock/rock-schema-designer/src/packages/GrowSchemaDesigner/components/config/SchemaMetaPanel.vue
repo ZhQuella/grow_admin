@@ -33,8 +33,8 @@
 </template>
 
 <script setup lang="ts">
-import { MAX_DATABASE_NAME_LENGTH, clampIdentifier } from '../postgresTypes'
-import type { DatabaseSchema } from '../types'
+import { MAX_DATABASE_NAME_LENGTH, clampIdentifier } from '../../static/postgresTypes'
+import type { DatabaseSchema } from '../../types'
 
 defineOptions({
   name: 'SchemaMetaPanel',

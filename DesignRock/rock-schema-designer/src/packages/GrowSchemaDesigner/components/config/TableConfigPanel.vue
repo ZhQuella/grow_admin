@@ -1,46 +1,47 @@
 <template>
   <div class="box-border flex h-full min-h-0 flex-col">
-    <div class="box-border flex-1 overflow-auto px-3 py-3">
-      <GrowForm label-width="72px" label-position="left" size="small" :show-message="false">
-        <GrowFormItem label="表名">
-          <GrowInput
-            :model-value="table.name"
-            size="small"
-            placeholder="table_name"
-            :maxlength="MAX_TABLE_NAME_LENGTH"
-            show-word-limit
-            @update:model-value="onNameChange"
-          />
-        </GrowFormItem>
-        <GrowFormItem label="注释">
-          <GrowInput
-            :model-value="table.comment || ''"
-            size="small"
-            placeholder="表注释"
-            @update:model-value="onCommentChange"
-          />
-        </GrowFormItem>
-      </GrowForm>
+    <GrowScrollbar class="min-h-0 flex-1">
+      <div class="box-border px-3 py-3">
+        <GrowForm label-width="72px" label-position="left" size="small" :show-message="false">
+          <GrowFormItem label="表名">
+            <GrowInput
+              :model-value="table.name"
+              size="small"
+              placeholder="table_name"
+              :maxlength="MAX_TABLE_NAME_LENGTH"
+              show-word-limit
+              @update:model-value="onNameChange"
+            />
+          </GrowFormItem>
+          <GrowFormItem label="注释">
+            <GrowInput
+              :model-value="table.comment || ''"
+              size="small"
+              placeholder="表注释"
+              @update:model-value="onCommentChange"
+            />
+          </GrowFormItem>
+        </GrowForm>
 
-      <div class="mb-2 mt-1 flex items-center justify-between">
-        <span class="text-[13px] font-semibold text-text">字段</span>
-        <GrowButton size="small" type="primary" @click="$emit('add-column')">
-          <GrowIconify icon="carbon:add" :size="14" class="mr-1 align-[-2px]" />
-          添加字段
-        </GrowButton>
-      </div>
+        <div class="mb-2 mt-1 flex items-center justify-between">
+          <span class="text-[13px] font-semibold text-text">字段</span>
+          <GrowButton size="small" type="primary" @click="$emit('add-column')">
+            <GrowIconify icon="carbon:add" :size="14" class="mr-1 align-[-2px]" />
+            添加字段
+          </GrowButton>
+        </div>
 
-      <div v-if="!table.columns.length" class="py-6 text-center text-xs text-text-secondary">
-        暂无字段
-      </div>
+        <div v-if="!table.columns.length" class="py-6 text-center text-xs text-text-secondary">
+          暂无字段
+        </div>
 
-      <div
-        v-for="(col, index) in table.columns"
-        :key="col.id"
-        class="field-card mb-2"
-        :class="{ 'is-active': activeColumnId === col.id }"
-        @click="$emit('select-column', col.id)"
-      >
+        <div
+          v-for="(col, index) in table.columns"
+          :key="col.id"
+          class="field-card mb-2"
+          :class="{ 'is-active': activeColumnId === col.id }"
+          @click="$emit('select-column', col.id)"
+        >
         <div class="field-card__head mb-2">
           <span class="field-card__title" :title="`#${index + 1} ${col.name}`">
             <span class="field-card__index">#{{ index + 1 }}</span>
@@ -152,7 +153,8 @@
           </GrowFormItem>
         </GrowForm>
       </div>
-    </div>
+      </div>
+    </GrowScrollbar>
   </div>
 </template>
 
@@ -164,8 +166,8 @@ import {
   clampIdentifier,
   typeNeedsLength,
   typeNeedsScale,
-} from '../postgresTypes'
-import type { SchemaColumn, SchemaColumnType, SchemaTable } from '../types'
+} from '../../static/postgresTypes'
+import type { SchemaColumn, SchemaColumnType, SchemaTable } from '../../types'
 
 defineOptions({
   name: 'TableConfigPanel',

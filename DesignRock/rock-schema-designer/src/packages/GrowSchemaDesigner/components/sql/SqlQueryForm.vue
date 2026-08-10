@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import { GrowCodeEditor } from '@grow-admin-rock/code-sandbox'
-import type { SchemaSqlQuery } from '../types'
+import type { SchemaSqlQuery } from '../../types'
 
 defineOptions({ name: 'SqlQueryForm' })
 

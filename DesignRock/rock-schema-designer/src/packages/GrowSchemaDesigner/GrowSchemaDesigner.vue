@@ -19,7 +19,7 @@
           清空
         </GrowButton>
         <span class="ml-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs text-text-secondary">
-          拖拽字段圆点连线创建关联；悬停关联线可点垃圾桶删除
+          拖拽字段圆点连线创建关联；拖动关联线端点可改接字段；悬停关联线可点垃圾桶删除
         </span>
       </div>
       <div class="flex shrink-0 items-center gap-2">
@@ -84,30 +84,11 @@
             :schema="schema"
             @change="onMetaChange"
           />
-          <TableConfigPanel
-            v-else-if="sidePanel === 'table' && activeTable"
-            :table="activeTable"
-            :active-column-id="activeColumnId"
-            @update-table="onUpdateTable"
-            @update-column="onUpdateColumn"
-            @add-column="onAddColumn"
-            @remove-column="onRemoveColumn"
-            @select-column="(id) => (activeColumnId = id)"
-          />
-          <RelationConfigPanel
-            v-else-if="sidePanel === 'relation' && activeRelation"
-            :relation="activeRelation"
-            :schema="schema"
-            @change="onUpdateRelation"
-          />
           <SqlQueryPanel
             v-else-if="sidePanel === 'sql'"
             :schema="schema"
             @change="onQueriesChange"
           />
-          <div v-else class="px-3 py-8 text-center text-xs text-text-secondary">
-            {{ emptyPanelHint }}
-          </div>
         </div>
       </div>
 
@@ -128,6 +109,7 @@
           class="schema-flow h-full w-full"
           @node-drag-stop="onNodeDragStop"
           @connect="onConnect"
+          @edge-update="onEdgeUpdate"
           @edge-click="onEdgeClick"
           @edges-change="onEdgesChange"
           @pane-click="onDeselect"
@@ -143,6 +125,36 @@
             zoomable
           />
         </VueFlow>
+
+        <SchemaConfigFloat
+          :visible="!!activeTable"
+          :title="activeTable ? `表 · ${activeTable.name}` : '表配置'"
+          @close="onDeselect"
+        >
+          <TableConfigPanel
+            v-if="activeTable"
+            :table="activeTable"
+            :active-column-id="activeColumnId"
+            @update-table="onUpdateTable"
+            @update-column="onUpdateColumn"
+            @add-column="onAddColumn"
+            @remove-column="onRemoveColumn"
+            @select-column="(id) => (activeColumnId = id)"
+          />
+        </SchemaConfigFloat>
+
+        <SchemaConfigFloat
+          :visible="!!activeRelation"
+          title="关联配置"
+          @close="onDeselect"
+        >
+          <RelationConfigPanel
+            v-if="activeRelation"
+            :relation="activeRelation"
+            :schema="schema"
+            @change="onUpdateRelation"
+          />
+        </SchemaConfigFloat>
       </div>
     </div>
 
@@ -167,6 +179,7 @@ import {
   type Edge,
   type EdgeChange,
   type EdgeMouseEvent,
+  type EdgeUpdateEvent,
   type Node,
   type NodeDragEvent,
 } from '@vue-flow/core'
@@ -178,15 +191,16 @@ import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 import '@vue-flow/minimap/dist/style.css'
 
-import TableNode from './components/TableNode.vue'
-import RelationEdge from './components/RelationEdge.vue'
-import TableConfigPanel from './components/TableConfigPanel.vue'
-import RelationConfigPanel from './components/RelationConfigPanel.vue'
-import SchemaMetaPanel from './components/SchemaMetaPanel.vue'
-import SqlQueryPanel from './components/SqlQueryPanel.vue'
-import CreateRelationDrawer from './components/CreateRelationDrawer.vue'
-import { confirmAction } from './confirmAction'
-import { copySchemaJson, downloadSchemaJson } from './exportSchema'
+import TableNode from './components/canvas/TableNode.vue'
+import RelationEdge from './components/canvas/RelationEdge.vue'
+import TableConfigPanel from './components/config/TableConfigPanel.vue'
+import RelationConfigPanel from './components/config/RelationConfigPanel.vue'
+import SchemaConfigFloat from './components/config/SchemaConfigFloat.vue'
+import SchemaMetaPanel from './components/config/SchemaMetaPanel.vue'
+import SqlQueryPanel from './components/sql/SqlQueryPanel.vue'
+import CreateRelationDrawer from './components/config/CreateRelationDrawer.vue'
+import { confirmAction } from './utils/confirmAction'
+import { copySchemaJson, downloadSchemaJson } from './utils/exportSchema'
 import {
   createDatabaseSchema,
   createManyToManyArtifacts,
@@ -203,13 +217,13 @@ import {
   MAX_COLUMN_NAME_LENGTH,
   MAX_DATABASE_NAME_LENGTH,
   MAX_TABLE_NAME_LENGTH,
-} from './postgresTypes'
+} from './static/postgresTypes'
 import {
   findRelationByEdgeId,
   relationsToEdges,
   tablesToNodes,
   type TableNodeData,
-} from './flowMapper'
+} from './utils/flowMapper'
 import type {
   DatabaseSchema,
   SchemaColumn,
@@ -231,7 +245,7 @@ defineOptions({
   name: 'GrowSchemaDesigner',
 })
 
-const DEFAULT_VIEWPORT = { zoom: 0.6, x: 40, y: 40 } as const
+const DEFAULT_VIEWPORT = { zoom: 1, x: 40, y: 40 } as const
 const { setViewport, setNodes, setEdges } = useVueFlow({ id: 'grow-schema-designer' })
 
 /** 清空后重挂载 VueFlow，避免 v-model 与内部 store 在空→非空时不同步导致节点不渲染 */
@@ -264,13 +278,11 @@ watch(
 
 const selection = ref<SchemaSelection>(null)
 const activeColumnId = ref<string | null>(null)
-const sidePanel = ref<'meta' | 'table' | 'relation' | 'sql' | null>('meta')
+const sidePanel = ref<'meta' | 'sql' | null>('meta')
 
-type RailType = 'meta' | 'table' | 'relation' | 'sql'
+type RailType = 'meta' | 'sql'
 const railItems: { type: RailType; label: string; icon: string }[] = [
   { type: 'meta', label: '库信息', icon: 'carbon:db2-database' },
-  { type: 'table', label: '表配置', icon: 'carbon:data-table' },
-  { type: 'relation', label: '关联配置', icon: 'carbon:connect' },
   { type: 'sql', label: 'SQL 查询', icon: 'carbon:query' },
 ]
 
@@ -316,15 +328,7 @@ const activeRelation = computed(
 
 const sidePanelTitle = computed(() => {
   if (sidePanel.value === 'meta') return '数据库'
-  if (sidePanel.value === 'table') return activeTable.value ? `表 · ${activeTable.value.name}` : '表配置'
-  if (sidePanel.value === 'relation') return '关联'
   if (sidePanel.value === 'sql') return 'SQL 查询'
-  return ''
-})
-
-const emptyPanelHint = computed(() => {
-  if (sidePanel.value === 'table') return '请在画布中选择一张表'
-  if (sidePanel.value === 'relation') return '请在画布中点击一条关联线'
   return ''
 })
 
@@ -347,7 +351,6 @@ function syncFlow() {
   const nextEdges = relationsToEdges(schema.value, activeRelationId.value, {
     onSelect: (relationId) => {
       selection.value = { kind: 'relation', relationId }
-      sidePanel.value = 'relation'
     },
     onRemove: (relationId) => {
       const rel = schema.value.relations.find((r) => r.id === relationId)
@@ -399,7 +402,6 @@ function onDesignerKeydown(event: KeyboardEvent) {
 
 function onSelectTable(tableId: string) {
   selection.value = { kind: 'table', tableId }
-  sidePanel.value = 'table'
   const table = schema.value.tables.find((t) => t.id === tableId)
   activeColumnId.value = table?.columns[0]?.id ?? null
 }
@@ -644,7 +646,6 @@ async function removeRelation(rel: SchemaRelation, needConfirm: boolean) {
   }
   if (selection.value?.kind === 'relation' && selection.value.relationId === rel.id) {
     selection.value = null
-    sidePanel.value = 'meta'
   }
   commit()
   return true
@@ -698,6 +699,49 @@ function onConnect(connection: Connection) {
   relationDraft.visible = true
 }
 
+function onEdgeUpdate({ edge, connection }: EdgeUpdateEvent) {
+  const rel = findRelationByEdgeId(schema.value.relations, edge.id)
+  if (!rel || rel.type === 'many-to-many') return
+  if (!connection.source || !connection.target) return
+  if (connection.source === connection.target) return
+
+  const sourceTable = schema.value.tables.find((t) => t.id === connection.source)
+  const targetTable = schema.value.tables.find((t) => t.id === connection.target)
+  if (!sourceTable || !targetTable) return
+  if (sourceTable.isJunction || targetTable.isJunction) return
+
+  let sourceColumnId = parseHandleColumnId(connection.sourceHandle)
+  let targetColumnId = parseHandleColumnId(connection.targetHandle)
+  if (!sourceColumnId) {
+    sourceColumnId = findPrimaryKeyColumn(sourceTable)?.id ?? null
+  }
+  if (!targetColumnId) {
+    targetColumnId = findPrimaryKeyColumn(targetTable)?.id ?? null
+  }
+  if (!sourceColumnId || !targetColumnId) return
+
+  const sourceColumn = sourceTable.columns.find((c) => c.id === sourceColumnId)
+  const targetColumn = targetTable.columns.find((c) => c.id === targetColumnId)
+  if (!sourceColumn || !targetColumn) return
+
+  schema.value = {
+    ...schema.value,
+    relations: schema.value.relations.map((item) =>
+      item.id === rel.id
+        ? {
+            ...item,
+            sourceTableId: sourceTable.id,
+            sourceColumnId,
+            targetTableId: targetTable.id,
+            targetColumnId,
+          }
+        : item,
+    ),
+  }
+  selection.value = { kind: 'relation', relationId: rel.id }
+  commit()
+}
+
 function onConfirmRelation(payload: {
   type: SchemaRelationType
   onDelete: SchemaReferentialAction
@@ -730,7 +774,6 @@ function onConfirmRelation(payload: {
       relations: [...schema.value.relations, relation],
     }
     selection.value = { kind: 'relation', relationId: relation.id }
-    sidePanel.value = 'relation'
     relationDraft.visible = false
     commit()
     return
@@ -778,7 +821,6 @@ function onConfirmRelation(payload: {
     relations: [...schema.value.relations, relation],
   }
   selection.value = { kind: 'relation', relationId: relation.id }
-  sidePanel.value = 'relation'
   relationDraft.visible = false
   commit()
 }
@@ -804,7 +846,6 @@ function onEdgeClick({ edge }: EdgeMouseEvent) {
       : undefined)
   if (!rel) return
   selection.value = { kind: 'relation', relationId: rel.id }
-  sidePanel.value = 'relation'
 }
 
 async function onCopyJson() {
@@ -881,6 +922,7 @@ defineExpose({
 
 .schema-flow :deep(.vue-flow__node-schema-table) {
   padding: 0;
+  overflow: visible;
   border: none;
   border-radius: 0;
   background: transparent;
@@ -890,7 +932,7 @@ defineExpose({
 
 .schema-flow :deep(.vue-flow__edge-text) {
   font-size: 11px;
-  fill: var(--text-color-secondary);
+  fill: var(--primary-color);
 }
 
 .schema-flow :deep(.vue-flow__edge-textbg) {
@@ -899,18 +941,13 @@ defineExpose({
 
 .schema-flow :deep(.vue-flow__edge-path),
 .schema-flow :deep(.vue-flow__connection-path) {
-  stroke: var(--text-color-secondary);
-}
-
-.schema-flow :deep(.vue-flow__edge.selected .vue-flow__edge-path),
-.schema-flow :deep(.vue-flow__edge.animated .vue-flow__edge-path) {
   stroke: var(--primary-color);
 }
 
 .schema-flow :deep(.vue-flow__arrowhead polyline),
 .schema-flow :deep(.vue-flow__edge marker path) {
-  fill: var(--text-color-secondary);
-  stroke: var(--text-color-secondary);
+  fill: var(--primary-color);
+  stroke: var(--primary-color);
 }
 
 .schema-flow :deep(.vue-flow__controls) {

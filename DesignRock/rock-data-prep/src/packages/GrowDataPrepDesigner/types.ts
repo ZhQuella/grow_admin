@@ -1,34 +1,83 @@
-import type { DataPrepDatabaseSchema } from '../../core/schemaTypes'
+/**
+ * 与 `@grow-admin-rock/schema-designer` 的 DatabaseSchema 结构契合。
+ * 刻意不从 schema-designer 运行时导入，避免 mock(esbuild) 拉入 .vue。
+ */
 
-export type {
-  DataPrepColumnType,
-  DataPrepMysqlColumnType,
-  DataPrepSchemaColumn,
-  DataPrepSchemaTable,
-  DataPrepSchemaRelation,
-  DataPrepDatabaseSchema,
-} from '../../core/schemaTypes'
+export type DataPrepColumnType =
+  | 'SMALLINT'
+  | 'INTEGER'
+  | 'BIGINT'
+  | 'NUMERIC'
+  | 'REAL'
+  | 'DOUBLE PRECISION'
+  | 'VARCHAR'
+  | 'CHAR'
+  | 'TEXT'
+  | 'DATE'
+  | 'TIME'
+  | 'TIMESTAMP'
+  | 'TIMESTAMPTZ'
+  | 'BOOLEAN'
+  | 'JSON'
+  | 'JSONB'
+  | 'BYTEA'
+  | 'UUID'
 
-/** 聚合 / 计算方式（Phase 1） */
-export type DataPrepAgg =
-  | 'sum'
-  | 'avg'
-  | 'count'
-  | 'count_distinct'
-  | 'max'
-  | 'min'
-  /** 占比：本组求和 / 全部组合计 */
-  | 'ratio'
-  /** 累计：同系列按时间维度累加求和 */
-  | 'running_sum'
-  /** 同比：(本期 - 去年同期) / 去年同期；需时间类维度 */
-  | 'yoy'
-  /** 环比：(本期 - 上期) / 上期；需时间类维度，否则按排序相邻行 */
-  | 'mom'
-  /** 同比差值：本期 - 去年同期 */
-  | 'yoy_diff'
-  /** 环比差值：本期 - 上期 */
-  | 'mom_diff'
+/** @deprecated 使用 DataPrepColumnType */
+export type DataPrepMysqlColumnType = DataPrepColumnType
+
+export type DataPrepSchemaColumn = {
+  id: string
+  name: string
+  type: DataPrepColumnType
+  length?: number | null
+  scale?: number | null
+  primaryKey: boolean
+  autoIncrement: boolean
+  unique: boolean
+  nullable: boolean
+  indexed: boolean
+  defaultValue?: string | null
+  comment?: string
+}
+
+export type DataPrepSchemaTable = {
+  id: string
+  name: string
+  comment?: string
+  columns: DataPrepSchemaColumn[]
+  position: { x: number; y: number }
+  isJunction?: boolean
+}
+
+export type DataPrepSchemaRelation = {
+  id: string
+  type: 'one-to-one' | 'one-to-many' | 'many-to-many'
+  sourceTableId: string
+  sourceColumnId: string
+  targetTableId: string
+  targetColumnId: string
+  junctionTableId?: string
+  junctionSourceColumnId?: string
+  junctionTargetColumnId?: string
+  onDelete: 'CASCADE' | 'SET NULL' | 'RESTRICT' | 'NO ACTION'
+  onUpdate: 'CASCADE' | 'SET NULL' | 'RESTRICT' | 'NO ACTION'
+}
+
+export type DataPrepDatabaseSchema = {
+  version: 1
+  dialect: 'postgresql'
+  name: string
+  comment?: string
+  tables: DataPrepSchemaTable[]
+  relations: DataPrepSchemaRelation[]
+  queries?: Array<{
+    id: string
+    name: string
+    description?: string
+    sql: string
+  }>
+}
 
 export type DataPrepJoinType = 'inner' | 'left' | 'right'
 
@@ -67,26 +116,24 @@ export type DataPrepJoin = {
   on: DataPrepJoinOnCondition[]
 }
 
-export type DataPrepDimension = {
+/** 一条「维度 / 度量」配置：多个维度字段 + 一条公式度量 */
+export type DataPrepMetricConfig = {
   id: string
-  name: string
-  /** alias.column */
-  field: string
-  dataType?: string
-}
-
-export type DataPrepMeasure = {
-  id: string
-  name: string
-  /** alias.column */
-  field: string
-  /**
-   * 查询结果行对象中的字段名。
-   * 缺省时回退为 `id`。
-   */
-  outputKey?: string
-  agg: DataPrepAgg
-  format?: 'number' | 'percent' | 'currency'
+  /** 维度字段（alias.column），顺序即分组顺序 */
+  dimensionFields: string[]
+  measure: {
+    name: string
+    /**
+     * 查询结果行对象中的字段名。
+     * 缺省时回退为配置 id。
+     */
+    outputKey?: string
+    /**
+     * 公式文本。字段引用写作 `[alias.column]`，
+     * 支持 SUM/AVG/COUNT/MAX/MIN 及四则运算、IF/AND/OR/NOT。
+     */
+    formula: string
+  }
 }
 
 /** 数据准备 Dataset（分析模型） */
@@ -102,9 +149,14 @@ export type DataPrepDataset = {
    */
   schemaRef?: DataPrepSchemaRef
   sources: DataPrepSource[]
+  /**
+   * 主表来源 id（sources[].id）。
+   * 缺省时取 sources[0]；添加的第一张表会自动设为主表。
+   */
+  primarySourceId?: string
   joins: DataPrepJoin[]
-  dimensions: DataPrepDimension[]
-  measures: DataPrepMeasure[]
+  /** 维度/度量配置列表（每项：多维度 + 单度量） */
+  metricConfigs: DataPrepMetricConfig[]
   updatedAt?: string
 }
 
@@ -113,8 +165,8 @@ export type DatasetQueryRequest = {
   /** 完整定义（优先）或仅 id（由存储解析） */
   dataset?: DataPrepDataset
   datasetId?: string
-  dimensionIds?: string[]
-  measureIds?: string[]
+  /** 指定配置 id；缺省为全部（按相同维度集合合并度量列） */
+  configIds?: string[]
   limit?: number
 }
 
@@ -129,20 +181,20 @@ export type DatasetQueryResult = {
   rows: Record<string, unknown>[]
 }
 
-/** Mock Schema 列表项（结构与 DatabaseSchema 契合，多 id 便于接口） */
+/** schemaId + 表名 → 行数据（本地 demo / 预览） */
+export type DataPrepTableRowsMap = Record<string, Record<string, unknown>[]>
+
 export type DataPrepSchemaListItem = {
   id: string
   schema: DataPrepDatabaseSchema
 }
 
-export type DataPrepSchemaBundle = DataPrepSchemaListItem & {
-  /** 表名 → 明细行（前端 / mock 聚合用） */
+export type DataPrepSchemaBundle = {
+  id: string
+  schema: DataPrepDatabaseSchema
   tableRows: Record<string, Record<string, unknown>[]>
 }
 
-/** 跨建模行数据：key = `${schemaId}::${tableName}` */
-export type DataPrepTableRowsMap = Record<string, Record<string, unknown>[]>
-
-export function sourceTableRowsKey(schemaId: string, tableName: string): string {
+export function sourceTableRowsKey(schemaId: string, tableName: string) {
   return `${schemaId}::${tableName}`
 }

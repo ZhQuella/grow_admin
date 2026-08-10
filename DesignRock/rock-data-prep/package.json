@@ -4,11 +4,10 @@
   "main": "./index.ts",
   "module": "./index.ts",
   "exports": {
-    ".": "./index.ts",
-    "./core": "./src/core/index.ts"
+    ".": "./index.ts"
   },
   "license": "MIT",
-  "description": "Grow Admin 数据准备（Dataset）：可视化维度/度量与单表聚合",
+  "description": "Grow Admin 数据准备（Dataset）：可视化表关联与维度/度量公式配置",
   "scripts": {
     "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
   },

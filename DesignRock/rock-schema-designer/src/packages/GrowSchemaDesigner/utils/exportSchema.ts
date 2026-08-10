@@ -1,4 +1,4 @@
-import type { DatabaseSchema } from './types'
+import type { DatabaseSchema } from '../types'
 
 /** 导出可持久化的 JSON schema（深拷贝，去掉运行态噪声） */
 export function exportSchemaJson(schema: DatabaseSchema, pretty = true): string {

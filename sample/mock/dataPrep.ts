@@ -4,11 +4,11 @@ import { resultError, resultSuccess } from '@grow-admin-rock/mock/util'
 /**
  * 直接引用无 Vue 的纯 TS 文件，避免 vite-plugin-mock(esbuild) 解析组件入口失败。
  */
-import { DEMO_SCHEMA_BUNDLES } from '../../DesignRock/rock-data-prep/src/packages/GrowDataPrepDesigner/demoSchema'
+import { DEMO_SCHEMA_BUNDLES } from '../../DesignRock/rock-data-prep/src/packages/GrowDataPrepDesigner/static/demoSchema'
 import {
   mergeSchemaBundlesToRowsMap,
   queryDatasetLocal,
-} from '../../DesignRock/rock-data-prep/src/packages/GrowDataPrepDesigner/queryDataset'
+} from '../../DesignRock/rock-data-prep/src/packages/GrowDataPrepDesigner/utils/queryDataset'
 import type {
   DataPrepDataset,
   DatasetQueryRequest,
@@ -100,8 +100,7 @@ const mocks: MockMethod[] = [
       try {
         const tableRows = mergeSchemaBundlesToRowsMap(bundles)
         const result = queryDatasetLocal(dataset, tableRows, {
-          dimensionIds: request.dimensionIds,
-          measureIds: request.measureIds,
+          configIds: request.configIds,
           limit: request.limit,
         })
         return resultSuccess(result)

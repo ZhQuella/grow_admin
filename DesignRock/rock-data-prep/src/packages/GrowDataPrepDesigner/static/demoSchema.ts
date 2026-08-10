@@ -1,4 +1,4 @@
-import type { DataPrepDatabaseSchema, DataPrepSchemaBundle } from './types'
+import type { DataPrepDatabaseSchema, DataPrepSchemaBundle } from '../types'
 
 const REGION_COL = 'col_region'
 const AMOUNT_COL = 'col_amount'
