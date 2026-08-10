@@ -311,11 +311,11 @@ import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 import '@vue-flow/minimap/dist/style.css'
-import type { DataPrepDatabaseSchema, DataPrepSchemaTable } from './types'
-import SourceTableNode from './components/SourceTableNode.vue'
-import DataPrepConfigPanel from './components/DataPrepConfigPanel.vue'
-import DataPreviewDrawer from './components/DataPreviewDrawer.vue'
-import JoinConfigDrawer from './components/JoinConfigDrawer.vue'
+import type { DataPrepDatabaseSchema, DataPrepSchemaTable } from './model/types'
+import SourceTableNode from './components/canvas/SourceTableNode.vue'
+import DataPrepConfigPanel from './components/config/DataPrepConfigPanel.vue'
+import DataPreviewDrawer from './components/preview/DataPreviewDrawer.vue'
+import JoinConfigDrawer from './components/canvas/JoinConfigDrawer.vue'
 import {
   createDataPrepDataset,
   createDataPrepJoin,
@@ -325,9 +325,9 @@ import {
   ensureUniqueMeasureOutputKey,
   fieldKey,
   upsertSchemaRef,
-} from './factories'
-import { fetchDataPrepSchemaBundle, fetchDataPrepSchemas, queryDataPrepDataset, saveDataPrepDataset } from './api'
-import { mergeSchemaBundlesToRowsMap } from './queryDataset'
+} from './model/factories'
+import { fetchDataPrepSchemaBundle, fetchDataPrepSchemas, queryDataPrepDataset, saveDataPrepDataset } from './data/api'
+import { mergeSchemaBundlesToRowsMap } from './query/queryDataset'
 import type {
   DataPrepDataset,
   DataPrepJoin,
@@ -338,7 +338,7 @@ import type {
   DataPrepSchemaBundle,
   DataPrepSchemaListItem,
   DatasetQueryResult,
-} from './types'
+} from './model/types'
 
 defineOptions({
   name: 'GrowDataPrepDesigner',

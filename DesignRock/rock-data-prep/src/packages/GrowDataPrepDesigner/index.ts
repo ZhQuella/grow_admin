@@ -22,8 +22,8 @@ export type {
   DataPrepSchemaRelation,
   DataPrepColumnType,
   DataPrepMysqlColumnType,
-} from './types'
-export { sourceTableRowsKey } from './types'
+} from './model/types'
+export { sourceTableRowsKey } from './model/types'
 export {
   createDataPrepDataset,
   createDataPrepMetricConfig,
@@ -38,24 +38,24 @@ export {
   ensureUniqueAlias,
   upsertSchemaRef,
   normalizeSchemaRefs,
-} from './factories'
+} from './model/factories'
 export {
   createDemoSalesSchemaBundle,
   createDemoRegionSchemaBundle,
   DEMO_SCHEMA_BUNDLES,
-} from './demoSchema'
+} from './data/demoSchema'
 export {
   queryDatasetLocal,
   previewMetricConfig,
   toCartesianSeriesPayload,
   mergeSchemaBundlesToRowsMap,
-} from './queryDataset'
+} from './query/queryDataset'
 export {
   evaluateFormulaOnGroup,
   extractFormulaFields,
   FORMULA_FUNCTION_DOCS,
-} from './formulaEval'
-export type { FormulaFunctionDoc } from './formulaEval'
+} from './query/formulaEval'
+export type { FormulaFunctionDoc } from './query/formulaEval'
 export {
   DATA_PREP_DATASETS_STORAGE_KEY,
   loadDatasetsFromStorage,
@@ -63,7 +63,7 @@ export {
   upsertDatasetInStorage,
   removeDatasetFromStorage,
   getDatasetFromStorage,
-} from './datasetStorage'
+} from './data/datasetStorage'
 export {
   fetchDataPrepSchemas,
   fetchDataPrepSchemaBundle,
@@ -71,5 +71,5 @@ export {
   saveDataPrepDataset,
   deleteDataPrepDataset,
   queryDataPrepDataset,
-} from './api'
-export { ensureDemoDataset } from './ensureDemoDataset'
+} from './data/api'
+export { ensureDemoDataset } from './data/ensureDemoDataset'

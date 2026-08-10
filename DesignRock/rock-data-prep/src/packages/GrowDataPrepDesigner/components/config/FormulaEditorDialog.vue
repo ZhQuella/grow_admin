@@ -125,9 +125,9 @@ import { computed, nextTick, ref, watch } from 'vue'
 import {
   FORMULA_FUNCTION_DOCS,
   type FormulaFunctionDoc,
-} from '../formulaEval'
-import type { DataPrepDataset, DataPrepTableRowsMap } from '../types'
-import { previewMetricConfig } from '../queryDataset'
+} from '../../query/formulaEval'
+import type { DataPrepDataset, DataPrepTableRowsMap } from '../../model/types'
+import { previewMetricConfig } from '../../query/queryDataset'
 import FormulaChipInput from './FormulaChipInput.vue'
 
 defineOptions({

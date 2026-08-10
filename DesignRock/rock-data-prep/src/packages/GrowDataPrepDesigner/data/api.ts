@@ -4,7 +4,7 @@ import type {
   DataPrepSchemaListItem,
   DatasetQueryRequest,
   DatasetQueryResult,
-} from './types'
+} from '../model/types'
 import {
   getDatasetFromStorage,
   loadDatasetsFromStorage,

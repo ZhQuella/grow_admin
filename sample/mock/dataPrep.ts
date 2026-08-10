@@ -4,15 +4,15 @@ import { resultError, resultSuccess } from '@grow-admin-rock/mock/util'
 /**
  * 直接引用无 Vue 的纯 TS 文件，避免 vite-plugin-mock(esbuild) 解析组件入口失败。
  */
-import { DEMO_SCHEMA_BUNDLES } from '../../DesignRock/rock-data-prep/src/packages/GrowDataPrepDesigner/demoSchema'
+import { DEMO_SCHEMA_BUNDLES } from '../../DesignRock/rock-data-prep/src/packages/GrowDataPrepDesigner/data/demoSchema'
 import {
   mergeSchemaBundlesToRowsMap,
   queryDatasetLocal,
-} from '../../DesignRock/rock-data-prep/src/packages/GrowDataPrepDesigner/queryDataset'
+} from '../../DesignRock/rock-data-prep/src/packages/GrowDataPrepDesigner/query/queryDataset'
 import type {
   DataPrepDataset,
   DatasetQueryRequest,
-} from '../../DesignRock/rock-data-prep/src/packages/GrowDataPrepDesigner/types'
+} from '../../DesignRock/rock-data-prep/src/packages/GrowDataPrepDesigner/model/types'
 
 /** 会话级 Dataset 存储（与前端 localStorage 互补） */
 const datasetStore = new Map<string, DataPrepDataset>()

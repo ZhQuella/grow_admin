@@ -26,9 +26,9 @@ export type {
   DataPrepSchemaListItem,
   DataPrepSchemaBundle,
   DataPrepTableRowsMap,
-} from '../packages/GrowDataPrepDesigner/types'
+} from '../packages/GrowDataPrepDesigner/model/types'
 
-export { sourceTableRowsKey } from '../packages/GrowDataPrepDesigner/types'
+export { sourceTableRowsKey } from '../packages/GrowDataPrepDesigner/model/types'
 
 export {
   createDataPrepDataset,
@@ -44,26 +44,26 @@ export {
   ensureUniqueAlias,
   upsertSchemaRef,
   normalizeSchemaRefs,
-} from '../packages/GrowDataPrepDesigner/factories'
+} from '../packages/GrowDataPrepDesigner/model/factories'
 
 export {
   createDemoSalesSchemaBundle,
   createDemoRegionSchemaBundle,
   DEMO_SCHEMA_BUNDLES,
-} from '../packages/GrowDataPrepDesigner/demoSchema'
+} from '../packages/GrowDataPrepDesigner/data/demoSchema'
 
 export {
   queryDatasetLocal,
   previewMetricConfig,
   toCartesianSeriesPayload,
   mergeSchemaBundlesToRowsMap,
-} from '../packages/GrowDataPrepDesigner/queryDataset'
+} from '../packages/GrowDataPrepDesigner/query/queryDataset'
 
 export {
   evaluateFormulaOnGroup,
   extractFormulaFields,
   FORMULA_FUNCTION_DOCS,
-} from '../packages/GrowDataPrepDesigner/formulaEval'
+} from '../packages/GrowDataPrepDesigner/query/formulaEval'
 
 export {
   DATA_PREP_DATASETS_STORAGE_KEY,
@@ -72,4 +72,4 @@ export {
   upsertDatasetInStorage,
   removeDatasetFromStorage,
   getDatasetFromStorage,
-} from '../packages/GrowDataPrepDesigner/datasetStorage'
+} from '../packages/GrowDataPrepDesigner/data/datasetStorage'

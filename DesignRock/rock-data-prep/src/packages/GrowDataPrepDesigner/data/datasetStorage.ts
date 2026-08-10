@@ -1,4 +1,4 @@
-import type { DataPrepDataset } from './types'
+import type { DataPrepDataset } from '../model/types'
 
 export const DATA_PREP_DATASETS_STORAGE_KEY = 'grow-admin:data-prep:datasets:v2'
 

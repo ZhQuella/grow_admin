@@ -3,10 +3,10 @@ import {
   createDataPrepMetricConfig,
   createDataPrepSource,
   fieldKey,
-} from './factories'
+} from '../model/factories'
 import { createDemoSalesSchemaBundle } from './demoSchema'
 import { loadDatasetsFromStorage, upsertDatasetInStorage } from './datasetStorage'
-import type { DataPrepDataset } from './types'
+import type { DataPrepDataset } from '../model/types'
 
 /** 若本地无数据集，写入一份可直接绑报表的单表示例 */
 export function ensureDemoDataset(): DataPrepDataset[] {

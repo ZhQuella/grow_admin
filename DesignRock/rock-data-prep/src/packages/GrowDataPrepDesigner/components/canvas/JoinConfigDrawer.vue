@@ -146,7 +146,7 @@ import type {
   DataPrepJoinOnLogic,
   DataPrepJoinType,
   DataPrepSource,
-} from '../types'
+} from '../../model/types'
 
 defineOptions({
   name: 'DataPrepJoinConfigDrawer',

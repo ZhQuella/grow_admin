@@ -7,9 +7,9 @@ import type {
   DataPrepTableRowsMap,
   DatasetQueryRequest,
   DatasetQueryResult,
-} from './types'
-import { sourceTableRowsKey } from './types'
-import { measureOutputKey, parseFieldKey } from './factories'
+} from '../model/types'
+import { sourceTableRowsKey } from '../model/types'
+import { measureOutputKey, parseFieldKey } from '../model/factories'
 import { evaluateFormulaOnGroup } from './formulaEval'
 
 export function mergeSchemaBundlesToRowsMap(

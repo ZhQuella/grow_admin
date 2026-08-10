@@ -1,4 +1,4 @@
-import type { DataPrepDatabaseSchema } from '../../core/schemaTypes'
+import type { DataPrepDatabaseSchema } from '../../../core/schemaTypes'
 
 export type {
   DataPrepColumnType,
@@ -7,7 +7,7 @@ export type {
   DataPrepSchemaTable,
   DataPrepSchemaRelation,
   DataPrepDatabaseSchema,
-} from '../../core/schemaTypes'
+} from '../../../core/schemaTypes'
 
 export type DataPrepJoinType = 'inner' | 'left' | 'right'
 
