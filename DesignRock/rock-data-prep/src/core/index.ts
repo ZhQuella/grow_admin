@@ -12,15 +12,13 @@ export type {
 } from './schemaTypes'
 
 export type {
-  DataPrepAgg,
   DataPrepJoinType,
   DataPrepJoinOnLogic,
   DataPrepJoinOnCondition,
   DataPrepSchemaRef,
   DataPrepSource,
   DataPrepJoin,
-  DataPrepDimension,
-  DataPrepMeasure,
+  DataPrepMetricConfig,
   DataPrepDataset,
   DatasetQueryRequest,
   DatasetQueryColumn,
@@ -33,16 +31,8 @@ export type {
 export { sourceTableRowsKey } from '../packages/GrowDataPrepDesigner/types'
 
 export {
-  DATA_PREP_AGG_OPTIONS,
-  DATA_PREP_AGG_LABELS,
-  getDataPrepAggDescription,
-  isCompareAgg,
-  isCompareRateAgg,
-  isDerivedAgg,
-  isPercentDisplayAgg,
   createDataPrepDataset,
-  createDataPrepDimension,
-  createDataPrepMeasure,
+  createDataPrepMetricConfig,
   createDataPrepSource,
   createDataPrepJoin,
   measureOutputKey,
@@ -50,11 +40,11 @@ export {
   ensureUniqueMeasureOutputKey,
   fieldKey,
   parseFieldKey,
+  formulaFieldToken,
   ensureUniqueAlias,
   upsertSchemaRef,
   normalizeSchemaRefs,
 } from '../packages/GrowDataPrepDesigner/factories'
-export type { DataPrepAggOption } from '../packages/GrowDataPrepDesigner/factories'
 
 export {
   createDemoSalesSchemaBundle,
@@ -64,9 +54,16 @@ export {
 
 export {
   queryDatasetLocal,
+  previewMetricConfig,
   toCartesianSeriesPayload,
   mergeSchemaBundlesToRowsMap,
 } from '../packages/GrowDataPrepDesigner/queryDataset'
+
+export {
+  evaluateFormulaOnGroup,
+  extractFormulaFields,
+  FORMULA_FUNCTION_DOCS,
+} from '../packages/GrowDataPrepDesigner/formulaEval'
 
 export {
   DATA_PREP_DATASETS_STORAGE_KEY,

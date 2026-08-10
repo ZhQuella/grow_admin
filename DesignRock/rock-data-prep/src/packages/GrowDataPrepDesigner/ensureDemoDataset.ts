@@ -1,7 +1,6 @@
 import {
   createDataPrepDataset,
-  createDataPrepDimension,
-  createDataPrepMeasure,
+  createDataPrepMetricConfig,
   createDataPrepSource,
   fieldKey,
 } from './factories'
@@ -26,34 +25,35 @@ export function ensureDemoDataset(): DataPrepDataset[] {
     position: { x: 160, y: 120 },
   })
 
+  const amountField = fieldKey(source.alias, 'amount')
+  const qtyField = fieldKey(source.alias, 'quantity')
+  const regionField = fieldKey(source.alias, 'region')
+
   const dataset = createDataPrepDataset({
     id: 'dataset_demo_orders_region',
     name: '订单区域汇总',
     description: 'Demo：按区域汇总订单金额 / 数量',
     schemaRefs: [{ schemaId: bundle.id, schemaName: bundle.schema.name }],
     sources: [source],
-    dimensions: [
-      createDataPrepDimension({
-        id: 'dim_region',
-        name: '销售区域',
-        field: fieldKey(source.alias, 'region'),
-        dataType: 'VARCHAR',
+    primarySourceId: source.id,
+    metricConfigs: [
+      createDataPrepMetricConfig({
+        id: 'cfg_amount',
+        dimensionFields: [regionField],
+        measure: {
+          name: '订单金额',
+          outputKey: 'amount',
+          formula: `SUM([${amountField}])`,
+        },
       }),
-    ],
-    measures: [
-      createDataPrepMeasure({
-        id: 'mea_amount',
-        name: '订单金额',
-        field: fieldKey(source.alias, 'amount'),
-        outputKey: 'amount',
-        agg: 'sum',
-      }),
-      createDataPrepMeasure({
-        id: 'mea_qty',
-        name: '数量',
-        field: fieldKey(source.alias, 'quantity'),
-        outputKey: 'quantity',
-        agg: 'sum',
+      createDataPrepMetricConfig({
+        id: 'cfg_qty',
+        dimensionFields: [regionField],
+        measure: {
+          name: '数量',
+          outputKey: 'quantity',
+          formula: `SUM([${qtyField}])`,
+        },
       }),
     ],
   })

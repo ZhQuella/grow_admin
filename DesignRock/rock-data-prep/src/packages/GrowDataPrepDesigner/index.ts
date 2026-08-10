@@ -2,15 +2,13 @@ import GrowDataPrepDesigner from './GrowDataPrepDesigner.vue'
 
 export { GrowDataPrepDesigner }
 export type {
-  DataPrepAgg,
   DataPrepJoinType,
   DataPrepJoinOnLogic,
   DataPrepJoinOnCondition,
   DataPrepSchemaRef,
   DataPrepSource,
   DataPrepJoin,
-  DataPrepDimension,
-  DataPrepMeasure,
+  DataPrepMetricConfig,
   DataPrepDataset,
   DatasetQueryRequest,
   DatasetQueryColumn,
@@ -27,16 +25,8 @@ export type {
 } from './types'
 export { sourceTableRowsKey } from './types'
 export {
-  DATA_PREP_AGG_OPTIONS,
-  DATA_PREP_AGG_LABELS,
-  getDataPrepAggDescription,
-  isCompareAgg,
-  isCompareRateAgg,
-  isDerivedAgg,
-  isPercentDisplayAgg,
   createDataPrepDataset,
-  createDataPrepDimension,
-  createDataPrepMeasure,
+  createDataPrepMetricConfig,
   createDataPrepSource,
   createDataPrepJoin,
   measureOutputKey,
@@ -44,11 +34,11 @@ export {
   ensureUniqueMeasureOutputKey,
   fieldKey,
   parseFieldKey,
+  formulaFieldToken,
   ensureUniqueAlias,
   upsertSchemaRef,
   normalizeSchemaRefs,
 } from './factories'
-export type { DataPrepAggOption } from './factories'
 export {
   createDemoSalesSchemaBundle,
   createDemoRegionSchemaBundle,
@@ -56,9 +46,16 @@ export {
 } from './demoSchema'
 export {
   queryDatasetLocal,
+  previewMetricConfig,
   toCartesianSeriesPayload,
   mergeSchemaBundlesToRowsMap,
 } from './queryDataset'
+export {
+  evaluateFormulaOnGroup,
+  extractFormulaFields,
+  FORMULA_FUNCTION_DOCS,
+} from './formulaEval'
+export type { FormulaFunctionDoc } from './formulaEval'
 export {
   DATA_PREP_DATASETS_STORAGE_KEY,
   loadDatasetsFromStorage,

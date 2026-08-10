@@ -100,8 +100,7 @@ const mocks: MockMethod[] = [
       try {
         const tableRows = mergeSchemaBundlesToRowsMap(bundles)
         const result = queryDatasetLocal(dataset, tableRows, {
-          dimensionIds: request.dimensionIds,
-          measureIds: request.measureIds,
+          configIds: request.configIds,
           limit: request.limit,
         })
         return resultSuccess(result)

@@ -1,14 +1,31 @@
 <template>
-  <GrowDrawer
-    :model-value="visible"
-    :title="mode === 'edit' ? '编辑关联' : '添加关联'"
-    class="data-prep-join-drawer"
-    direction="rtl"
-    size="440px"
-    :destroy-on-close="true"
-    @update:model-value="onVisible"
+  <aside
+    v-if="visible"
+    class="absolute bottom-2.5 right-2.5 top-2.5 z-30 box-border flex w-[420px] min-h-0 flex-col overflow-hidden rounded-md border border-solid border-border bg-component shadow-card"
+    @click.stop
   >
-    <div class="box-border flex h-full min-h-0 flex-col">
+    <div
+      class="box-border flex h-10 w-full shrink-0 flex-nowrap items-center border-b border-solid border-border py-0 pl-3 pr-2"
+    >
+      <h4
+        class="m-0 min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-[13px] font-semibold leading-[30px] text-text"
+      >
+        {{ mode === 'edit' ? '编辑关联' : '添加关联' }}
+      </h4>
+      <div class="ml-auto flex w-auto shrink-0 flex-nowrap items-center justify-end p-0">
+        <GrowButton
+          text
+          size="small"
+          class="!h-7 !max-w-7 !min-w-7 !w-7 !shrink-0 !p-0 text-text-secondary"
+          title="关闭"
+          @click="onVisible(false)"
+        >
+          <GrowIconify icon="carbon:close" :size="15" />
+        </GrowButton>
+      </div>
+    </div>
+
+    <div class="box-border flex min-h-0 flex-1 flex-col overflow-hidden">
       <GrowScrollbar class="min-h-0 flex-1">
         <div class="box-border px-3 py-3">
           <p class="mb-3 mt-0 text-xs text-text-secondary">
@@ -117,7 +134,7 @@
         </GrowButton>
       </div>
     </div>
-  </GrowDrawer>
+  </aside>
 </template>
 
 <script setup lang="ts">
@@ -310,23 +327,3 @@ function onConfirm() {
   })
 }
 </script>
-
-<style>
-/* Drawer 挂到 body，需非 scoped 才能锁住 body 高度 */
-.data-prep-join-drawer.el-drawer,
-.data-prep-join-drawer.n-drawer {
-  display: flex;
-  flex-direction: column;
-}
-
-.data-prep-join-drawer .el-drawer__body,
-.data-prep-join-drawer .n-drawer-body-content-wrapper {
-  flex: 1 1 auto;
-  height: 0;
-  min-height: 0;
-  padding: 0;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-</style>
