@@ -35,10 +35,9 @@ export type FlowEdgeData = {
   onRemove?: (relationId: string) => void
 }
 
-function edgeStyle(active: boolean) {
+function edgeStyle() {
   return {
-    stroke: active ? 'var(--primary-color)' : 'var(--text-color-secondary)',
-    strokeWidth: active ? 2 : 1.5,
+    stroke: 'var(--primary-color)',
   }
 }
 
@@ -127,15 +126,17 @@ function makeEdge(options: {
     target: options.target,
     targetHandle: options.targetHandle,
     type: 'schema-relation',
-    animated: options.active,
-    style: edgeStyle(options.active),
+    animated: false,
+    style: edgeStyle(),
     markerEnd: {
       type: MarkerType.ArrowClosed,
-      color: options.active ? 'var(--primary-color)' : 'var(--text-color-secondary)',
+      color: 'var(--primary-color)',
     },
     selectable: true,
     deletable: true,
     focusable: true,
+    /** 改接改由自定义端点手柄完成，关闭 Vue Flow 默认偏移手柄 */
+    updatable: false,
     selected: options.active,
     interactionWidth: 24,
     data: {

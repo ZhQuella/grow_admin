@@ -247,6 +247,7 @@
           v-model:nodes="nodes"
           v-model:edges="edges"
           :node-types="nodeTypes"
+          :edge-types="edgeTypes"
           :default-viewport="DEFAULT_VIEWPORT"
           :min-zoom="0.3"
           :max-zoom="1.4"
@@ -313,6 +314,7 @@ import '@vue-flow/controls/dist/style.css'
 import '@vue-flow/minimap/dist/style.css'
 import type { DataPrepDatabaseSchema, DataPrepSchemaTable } from './types'
 import SourceTableNode from './components/canvas/SourceTableNode.vue'
+import JoinEdge from './components/canvas/JoinEdge.vue'
 import DataPrepConfigPanel from './components/config/DataPrepConfigPanel.vue'
 import DataPreviewDrawer from './components/preview/DataPreviewDrawer.vue'
 import JoinConfigDrawer from './components/canvas/JoinConfigDrawer.vue'
@@ -593,6 +595,10 @@ const nodeTypes = {
   prepSource: markRaw(SourceNodeView),
 }
 
+const edgeTypes = {
+  prepJoin: markRaw(JoinEdge),
+}
+
 const nodes = computed<Node[]>({
   get() {
     return dataset.sources.map((source) => {
@@ -628,12 +634,21 @@ const edges = computed<Edge[]>({
   get() {
     return dataset.joins.map((join) => ({
       id: join.id,
+      type: 'prepJoin',
       source: join.leftSourceId,
       target: join.rightSourceId,
-      label: formatJoinEdgeLabel(join),
       animated: false,
       selectable: true,
       style: { stroke: 'var(--primary-color)' },
+      interactionWidth: 24,
+      selected: joinDrawer.joinId === join.id && joinDrawer.visible,
+      data: {
+        joinId: join.id,
+        label: formatJoinEdgeLabel(join),
+        active: joinDrawer.joinId === join.id && joinDrawer.visible,
+        onSelect: (joinId: string) => openEditJoin(joinId),
+        onRemove: (joinId: string) => removeJoin(joinId),
+      },
     }))
   },
   set() {
