@@ -13,6 +13,7 @@
     "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
   },
   "dependencies": {
+    "@grow-admin-rock/data-clean": "workspace:*",
     "@grow-admin-rock/data-prep": "workspace:*",
     "@grow-admin-rock/designer": "workspace:*",
     "@grow-admin-rock/report-designer": "workspace:*",

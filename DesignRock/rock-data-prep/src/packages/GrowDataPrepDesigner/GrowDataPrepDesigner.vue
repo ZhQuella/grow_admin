@@ -325,7 +325,7 @@
           @node-drag-stop="onNodeDragStop"
           @connect="onConnect"
           @edge-click="onEdgeClick"
-          @pane-click="selectedSourceId = null"
+          @pane-click="onPaneClick"
         >
           <Background :gap="16" pattern-color="var(--layout-border-color)" />
           <Controls position="bottom-left" />
@@ -877,6 +877,17 @@ async function confirmAddTable(schemaId: string, tableId: string) {
   }
 
   selectedSourceId.value = source.id
+}
+
+function onPaneClick() {
+  selectedSourceId.value = null
+  closeJoinDrawer()
+}
+
+function closeJoinDrawer() {
+  joinDrawer.visible = false
+  joinDrawer.joinId = null
+  joinDrawer.preset = null
 }
 
 function openCreateJoin(preset?: {

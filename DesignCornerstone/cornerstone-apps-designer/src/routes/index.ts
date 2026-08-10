@@ -35,6 +35,8 @@ const DESIGNER_COMPONENTS: Record<string, GrowRouteComponent> = {
     import('../pages/schema-designer-playground/schema-designer-playground.vue'),
   DataPrepPlayground: () =>
     import('../pages/data-prep-playground/data-prep-playground.vue'),
+  DataCleanPlayground: () =>
+    import('../pages/data-clean-playground/data-clean-playground.vue'),
 }
 
 function resolveDesignerComponent(config: DesignerRouteConfig): GrowRouteComponent {

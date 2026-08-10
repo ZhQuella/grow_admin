@@ -46,6 +46,15 @@ export const DESIGNER_MENU_LIST: DesignerMenuApiItem[] = [
         isKeepAlive: true,
         sort: 40,
       },
+      {
+        name: 'DataCleanPlayground',
+        title: '数据清洗',
+        icon: 'ant-design:clear-outlined',
+        menuType: MenuTypeEnum.MENU,
+        isVisible: true,
+        isKeepAlive: true,
+        sort: 50,
+      },
     ],
   },
 ]
