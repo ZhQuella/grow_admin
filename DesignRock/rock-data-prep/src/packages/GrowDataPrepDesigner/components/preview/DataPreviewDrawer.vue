@@ -11,7 +11,7 @@
     @update:model-value="onVisible"
   >
     <div class="box-border flex h-full min-h-0 flex-col px-3 py-2">
-      <div v-if="error" class="py-6 text-center text-xs text-red-500">{{ error }}</div>
+      <div v-if="error" class="prep-preview-error">{{ error }}</div>
       <div v-else-if="loading" class="py-6 text-center text-xs text-text-secondary">加载中…</div>
       <GrowTable
         v-else-if="tableColumns.length"
@@ -31,7 +31,7 @@
         />
       </GrowTable>
       <div v-else class="py-6 text-center text-xs text-text-secondary">
-        暂无数据，请先配置维度或度量
+        {{ emptyHint }}
       </div>
     </div>
   </GrowDrawer>
@@ -89,6 +89,14 @@ const tableData = computed(() =>
   }),
 )
 
+const emptyHint = computed(() => {
+  if (!props.result) return '暂无预览结果'
+  if (!(props.result.columns || []).length) {
+    return '暂无输出列。若已在「数据输出」勾选字段，请检查表关联是否配置完整，或刷新后重试'
+  }
+  return '暂无数据行'
+})
+
 function onVisible(value: boolean) {
   emit('update:visible', value)
   if (!value) emit('close')
@@ -98,6 +106,13 @@ function onVisible(value: boolean) {
 <style scoped>
 .prep-preview-table {
   width: 100%;
+}
+
+.prep-preview-error {
+  padding: 24px 0;
+  color: var(--error-color);
+  font-size: 12px;
+  text-align: center;
 }
 </style>
 

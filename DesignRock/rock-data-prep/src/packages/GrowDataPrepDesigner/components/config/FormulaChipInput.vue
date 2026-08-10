@@ -300,7 +300,7 @@ defineExpose({
   padding: 12px 14px;
   border: 1px solid var(--layout-border-color, var(--border-color));
   border-radius: 6px;
-  background: var(--component-background-color, #fff);
+  background: var(--component-background-color);
   color: var(--text-color);
   font-size: 13px;
   line-height: 1.8;

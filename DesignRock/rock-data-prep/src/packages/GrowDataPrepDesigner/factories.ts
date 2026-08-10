@@ -134,6 +134,7 @@ export function createDataPrepDataset(
     metricConfigs: (patch.metricConfigs ?? []).map((item) =>
       createDataPrepMetricConfig(item),
     ),
+    outputFields: [...(patch.outputFields ?? [])],
     updatedAt: patch.updatedAt ?? new Date().toISOString(),
   }
 }

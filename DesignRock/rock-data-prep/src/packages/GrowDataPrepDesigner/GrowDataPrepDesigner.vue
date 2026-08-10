@@ -16,15 +16,19 @@
         />
       </div>
       <div class="flex shrink-0 items-center gap-2">
-        <GrowButton
-          size="small"
-          :disabled="!dataset.metricConfigs.length"
-          :loading="previewLoading"
-          @click="onPreview"
-        >
-          <GrowIconify icon="carbon:data-view" :size="14" />
-          预览数据
-        </GrowButton>
+        <GrowTooltip :content="previewTip" placement="bottom">
+          <span class="inline-flex">
+            <GrowButton
+              size="small"
+              :disabled="!canPreview"
+              :loading="previewLoading"
+              @click="onPreview"
+            >
+              <GrowIconify icon="carbon:data-view" :size="14" />
+              预览数据
+            </GrowButton>
+          </span>
+        </GrowTooltip>
         <GrowButton class="!ml-0" size="small" type="primary" :loading="saving" @click="onSave">
           <GrowIconify icon="carbon:save" :size="14" />
           保存
@@ -137,6 +141,15 @@
                     : '暂无可用建模'
               }}
             </div>
+          </div>
+          <div
+            v-else-if="sidePanel === 'output'"
+            class="box-border h-full min-h-0 overflow-hidden"
+          >
+            <OutputFieldsPanel
+              v-model="dataset.outputFields"
+              :candidates="outputFieldCandidates"
+            />
           </div>
           <div
             v-else-if="sidePanel === 'fields'"
@@ -288,6 +301,7 @@
               <div class="mt-1">来源表：{{ dataset.sources.length }}</div>
               <div class="mt-1">Join：{{ dataset.joins.length }}</div>
               <div class="mt-1">配置：{{ dataset.metricConfigs.length }}</div>
+              <div class="mt-1">输出字段：{{ (dataset.outputFields || []).length }}</div>
             </div>
           </div>
         </div>
@@ -331,7 +345,6 @@
           :join="editingJoin"
           :preset="joinDrawer.preset"
           @confirm="onJoinConfirm"
-          @remove="onJoinRemoveFromDrawer"
         />
       </div>
     </div>
@@ -369,6 +382,7 @@ import type { DataPrepDatabaseSchema, DataPrepSchemaTable } from './types'
 import SourceTableNode from './components/canvas/SourceTableNode.vue'
 import JoinEdge from './components/canvas/JoinEdge.vue'
 import DataPrepConfigPanel from './components/config/DataPrepConfigPanel.vue'
+import OutputFieldsPanel from './components/config/OutputFieldsPanel.vue'
 import DataPreviewDrawer from './components/preview/DataPreviewDrawer.vue'
 import JoinConfigDrawer from './components/canvas/JoinConfigDrawer.vue'
 import {
@@ -381,8 +395,12 @@ import {
   fieldKey,
   upsertSchemaRef,
 } from './factories'
-import { fetchDataPrepSchemaBundle, fetchDataPrepSchemas, queryDataPrepDataset, saveDataPrepDataset } from './utils/api'
-import { mergeSchemaBundlesToRowsMap } from './utils/queryDataset'
+import { fetchDataPrepSchemaBundle, fetchDataPrepSchemas, saveDataPrepDataset } from './utils/api'
+import { mergeSchemaBundlesToRowsMap, queryDatasetLocal } from './utils/queryDataset'
+import {
+  listOutputFieldCandidates,
+  pruneOutputFields,
+} from './utils/outputFields'
 import type {
   DataPrepDataset,
   DataPrepJoin,
@@ -421,7 +439,7 @@ const schemaList = ref<DataPrepSchemaListItem[]>([])
 const schemaBundlesById = ref<Record<string, DataPrepSchemaBundle>>({})
 const tableSearchKeyword = ref('')
 const selectedSourceId = ref<string | null>(null)
-const sidePanel = ref<'tables' | 'fields' | 'meta' | null>('fields')
+const sidePanel = ref<'tables' | 'fields' | 'output' | 'meta' | null>('fields')
 const dataPrepConfigVisible = ref(false)
 const editingConfigId = ref('')
 const draftMetricConfig = ref<DataPrepMetricConfig>(createDataPrepMetricConfig())
@@ -452,13 +470,24 @@ const joinDrawer = reactive<{
 const railItems = [
   { type: 'tables' as const, label: '添加表', icon: 'carbon:add' },
   { type: 'fields' as const, label: '维度 / 度量', icon: 'carbon:list-boxes' },
+  { type: 'output' as const, label: '数据输出', icon: 'carbon:data-table' },
   { type: 'meta' as const, label: '数据集信息', icon: 'carbon:information' },
 ]
 
 const sidePanelTitle = computed(() => {
   if (sidePanel.value === 'tables') return '添加表'
+  if (sidePanel.value === 'output') return '数据输出'
   if (sidePanel.value === 'meta') return '数据集信息'
   return '维度 / 度量'
+})
+
+const canPreview = computed(() => (dataset.outputFields || []).length > 0)
+
+const previewTip = computed(() => {
+  if (canPreview.value) {
+    return '按「数据输出」已选字段预览结果'
+  }
+  return '请先在左侧「数据输出」中勾选至少一个字段后再预览'
 })
 
 const editingJoin = computed(
@@ -555,6 +584,29 @@ const metricFieldLabelMap = computed(() => {
   return map
 })
 
+const outputFieldCandidates = computed(() =>
+  listOutputFieldCandidates(dataset, schemaBundlesById.value),
+)
+
+watch(
+  outputFieldCandidates,
+  (candidates) => {
+    // schema bundle 尚未加载完时候选为空，勿清空已选字段
+    const hasSources = (dataset.sources || []).length > 0
+    const hasDetailCandidates = candidates.some((item) => item.role === 'detail')
+    if (hasSources && !hasDetailCandidates) return
+
+    const next = pruneOutputFields(dataset.outputFields, candidates)
+    if (
+      next.length !== (dataset.outputFields || []).length ||
+      next.some((key, index) => key !== dataset.outputFields[index])
+    ) {
+      dataset.outputFields = next
+    }
+  },
+  { deep: true },
+)
+
 function formatMetricFieldLabel(field: string) {
   return metricFieldLabelMap.value.get(field) || field.split('.').pop() || field
 }
@@ -638,7 +690,7 @@ function onCloseSidePanel() {
   onCloseDataPrepConfig()
 }
 
-function onRailClick(type: 'tables' | 'fields' | 'meta') {
+function onRailClick(type: 'tables' | 'fields' | 'output' | 'meta') {
   if (type === 'tables' && !schemaList.value.length) return
   if (sidePanel.value === type) {
     onCloseSidePanel()
@@ -910,10 +962,6 @@ function onJoinConfirm(payload: {
   joinDrawer.joinId = null
 }
 
-function onJoinRemoveFromDrawer() {
-  if (joinDrawer.joinId) removeJoin(joinDrawer.joinId)
-}
-
 function onConnect(connection: Connection) {
   if (!connection.source || !connection.target || connection.source === connection.target) return
   openCreateJoin({
@@ -971,14 +1019,23 @@ function onNodeDragStop(event: NodeDragEvent) {
 }
 
 async function onPreview() {
+  if (!canPreview.value) return
   previewVisible.value = true
   previewLoading.value = true
   previewError.value = ''
   try {
-    previewResult.value = await queryDataPrepDataset({
-      dataset: JSON.parse(JSON.stringify(dataset)) as DataPrepDataset,
-      limit: 100,
-    })
+    const snapshot = JSON.parse(JSON.stringify(dataset)) as DataPrepDataset
+    const result = queryDatasetLocal(snapshot, previewTableRows.value, { limit: 100 })
+    const titleMap = new Map(
+      outputFieldCandidates.value.map((item) => [item.key, item.label]),
+    )
+    previewResult.value = {
+      ...result,
+      columns: (result.columns || []).map((col) => ({
+        ...col,
+        title: titleMap.get(col.key) || col.title,
+      })),
+    }
   } catch (error) {
     previewError.value = error instanceof Error ? error.message : '预览失败'
     previewResult.value = null
@@ -1182,8 +1239,8 @@ async function onSave() {
   overflow: hidden;
   padding: 0 6px;
   border-radius: 3px;
-  background: color-mix(in srgb, var(--layout-background-color, #f5f5f5) 85%, transparent);
-  color: var(--text-secondary-color, var(--text-color-secondary));
+  background: color-mix(in srgb, var(--text-color) 6%, var(--component-background-color));
+  color: var(--text-color-secondary, var(--text-secondary-color));
   font-size: 11px;
   line-height: 18px;
   text-overflow: ellipsis;
@@ -1192,7 +1249,7 @@ async function onSave() {
 
 .prep-metric-item__more,
 .prep-metric-item__empty {
-  color: var(--text-secondary-color, var(--text-color-secondary));
+  color: var(--text-color-secondary, var(--text-secondary-color));
   font-size: 11px;
   line-height: 18px;
 }

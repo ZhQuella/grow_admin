@@ -51,6 +51,12 @@ export {
   mergeSchemaBundlesToRowsMap,
 } from './utils/queryDataset'
 export {
+  listOutputFieldCandidates,
+  pruneOutputFields,
+  outputFieldTitle,
+} from './utils/outputFields'
+export type { DataPrepOutputFieldCandidate } from './utils/outputFields'
+export {
   evaluateFormulaOnGroup,
   extractFormulaFields,
   FORMULA_FUNCTION_DOCS,

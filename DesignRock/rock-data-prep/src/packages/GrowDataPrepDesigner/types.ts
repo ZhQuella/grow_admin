@@ -157,6 +157,12 @@ export type DataPrepDataset = {
   joins: DataPrepJoin[]
   /** 维度/度量配置列表（每项：多维度 + 单度量） */
   metricConfigs: DataPrepMetricConfig[]
+  /**
+   * 数据输出字段（有序）。
+   * 明细字段为 alias.column，度量字段为 measure.outputKey。
+   * 空数组表示尚未配置；预览/对外输出均按此投影。
+   */
+  outputFields: string[]
   updatedAt?: string
 }
 
@@ -173,7 +179,7 @@ export type DatasetQueryRequest = {
 export type DatasetQueryColumn = {
   key: string
   title: string
-  role: 'dimension' | 'measure'
+  role: 'dimension' | 'measure' | 'detail'
 }
 
 export type DatasetQueryResult = {

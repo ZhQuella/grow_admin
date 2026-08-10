@@ -125,9 +125,6 @@
       <div
         class="flex shrink-0 items-center justify-end gap-2 border-t border-solid border-border px-3 py-3"
       >
-        <GrowButton v-if="mode === 'edit'" size="small" type="danger" @click="emit('remove')">
-          删除关联
-        </GrowButton>
         <GrowButton size="small" @click="onVisible(false)">取消</GrowButton>
         <GrowButton size="small" type="primary" :disabled="!canConfirm" @click="onConfirm">
           确定
@@ -189,7 +186,6 @@ const emit = defineEmits<{
       on: DataPrepJoinOnCondition[]
     },
   ]
-  remove: []
 }>()
 
 const form = reactive({

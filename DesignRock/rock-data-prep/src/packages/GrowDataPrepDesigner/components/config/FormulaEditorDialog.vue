@@ -364,7 +364,7 @@ function onConfirm() {
 }
 
 .formula-side__item:hover {
-  background: color-mix(in srgb, var(--layout-background-color, #f5f5f5) 88%, transparent);
+  background: color-mix(in srgb, var(--text-color) 6%, transparent);
 }
 
 .formula-side__item.is-active {
@@ -399,7 +399,7 @@ function onConfirm() {
 .formula-example {
   padding: 10px 12px;
   border-radius: 6px;
-  background: var(--layout-background-color, #f5f5f5);
+  background: color-mix(in srgb, var(--text-color) 6%, var(--component-background-color));
   color: var(--text-color);
   font-size: 12px;
   line-height: 1.5;

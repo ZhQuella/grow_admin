@@ -596,6 +596,9 @@ importers:
       vue:
         specifier: ~3.3.4
         version: 3.3.13(typescript@5.9.3)
+      vuedraggable:
+        specifier: ^4.1.0
+        version: 4.1.0(vue@3.3.13(typescript@5.9.3))
 
   DesignRock/rock-designer:
     dependencies:
