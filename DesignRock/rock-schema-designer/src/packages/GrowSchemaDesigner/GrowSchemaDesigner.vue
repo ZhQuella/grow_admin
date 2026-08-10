@@ -127,7 +127,7 @@
         </VueFlow>
 
         <SchemaConfigFloat
-          :visible="!!activeTable"
+          :visible="!!activeTable && !relationDraft.visible"
           :title="activeTable ? `表 · ${activeTable.name}` : '表配置'"
           @close="onDeselect"
         >
@@ -144,7 +144,7 @@
         </SchemaConfigFloat>
 
         <SchemaConfigFloat
-          :visible="!!activeRelation"
+          :visible="!!activeRelation && !relationDraft.visible"
           title="关联配置"
           @close="onDeselect"
         >
@@ -155,17 +155,24 @@
             @change="onUpdateRelation"
           />
         </SchemaConfigFloat>
+
+        <SchemaConfigFloat
+          :visible="relationDraft.visible"
+          title="创建关联"
+          @close="onCancelRelationDraft"
+        >
+          <CreateRelationPanel
+            :visible="relationDraft.visible"
+            :source-table="relationDraft.sourceTable"
+            :source-column-id="relationDraft.sourceColumnId"
+            :target-table="relationDraft.targetTable"
+            :target-column-id="relationDraft.targetColumnId"
+            @cancel="onCancelRelationDraft"
+            @confirm="onConfirmRelation"
+          />
+        </SchemaConfigFloat>
       </div>
     </div>
-
-    <CreateRelationDrawer
-      v-model:visible="relationDraft.visible"
-      :source-table="relationDraft.sourceTable"
-      :source-column-id="relationDraft.sourceColumnId"
-      :target-table="relationDraft.targetTable"
-      :target-column-id="relationDraft.targetColumnId"
-      @confirm="onConfirmRelation"
-    />
   </div>
 </template>
 
@@ -198,7 +205,7 @@ import RelationConfigPanel from './components/config/RelationConfigPanel.vue'
 import SchemaConfigFloat from './components/config/SchemaConfigFloat.vue'
 import SchemaMetaPanel from './components/config/SchemaMetaPanel.vue'
 import SqlQueryPanel from './components/sql/SqlQueryPanel.vue'
-import CreateRelationDrawer from './components/config/CreateRelationDrawer.vue'
+import CreateRelationPanel from './components/config/CreateRelationPanel.vue'
 import { confirmAction } from './utils/confirmAction'
 import { copySchemaJson, downloadSchemaJson } from './utils/exportSchema'
 import {
@@ -386,6 +393,15 @@ function onRailClick(type: RailType) {
 function onDeselect() {
   selection.value = null
   activeColumnId.value = null
+  onCancelRelationDraft()
+}
+
+function onCancelRelationDraft() {
+  relationDraft.visible = false
+  relationDraft.sourceTable = null
+  relationDraft.sourceColumnId = null
+  relationDraft.targetTable = null
+  relationDraft.targetColumnId = null
 }
 
 function onDesignerKeydown(event: KeyboardEvent) {
@@ -462,6 +478,7 @@ async function onClear() {
   })
   selection.value = null
   activeColumnId.value = null
+  onCancelRelationDraft()
   sidePanel.value = 'meta'
   nodes.value = []
   edges.value = []
@@ -696,6 +713,8 @@ function onConnect(connection: Connection) {
   relationDraft.sourceColumnId = sourceColumnId
   relationDraft.targetTable = targetTable
   relationDraft.targetColumnId = targetColumnId
+  selection.value = null
+  activeColumnId.value = null
   relationDraft.visible = true
 }
 
@@ -774,7 +793,7 @@ function onConfirmRelation(payload: {
       relations: [...schema.value.relations, relation],
     }
     selection.value = { kind: 'relation', relationId: relation.id }
-    relationDraft.visible = false
+    onCancelRelationDraft()
     commit()
     return
   }
@@ -821,7 +840,7 @@ function onConfirmRelation(payload: {
     relations: [...schema.value.relations, relation],
   }
   selection.value = { kind: 'relation', relationId: relation.id }
-  relationDraft.visible = false
+  onCancelRelationDraft()
   commit()
 }
 

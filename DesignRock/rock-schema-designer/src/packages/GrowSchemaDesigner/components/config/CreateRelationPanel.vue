@@ -1,20 +1,6 @@
 <template>
-  <GrowDrawer
-    :model-value="visible"
-    title="创建关联"
-    direction="rtl"
-    size="360px"
-    :destroy-on-close="true"
-    @update:model-value="onVisible"
-  >
-    <div class="box-border px-3 py-3">
-      <p class="mb-3 mt-0 text-xs text-text-secondary">
-        从
-        <strong>{{ sourceLabel }}</strong>
-        连接到
-        <strong>{{ targetLabel }}</strong>
-      </p>
-
+  <div class="box-border flex h-full min-h-0 flex-col">
+    <div class="box-border min-h-0 flex-1 overflow-auto px-3 py-3">
       <GrowForm label-width="88px" label-position="left" size="small" :show-message="false">
         <GrowFormItem label="关联类型">
           <GrowSelect
@@ -24,6 +10,12 @@
             class="w-full"
             @update:model-value="(v) => (form.type = String(v) as SchemaRelationType)"
           />
+        </GrowFormItem>
+        <GrowFormItem label="源表字段">
+          <GrowInput :model-value="sourceLabel" size="small" disabled />
+        </GrowFormItem>
+        <GrowFormItem label="目标字段">
+          <GrowInput :model-value="targetLabel" size="small" disabled />
         </GrowFormItem>
         <GrowFormItem label="删除时">
           <GrowSelect
@@ -52,13 +44,15 @@
         一对一 / 一对多：若连到目标表主键，将自动创建外键
         <code>{{ autoFkName }}</code>；若连到普通字段，则将该字段视为外键。
       </p>
-
-      <div class="mt-4 flex justify-end gap-2">
-        <GrowButton size="small" @click="onVisible(false)">取消</GrowButton>
-        <GrowButton size="small" type="primary" @click="onConfirm">创建</GrowButton>
-      </div>
     </div>
-  </GrowDrawer>
+
+    <div
+      class="box-border flex shrink-0 justify-end gap-2 border-t border-solid border-border px-3 py-2.5"
+    >
+      <GrowButton size="small" @click="emit('cancel')">取消</GrowButton>
+      <GrowButton size="small" type="primary" @click="onConfirm">创建</GrowButton>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -67,7 +61,7 @@ import { RELATION_TYPE_OPTIONS, REFERENTIAL_ACTION_OPTIONS } from '../../static/
 import type { SchemaReferentialAction, SchemaRelationType, SchemaTable } from '../../types'
 
 defineOptions({
-  name: 'CreateRelationDrawer',
+  name: 'CreateRelationPanel',
 })
 
 const props = defineProps<{
@@ -79,7 +73,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  'update:visible': [value: boolean]
+  cancel: []
   confirm: [
     payload: {
       type: SchemaRelationType
@@ -122,10 +116,6 @@ const targetLabel = computed(
   () => `${props.targetTable?.name ?? '?'}.${findColName(props.targetTable, props.targetColumnId)}`,
 )
 const autoFkName = computed(() => `${props.sourceTable?.name ?? 'ref'}_id`)
-
-const onVisible = (value: boolean) => {
-  emit('update:visible', value)
-}
 
 const onConfirm = () => {
   emit('confirm', {
