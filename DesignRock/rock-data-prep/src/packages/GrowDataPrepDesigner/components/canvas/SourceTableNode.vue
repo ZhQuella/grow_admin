@@ -87,7 +87,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Handle, Position } from '@vue-flow/core'
-import type { DataPrepSchemaColumn, DataPrepSource } from '../../model/types'
+import type { DataPrepSchemaColumn, DataPrepSource } from '../../types'
 
 defineOptions({
   name: 'DataPrepSourceTableNode',

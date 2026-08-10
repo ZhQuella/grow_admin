@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { DatasetQueryResult } from '../../model/types'
+import type { DatasetQueryResult } from '../../types'
 
 defineOptions({
   name: 'DataPrepPreviewDrawer',

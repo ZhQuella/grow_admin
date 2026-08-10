@@ -85,8 +85,8 @@ import { ref } from 'vue'
 import {
   createDataPrepMetricConfig,
   defaultMeasureOutputKey,
-} from '../../model/factories'
-import type { DataPrepDataset, DataPrepMetricConfig, DataPrepTableRowsMap } from '../../model/types'
+} from '../../factories'
+import type { DataPrepDataset, DataPrepMetricConfig, DataPrepTableRowsMap } from '../../types'
 import FormulaEditorDialog, { type FormulaFieldOption } from './FormulaEditorDialog.vue'
 
 defineOptions({
