@@ -69,8 +69,8 @@
 
 <script setup lang="ts">
 import { Handle, Position } from '@vue-flow/core'
-import { formatColumnType } from '../postgresTypes'
-import type { TableNodeData } from '../flowMapper'
+import { formatColumnType } from '../../static/postgresTypes'
+import type { TableNodeData } from '../../utils/flowMapper'
 
 defineOptions({
   name: 'SchemaTableNode',

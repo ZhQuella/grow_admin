@@ -110,8 +110,8 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import { useMsg } from '@grow-admin-rock/components'
-import { createSchemaSqlQuery } from '../factories'
-import type { DatabaseSchema, SchemaSqlQuery } from '../types'
+import { createSchemaSqlQuery } from '../../factories'
+import type { DatabaseSchema, SchemaSqlQuery } from '../../types'
 import SqlQueryForm from './SqlQueryForm.vue'
 
 defineOptions({ name: 'SqlQueryPanel' })

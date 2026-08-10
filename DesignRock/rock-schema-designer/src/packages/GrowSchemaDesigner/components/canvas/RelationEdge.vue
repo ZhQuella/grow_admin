@@ -39,7 +39,7 @@ import {
   type EdgeProps,
   type Position,
 } from '@vue-flow/core'
-import type { FlowEdgeData } from '../flowMapper'
+import type { FlowEdgeData } from '../../utils/flowMapper'
 
 defineOptions({
   name: 'SchemaRelationEdge',

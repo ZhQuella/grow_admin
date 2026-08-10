@@ -1,4 +1,4 @@
-import type { SchemaColumnType, SchemaRelationType, SchemaReferentialAction } from './types'
+import type { SchemaColumnType, SchemaRelationType, SchemaReferentialAction } from '../types'
 
 /** PostgreSQL 标识符最大长度（NAMEDATALEN - 1） */
 export const MAX_TABLE_NAME_LENGTH = 63

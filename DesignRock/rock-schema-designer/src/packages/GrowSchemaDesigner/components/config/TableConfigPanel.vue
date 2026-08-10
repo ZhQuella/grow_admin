@@ -166,8 +166,8 @@ import {
   clampIdentifier,
   typeNeedsLength,
   typeNeedsScale,
-} from '../postgresTypes'
-import type { SchemaColumn, SchemaColumnType, SchemaTable } from '../types'
+} from '../../static/postgresTypes'
+import type { SchemaColumn, SchemaColumnType, SchemaTable } from '../../types'
 
 defineOptions({
   name: 'TableConfigPanel',

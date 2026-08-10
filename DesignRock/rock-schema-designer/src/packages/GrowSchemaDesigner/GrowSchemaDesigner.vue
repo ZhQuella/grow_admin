@@ -178,15 +178,15 @@ import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 import '@vue-flow/minimap/dist/style.css'
 
-import TableNode from './components/TableNode.vue'
-import RelationEdge from './components/RelationEdge.vue'
-import TableConfigPanel from './components/TableConfigPanel.vue'
-import RelationConfigPanel from './components/RelationConfigPanel.vue'
-import SchemaMetaPanel from './components/SchemaMetaPanel.vue'
-import SqlQueryPanel from './components/SqlQueryPanel.vue'
-import CreateRelationDrawer from './components/CreateRelationDrawer.vue'
-import { confirmAction } from './confirmAction'
-import { copySchemaJson, downloadSchemaJson } from './exportSchema'
+import TableNode from './components/canvas/TableNode.vue'
+import RelationEdge from './components/canvas/RelationEdge.vue'
+import TableConfigPanel from './components/config/TableConfigPanel.vue'
+import RelationConfigPanel from './components/config/RelationConfigPanel.vue'
+import SchemaMetaPanel from './components/config/SchemaMetaPanel.vue'
+import SqlQueryPanel from './components/sql/SqlQueryPanel.vue'
+import CreateRelationDrawer from './components/config/CreateRelationDrawer.vue'
+import { confirmAction } from './utils/confirmAction'
+import { copySchemaJson, downloadSchemaJson } from './utils/exportSchema'
 import {
   createDatabaseSchema,
   createManyToManyArtifacts,
@@ -203,13 +203,13 @@ import {
   MAX_COLUMN_NAME_LENGTH,
   MAX_DATABASE_NAME_LENGTH,
   MAX_TABLE_NAME_LENGTH,
-} from './postgresTypes'
+} from './static/postgresTypes'
 import {
   findRelationByEdgeId,
   relationsToEdges,
   tablesToNodes,
   type TableNodeData,
-} from './flowMapper'
+} from './utils/flowMapper'
 import type {
   DatabaseSchema,
   SchemaColumn,

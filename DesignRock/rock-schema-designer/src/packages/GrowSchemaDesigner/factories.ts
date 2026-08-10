@@ -4,7 +4,7 @@ import {
   MAX_COLUMN_NAME_LENGTH,
   MAX_DATABASE_NAME_LENGTH,
   MAX_TABLE_NAME_LENGTH,
-} from './postgresTypes'
+} from './static/postgresTypes'
 import type {
   DatabaseSchema,
   SchemaColumn,
