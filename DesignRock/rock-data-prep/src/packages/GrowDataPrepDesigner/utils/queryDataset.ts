@@ -28,9 +28,17 @@ function rowsOfSource(
   source: DataPrepSource,
   tableRows: DataPrepTableRowsMap,
 ): Record<string, unknown>[] {
-  const keyed = tableRows[sourceTableRowsKey(source.schemaId, source.tableName)]
-  if (keyed) return keyed
-  return tableRows[source.tableName] || []
+  const map = tableRows || {}
+  const keyed = map[sourceTableRowsKey(source.schemaId, source.tableName)]
+  if (keyed?.length) return keyed
+  const byName = map[source.tableName]
+  if (byName?.length) return byName
+  // 兼容仅按表名后缀匹配（schemaId 不一致时仍可预览样例行）
+  const suffix = `::${source.tableName}`
+  for (const [key, rows] of Object.entries(map)) {
+    if (key.endsWith(suffix) && rows?.length) return rows
+  }
+  return byName || keyed || []
 }
 
 function flattenRow(alias: string, row: Record<string, unknown>) {
@@ -89,12 +97,13 @@ export function buildJoinedRows(
   dataset: DataPrepDataset,
   tableRows: DataPrepTableRowsMap,
 ): Record<string, unknown>[] {
-  const { sources, joins } = dataset
+  const sources = dataset?.sources || []
+  const joins = dataset?.joins || []
   if (!sources.length) return []
 
   if (sources.length === 1) {
     const source = sources[0]
-    return rowsOfSource(source, tableRows).map((row) => flattenRow(source.alias, row))
+    return rowsOfSource(source, tableRows || {}).map((row) => flattenRow(source.alias, row))
   }
 
   if (!joins.length) {
@@ -109,7 +118,8 @@ export function buildJoinedRows(
   const seedLeft = sourceById.get(seedJoin.leftSourceId)
   if (!seedLeft) throw new Error('Join 引用了不存在的来源表')
 
-  let rows = rowsOfSource(seedLeft, tableRows).map((row) => flattenRow(seedLeft.alias, row))
+  const rowsMap = tableRows || {}
+  let rows = rowsOfSource(seedLeft, rowsMap).map((row) => flattenRow(seedLeft.alias, row))
   included.add(seedLeft.id)
 
   let guard = 0
@@ -127,7 +137,7 @@ export function buildJoinedRows(
       const right = sourceById.get(join.rightSourceId)
       const left = sourceById.get(join.leftSourceId)
       if (!right || !left) throw new Error('Join 引用了不存在的来源表')
-      rows = applyJoin(rows, right, rowsOfSource(right, tableRows), join, left.alias)
+      rows = applyJoin(rows, right, rowsOfSource(right, rowsMap), join, left.alias)
       included.add(right.id)
       continue
     }
@@ -141,12 +151,12 @@ export function buildJoinedRows(
         leftSourceId: join.rightSourceId,
         rightSourceId: join.leftSourceId,
         onLogic: join.onLogic || 'and',
-        on: join.on.map((cond) => ({
+        on: (join.on || []).map((cond) => ({
           leftField: cond.rightField,
           rightField: cond.leftField,
         })),
       }
-      rows = applyJoin(rows, left, rowsOfSource(left, tableRows), flipped, right.alias)
+      rows = applyJoin(rows, left, rowsOfSource(left, rowsMap), flipped, right.alias)
       included.add(left.id)
     }
   }
@@ -164,14 +174,16 @@ function dimensionKeyOf(config: DataPrepMetricConfig) {
 
 function groupRows(
   rows: Record<string, unknown>[],
-  dimensionFields: string[],
+  dimensionFields: string[] | undefined,
 ): Array<{ keyParts: string[]; rows: Record<string, unknown>[] }> {
-  if (!dimensionFields.length) {
-    return [{ keyParts: [], rows }]
+  const dims = dimensionFields || []
+  const safeRows = rows || []
+  if (!dims.length) {
+    return [{ keyParts: [], rows: safeRows }]
   }
   const groups = new Map<string, { keyParts: string[]; rows: Record<string, unknown>[] }>()
-  for (const row of rows) {
-    const keyParts = dimensionFields.map((field) => String(resolveCell(row, field) ?? ''))
+  for (const row of safeRows) {
+    const keyParts = dims.map((field) => String(resolveCell(row, field) ?? ''))
     const key = keyParts.join('\u0001')
     const existing = groups.get(key)
     if (existing) existing.rows.push(row)
@@ -192,16 +204,17 @@ export function previewMetricConfig(
   tableRows: DataPrepTableRowsMap,
   config: Pick<DataPrepMetricConfig, 'dimensionFields' | 'measure'>,
 ): MetricPreviewResult {
+  const dimensionFields = config?.dimensionFields || []
   const rows = buildJoinedRows(dataset, tableRows)
-  const groups = groupRows(rows, config.dimensionFields)
+  const groups = groupRows(rows, dimensionFields)
   const evaluated = groups.map((group) => {
     const dimensions: Record<string, unknown> = {}
-    config.dimensionFields.forEach((field, index) => {
+    dimensionFields.forEach((field, index) => {
       dimensions[field] = group.keyParts[index]
     })
-    const value = evaluateFormulaOnGroup(config.measure.formula || '', group.rows)
+    const value = evaluateFormulaOnGroup(config?.measure?.formula || '', group.rows)
     const label =
-      config.dimensionFields.length > 0
+      dimensionFields.length > 0
         ? group.keyParts.filter(Boolean).join(' / ') || '(空)'
         : '全部'
     return { label, value, dimensions }
@@ -224,7 +237,7 @@ export function queryDatasetLocal(
   tableRows: DataPrepTableRowsMap,
   request: Pick<DatasetQueryRequest, 'configIds' | 'limit'> = {},
 ): DatasetQueryResult {
-  if (dataset.sources.length === 0) {
+  if (!(dataset?.sources || []).length) {
     return { columns: [], rows: [] }
   }
 

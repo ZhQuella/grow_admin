@@ -12,18 +12,19 @@
       <div class="rounded border border-solid border-border bg-layout p-3">
         <FormulaChipInput
           ref="chipInputRef"
-          v-model="draft"
+          :model-value="draft"
           :fields="chipFields"
           placeholder="点击左侧字段 / 函数插入，或直接输入公式"
+          @update:model-value="onDraftUpdate"
         />
-        <div class="mt-2 flex items-center justify-between gap-2">
-          <p class="m-0 min-w-0 truncate text-xs text-text-secondary">
+        <div class="mt-2 flex items-start justify-between gap-3">
+          <p class="m-0 min-w-0 flex-1 text-xs leading-relaxed text-text-secondary">
             预览首行结果
             <span class="text-text">{{ previewLabel }}</span>
             :
-            <span class="text-text">{{ previewDisplay }}</span>
+            <span :class="previewIsError ? 'text-red-500' : 'text-text'">{{ previewDisplay }}</span>
           </p>
-          <GrowButton type="primary" size="small" @click="onConfirm">确定</GrowButton>
+          <GrowButton type="primary" size="small" class="shrink-0" @click="onConfirm">确定</GrowButton>
         </div>
       </div>
 
@@ -46,7 +47,8 @@
                     type="button"
                     class="formula-side__item"
                     :title="field.field"
-                    @click="chipInputRef?.insertField(field.field)"
+                    @mousedown.prevent
+                    @click="onInsertField(field.field)"
                   >
                     <span class="formula-side__item-text">{{ field.label }}</span>
                   </button>
@@ -61,6 +63,8 @@
                   type="button"
                   class="formula-side__item"
                   :class="{ 'is-active': activeFn === fn.name }"
+                  :title="activeFn === fn.name ? '再次点击插入到公式' : '查看说明'"
+                  @mousedown.prevent
                   @click="onPickFunction(fn.name)"
                 >
                   <span class="formula-side__item-text">{{ fn.name }}()</span>
@@ -75,6 +79,8 @@
                   type="button"
                   class="formula-side__item"
                   :class="{ 'is-active': activeFn === fn.name }"
+                  :title="activeFn === fn.name ? '再次点击插入到公式' : '查看说明'"
+                  @mousedown.prevent
                   @click="onPickFunction(fn.name)"
                 >
                   <span class="formula-side__item-text">{{ fn.name }}()</span>
@@ -107,7 +113,7 @@
                 </ul>
               </div>
               <div v-else class="flex min-h-[200px] items-center justify-center text-xs text-text-secondary">
-                选择左侧函数查看说明，或点击字段插入引用
+                选择左侧函数查看说明（再次点击可插入）；点击字段插入引用
               </div>
             </div>
           </GrowScrollbar>
@@ -157,7 +163,7 @@ const emit = defineEmits<{
 }>()
 
 const draft = ref('')
-const activeFn = ref('AND')
+const activeFn = ref('')
 const chipInputRef = ref<InstanceType<typeof FormulaChipInput> | null>(null)
 
 const chipFields = computed(() =>
@@ -166,6 +172,15 @@ const chipFields = computed(() =>
     label: item.label,
   })),
 )
+
+function onDraftUpdate(value: string) {
+  draft.value = value
+}
+
+function syncDraftFromChip() {
+  const next = chipInputRef.value?.getFormula?.()
+  if (typeof next === 'string') draft.value = next
+}
 
 const fieldGroups = computed(() => {
   const map = new Map<string, FormulaFieldOption[]>()
@@ -190,22 +205,56 @@ const activeDoc = computed<FormulaFunctionDoc | null>(
 )
 
 const preview = computed(() => {
+  const formula = draft.value.trim()
+  if (!formula) {
+    return {
+      label: '-',
+      value: null,
+      emptyReason: 'empty-formula' as const,
+      error: '',
+      groups: [],
+    }
+  }
   try {
-    return previewMetricConfig(props.dataset, props.tableRows, {
-      dimensionFields: props.dimensionFields,
+    const result = previewMetricConfig(props.dataset, props.tableRows || {}, {
+      dimensionFields: (props.dimensionFields || []).filter(Boolean),
       measure: { name: '', formula: draft.value },
     })
+    const groups = result.groups || []
+    if (!groups.length || (result.value == null && !groups.some((g) => g.value != null))) {
+      const hasSources = (props.dataset?.sources || []).length > 0
+      const hasRows = Object.values(props.tableRows || {}).some((rows) => rows?.length)
+      return {
+        ...result,
+        groups,
+        emptyReason: (!hasSources
+          ? 'no-source'
+          : !hasRows
+            ? 'no-rows'
+            : 'empty-result') as 'no-source' | 'no-rows' | 'empty-result',
+        error: '',
+      }
+    }
+    return { ...result, groups, emptyReason: '' as const, error: '' }
   } catch (error) {
     return {
       label: '-',
-      value: error instanceof Error ? error.message : '计算失败',
+      value: null,
+      emptyReason: '' as const,
+      error: error instanceof Error ? error.message : '计算失败',
       groups: [],
     }
   }
 })
 
 const previewLabel = computed(() => preview.value.label || '-')
+const previewIsError = computed(() => Boolean(preview.value.error))
 const previewDisplay = computed(() => {
+  if (preview.value.error) return preview.value.error
+  if (preview.value.emptyReason === 'empty-formula') return '请输入公式'
+  if (preview.value.emptyReason === 'no-source') return '请先在画布添加表'
+  if (preview.value.emptyReason === 'no-rows') return '暂无样例数据'
+  if (preview.value.emptyReason === 'empty-result') return '无匹配数据'
   const value = preview.value.value
   if (value == null) return '-'
   if (typeof value === 'number' && Number.isFinite(value)) {
@@ -219,7 +268,9 @@ watch(
   async (visible) => {
     if (!visible) return
     draft.value = props.modelValue || ''
-    activeFn.value = 'AND'
+    activeFn.value = ''
+    await nextTick()
+    // destroy-on-close 时内容可能晚一拍挂载
     await nextTick()
     chipInputRef.value?.renderFromModel(draft.value)
     chipInputRef.value?.focus()
@@ -230,12 +281,23 @@ function onVisibleChange(value: boolean) {
   emit('update:visible', value)
 }
 
+function onInsertField(field: string) {
+  chipInputRef.value?.insertField(field)
+  syncDraftFromChip()
+}
+
 function onPickFunction(name: string) {
-  activeFn.value = name
+  // 首次点击只切换说明，避免误插入 AND()/SUM() 导致预览公式被破坏
+  if (activeFn.value !== name) {
+    activeFn.value = name
+    return
+  }
   chipInputRef.value?.insertText(`${name}()`)
+  syncDraftFromChip()
 }
 
 function onConfirm() {
+  syncDraftFromChip()
   emit('update:modelValue', draft.value)
   emit('confirm', draft.value)
   emit('update:visible', false)

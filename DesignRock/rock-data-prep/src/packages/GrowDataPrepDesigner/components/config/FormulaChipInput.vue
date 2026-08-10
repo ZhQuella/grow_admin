@@ -121,8 +121,11 @@ function renderFromModel(formula: string) {
   const root = rootRef.value
   if (!root) return
   syncing = true
-  root.innerHTML = formulaToHtml(formula)
-  syncing = false
+  try {
+    root.innerHTML = formulaToHtml(formula)
+  } finally {
+    syncing = false
+  }
 }
 
 function saveSelection() {
@@ -163,16 +166,16 @@ function placeCaretAfter(node: Node) {
   savedRange.value = range.cloneRange()
 }
 
-function insertHtmlAtCursor(html: string) {
+function emitFormula() {
+  emit('update:modelValue', readFormulaFromDom())
+}
+
+function insertHtmlAtCursor(html: string, placeCaret?: (last: ChildNode) => void) {
   const root = rootRef.value
   if (!root) return
   root.focus()
   restoreSelection()
   const selection = window.getSelection()
-  if (!selection || selection.rangeCount === 0) return
-
-  const range = selection.getRangeAt(0)
-  range.deleteContents()
   const temp = document.createElement('div')
   temp.innerHTML = html
   const frag = document.createDocumentFragment()
@@ -181,14 +184,50 @@ function insertHtmlAtCursor(html: string) {
     last = temp.firstChild
     frag.appendChild(temp.firstChild)
   }
-  range.insertNode(frag)
-  if (last) placeCaretAfter(last)
-  else saveSelection()
-  emit('update:modelValue', readFormulaFromDom())
+
+  if (selection && selection.rangeCount > 0 && root.contains(selection.anchorNode)) {
+    const range = selection.getRangeAt(0)
+    range.deleteContents()
+    range.insertNode(frag)
+  } else {
+    root.appendChild(frag)
+  }
+
+  if (last) {
+    if (placeCaret) placeCaret(last)
+    else placeCaretAfter(last)
+  } else {
+    saveSelection()
+  }
+  emitFormula()
+}
+
+function placeCaretInsideTrailingParens(textNode: ChildNode) {
+  if (textNode.nodeType !== Node.TEXT_NODE) {
+    placeCaretAfter(textNode)
+    return
+  }
+  const text = textNode.textContent || ''
+  if (!text.endsWith('()')) {
+    placeCaretAfter(textNode)
+    return
+  }
+  const selection = window.getSelection()
+  if (!selection) return
+  const range = document.createRange()
+  const offset = text.length - 1
+  range.setStart(textNode, offset)
+  range.collapse(true)
+  selection.removeAllRanges()
+  selection.addRange(range)
+  savedRange.value = range.cloneRange()
 }
 
 function insertText(text: string) {
-  insertHtmlAtCursor(escapeHtml(text))
+  insertHtmlAtCursor(escapeHtml(text), (last) => {
+    if (text.endsWith('()')) placeCaretInsideTrailingParens(last)
+    else placeCaretAfter(last)
+  })
 }
 
 function insertField(field: string) {
@@ -197,7 +236,7 @@ function insertField(field: string) {
 
 function onInput() {
   if (syncing) return
-  emit('update:modelValue', readFormulaFromDom())
+  emitFormula()
   saveSelection()
 }
 
@@ -228,13 +267,12 @@ watch(
 )
 
 watch(
-  () => props.fields,
+  () => (props.fields || []).map((item) => `${item.field}\u0001${item.label}`).join('\u0002'),
   async () => {
     await nextTick()
     // 字段标签变化时按当前公式重绘芯片文案
     renderFromModel(props.modelValue || '')
   },
-  { deep: true },
 )
 
 onBeforeUnmount(() => {
@@ -244,6 +282,7 @@ onBeforeUnmount(() => {
 defineExpose({
   insertField,
   insertText,
+  getFormula: readFormulaFromDom,
   focus() {
     rootRef.value?.focus()
     restoreSelection()

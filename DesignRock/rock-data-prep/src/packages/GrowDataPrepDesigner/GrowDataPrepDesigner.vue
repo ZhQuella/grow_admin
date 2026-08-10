@@ -1,6 +1,6 @@
 <template>
   <div
-    class="absolute inset-0 flex h-auto w-auto min-h-0 flex-col overflow-hidden bg-layout"
+    class="grow-data-prep absolute inset-0 flex h-auto w-auto min-h-0 flex-col overflow-hidden bg-layout"
     tabindex="-1"
   >
     <div
@@ -22,11 +22,11 @@
           :loading="previewLoading"
           @click="onPreview"
         >
-          <GrowIconify icon="carbon:data-view" :size="14" class="mr-1 align-[-2px]" />
+          <GrowIconify icon="carbon:data-view" :size="14" />
           预览数据
         </GrowButton>
         <GrowButton class="!ml-0" size="small" type="primary" :loading="saving" @click="onSave">
-          <GrowIconify icon="carbon:save" :size="14" class="mr-1 align-[-2px]" />
+          <GrowIconify icon="carbon:save" :size="14" />
           保存
         </GrowButton>
       </div>
@@ -67,7 +67,7 @@
           class="box-border flex h-10 items-center justify-between gap-2 border-b border-solid border-border px-3"
         >
           <h4 class="m-0 text-[13px] font-semibold text-text">{{ sidePanelTitle }}</h4>
-          <GrowButton text size="small" class="!px-1" @click="onCloseSidePanel">
+          <GrowButton text size="small" class="prep-icon-btn" @click="onCloseSidePanel">
             <GrowIconify icon="carbon:close" :size="15" />
           </GrowButton>
         </div>
@@ -146,46 +146,98 @@
               class="flex h-10 shrink-0 items-center justify-end border-b border-solid border-border px-1"
             >
               <GrowButton type="primary" size="small" @click.stop="onOpenDataPrepConfig">
-                <GrowIconify icon="carbon:add" :size="16" class="mr-1" />
+                <GrowIconify icon="carbon:add" :size="16" />
                 添加
               </GrowButton>
             </div>
 
             <GrowScrollbar class="min-h-0 flex-1">
-              <div class="p-2">
+              <div class="box-border px-2.5 py-2.5">
                 <div
                   v-if="!dataset.metricConfigs.length"
-                  class="px-2 py-6 text-center text-xs text-text-secondary"
+                  class="flex flex-col items-center justify-center gap-2 px-3 py-10 text-center"
                 >
-                  暂无配置，点击右上角添加
-                </div>
-                <div
-                  v-for="item in dataset.metricConfigs"
-                  :key="item.id"
-                  class="group mb-1.5 flex items-center gap-1 rounded px-1 py-2 hover:bg-layout"
-                  :class="{ 'bg-primary/10': editingConfigId === item.id && dataPrepConfigVisible }"
-                >
-                  <div class="min-w-0 flex-1 px-1">
-                    <p class="m-0 truncate text-sm font-medium text-text">
-                      {{ item.measure.name || '未命名度量' }}
-                    </p>
-                    <p class="m-0 mt-0.5 truncate text-xs text-text-secondary">
-                      维度 {{ item.dimensionFields.length }} 个
-                    </p>
+                  <div class="prep-metric-empty-icon" aria-hidden="true">
+                    <GrowIconify icon="carbon:list-boxes" :size="20" />
                   </div>
-                  <div class="flex shrink-0 items-center gap-0.5 opacity-0 group-hover:opacity-100">
-                    <GrowButton text size="small" title="编辑" @click.stop="onEditMetricConfig(item.id)">
-                      <GrowIconify icon="carbon:edit" :size="14" />
-                    </GrowButton>
-                    <GrowButton
-                      text
-                      size="small"
-                      type="danger"
-                      title="删除"
-                      @click.stop="onRemoveMetricConfig(item.id)"
-                    >
-                      <GrowIconify icon="carbon:trash-can" :size="14" />
-                    </GrowButton>
+                  <p class="m-0 text-[13px] font-medium text-text">暂无维度 / 度量</p>
+                  <p class="m-0 text-xs text-text-secondary">点击右上角「添加」创建第一条配置</p>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <div
+                    v-for="item in dataset.metricConfigs"
+                    :key="item.id"
+                    class="prep-metric-item"
+                    :class="{
+                      'is-active': editingConfigId === item.id && dataPrepConfigVisible,
+                    }"
+                    role="button"
+                    tabindex="0"
+                    @click.stop="onEditMetricConfig(item.id)"
+                    @keydown.enter.prevent="onEditMetricConfig(item.id)"
+                  >
+                    <div class="prep-metric-item__icon" aria-hidden="true">
+                      <GrowIconify icon="carbon:calculator" :size="15" />
+                    </div>
+                    <div class="prep-metric-item__body">
+                      <div class="prep-metric-item__title" :title="item.measure.name || '未命名度量'">
+                        {{ item.measure.name || '未命名度量' }}
+                      </div>
+                      <div class="prep-metric-item__meta">
+                        <template v-if="item.dimensionFields?.length">
+                          <span
+                            v-for="field in item.dimensionFields.slice(0, 3)"
+                            :key="field"
+                            class="prep-metric-item__chip"
+                            :title="field"
+                          >
+                            {{ formatMetricFieldLabel(field) }}
+                          </span>
+                          <span
+                            v-if="item.dimensionFields.length > 3"
+                            class="prep-metric-item__more"
+                          >
+                            +{{ item.dimensionFields.length - 3 }}
+                          </span>
+                        </template>
+                        <span v-else class="prep-metric-item__empty">未配置维度</span>
+                      </div>
+                      <div
+                        v-if="item.measure.formula"
+                        class="prep-metric-item__formula"
+                        :title="item.measure.formula"
+                      >
+                        <span
+                          v-for="(part, idx) in parseFormulaParts(item.measure.formula)"
+                          :key="`${item.id}-f-${idx}`"
+                          :class="part.type === 'field' ? 'prep-metric-item__formula-chip' : 'prep-metric-item__formula-text'"
+                        >
+                          {{ part.text }}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="prep-metric-item__actions" @click.stop>
+                      <GrowButton
+                        text
+                        size="small"
+                        title="编辑"
+                        aria-label="编辑"
+                        @click="onEditMetricConfig(item.id)"
+                      >
+                        <GrowIconify icon="carbon:edit" :size="14" />
+                      </GrowButton>
+                      <GrowButton
+                        text
+                        size="small"
+                        type="danger"
+                        title="删除"
+                        aria-label="删除"
+                        @click="onRemoveMetricConfig(item.id)"
+                      >
+                        <GrowIconify icon="carbon:trash-can" :size="14" />
+                      </GrowButton>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -312,6 +364,7 @@ import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 import '@vue-flow/minimap/dist/style.css'
+import './static/prepIcons.css'
 import type { DataPrepDatabaseSchema, DataPrepSchemaTable } from './types'
 import SourceTableNode from './components/canvas/SourceTableNode.vue'
 import JoinEdge from './components/canvas/JoinEdge.vue'
@@ -493,6 +546,36 @@ const metricFieldOptions = computed(() => {
   }
   return options
 })
+
+const metricFieldLabelMap = computed(() => {
+  const map = new Map<string, string>()
+  for (const option of metricFieldOptions.value) {
+    map.set(option.field, option.label)
+  }
+  return map
+})
+
+function formatMetricFieldLabel(field: string) {
+  return metricFieldLabelMap.value.get(field) || field.split('.').pop() || field
+}
+
+function parseFormulaParts(formula: string) {
+  const raw = formula || ''
+  const parts: Array<{ type: 'text' | 'field'; text: string }> = []
+  const re = /\[([^\]]+)\]/g
+  let last = 0
+  let match: RegExpExecArray | null
+  while ((match = re.exec(raw))) {
+    if (match.index > last) {
+      parts.push({ type: 'text', text: raw.slice(last, match.index) })
+    }
+    const field = match[1].trim()
+    parts.push({ type: 'field', text: formatMetricFieldLabel(field) })
+    last = match.index + match[0].length
+  }
+  if (last < raw.length) parts.push({ type: 'text', text: raw.slice(last) })
+  return parts
+}
 
 function onOpenDataPrepConfig() {
   joinDrawer.visible = false
@@ -970,14 +1053,16 @@ async function onSave() {
 }
 
 .prep-rail-icon {
-  display: inline-flex;
+  display: inline-flex !important;
   align-items: center;
   justify-content: center;
+  width: 18px;
+  height: 18px;
   line-height: 0;
 }
 
 .prep-rail-item :deep(.grow-iconify) {
-  display: inline-flex;
+  display: inline-flex !important;
   align-items: center;
   justify-content: center;
   width: 18px;
@@ -991,6 +1076,206 @@ async function onSave() {
   width: 18px;
   height: 18px;
   fill: currentColor;
+}
+
+.prep-icon-btn {
+  display: inline-flex !important;
+  width: 28px !important;
+  min-width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 0 !important;
+}
+
+.prep-icon-btn :deep(.grow-iconify) {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  margin-inline-end: 0 !important;
+  line-height: 0;
+}
+
+.prep-icon-btn :deep(.grow-iconify svg) {
+  display: block;
+}
+
+.prep-metric-item {
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--layout-border-color, var(--border-color));
+  border-radius: 8px;
+  background: var(--component-background-color);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.prep-metric-item:hover {
+  border-color: color-mix(in srgb, var(--primary-color) 35%, var(--layout-border-color, var(--border-color)));
+  background: color-mix(in srgb, var(--primary-color) 4%, var(--component-background-color));
+}
+
+.prep-metric-item.is-active {
+  border-color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color) 8%, var(--component-background-color));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary-color) 20%, transparent);
+}
+
+.prep-metric-item__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  color: var(--primary-color);
+  line-height: 0;
+}
+
+.prep-metric-item__icon :deep(.grow-iconify),
+.prep-metric-empty-icon :deep(.grow-iconify) {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.prep-metric-item__icon :deep(.grow-iconify svg),
+.prep-metric-empty-icon :deep(.grow-iconify svg) {
+  display: block;
+}
+
+.prep-metric-item__body {
+  min-width: 0;
+  flex: 1;
+}
+
+.prep-metric-item__title {
+  overflow: hidden;
+  color: var(--text-color);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prep-metric-item__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.prep-metric-item__chip {
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 0 6px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--layout-background-color, #f5f5f5) 85%, transparent);
+  color: var(--text-secondary-color, var(--text-color-secondary));
+  font-size: 11px;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prep-metric-item__more,
+.prep-metric-item__empty {
+  color: var(--text-secondary-color, var(--text-color-secondary));
+  font-size: 11px;
+  line-height: 18px;
+}
+
+.prep-metric-item__formula {
+  margin-top: 6px;
+  overflow: hidden;
+  color: var(--text-color);
+  font-size: 12px;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prep-metric-item__formula-text {
+  color: var(--text-color);
+}
+
+.prep-metric-item__formula-chip {
+  display: inline-flex;
+  margin: 0 2px;
+  padding: 0 6px;
+  border: 1px solid color-mix(in srgb, var(--primary-color) 28%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+  color: var(--primary-color);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 18px;
+  vertical-align: middle;
+}
+
+.prep-metric-item__actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0;
+  opacity: 0.45;
+  transition: opacity 0.15s ease;
+}
+
+.prep-metric-item__actions :deep(.el-button + .el-button),
+.prep-metric-item__actions :deep(.n-button + .n-button),
+.prep-metric-item__actions :deep(.ant-btn + .ant-btn),
+.prep-metric-item__actions :deep(button + button) {
+  margin-left: 0 !important;
+}
+
+.prep-metric-item__actions :deep(.el-button),
+.prep-metric-item__actions :deep(.n-button),
+.prep-metric-item__actions :deep(.ant-btn),
+.prep-metric-item__actions :deep(button) {
+  display: inline-flex !important;
+  width: 24px !important;
+  min-width: 24px !important;
+  height: 24px !important;
+  min-height: 24px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 0 !important;
+}
+
+.prep-metric-item__actions :deep(.grow-iconify) {
+  margin-inline-end: 0 !important;
+}
+
+.prep-metric-item:hover .prep-metric-item__actions,
+.prep-metric-item.is-active .prep-metric-item__actions {
+  opacity: 1;
+}
+
+.prep-metric-empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+  color: var(--primary-color);
+  line-height: 0;
 }
 
 .prep-table-picker-item {

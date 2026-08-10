@@ -48,7 +48,7 @@ export const defaultFieldResolver: FormulaFieldResolver = (field, rows) =>
 function aggregate(fn: string, valuesList: unknown[][]): number {
   const name = fn.toUpperCase()
   if (name === 'COUNT' && valuesList.length === 0) return 0
-  if (name === 'COUNT' && valuesList.length === 1 && valuesList[0].length === 0) {
+  if (name === 'COUNT' && valuesList.length === 1 && !(valuesList[0] || []).length) {
     return 0
   }
 
@@ -56,7 +56,7 @@ function aggregate(fn: string, valuesList: unknown[][]): number {
     if (!valuesList.length) return 0
     // COUNT() 无参：行数；COUNT([f])：非空计数；多列：各列非空合计
     if (valuesList.length === 1) {
-      return valuesList[0].filter((v) => v != null && v !== '').length
+      return (valuesList[0] || []).filter((v) => v != null && v !== '').length
     }
     return valuesList.reduce(
       (sum, values) => sum + values.filter((v) => v != null && v !== '').length,
@@ -384,9 +384,9 @@ export function evaluateFormulaOnGroup(
   rows: Record<string, unknown>[],
   resolveField: FormulaFieldResolver = defaultFieldResolver,
 ): unknown {
-  const trimmed = formula.trim()
+  const trimmed = (formula || '').trim()
   if (!trimmed) return null
-  if (!rows.length) return null
+  if (!rows?.length) return null
 
   // 将聚合调用替换为数值后再用表达式求值
   const replaced = replaceAggregates(trimmed, rows, resolveField)

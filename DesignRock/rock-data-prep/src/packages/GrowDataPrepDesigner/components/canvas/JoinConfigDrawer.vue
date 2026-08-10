@@ -1,7 +1,7 @@
 <template>
   <aside
     v-if="visible"
-    class="absolute bottom-2.5 right-2.5 top-2.5 z-30 box-border flex w-[420px] min-h-0 flex-col overflow-hidden rounded-md border border-solid border-border bg-component shadow-card"
+    class="data-prep-join-float absolute bottom-2.5 right-2.5 top-2.5 z-30 box-border flex w-[420px] min-h-0 flex-col overflow-hidden rounded-md border border-solid border-border bg-component shadow-card"
     @click.stop
   >
     <div
@@ -16,7 +16,7 @@
         <GrowButton
           text
           size="small"
-          class="!h-7 !max-w-7 !min-w-7 !w-7 !shrink-0 !p-0 text-text-secondary"
+          class="prep-icon-btn !shrink-0 text-text-secondary"
           title="关闭"
           @click="onVisible(false)"
         >
@@ -75,7 +75,7 @@
               :disabled="!form.leftSourceId || !form.rightSourceId"
               @click="addCondition"
             >
-              <GrowIconify icon="carbon:add" :size="14" class="mr-1 align-[-2px]" />
+              <GrowIconify icon="carbon:add" :size="14" />
               添加字段
             </GrowButton>
           </div>

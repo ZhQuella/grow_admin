@@ -1,0 +1,82 @@
+/**
+ * GrowDataPrepDesigner 图标居中约定：
+ * - grow-iconify 使用 inline-flex + 居中
+ * - 内部 svg 使用 block，避免基线偏移
+ * - 按钮内图标与文字垂直对齐，不再依赖 align-[-2px]
+ */
+.grow-data-prep .grow-iconify,
+.data-prep-formula-dialog .grow-iconify,
+.data-prep-join-float .grow-iconify {
+  display: inline-flex !important;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  vertical-align: middle;
+}
+
+.grow-data-prep .grow-iconify svg,
+.data-prep-formula-dialog .grow-iconify svg,
+.data-prep-join-float .grow-iconify svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+/* 带文字的按钮：图标与文字同排居中 */
+.grow-data-prep .el-button,
+.grow-data-prep .n-button,
+.grow-data-prep .ant-btn,
+.data-prep-formula-dialog .el-button,
+.data-prep-formula-dialog .n-button,
+.data-prep-formula-dialog .ant-btn,
+.data-prep-join-float .el-button,
+.data-prep-join-float .n-button,
+.data-prep-join-float .ant-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.grow-data-prep .el-button .grow-iconify,
+.grow-data-prep .n-button .grow-iconify,
+.grow-data-prep .ant-btn .grow-iconify,
+.data-prep-formula-dialog .el-button .grow-iconify,
+.data-prep-formula-dialog .n-button .grow-iconify,
+.data-prep-formula-dialog .ant-btn .grow-iconify,
+.data-prep-join-float .el-button .grow-iconify,
+.data-prep-join-float .n-button .grow-iconify,
+.data-prep-join-float .ant-btn .grow-iconify {
+  margin-inline-end: 4px;
+}
+
+.grow-data-prep .el-button .grow-iconify:only-child,
+.grow-data-prep .n-button .grow-iconify:only-child,
+.grow-data-prep .ant-btn .grow-iconify:only-child,
+.data-prep-formula-dialog .el-button .grow-iconify:only-child,
+.data-prep-formula-dialog .n-button .grow-iconify:only-child,
+.data-prep-formula-dialog .ant-btn .grow-iconify:only-child,
+.data-prep-join-float .el-button .grow-iconify:only-child,
+.data-prep-join-float .n-button .grow-iconify:only-child,
+.data-prep-join-float .ant-btn .grow-iconify:only-child {
+  margin-inline-end: 0;
+}
+
+/* 纯图标按钮：固定方盒居中 */
+.grow-data-prep .prep-icon-btn,
+.data-prep-formula-dialog .prep-icon-btn,
+.data-prep-join-float .prep-icon-btn {
+  display: inline-flex !important;
+  width: 28px !important;
+  min-width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 0 !important;
+}
+
+.grow-data-prep .prep-icon-btn .grow-iconify,
+.data-prep-formula-dialog .prep-icon-btn .grow-iconify,
+.data-prep-join-float .prep-icon-btn .grow-iconify {
+  margin-inline-end: 0 !important;
+}
