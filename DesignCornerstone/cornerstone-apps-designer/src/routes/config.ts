@@ -67,6 +67,11 @@ export const DESIGNER_ROUTE_STRUCTURES: DesignerRouteStructure[] = [
         name: 'DataCleanPlayground',
         componentKey: 'DataCleanPlayground',
       },
+      {
+        path: 'process-engine-playground',
+        name: 'ProcessEnginePlayground',
+        componentKey: 'ProcessEnginePlayground',
+      },
     ],
   },
 ]
@@ -140,6 +145,7 @@ export const DESIGNER_COMPONENT_KEYS = new Set([
   'SchemaDesignerPlayground',
   'DataPrepPlayground',
   'DataCleanPlayground',
+  'ProcessEnginePlayground',
 ])
 
 export const DESIGNER_COMPONENT_PAGE_NAMES: Record<string, string> = {
@@ -148,6 +154,7 @@ export const DESIGNER_COMPONENT_PAGE_NAMES: Record<string, string> = {
   SchemaDesignerPlayground: 'SchemaDesignerPlaygroundPage',
   DataPrepPlayground: 'DataPrepPlaygroundPage',
   DataCleanPlayground: 'DataCleanPlaygroundPage',
+  ProcessEnginePlayground: 'ProcessEnginePlaygroundPage',
 }
 
 export function resolveDesignerPageComponentName(componentKey: string): string {
