@@ -32,8 +32,10 @@
     </template>
 
     <div class="clean-flow-node__head">
-      <GrowIconify :icon="icon" :size="14" class="clean-flow-node__icon" />
-      <span class="clean-flow-node__title" :title="name">{{ name }}</span>
+      <div class="clean-flow-node__head-main">
+        <GrowIconify :icon="icon" :size="14" class="clean-flow-node__icon" />
+        <span class="clean-flow-node__title" :title="name">{{ name }}</span>
+      </div>
       <span class="clean-flow-node__tag">{{ categoryLabel }}</span>
     </div>
     <div class="clean-flow-node__body">
@@ -178,17 +180,43 @@ const statsText = computed(() => {
 .clean-flow-node__head {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: space-between;
+  gap: 8px;
   padding: 8px 10px 4px;
+}
+
+.clean-flow-node__head-main {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .clean-flow-node__icon {
   color: var(--clean-node-border);
-  flex-shrink: 0;
+  flex: 0 0 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.clean-flow-node__head-main :deep(.grow-iconify) {
+  flex: 0 0 14px;
+  width: 14px;
+  height: 14px;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.clean-flow-node__head-main :deep(.grow-iconify svg) {
+  width: 14px;
+  height: 14px;
 }
 
 .clean-flow-node__title {
-  flex: 1;
+  flex: 0 1 auto;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -196,6 +224,7 @@ const statsText = computed(() => {
   font-size: 13px;
   font-weight: 600;
   line-height: 20px;
+  text-align: left;
 }
 
 .clean-flow-node__tag {

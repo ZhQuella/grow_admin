@@ -31,8 +31,8 @@ export type CleanTableSourceConfig = {
   refLabel?: string
   tableId?: string
   tableName?: string
-  /** 勾选输出字段；空 = 全选 */
-  fields?: string[]
+  /** 勾选输出字段；`undefined`/`null` = 全部（默认）；`[]` = 不输出任何字段 */
+  fields?: string[] | null
 }
 
 export type CleanApiSourceConfig = {
@@ -67,6 +67,13 @@ export type CleanOutlierConfig = {
   rule?: 'range' | 'regex' | 'enum'
   action?: 'mark' | 'drop' | 'replace'
   replaceValue?: string
+  /** rule=range */
+  min?: string
+  max?: string
+  /** rule=regex */
+  pattern?: string
+  /** rule=enum，逗号分隔合法值 */
+  enumValues?: string
 }
 
 export type CleanFilterCondition = {
@@ -150,6 +157,11 @@ export type CleanOutputConfig = {
   target?: 'report' | 'lowcode' | 'api'
   trigger?: 'on-demand' | 'manual-preview'
   consumers?: Array<{ id: string; name: string; kind: 'report' | 'page' }>
+  /**
+   * 最终输出字段（有序）。
+   * `undefined`/`null` = 上游全部（默认）；`[]` = 不输出任何字段。
+   */
+  fields?: string[] | null
 }
 
 export type CleanNodeConfigMap = {
@@ -213,6 +225,12 @@ export type CleanPreviewColumn = {
 export type CleanPreviewResult = {
   columns: CleanPreviewColumn[]
   rows: Record<string, unknown>[]
+  /** 未实现节点 / 配置问题等提示（不阻断预览） */
+  warnings?: string[]
+  /** 致命错误（无目标节点、多 output 等） */
+  error?: string
+  targetNodeId?: string
+  targetNodeName?: string
 }
 
 /** 组件库条目 */

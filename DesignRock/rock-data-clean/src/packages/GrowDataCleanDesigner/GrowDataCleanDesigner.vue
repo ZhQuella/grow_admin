@@ -24,7 +24,7 @@
         </span>
       </div>
       <div class="flex shrink-0 items-center gap-2">
-        <GrowButton size="small" :disabled="!selectedNodeId" @click="onPreviewSelected">
+        <GrowButton size="small" :loading="previewing" @click="onPreview">
           <GrowIconify icon="carbon:data-view" :size="14" />
           预览
         </GrowButton>
@@ -88,6 +88,7 @@
           <NodeConfigPanel
             v-if="selectedNode"
             :node="selectedNode"
+            :field-candidates="configFieldCandidates"
             @update-node="onUpdateNode"
           />
         </CleanConfigFloat>
@@ -102,7 +103,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, markRaw, ref, watch } from 'vue'
+import { computed, defineComponent, h, markRaw, onMounted, ref, watch } from 'vue'
 import {
   VueFlow,
   useVueFlow,
@@ -135,13 +136,19 @@ import {
   createCleanFlowNode,
 } from './factories'
 import { NODE_TYPE_META } from './static/nodeCatalog'
-import { buildDemoPreview } from './static/demoPreview'
+import { buildCleanTableRowsMap, findDemoTable, type CleanTableRowsMap } from './static/demoTables'
+import { loadCleanTableRowsMap } from './utils/api'
+import { countOutputNodes, runCleanFlowLocal } from './utils/runCleanFlow'
 import type {
   CleanFlow,
   CleanFlowNode as CleanFlowNodeModel,
   CleanNodeType,
+  CleanPreviewColumn,
   CleanPreviewResult,
+  CleanTableSourceConfig,
 } from './types'
+
+const PREVIEW_LIMIT = 50
 
 defineOptions({
   name: 'GrowDataCleanDesigner',
@@ -173,7 +180,9 @@ const flow = ref<CleanFlow>(
 const selectedNodeId = ref<string | null>(null)
 const selectedEdgeId = ref<string | null>(null)
 const saving = ref(false)
+const previewing = ref(false)
 const previewResult = ref<CleanPreviewResult | null>(null)
+const tableRowsMap = ref<CleanTableRowsMap>(buildCleanTableRowsMap())
 const nodes = ref<Node[]>([])
 const edges = ref<Edge[]>([])
 
@@ -187,9 +196,54 @@ watch(
   },
 )
 
+onMounted(() => {
+  loadCleanTableRowsMap()
+    .then((map) => {
+      tableRowsMap.value = map
+    })
+    .catch(() => {
+      // 已有本地 demo 回退
+    })
+})
+
 const selectedNode = computed(
   () => flow.value.nodes.find((item) => item.id === selectedNodeId.value) || null,
 )
+
+/** 配置面板字段候选：表源用表结构；输出节点用上游列（避免受自身 fields 投影影响） */
+const configFieldCandidates = computed<CleanPreviewColumn[]>(() => {
+  const node = selectedNode.value
+  if (!node) return []
+
+  if (node.type === 'table') {
+    const config = (node.config || {}) as CleanTableSourceConfig
+    const key = config.refId || config.tableId || config.tableName || ''
+    const demo = findDemoTable(key)
+    return (demo?.columns || []).map((col) => ({
+      key: col.key,
+      title: col.title || col.key,
+      dataType: col.dataType,
+    }))
+  }
+
+  if (node.type === 'output') {
+    const upstreamId = flow.value.edges.find((edge) => edge.target === node.id)?.source
+    if (!upstreamId) return []
+    const up = runCleanFlowLocal(cloneCleanFlow(flow.value), {
+      targetNodeId: upstreamId,
+      tableRows: tableRowsMap.value,
+      limit: 1,
+    })
+    if (up.error) return []
+    return (up.columns || []).map((col) => ({
+      key: col.key,
+      title: col.title || col.key,
+      dataType: col.dataType,
+    }))
+  }
+
+  return []
+})
 
 const CleanNodeView = defineComponent({
   name: 'CleanFlowNodeView',
@@ -209,7 +263,7 @@ const CleanNodeView = defineComponent({
         onSelect: (id: string) => {
           selectedNodeId.value = id
           selectedEdgeId.value = null
-          refreshPreviewFor(id)
+          void runPreview({ targetNodeId: id })
         },
       })
   },
@@ -307,7 +361,7 @@ function onPaneClick() {
 function onNodeClick({ node }: NodeMouseEvent) {
   selectedNodeId.value = node.id
   selectedEdgeId.value = null
-  refreshPreviewFor(node.id)
+  void runPreview({ targetNodeId: node.id })
 }
 
 function onEdgeClick({ edge }: EdgeMouseEvent) {
@@ -326,7 +380,11 @@ function removeFlowEdge(edgeId: string) {
   commit()
 }
 
-function onUpdateNode(id: string, patch: Partial<CleanFlowNodeModel>) {
+function onUpdateNode(
+  id: string,
+  patch: Partial<CleanFlowNodeModel>,
+  options?: { skipPreview?: boolean },
+) {
   flow.value = {
     ...flow.value,
     nodes: flow.value.nodes.map((item) =>
@@ -341,9 +399,8 @@ function onUpdateNode(id: string, patch: Partial<CleanFlowNodeModel>) {
     ),
   }
   commit()
-  if (selectedNodeId.value === id) {
-    const next = flow.value.nodes.find((item) => item.id === id)
-    if (next) previewResult.value = buildDemoPreview(next.name, next)
+  if (!options?.skipPreview && selectedNodeId.value === id) {
+    void runPreview({ targetNodeId: id })
   }
 }
 
@@ -525,6 +582,15 @@ function onDrop(event: DragEvent) {
   const type = event.dataTransfer?.getData('application/grow-data-clean-node') as CleanNodeType
   if (!type || !NODE_TYPE_META[type]) return
 
+  if (type === 'output' && countOutputNodes(flow.value) >= 1) {
+    previewResult.value = {
+      columns: [],
+      rows: [],
+      error: '画布上只能有一个「数据输出」节点',
+    }
+    return
+  }
+
   const bounds = (event.currentTarget as HTMLElement).getBoundingClientRect()
   const position = project({
     x: event.clientX - bounds.left,
@@ -540,27 +606,58 @@ function onDrop(event: DragEvent) {
   }
   selectedNodeId.value = node.id
   commit()
-  refreshPreviewFor(node.id)
+  void runPreview({ targetNodeId: node.id })
 }
 
-function refreshPreviewFor(nodeId: string) {
-  const node = flow.value.nodes.find((item) => item.id === nodeId)
-  if (!node) {
-    previewResult.value = null
+async function runPreview(options: { targetNodeId?: string; toOutput?: boolean }) {
+  previewing.value = true
+  try {
+    const snapshot = cloneCleanFlow(flow.value)
+    const result = runCleanFlowLocal(snapshot, {
+      ...options,
+      tableRows: tableRowsMap.value,
+      limit: PREVIEW_LIMIT,
+    })
+    previewResult.value = result
+
+    const targetId = result.targetNodeId || options.targetNodeId
+    if (targetId && !result.error) {
+      const upstreamIds = [
+        ...new Set(
+          snapshot.edges.filter((edge) => edge.target === targetId).map((edge) => edge.source),
+        ),
+      ]
+      let inputRows = result.rows.length
+      if (upstreamIds.length) {
+        const up = runCleanFlowLocal(snapshot, {
+          targetNodeId: upstreamIds[0],
+          tableRows: tableRowsMap.value,
+          limit: PREVIEW_LIMIT,
+        })
+        if (!up.error) inputRows = up.rows.length
+      }
+      onUpdateNode(
+        targetId,
+        {
+          stats: {
+            inputRows,
+            outputRows: result.rows.length,
+          },
+        },
+        { skipPreview: true },
+      )
+    }
+  } finally {
+    previewing.value = false
+  }
+}
+
+function onPreview() {
+  if (selectedNodeId.value) {
+    void runPreview({ targetNodeId: selectedNodeId.value })
     return
   }
-  previewResult.value = buildDemoPreview(node.name, node)
-}
-
-function onPreviewSelected() {
-  if (!selectedNodeId.value) return
-  const id = selectedNodeId.value
-  const node = flow.value.nodes.find((item) => item.id === id)
-  if (!node) return
-  onUpdateNode(id, {
-    stats: { inputRows: 3, outputRows: 3 },
-  })
-  previewResult.value = buildDemoPreview(node.name, node)
+  void runPreview({ toOutput: true })
 }
 
 async function onSave() {

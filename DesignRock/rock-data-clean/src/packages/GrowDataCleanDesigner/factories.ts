@@ -13,7 +13,6 @@ export function defaultConfigForType<T extends CleanNodeType>(type: T): CleanNod
     case 'table':
       return {
         sourceKind: 'schema-table',
-        fields: [],
       } as CleanNodeConfigMap[T]
     case 'api':
       return { method: 'GET', url: '' } as CleanNodeConfigMap[T]
@@ -26,7 +25,14 @@ export function defaultConfigForType<T extends CleanNodeType>(type: T): CleanNod
     case 'trim-case':
       return { fields: [], ops: ['trim'] } as CleanNodeConfigMap[T]
     case 'outlier':
-      return { rule: 'range', action: 'mark' } as CleanNodeConfigMap[T]
+      return {
+        rule: 'range',
+        action: 'mark',
+        min: '',
+        max: '',
+        pattern: '',
+        enumValues: '',
+      } as CleanNodeConfigMap[T]
     case 'filter':
       return {
         logic: 'and',
@@ -51,11 +57,17 @@ export function defaultConfigForType<T extends CleanNodeType>(type: T): CleanNod
         padEmpty: true,
       } as CleanNodeConfigMap[T]
     case 'join':
-      return { joinType: 'left', keys: [] } as CleanNodeConfigMap[T]
+      return {
+        joinType: 'left',
+        keys: [{ leftField: '', rightField: '' }],
+      } as CleanNodeConfigMap[T]
     case 'union':
-      return { dedupe: false } as CleanNodeConfigMap[T]
+      return { dedupe: false, fieldMap: {} } as CleanNodeConfigMap[T]
     case 'groupby':
-      return { groupFields: [], metrics: [] } as CleanNodeConfigMap[T]
+      return {
+        groupFields: [],
+        metrics: [{ field: '', fn: 'SUM', alias: 'metric_1' }],
+      } as CleanNodeConfigMap[T]
     case 'pivot':
       return { agg: 'SUM' } as CleanNodeConfigMap[T]
     case 'output':
