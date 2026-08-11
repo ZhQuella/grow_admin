@@ -79,13 +79,19 @@
             从左侧组件库拖拽节点到此处开始编排
           </div>
         </div>
-      </div>
 
-      <NodeConfigPanel
-        :node="selectedNode"
-        @close="selectedNodeId = null"
-        @update-node="onUpdateNode"
-      />
+        <CleanConfigFloat
+          :visible="!!selectedNode"
+          :title="selectedNode ? `配置 · ${selectedNode.name}` : '节点配置'"
+          @close="closeNodeConfig"
+        >
+          <NodeConfigPanel
+            v-if="selectedNode"
+            :node="selectedNode"
+            @update-node="onUpdateNode"
+          />
+        </CleanConfigFloat>
+      </div>
     </div>
 
     <CleanPreviewPanel
@@ -119,6 +125,7 @@ import '@vue-flow/controls/dist/style.css'
 import CleanFlowNode from './components/canvas/CleanFlowNode.vue'
 import CleanFlowEdge from './components/canvas/CleanFlowEdge.vue'
 import NodePalette from './components/palette/NodePalette.vue'
+import CleanConfigFloat from './components/config/CleanConfigFloat.vue'
 import NodeConfigPanel from './components/config/NodeConfigPanel.vue'
 import CleanPreviewPanel from './components/preview/CleanPreviewPanel.vue'
 import {
@@ -262,6 +269,10 @@ function syncFlowToCanvas() {
       },
     },
   }))
+}
+
+function closeNodeConfig() {
+  selectedNodeId.value = null
 }
 
 function commit(emitSave = false) {
@@ -546,10 +557,8 @@ function onPreviewSelected() {
   const id = selectedNodeId.value
   const node = flow.value.nodes.find((item) => item.id === id)
   if (!node) return
-  const inputRows = 3
-  const outputRows = 3
   onUpdateNode(id, {
-    stats: { inputRows, outputRows },
+    stats: { inputRows: 3, outputRows: 3 },
   })
   previewResult.value = buildDemoPreview(node.name, node)
 }

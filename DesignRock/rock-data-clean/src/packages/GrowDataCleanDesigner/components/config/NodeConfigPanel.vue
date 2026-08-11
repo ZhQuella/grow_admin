@@ -1,19 +1,6 @@
 <template>
-  <aside
-    class="clean-config box-border flex h-full min-h-0 w-[320px] shrink-0 flex-col border-l border-solid border-border bg-component"
-  >
-    <div
-      class="box-border flex h-10 shrink-0 items-center justify-between gap-2 border-b border-solid border-border px-3"
-    >
-      <h4 class="m-0 min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-[13px] font-semibold text-text">
-        {{ title }}
-      </h4>
-      <GrowButton v-if="node" text size="small" class="!px-1" title="关闭" @click="$emit('close')">
-        <GrowIconify icon="carbon:close" :size="15" />
-      </GrowButton>
-    </div>
-
-    <GrowScrollbar v-if="node" class="min-h-0 flex-1">
+  <div class="box-border flex h-full min-h-0 flex-col">
+    <GrowScrollbar class="min-h-0 flex-1">
       <div class="box-border px-3 py-3">
         <GrowForm label-width="72px" label-position="left" size="small" :show-message="false">
           <GrowFormItem label="名称">
@@ -305,11 +292,7 @@
         </div>
       </div>
     </GrowScrollbar>
-
-    <div v-else class="flex flex-1 items-center justify-center px-4 text-center text-xs text-text-secondary">
-      选中画布节点以编辑配置
-    </div>
-  </aside>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -340,11 +323,10 @@ defineOptions({
 })
 
 const props = defineProps<{
-  node: CleanFlowNode | null
+  node: CleanFlowNode
 }>()
 
 const emit = defineEmits<{
-  close: []
   'update-node': [id: string, patch: Partial<CleanFlowNode>]
 }>()
 
@@ -354,10 +336,7 @@ const OUTPUT_TARGET_OPTIONS = [
   { label: 'API 端点', value: 'api' },
 ]
 
-const title = computed(() => (props.node ? `配置 · ${props.node.name}` : '节点配置'))
-const typeLabel = computed(() =>
-  props.node ? NODE_TYPE_META[props.node.type].label : '',
-)
+const typeLabel = computed(() => NODE_TYPE_META[props.node.type].label)
 
 const tableConfig = computed(
   () => (props.node?.config || {}) as CleanTableSourceConfig,

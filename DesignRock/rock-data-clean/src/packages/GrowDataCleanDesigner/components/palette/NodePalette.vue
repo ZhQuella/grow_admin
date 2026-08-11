@@ -34,14 +34,14 @@
               :title="item.description"
               @dragstart="onDragStart($event, item.type)"
             >
-              <GrowIconify
-                :icon="item.icon"
-                :size="14"
-                class="shrink-0"
-                :style="{ color: `var(${categoryCssVar(item.category)})` }"
-              />
-              <span class="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                {{ item.label }}
+              <span class="clean-palette__item-main">
+                <GrowIconify
+                  :icon="item.icon"
+                  :size="14"
+                  class="clean-palette__item-icon"
+                  :style="{ color: `var(${categoryCssVar(item.category)})` }"
+                />
+                <span class="clean-palette__item-label">{{ item.label }}</span>
               </span>
             </div>
           </div>
@@ -91,6 +91,7 @@ function onDragStart(event: DragEvent, type: CleanNodeType) {
   display: flex;
   width: 100%;
   align-items: center;
+  justify-content: flex-start;
   gap: 6px;
   border: 0;
   background: transparent;
@@ -98,6 +99,7 @@ function onDragStart(event: DragEvent, type: CleanNodeType) {
   color: var(--text-color);
   cursor: pointer;
   border-radius: 4px;
+  text-align: left;
 }
 
 .clean-palette__group-btn:hover {
@@ -120,7 +122,7 @@ function onDragStart(event: DragEvent, type: CleanNodeType) {
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: flex-start;
   height: 32px;
   padding: 0 8px;
   border-radius: 4px;
@@ -129,6 +131,45 @@ function onDragStart(event: DragEvent, type: CleanNodeType) {
   color: var(--text-color);
   font-size: 12px;
   cursor: grab;
+  text-align: left;
+}
+
+.clean-palette__item-main {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.clean-palette__item-icon {
+  flex: 0 0 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.clean-palette__item :deep(.grow-iconify) {
+  flex: 0 0 14px;
+  width: 14px;
+  height: 14px;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.clean-palette__item :deep(.grow-iconify svg) {
+  width: 14px;
+  height: 14px;
+}
+
+.clean-palette__item-label {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
 }
 
 .clean-palette__item:hover {
