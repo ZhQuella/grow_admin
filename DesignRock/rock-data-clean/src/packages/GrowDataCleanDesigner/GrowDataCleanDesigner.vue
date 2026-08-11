@@ -210,7 +210,7 @@ const selectedNode = computed(
   () => flow.value.nodes.find((item) => item.id === selectedNodeId.value) || null,
 )
 
-/** 配置面板字段候选：表源用表结构；输出节点用上游列（避免受自身 fields 投影影响） */
+/** 配置面板字段候选：表源用表结构；其它节点取直接上游列（避免受自身变换影响） */
 const configFieldCandidates = computed<CleanPreviewColumn[]>(() => {
   const node = selectedNode.value
   if (!node) return []
@@ -226,23 +226,19 @@ const configFieldCandidates = computed<CleanPreviewColumn[]>(() => {
     }))
   }
 
-  if (node.type === 'output') {
-    const upstreamId = flow.value.edges.find((edge) => edge.target === node.id)?.source
-    if (!upstreamId) return []
-    const up = runCleanFlowLocal(cloneCleanFlow(flow.value), {
-      targetNodeId: upstreamId,
-      tableRows: tableRowsMap.value,
-      limit: 1,
-    })
-    if (up.error) return []
-    return (up.columns || []).map((col) => ({
-      key: col.key,
-      title: col.title || col.key,
-      dataType: col.dataType,
-    }))
-  }
-
-  return []
+  const upstreamId = flow.value.edges.find((edge) => edge.target === node.id)?.source
+  if (!upstreamId) return []
+  const up = runCleanFlowLocal(cloneCleanFlow(flow.value), {
+    targetNodeId: upstreamId,
+    tableRows: tableRowsMap.value,
+    limit: 1,
+  })
+  if (up.error) return []
+  return (up.columns || []).map((col) => ({
+    key: col.key,
+    title: col.title || col.key,
+    dataType: col.dataType,
+  }))
 })
 
 const CleanNodeView = defineComponent({

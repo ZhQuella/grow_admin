@@ -6,13 +6,19 @@
         <GrowButton text size="small" :disabled="!candidates.length" @click="selectAll">
           全选
         </GrowButton>
-        <GrowButton text size="small" :disabled="!candidates.length" @click="clearAll">
+        <GrowButton
+          v-if="emptyMeans === 'none'"
+          text
+          size="small"
+          :disabled="!candidates.length"
+          @click="clearAll"
+        >
           清空
         </GrowButton>
       </div>
     </div>
 
-    <p class="mb-2 mt-0 text-[11px] text-text-secondary">
+    <p v-if="hint" class="mb-2 mt-0 text-[11px] text-text-secondary">
       {{ hint }}
     </p>
 
@@ -63,10 +69,8 @@ export type CleanFieldCandidate = {
 }
 
 /**
- * 输出字段选择：
- * - `null` / `undefined` = 默认全部
- * - `[]` = 明确不输出任何字段
- * - `string[]` = 仅这些字段
+ * - emptyMeans=`none`（表/输出）：`null`/`undefined`=默认全部；`[]`=不选
+ * - emptyMeans=`all`（清洗算子）：`null`/`undefined`/`[]`=全部字段
  */
 export type CleanFieldsSelection = string[] | null | undefined
 
@@ -78,13 +82,23 @@ const props = withDefaults(
   defineProps<{
     modelValue: CleanFieldsSelection
     candidates: CleanFieldCandidate[]
+    /** `none`：可清空；`all`：空配置表示作用全部字段 */
+    emptyMeans?: 'all' | 'none'
+    /**
+     * 仅 emptyMeans=`none` 时生效：
+     * true（表/输出）全选收成 null=默认全部；
+     * false（分组等）全选写入完整字段列表。
+     */
+    defaultAll?: boolean
     title?: string
     hint?: string
     emptyText?: string
   }>(),
   {
-    title: '输出字段',
-    hint: '勾选要输出的字段；未配置时默认全部，也可全部取消。',
+    emptyMeans: 'none',
+    defaultAll: true,
+    title: '字段',
+    hint: '',
     emptyText: '暂无可用字段（请先连接上游或选择数据表）',
   },
 )
@@ -97,8 +111,12 @@ const candidateKeys = computed(() =>
   (props.candidates || []).map((item) => item.key).filter(Boolean),
 )
 
-/** 未配置（null/undefined）视为默认全选；空数组是用户清空 */
-const isAllMode = computed(() => props.modelValue == null)
+const isAllMode = computed(() => {
+  if (props.emptyMeans === 'all') {
+    return props.modelValue == null || !(props.modelValue || []).filter(Boolean).length
+  }
+  return props.defaultAll && props.modelValue == null
+})
 
 const selectedSet = computed(() => {
   if (isAllMode.value) return new Set(candidateKeys.value)
@@ -118,8 +136,17 @@ function emitSelection(keys: string[]) {
   const next = keys.filter((key) => all.includes(key))
   const sameAsAll =
     next.length === all.length && all.every((key) => next.includes(key))
-  // 勾回全部 → 回到默认（null）；清空 → []；其余显式列表
-  emit('update:modelValue', sameAsAll ? null : next)
+
+  if (props.emptyMeans === 'all') {
+    emit('update:modelValue', sameAsAll || !next.length ? [] : next)
+    return
+  }
+
+  if (sameAsAll && props.defaultAll) {
+    emit('update:modelValue', null)
+    return
+  }
+  emit('update:modelValue', next)
 }
 
 function onToggle(key: string, checked: boolean) {
@@ -134,7 +161,11 @@ function onToggle(key: string, checked: boolean) {
 }
 
 function selectAll() {
-  emit('update:modelValue', null)
+  if (props.emptyMeans === 'all') {
+    emit('update:modelValue', [])
+    return
+  }
+  emit('update:modelValue', props.defaultAll ? null : [...candidateKeys.value])
 }
 
 function clearAll() {

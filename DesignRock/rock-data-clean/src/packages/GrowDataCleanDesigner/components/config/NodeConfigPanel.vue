@@ -308,14 +308,6 @@
                 @update:model-value="(v) => patchConfig({ strategy: String(v) })"
               />
             </GrowFormItem>
-            <GrowFormItem label="字段">
-              <GrowInput
-                :model-value="(nullHandleConfig.fields || []).join(',')"
-                size="small"
-                placeholder="逗号分隔，空=全部字段"
-                @update:model-value="(v) => patchConfig({ fields: parseFieldsInput(v) })"
-              />
-            </GrowFormItem>
             <GrowFormItem v-if="(nullHandleConfig.strategy || 'fill') === 'fill'" label="填充值">
               <GrowInput
                 :model-value="nullHandleConfig.fillValue || ''"
@@ -325,6 +317,16 @@
               />
             </GrowFormItem>
           </GrowForm>
+          <div class="mt-3 border-t border-solid border-border pt-3">
+            <OutputFieldsPicker
+              :model-value="nullHandleConfig.fields"
+              :candidates="fieldCandidates"
+              empty-means="all"
+              title="作用字段"
+              hint="未勾选时默认处理全部字段。"
+              @update:model-value="(v) => patchConfig({ fields: v ?? [] })"
+            />
+          </div>
         </template>
 
         <template v-else-if="node.type === 'trim-case'">
@@ -335,14 +337,6 @@
             size="small"
             :show-message="false"
           >
-            <GrowFormItem label="字段">
-              <GrowInput
-                :model-value="(trimCaseConfig.fields || []).join(',')"
-                size="small"
-                placeholder="逗号分隔，空=字符串列"
-                @update:model-value="(v) => patchConfig({ fields: parseFieldsInput(v) })"
-              />
-            </GrowFormItem>
             <GrowFormItem label="操作">
               <GrowSelect
                 :model-value="(trimCaseConfig.ops || ['trim'])[0] || 'trim'"
@@ -353,6 +347,16 @@
               />
             </GrowFormItem>
           </GrowForm>
+          <div class="mt-3 border-t border-solid border-border pt-3">
+            <OutputFieldsPicker
+              :model-value="trimCaseConfig.fields"
+              :candidates="fieldCandidates"
+              empty-means="all"
+              title="作用字段"
+              hint="未勾选时默认处理字符串列；也可指定字段。"
+              @update:model-value="(v) => patchConfig({ fields: v ?? [] })"
+            />
+          </div>
           <p class="mt-2 mb-0 text-xs text-text-secondary">
             M1 单选一种操作；需要组合时可在后续版本扩展为多选。
           </p>
@@ -366,14 +370,6 @@
             size="small"
             :show-message="false"
           >
-            <GrowFormItem label="字段">
-              <GrowInput
-                :model-value="(dedupeConfig.fields || []).join(',')"
-                size="small"
-                placeholder="逗号分隔，空=全部字段"
-                @update:model-value="(v) => patchConfig({ fields: parseFieldsInput(v) })"
-              />
-            </GrowFormItem>
             <GrowFormItem label="保留">
               <GrowSelect
                 :model-value="dedupeConfig.keep || 'first'"
@@ -384,6 +380,16 @@
               />
             </GrowFormItem>
           </GrowForm>
+          <div class="mt-3 border-t border-solid border-border pt-3">
+            <OutputFieldsPicker
+              :model-value="dedupeConfig.fields"
+              :candidates="fieldCandidates"
+              empty-means="all"
+              title="去重字段"
+              hint="未勾选时按全部字段去重；勾选后仅按所选字段判断重复。"
+              @update:model-value="(v) => patchConfig({ fields: v ?? [] })"
+            />
+          </div>
         </template>
 
         <template v-else-if="node.type === 'format'">
@@ -593,22 +599,17 @@
         </template>
 
         <template v-else-if="node.type === 'groupby'">
-          <GrowForm
-            class="mt-1"
-            label-width="72px"
-            label-position="left"
-            size="small"
-            :show-message="false"
-          >
-            <GrowFormItem label="分组">
-              <GrowInput
-                :model-value="(groupByConfig.groupFields || []).join(',')"
-                size="small"
-                placeholder="逗号分隔，如 region,status"
-                @update:model-value="(v) => patchConfig({ groupFields: parseFieldsInput(v) })"
-              />
-            </GrowFormItem>
-          </GrowForm>
+          <div class="mt-1 border-b border-solid border-border pb-3">
+            <OutputFieldsPicker
+              :model-value="groupByConfig.groupFields || []"
+              :candidates="fieldCandidates"
+              empty-means="none"
+              :default-all="false"
+              title="分组字段"
+              hint="勾选用于分组的字段；可多选，也可不选（仅聚合）。"
+              @update:model-value="(v) => patchConfig({ groupFields: v ?? [] })"
+            />
+          </div>
           <div class="mt-3 mb-2 flex items-center justify-between">
             <span class="text-xs font-medium text-text">度量</span>
             <GrowButton size="small" @click="addMetric">
@@ -961,13 +962,6 @@ const fieldCandidates = computed<CleanFieldCandidate[]>(() =>
 
 function formatRows(value?: number | null) {
   return value == null ? '-' : String(value)
-}
-
-function parseFieldsInput(value: string | number | null) {
-  return String(value ?? '')
-    .split(/[,，]/)
-    .map((item) => item.trim())
-    .filter(Boolean)
 }
 
 function patchNode(patch: Partial<CleanFlowNode>) {
