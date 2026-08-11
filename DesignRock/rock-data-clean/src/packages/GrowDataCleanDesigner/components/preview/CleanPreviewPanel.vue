@@ -23,8 +23,31 @@
     </div>
 
     <div v-show="!collapsed" class="box-border flex min-h-0 flex-1 flex-col px-3 py-2">
+      <div
+        v-if="error"
+        class="mb-2 shrink-0 rounded border border-solid px-2.5 py-2 text-xs"
+        style="
+          color: var(--error-color);
+          border-color: color-mix(in srgb, var(--error-color) 35%, var(--layout-border-color));
+          background: color-mix(in srgb, var(--error-color) 8%, var(--component-background-color));
+        "
+      >
+        {{ error }}
+      </div>
+      <div
+        v-else-if="warnings.length"
+        class="mb-2 max-h-16 shrink-0 overflow-auto rounded border border-solid px-2.5 py-2 text-xs"
+        style="
+          color: var(--warning-color, #d97706);
+          border-color: color-mix(in srgb, var(--warning-color, #d97706) 35%, var(--layout-border-color));
+          background: color-mix(in srgb, var(--warning-color, #d97706) 8%, var(--component-background-color));
+        "
+      >
+        <div v-for="(item, index) in warnings" :key="`warn-${index}`">{{ item }}</div>
+      </div>
+
       <GrowTable
-        v-if="columns.length"
+        v-if="!error && columns.length"
         :data="tableData"
         border
         size="small"
@@ -40,7 +63,7 @@
           show-overflow-tooltip
         />
       </GrowTable>
-      <div v-else class="flex flex-1 items-center justify-center text-xs text-text-secondary">
+      <div v-else-if="!error" class="flex flex-1 items-center justify-center text-xs text-text-secondary">
         {{ emptyHint }}
       </div>
     </div>
@@ -70,11 +93,15 @@ const props = withDefaults(
 
 const collapsed = ref(false)
 
-const subtitle = computed(() =>
-  props.nodeName ? `当前节点：${props.nodeName}` : '选中节点后展示该节点输出采样',
-)
+const subtitle = computed(() => {
+  if (props.result?.targetNodeName) return `当前节点：${props.result.targetNodeName}`
+  if (props.nodeName) return `当前节点：${props.nodeName}`
+  return '选中节点预览该节点；未选中时预览全流至输出'
+})
 
 const columns = computed(() => props.result?.columns || [])
+const warnings = computed(() => props.result?.warnings || [])
+const error = computed(() => props.result?.error || '')
 
 const tableData = computed(() =>
   (props.result?.rows || []).map((row) => {
@@ -87,9 +114,11 @@ const tableData = computed(() =>
   }),
 )
 
-const emptyHint = computed(() =>
-  props.nodeName ? '暂无预览数据（M1 为占位采样，点击顶部「预览」刷新）' : '请选择画布上的节点',
-)
+const emptyHint = computed(() => {
+  if (!props.result) return '点击「预览」：有选中则看当前节点，无选中则跑全流至输出'
+  if (!(props.result.columns || []).length) return '暂无输出列'
+  return '暂无数据行'
+})
 
 function colLabel(col: CleanPreviewColumn) {
   return col.dataType ? `${col.title} · ${col.dataType}` : col.title

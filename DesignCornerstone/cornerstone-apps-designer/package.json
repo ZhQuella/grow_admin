@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@grow-admin-rock/data-clean": "workspace:*",
+    "@grow-admin-rock/process-engine": "workspace:*",
     "@grow-admin-rock/data-prep": "workspace:*",
     "@grow-admin-rock/designer": "workspace:*",
     "@grow-admin-rock/report-designer": "workspace:*",

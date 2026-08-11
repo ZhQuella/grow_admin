@@ -1,5 +1,7 @@
 <template>
-  <aside class="clean-palette box-border flex h-full min-h-0 w-[240px] shrink-0 flex-col border-r border-solid border-border bg-component">
+  <aside
+    class="process-palette box-border flex h-full min-h-0 w-[240px] shrink-0 flex-col border-r border-solid border-border bg-component"
+  >
     <div
       class="box-border flex h-10 shrink-0 items-center border-b border-solid border-border px-3"
     >
@@ -10,14 +12,14 @@
         <div v-for="group in groups" :key="group.category" class="mb-2">
           <button
             type="button"
-            class="clean-palette__group-btn"
+            class="process-palette__group-btn"
             @click="toggle(group.category)"
           >
             <span
-              class="clean-palette__dot"
+              class="process-palette__dot"
               :style="{ background: `var(${categoryCssVar(group.category)})` }"
             />
-            <span class="clean-palette__group-label">{{ group.label }}</span>
+            <span class="process-palette__group-label">{{ group.label }}</span>
             <GrowIconify
               :icon="collapsed[group.category] ? 'carbon:chevron-down' : 'carbon:chevron-up'"
               :size="14"
@@ -28,20 +30,20 @@
             <div
               v-for="item in group.items"
               :key="item.type"
-              class="clean-palette__item"
+              class="process-palette__item"
               :class="{ 'is-disabled': item.enabled === false }"
               draggable="true"
               :title="item.description"
               @dragstart="onDragStart($event, item.type)"
             >
-              <span class="clean-palette__item-main">
+              <span class="process-palette__item-main">
                 <GrowIconify
                   :icon="item.icon"
                   :size="14"
-                  class="clean-palette__item-icon"
+                  class="process-palette__item-icon"
                   :style="{ color: `var(${categoryCssVar(item.category)})` }"
                 />
-                <span class="clean-palette__item-label">{{ item.label }}</span>
+                <span class="process-palette__item-label">{{ item.label }}</span>
               </span>
             </div>
           </div>
@@ -54,39 +56,40 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { CATEGORY_META, PALETTE_GROUPS } from '../../static/nodeCatalog'
-import type { CleanNodeCategory, CleanNodeType } from '../../types'
+import type { ProcessNodeCategory, ProcessNodeType } from '../../types'
 
 defineOptions({
-  name: 'CleanNodePalette',
+  name: 'ProcessNodePalette',
 })
 
 const groups = PALETTE_GROUPS
 
-const collapsed = reactive<Record<CleanNodeCategory, boolean>>({
-  source: false,
-  clean: false,
-  merge: false,
-  agg: false,
-  output: false,
+const collapsed = reactive<Record<ProcessNodeCategory, boolean>>({
+  human: false,
+  event: false,
+  system: false,
+  state: false,
+  decision: false,
+  branch: false,
 })
 
-function categoryCssVar(category: CleanNodeCategory) {
+function categoryCssVar(category: ProcessNodeCategory) {
   return CATEGORY_META[category].cssVar
 }
 
-function toggle(category: CleanNodeCategory) {
+function toggle(category: ProcessNodeCategory) {
   collapsed[category] = !collapsed[category]
 }
 
-function onDragStart(event: DragEvent, type: CleanNodeType) {
+function onDragStart(event: DragEvent, type: ProcessNodeType) {
   if (!event.dataTransfer) return
-  event.dataTransfer.setData('application/grow-data-clean-node', type)
+  event.dataTransfer.setData('application/grow-process-engine-node', type)
   event.dataTransfer.effectAllowed = 'copy'
 }
 </script>
 
 <style scoped>
-.clean-palette__group-btn {
+.process-palette__group-btn {
   box-sizing: border-box;
   display: flex;
   width: 100%;
@@ -102,23 +105,23 @@ function onDragStart(event: DragEvent, type: CleanNodeType) {
   text-align: left;
 }
 
-.clean-palette__group-btn:hover {
+.process-palette__group-btn:hover {
   background: color-mix(in srgb, var(--text-color) 6%, transparent);
 }
 
-.clean-palette__dot {
+.process-palette__dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
-.clean-palette__group-label {
+.process-palette__group-label {
   font-size: 12px;
   font-weight: 600;
 }
 
-.clean-palette__item {
+.process-palette__item {
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -134,7 +137,7 @@ function onDragStart(event: DragEvent, type: CleanNodeType) {
   text-align: left;
 }
 
-.clean-palette__item-main {
+.process-palette__item-main {
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
@@ -143,13 +146,13 @@ function onDragStart(event: DragEvent, type: CleanNodeType) {
   max-width: 100%;
 }
 
-.clean-palette__item-icon {
+.process-palette__item-icon {
   flex: 0 0 14px;
   width: 14px;
   height: 14px;
 }
 
-.clean-palette__item :deep(.grow-iconify) {
+.process-palette__item :deep(.grow-iconify) {
   flex: 0 0 14px;
   width: 14px;
   height: 14px;
@@ -158,12 +161,12 @@ function onDragStart(event: DragEvent, type: CleanNodeType) {
   justify-content: center;
 }
 
-.clean-palette__item :deep(.grow-iconify svg) {
+.process-palette__item :deep(.grow-iconify svg) {
   width: 14px;
   height: 14px;
 }
 
-.clean-palette__item-label {
+.process-palette__item-label {
   flex: 0 1 auto;
   min-width: 0;
   overflow: hidden;
@@ -172,16 +175,16 @@ function onDragStart(event: DragEvent, type: CleanNodeType) {
   text-align: left;
 }
 
-.clean-palette__item:hover {
+.process-palette__item:hover {
   border-color: var(--primary-color);
   color: var(--primary-color);
 }
 
-.clean-palette__item:active {
+.process-palette__item:active {
   cursor: grabbing;
 }
 
-.clean-palette__item.is-disabled {
+.process-palette__item.is-disabled {
   opacity: 0.45;
   pointer-events: none;
 }

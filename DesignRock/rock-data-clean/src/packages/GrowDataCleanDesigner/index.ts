@@ -52,4 +52,20 @@ export {
   FILTER_OP_OPTIONS,
   FILTER_LOGIC_OPTIONS,
 } from './static/nodeCatalog'
+export {
+  DEMO_CLEAN_TABLES,
+  DEMO_CLEAN_DATASET_TABLES,
+  ALL_DEMO_CLEAN_TABLES,
+  DEMO_CLEAN_SCHEMA_TABLE_OPTIONS,
+  DEMO_API_FRAMES,
+  buildCleanTableRowsMap,
+  findDemoTable,
+  resolveDemoApiFrame,
+} from './static/demoTables'
 export { buildDemoPreview } from './static/demoPreview'
+export {
+  runCleanFlowLocal,
+  countOutputNodes,
+  CLEAN_IMPLEMENTED_NODE_TYPES,
+} from './utils/runCleanFlow'
+export { loadCleanTableRowsMap, fetchCleanDemoTables, fetchCleanTableRows } from './utils/api'

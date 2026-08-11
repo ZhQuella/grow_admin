@@ -55,6 +55,15 @@ export const DESIGNER_MENU_LIST: DesignerMenuApiItem[] = [
         isKeepAlive: true,
         sort: 50,
       },
+      {
+        name: 'ProcessEnginePlayground',
+        title: '流程引擎',
+        icon: 'ant-design:apartment-outlined',
+        menuType: MenuTypeEnum.MENU,
+        isVisible: true,
+        isKeepAlive: true,
+        sort: 60,
+      },
     ],
   },
 ]

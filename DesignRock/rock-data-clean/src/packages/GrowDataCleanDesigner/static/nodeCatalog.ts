@@ -5,6 +5,7 @@ import type {
   CleanSplitMode,
   CleanTableSourceKind,
 } from '../types'
+import { DEMO_CLEAN_SCHEMA_TABLE_OPTIONS } from './demoTables'
 
 export const CATEGORY_META: Record<
   CleanNodeCategory,
@@ -220,13 +221,9 @@ export const TABLE_SOURCE_KIND_OPTIONS: Array<{
   { label: 'Dataset 输出', value: 'dataset-output' },
 ]
 
-/** M1 demo：可选数据源列表（后续对接真实 API） */
+/** M1 demo：可选数据源列表（schema-table 与清洗专用 Mock 对齐） */
 export const DEMO_SOURCE_OPTIONS = {
-  'schema-table': [
-    { id: 'schema_demo_sales::orders', label: 'demo_sales · orders', tableName: 'orders' },
-    { id: 'schema_demo_sales::customers', label: 'demo_sales · customers', tableName: 'customers' },
-    { id: 'schema_demo_region::regions', label: 'demo_region · regions', tableName: 'regions' },
-  ],
+  'schema-table': DEMO_CLEAN_SCHEMA_TABLE_OPTIONS,
   'dataset-table': [
     {
       id: 'ds_sales::orders',
