@@ -288,6 +288,11 @@ defineOptions({
   name: 'GrowReportDesigner',
 })
 
+const props = defineProps<{
+  /** 外部加载的报表 schema；引用变化时写入画布 */
+  schema?: ReportSchema | null
+}>()
+
 const layout = ref<ReportLayoutItem[]>([])
 const activeId = ref('')
 const previewVisible = ref(false)
@@ -300,6 +305,22 @@ const dragHint = ref<{
   sizeText: string
 } | null>(null)
 let blockSeq = 0
+
+function cloneJson<T>(value: T, fallback: T): T {
+  if (value == null) return fallback
+  try {
+    return JSON.parse(JSON.stringify(value)) as T
+  } catch {
+    return fallback
+  }
+}
+
+function resolveBlockSeq(items: ReportLayoutItem[]) {
+  return items.reduce((max, item) => {
+    const matched = /^block-(\d+)$/.exec(String(item.i || ''))
+    return matched ? Math.max(max, Number(matched[1])) : max
+  }, 0)
+}
 
 /**
  * vue3-grid-layout 仅在最终尺寸/位置相对开始时发生变化才触发 resized/moved；
@@ -345,6 +366,25 @@ const pageData = reactive({
   computedProps: [] as any[],
   apiOutlined: [] as any[],
 })
+
+function applySchema(schema?: ReportSchema | null) {
+  const next = schema || {}
+  const nextLayout = cloneJson(next.layout, [] as ReportLayoutItem[])
+  layout.value = nextLayout
+  blockSeq = resolveBlockSeq(nextLayout)
+  pageData.pageConfig = {
+    ...createDefaultPageConfig(),
+    ...cloneJson(next.pageConfig, {} as ReportPageConfig),
+  }
+  pageData.dataSource = cloneJson(next.dataSource, [])
+  pageData.computedProps = cloneJson(next.computedProps, [])
+  pageData.apiOutlined = cloneJson(next.apiOutlined, [])
+  activeId.value = ''
+  configId.value = ''
+  configVisible.value = false
+  previewVisible.value = false
+  previewSchema.value = null
+}
 
 const railItems = [
   {
@@ -745,8 +785,17 @@ const onPreview = () => {
   previewVisible.value = true
 }
 
+watch(
+  () => props.schema,
+  (schema) => {
+    applySchema(schema)
+  },
+  { immediate: true },
+)
+
 defineExpose({
   getSchema: buildSchema,
+  applySchema,
   runtimeState,
   refreshApiOutlined: rebuildRuntimeState,
 })

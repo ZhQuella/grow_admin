@@ -43,14 +43,28 @@ export const DESIGNER_ROUTE_STRUCTURES: DesignerRouteStructure[] = [
     name: 'DesignerCatalog',
     children: [
       {
-        path: 'designer-playground',
-        name: 'DesignerPlayground',
-        componentKey: 'DesignerPlayground',
+        path: 'lowcode-asset-manage',
+        name: 'LowcodeAssetManage',
+        componentKey: 'LowcodeAssetManage',
+        children: [
+          {
+            path: 'design/:id',
+            name: 'LowcodeAssetDesign',
+            componentKey: 'LowcodeAssetDesign',
+          },
+        ],
       },
       {
-        path: 'report-designer-playground',
-        name: 'ReportDesignerPlayground',
-        componentKey: 'ReportDesignerPlayground',
+        path: 'report-asset-manage',
+        name: 'ReportAssetManage',
+        componentKey: 'ReportAssetManage',
+        children: [
+          {
+            path: 'design/:id',
+            name: 'ReportAssetDesign',
+            componentKey: 'ReportAssetDesign',
+          },
+        ],
       },
       {
         path: 'schema-designer-playground',
@@ -140,8 +154,10 @@ export function toDesignerRouteConfigs(
 }
 
 export const DESIGNER_COMPONENT_KEYS = new Set([
-  'DesignerPlayground',
-  'ReportDesignerPlayground',
+  'LowcodeAssetManage',
+  'LowcodeAssetDesign',
+  'ReportAssetManage',
+  'ReportAssetDesign',
   'SchemaDesignerPlayground',
   'DataPrepPlayground',
   'DataCleanPlayground',
@@ -149,8 +165,10 @@ export const DESIGNER_COMPONENT_KEYS = new Set([
 ])
 
 export const DESIGNER_COMPONENT_PAGE_NAMES: Record<string, string> = {
-  DesignerPlayground: 'DesignerPlaygroundPage',
-  ReportDesignerPlayground: 'ReportDesignerPlaygroundPage',
+  LowcodeAssetManage: 'LowcodeAssetManagePage',
+  LowcodeAssetDesign: 'LowcodeAssetDesignPage',
+  ReportAssetManage: 'ReportAssetManagePage',
+  ReportAssetDesign: 'ReportAssetDesignPage',
   SchemaDesignerPlayground: 'SchemaDesignerPlaygroundPage',
   DataPrepPlayground: 'DataPrepPlaygroundPage',
   DataCleanPlayground: 'DataCleanPlaygroundPage',

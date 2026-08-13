@@ -140,13 +140,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import DraggableView from './components/draggableView/index.vue'
 import OverlayEditor from './components/overlayEditor/index.vue'
 import { GrowRenderer } from '../GrowRenderer'
 import type { DesignerSchema } from '../GrowRenderer/types'
 import { useOption } from './use/useOption'
 import { useEvents } from './use/useEvents'
+
+const props = defineProps<{
+  /** 外部加载的页面 schema；引用变化时写入画布 */
+  schema?: DesignerSchema | null
+}>()
 
 const railItems = [
   { type: 'module', label: '组件库', icon: 'carbon:application' },
@@ -186,6 +191,31 @@ const {
 })
 
 const previewVisible = ref(false)
+
+function cloneJson<T>(value: T, fallback: T): T {
+  if (value == null) return fallback
+  try {
+    return JSON.parse(JSON.stringify(value)) as T
+  } catch {
+    return fallback
+  }
+}
+
+function applySchema(schema?: DesignerSchema | null) {
+  const next = schema || {}
+  draggableConfig.pageConfig = cloneJson(next.pageConfig, {})
+  draggableConfig.dataSource = cloneJson(next.dataSource, [])
+  draggableConfig.computedProps = cloneJson(next.computedProps, [])
+  draggableConfig.apiOutlined = cloneJson(next.apiOutlined, [])
+  draggableConfig.structures = cloneJson(next.structures, [])
+  draggableConfig.renderArgument = cloneJson(next.renderArgument, {})
+  draggableConfig.styles = cloneJson(next.styles, {})
+  draggableConfig.events = cloneJson(next.events, {})
+  draggableConfig.props = cloneJson(next.props, {})
+  draggableConfig.propBindModes = cloneJson(next.propBindModes, {})
+  activeUUID.value = ''
+  overlayEditUUID.value = ''
+}
 
 /** 预览传结构 / 样式 / 属性 / 数据源 / 事件 */
 const previewSchema = computed<DesignerSchema>(() => {
@@ -231,9 +261,26 @@ const previewSchema = computed<DesignerSchema>(() => {
   }
 })
 
+function getSchema(): DesignerSchema {
+  return cloneJson(previewSchema.value, {})
+}
+
+watch(
+  () => props.schema,
+  (schema) => {
+    applySchema(schema)
+  },
+  { immediate: true },
+)
+
 const onPreview = () => {
   previewVisible.value = true
 }
+
+defineExpose({
+  getSchema,
+  applySchema,
+})
 </script>
 
 <script lang="ts">

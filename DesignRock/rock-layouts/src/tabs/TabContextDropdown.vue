@@ -264,7 +264,7 @@ function isActiveSubPage(subPageFullPath: string) {
 
 .tab-subpage-dropdown-menu.el-dropdown-menu {
   width: max-content;
-  min-width: unset;
+  min-width: 180px;
   padding: 4px 0;
 }
 
@@ -277,9 +277,9 @@ function isActiveSubPage(subPageFullPath: string) {
 
 .tab-subpage-dropdown-menu .el-dropdown-menu__item {
   display: flex;
-  justify-content: flex-start;
-  width: max-content;
-  min-width: unset;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
   padding: 4px 8px 4px 12px;
   line-height: 22px;
 }
@@ -311,7 +311,7 @@ function isActiveSubPage(subPageFullPath: string) {
 
 .tab-subpage-dropdown-menu.ant-menu {
   width: max-content;
-  min-width: unset;
+  min-width: 180px;
   padding: 4px 0;
 }
 
@@ -328,10 +328,9 @@ function isActiveSubPage(subPageFullPath: string) {
 .tab-subpage-dropdown-menu .ant-menu-item {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
   height: auto;
-  width: max-content;
-  min-width: unset;
+  width: 100%;
+  box-sizing: border-box;
   margin: 0;
   padding: 4px 8px 4px 12px;
   line-height: 22px;
@@ -350,14 +349,20 @@ function isActiveSubPage(subPageFullPath: string) {
 }
 
 .tab-subpage-item {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
+  min-width: 0;
 }
 
 .tab-subpage-item__title {
-  flex: 0 1 auto;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
+  text-align: left;
   cursor: pointer;
 }
 
@@ -375,6 +380,7 @@ function isActiveSubPage(subPageFullPath: string) {
   flex-shrink: 0;
   align-items: center;
   gap: 4px;
+  margin-left: auto;
 }
 
 .tab-subpage-item__action {
