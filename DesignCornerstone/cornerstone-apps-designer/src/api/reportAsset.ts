@@ -12,10 +12,11 @@ import type {
 
 const useRequest = () => diKT(infrastructureLib.types.InfrastructureAxios)
 
+/** 分页查询：与登录接口一样走 POST + body，避免生产 Mock.js 对带 query 的 GET 匹配失败 */
 export function fetchReportAssetPage(params: ReportAssetQuery) {
-  return useRequest().get<ReportAssetPageResult>({
-    url: '/report-assets',
-    params,
+  return useRequest().post<ReportAssetPageResult>({
+    url: '/report-assets/page',
+    data: params,
   })
 }
 
@@ -34,16 +35,16 @@ export function updateReportAsset(id: string, data: ReportAssetUpdatePayload) {
 }
 
 export function deleteReportAsset(id: string) {
-  return useRequest().delete<{ id: string }>({
-    url: '/report-asset',
-    params: { id },
+  return useRequest().post<{ id: string }>({
+    url: '/report-asset/delete',
+    data: { id },
   })
 }
 
 export function getReportAssetDetail(id: string) {
-  return useRequest().get<ReportAsset>({
-    url: '/report-asset',
-    params: { id },
+  return useRequest().post<ReportAsset>({
+    url: '/report-asset/detail',
+    data: { id },
   })
 }
 
@@ -77,13 +78,13 @@ export type ReportAssetVersionListItem = {
 }
 
 export function fetchReportAssetVersions(id: string) {
-  return useRequest().get<{
+  return useRequest().post<{
     id: string
     currentVersion: string | null
     items: ReportAssetVersionListItem[]
   }>({
     url: '/report-asset/versions',
-    params: { id },
+    data: { id },
   })
 }
 

@@ -201,13 +201,14 @@ function filterAssets(query: Recordable<any>): LowcodeAsset[] {
 
 const mocks: MockMethod[] = [
   {
-    url: mockUrl('/lowcode-assets'),
-    method: 'get',
+    url: mockUrl('/lowcode-assets/page'),
+    method: 'post',
     timeout: 80,
-    response: ({ query }) => {
-      const page = Number(query?.page || 1)
-      const pageSize = Number(query?.pageSize || 10)
-      const list = filterAssets(query || {}).map(toListItem)
+    response: ({ body }) => {
+      const payload = (body || {}) as Recordable<any>
+      const page = Number(payload.page || 1)
+      const pageSize = Number(payload.pageSize || 10)
+      const list = filterAssets(payload).map(toListItem)
       return resultPageSuccess(page, pageSize, list)
     },
   },
@@ -251,11 +252,11 @@ const mocks: MockMethod[] = [
     },
   },
   {
-    url: mockUrl('/lowcode-asset'),
-    method: 'get',
+    url: mockUrl('/lowcode-asset/detail'),
+    method: 'post',
     timeout: 80,
-    response: ({ query }) => {
-      const id = String(query?.id || '')
+    response: ({ body }) => {
+      const id = String((body as Recordable<any>)?.id || '')
       const asset = findAsset(id)
       if (!asset) return resultError('资产不存在')
       return resultSuccess({
@@ -293,11 +294,11 @@ const mocks: MockMethod[] = [
     },
   },
   {
-    url: mockUrl('/lowcode-asset'),
-    method: 'delete',
+    url: mockUrl('/lowcode-asset/delete'),
+    method: 'post',
     timeout: 80,
-    response: ({ query }) => {
-      const id = String(query?.id || '')
+    response: ({ body }) => {
+      const id = String((body as Recordable<any>)?.id || '')
       const asset = findAsset(id)
       if (!asset) return resultError('资产不存在')
       if (asset.enabled) return resultError('启用中的资产不能删除，请先停用')
@@ -368,10 +369,10 @@ const mocks: MockMethod[] = [
   },
   {
     url: mockUrl('/lowcode-asset/versions'),
-    method: 'get',
+    method: 'post',
     timeout: 80,
-    response: ({ query }) => {
-      const id = String(query?.id || '')
+    response: ({ body }) => {
+      const id = String((body as Recordable<any>)?.id || '')
       const asset = findAsset(id)
       if (!asset) return resultError('资产不存在')
       const list = [...asset.versions]
