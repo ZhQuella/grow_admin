@@ -12,10 +12,11 @@ import type {
 
 const useRequest = () => diKT(infrastructureLib.types.InfrastructureAxios)
 
+/** 分页查询：与登录接口一样走 POST + body，避免生产 Mock.js 对带 query 的 GET 匹配失败 */
 export function fetchLowcodeAssetPage(params: LowcodeAssetQuery) {
-  return useRequest().get<LowcodeAssetPageResult>({
-    url: '/lowcode-assets',
-    params,
+  return useRequest().post<LowcodeAssetPageResult>({
+    url: '/lowcode-assets/page',
+    data: params,
   })
 }
 
@@ -34,16 +35,16 @@ export function updateLowcodeAsset(id: string, data: LowcodeAssetUpdatePayload) 
 }
 
 export function deleteLowcodeAsset(id: string) {
-  return useRequest().delete<{ id: string }>({
-    url: '/lowcode-asset',
-    params: { id },
+  return useRequest().post<{ id: string }>({
+    url: '/lowcode-asset/delete',
+    data: { id },
   })
 }
 
 export function getLowcodeAssetDetail(id: string) {
-  return useRequest().get<LowcodeAsset>({
-    url: '/lowcode-asset',
-    params: { id },
+  return useRequest().post<LowcodeAsset>({
+    url: '/lowcode-asset/detail',
+    data: { id },
   })
 }
 
@@ -77,13 +78,13 @@ export type LowcodeAssetVersionListItem = {
 }
 
 export function fetchLowcodeAssetVersions(id: string) {
-  return useRequest().get<{
+  return useRequest().post<{
     id: string
     currentVersion: string | null
     items: LowcodeAssetVersionListItem[]
   }>({
     url: '/lowcode-asset/versions',
-    params: { id },
+    data: { id },
   })
 }
 
