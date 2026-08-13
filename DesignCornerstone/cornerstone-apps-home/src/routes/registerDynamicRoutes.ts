@@ -170,28 +170,31 @@ function registerHomeIndexRedirect(menus: Menu[]) {
   })
 }
 
-function registerHiddenRoutes(roleValues?: string[]) {
+function addHiddenRoute(route: RouteRecordItem) {
   const router = routeTable().router
+  if (router.hasRoute(route.name)) {
+    return
+  }
 
+  const componentName = String(route.meta?.componentName ?? route.name)
+  router.addRoute(HOME_ROUTE_NAME, {
+    ...route,
+    // 隐藏路由由 ContentView.wrapKeepAliveComponent 按路径动态命名，避免静态 name 与 cacheIncludeList 不一致
+    component: route.component!,
+    meta: {
+      ...route.meta,
+      componentName,
+      isKeepAlive: route.meta?.isKeepAlive ?? true,
+    },
+  })
+}
+
+function registerHiddenRoutes(roleValues?: string[]) {
   FEAT_HIDDEN_ROUTES.forEach((route) => {
     if (roleValues && !canAccessRouteByRoles(String(route.name), roleValues)) {
       return
     }
-    if (router.hasRoute(route.name)) {
-      return
-    }
-
-    const componentName = String(route.meta?.componentName ?? route.name)
-    router.addRoute(HOME_ROUTE_NAME, {
-      ...route,
-      // 隐藏路由由 ContentView.wrapKeepAliveComponent 按路径动态命名，避免静态 name 与 cacheIncludeList 不一致
-      component: route.component!,
-      meta: {
-        ...route.meta,
-        componentName,
-        isKeepAlive: route.meta?.isKeepAlive ?? true,
-      },
-    })
+    addHiddenRoute(route)
   })
 }
 

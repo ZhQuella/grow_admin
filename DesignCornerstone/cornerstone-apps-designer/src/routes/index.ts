@@ -28,9 +28,14 @@ export {
 } from './mergeMenu'
 
 const DESIGNER_COMPONENTS: Record<string, GrowRouteComponent> = {
-  DesignerPlayground: () => import('../pages/designer-playground/designer-playground.vue'),
-  ReportDesignerPlayground: () =>
-    import('../pages/report-designer-playground/report-designer-playground.vue'),
+  LowcodeAssetManage: () =>
+    import('../pages/lowcode-asset-manage/manage/lowcode-asset-manage.vue'),
+  LowcodeAssetDesign: () =>
+    import('../pages/lowcode-asset-manage/design/lowcode-asset-design.vue'),
+  ReportAssetManage: () =>
+    import('../pages/report-asset-manage/manage/report-asset-manage.vue'),
+  ReportAssetDesign: () =>
+    import('../pages/report-asset-manage/design/report-asset-design.vue'),
   SchemaDesignerPlayground: () =>
     import('../pages/schema-designer-playground/schema-designer-playground.vue'),
   DataPrepPlayground: () =>
@@ -62,11 +67,24 @@ export function resolveDesignerRoute(
   config: DesignerRouteConfig,
   fullPath = config.path,
 ): RouteRecordItem {
+  const designParentByName: Record<string, string> = {
+    LowcodeAssetDesign: 'LowcodeAssetManage',
+    ReportAssetDesign: 'ReportAssetManage',
+  }
+  const breadcrumbParentName = designParentByName[config.name]
   return {
     path: fullPath,
     name: config.name,
     component: resolveDesignerComponent(config),
-    meta: { title: config.title },
+    meta: {
+      title: config.title,
+      ...(breadcrumbParentName
+        ? {
+            dynamicTab: true,
+            breadcrumbParentName,
+          }
+        : {}),
+    },
     icon: config.icon,
   }
 }

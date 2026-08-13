@@ -1,0 +1,106 @@
+import { ref, watch } from 'vue'
+import type { ReportSchema } from '@grow-admin-rock/report-designer'
+import { useMsg } from '@grow-admin-rock/components'
+import { useTabs } from '@grow-admin-rock/hooks'
+import { useRoute } from '@grow-admin-rock/middleware-router'
+import {
+  getReportAssetDetail,
+  saveReportAssetSchema,
+} from '../../../../api/reportAsset'
+import {
+  createEmptyReportSchema,
+  type ReportAsset,
+} from '../../../../types/reportAsset'
+
+const ROUTE_NAME = 'ReportAssetDesign'
+
+export function useReportAssetDesign() {
+  const route = useRoute()
+  const { setTab, closeCurrent } = useTabs()
+  const message = useMsg()
+
+  const loading = ref(false)
+  const saving = ref(false)
+  const asset = ref<ReportAsset | null>(null)
+  const designerSchema = ref<ReportSchema | null>(null)
+  const schemaReady = ref(false)
+  const designerRef = ref<{ getSchema: () => ReportSchema } | null>(null)
+
+  async function loadAsset(id: string) {
+    if (!id) {
+      asset.value = null
+      designerSchema.value = null
+      schemaReady.value = false
+      return
+    }
+
+    if (asset.value?.id === id && designerSchema.value) {
+      return
+    }
+
+    loading.value = true
+    schemaReady.value = false
+    try {
+      const detail = await getReportAssetDetail(id)
+      // 请求返回时可能已切到其他路由，避免串写
+      if (route.name !== ROUTE_NAME || String(route.params.id || '') !== id) {
+        return
+      }
+      asset.value = detail
+      designerSchema.value = detail.draftSchema || createEmptyReportSchema()
+      schemaReady.value = true
+      setTab(`设计-${detail.name}`)
+    } catch (error) {
+      if (route.name !== ROUTE_NAME || String(route.params.id || '') !== id) {
+        return
+      }
+      asset.value = null
+      designerSchema.value = null
+      schemaReady.value = false
+      message.error(error instanceof Error ? error.message : '加载失败')
+    } finally {
+      if (route.name === ROUTE_NAME && String(route.params.id || '') === id) {
+        loading.value = false
+      }
+    }
+  }
+
+  async function onSave() {
+    if (!asset.value || !designerRef.value) return
+    saving.value = true
+    try {
+      const schema = designerRef.value.getSchema()
+      await saveReportAssetSchema(asset.value.id, schema)
+      message.success('保存成功')
+    } catch (error) {
+      message.error(error instanceof Error ? error.message : '保存失败')
+    } finally {
+      saving.value = false
+    }
+  }
+
+  function onBack() {
+    closeCurrent()
+  }
+
+  watch(
+    () => ({ name: route.name, id: String(route.params.id || '') }),
+    ({ name, id }) => {
+      // keep-alive 下多个设计页会共享当前 route，仅在本路由激活时加载
+      if (name !== ROUTE_NAME) return
+      void loadAsset(id)
+    },
+    { immediate: true },
+  )
+
+  return {
+    loading,
+    saving,
+    asset,
+    designerSchema,
+    schemaReady,
+    designerRef,
+    onSave,
+    onBack,
+  }
+}
