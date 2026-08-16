@@ -2,19 +2,24 @@
   <div class="lowcode-asset-design">
     <div class="lowcode-asset-design__bar">
       <div class="lowcode-asset-design__bar-left">
-        <GrowButton size="small" @click="onBack">返回</GrowButton>
-        <div class="lowcode-asset-design__meta" v-if="asset">
+        <div class="lowcode-asset-design__meta" v-if="asset"> 
           <span class="lowcode-asset-design__title">{{ asset.name }}</span>
-          <GrowTag size="small" type="info">{{ typeLabel }}</GrowTag>
           <span class="lowcode-asset-design__code">{{ asset.code }}</span>
+          <GrowTag size="small" type="primary">{{ typeLabel }}</GrowTag>
           <span class="lowcode-asset-design__version">
-            当前版本：{{ asset.currentVersion || '未发布' }}
+            当前版本:
           </span>
+          <GrowTag size="small" :type="publishStateTagType">{{ asset.currentVersion || '未发布' }}</GrowTag>
         </div>
       </div>
-      <GrowButton size="small" type="primary" :loading="saving" :disabled="!asset" @click="onSave">
-        保存
-      </GrowButton>
+      <div>
+        <GrowButton size="small" :loading="saving" :disabled="!asset" @click="onBack">
+          返回
+        </GrowButton>
+        <GrowButton size="small" type="primary" :loading="saving" :disabled="!asset" @click="onSave">
+          保存
+        </GrowButton>
+      </div>
     </div>
 
     <div class="lowcode-asset-design__body">
@@ -42,6 +47,7 @@ const {
   loading,
   saving,
   asset,
+  publishStateTagType,
   designerSchema,
   schemaReady,
   designerRef,

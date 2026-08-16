@@ -1,4 +1,4 @@
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import type { ReportSchema } from '@grow-admin-rock/report-designer'
 import { useMsg } from '@grow-admin-rock/components'
 import { useTabs } from '@grow-admin-rock/hooks'
@@ -25,6 +25,13 @@ export function useReportAssetDesign() {
   const designerSchema = ref<ReportSchema | null>(null)
   const schemaReady = ref(false)
   const designerRef = ref<{ getSchema: () => ReportSchema } | null>(null)
+
+  const publishStateTagType = computed(() =>{
+    if (!asset.value?.currentVersion) {
+      return 'info'
+    }
+    return asset.value?.enabled ? 'success' : 'danger'
+  });
 
   async function loadAsset(id: string) {
     if (!id) {
@@ -72,6 +79,7 @@ export function useReportAssetDesign() {
       const schema = designerRef.value.getSchema()
       await saveReportAssetSchema(asset.value.id, schema)
       message.success('保存成功')
+      closeCurrent()
     } catch (error) {
       message.error(error instanceof Error ? error.message : '保存失败')
     } finally {
@@ -97,6 +105,7 @@ export function useReportAssetDesign() {
     loading,
     saving,
     asset,
+    publishStateTagType,
     designerSchema,
     schemaReady,
     designerRef,
