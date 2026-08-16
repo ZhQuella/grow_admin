@@ -5,6 +5,7 @@ export enum RockComponent {
   MessageProvider = 'MessageProvider',
   NotificationProvider = 'NotificationProvider',
   DialogProvider = 'DialogProvider',
+  LoadingBarProvider = 'LoadingBarProvider',
   Dialog = 'Dialog',
   Drawer = 'Drawer',
   DrawerContent = 'DrawerContent',

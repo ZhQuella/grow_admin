@@ -6,6 +6,14 @@ import { Lib } from '../library';
 import { RockComponent } from './RockComponent';
 import ComponentMap from './ComponentMap';
 import scanGrowComponens from './ScanGrowComponens';
+import { noopLoadingBar, type LoadingBarApi } from './providerLoadingBar/fallback';
+
+export {
+  FallbackLoadingBarProvider,
+  useFallbackLoadingBar,
+  noopLoadingBar,
+  type LoadingBarApi,
+} from './providerLoadingBar/fallback';
 
 export { RockComponent } from './RockComponent';
 
@@ -112,6 +120,7 @@ export const registerGrowComponent = (Vue: App, componentDict: GrowComponentDict
 let registerNotice = () => {};
 let registerMsg = () => {};
 let registerDialog = () => {};
+let registerLoadingBar = (): LoadingBarApi => noopLoadingBar;
 
 export const setNotice = (func = () => {}) => {
   registerNotice = func;
@@ -127,3 +136,8 @@ export const setDialog = (func = () => {}) => {
   registerDialog = func;
 };
 export const useDialog = () => registerDialog();
+
+export const setLoadingBar = (func: () => LoadingBarApi = () => noopLoadingBar) => {
+  registerLoadingBar = func;
+};
+export const useLoadingBar = (): LoadingBarApi => registerLoadingBar();

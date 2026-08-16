@@ -1,6 +1,6 @@
 import type { App } from 'vue';
 import { isUndefined } from 'lodash-es';
-import { RockComponent } from '@grow-admin-rock/components';
+import { FallbackLoadingBarProvider, RockComponent } from '@grow-admin-rock/components';
 import { type ComponentEntry, withInstall } from '@grow-admin-rock/component-driver';
 import {
   ElAvatar,
@@ -174,6 +174,7 @@ const allComponents: Partial<Record<RockComponent, any>> = {
   [RockComponent.LayoutSider]: LayoutSider,
   [RockComponent.List]: List,
   [RockComponent.ListItem]: ListItem,
+  [RockComponent.LoadingBarProvider]: FallbackLoadingBarProvider,
   [RockComponent.Menu]: ElMenu,
   [RockComponent.MenuItem]: ElMenuItem,
   [RockComponent.SubMenu]: ElSubMenu,

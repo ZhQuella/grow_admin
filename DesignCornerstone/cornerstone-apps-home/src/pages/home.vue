@@ -1,55 +1,58 @@
 <template>
-  <div class="h-[100vh] transition-all duration-500">
-    <div class="h-full bg-[var(--layout-container-background-color)] overflow-hidden">
-      <Layout>
-        <template #logo>
-          <LayoutLogo />
-        </template>
+  <GrowLoadingBarProvider>
+    <LayoutLoadingBar />
+    <div class="h-[100vh] transition-all duration-500">
+      <div class="h-full bg-[var(--layout-container-background-color)] overflow-hidden">
+        <Layout>
+          <template #logo>
+            <LayoutLogo />
+          </template>
 
-        <template #menu>
-          <Menu :key="layoutType" />
-        </template>
+          <template #menu>
+            <Menu :key="layoutType" />
+          </template>
 
-        <template #bread>
-          <Breadcrumb />
-        </template>
+          <template #bread>
+            <Breadcrumb />
+          </template>
 
-        <template #option>
-          <LayoutHeaderOption
+          <template #option>
+            <LayoutHeaderOption
+              :user-info="userInfo"
+              @open-setting="openSetting"
+              @logout="handleLogout"
+            />
+          </template>
+
+          <template #tab>
+            <div class="flex items-center justify-between">
+              <div class="flex-1 w-[1px]">
+                <Tabs />
+              </div>
+              <TabToolbar />
+            </div>
+          </template>
+
+          <template #view>
+            <ContentView />
+          </template>
+        </Layout>
+        <SettingDrawer v-if="showSettingDrawer" v-model="settingActive" />
+        <template v-if="useLockPage">
+          <LayoutLockScreen
             :user-info="userInfo"
-            @open-setting="openSetting"
+            :verify-password="verifyPassword"
             @logout="handleLogout"
           />
+          <LayoutAutoLocker/>
         </template>
-
-        <template #tab>
-          <div class="flex items-center justify-between">
-            <div class="flex-1 w-[1px]">
-              <Tabs />
-            </div>
-            <TabToolbar />
-          </div>
-        </template>
-
-        <template #view>
-          <ContentView />
-        </template>
-      </Layout>
-      <SettingDrawer v-if="showSettingDrawer" v-model="settingActive" />
-      <template v-if="useLockPage">
-        <LayoutLockScreen
-          :user-info="userInfo"
-          :verify-password="verifyPassword"
-          @logout="handleLogout"
-        />
-        <LayoutAutoLocker/>
-      </template>
+      </div>
     </div>
-  </div>
+  </GrowLoadingBarProvider>
 </template>
 
 <script lang="ts" setup>
-import { Layout, LayoutLogo, SettingDrawer, Menu, Breadcrumb, ContentView, Tabs, TabToolbar, LayoutHeaderOption, LayoutLockScreen, LayoutAutoLocker } from '@grow-admin-rock/layouts'
+import { Layout, LayoutLogo, SettingDrawer, Menu, Breadcrumb, ContentView, Tabs, TabToolbar, LayoutHeaderOption, LayoutLockScreen, LayoutAutoLocker, LayoutLoadingBar } from '@grow-admin-rock/layouts'
 import { storeToRefs, useAppConfig, useAppStore, useUserStore, useLayout } from '@grow-admin-rock/state'
 import { useAppBootstrap } from './use/useAppBootstrap'
 import { useHomeLayout } from './use/useHomeLayout'
