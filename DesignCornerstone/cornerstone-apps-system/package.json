@@ -1,0 +1,32 @@
+{
+  "name": "@grow-admin-cornerstone/apps-system",
+  "version": "0.0.0",
+  "main": "index.ts",
+  "module": "index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./route-config": "./src/routes/route-config.ts"
+  },
+  "license": "MIT",
+  "description": "GrowAdmin-系统管理（菜单管理）",
+  "scripts": {
+    "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
+  },
+  "dependencies": {
+    "@grow-admin-rock/components": "workspace:*",
+    "@grow-admin-rock/constants": "workspace:*",
+    "@grow-admin-rock/infrastructure": "workspace:*",
+    "@grow-admin-rock/ioc": "workspace:*"
+  },
+  "devDependencies": {
+    "@grow-admin-rock/base-package": "workspace:*",
+    "typescript": "^5.0.2",
+    "vite": "4.3.9",
+    "vue-tsc": "^1.0.24"
+  },
+  "peerDependencies": {
+    "element-plus": "^2.4.4",
+    "vue": "~3.3.4",
+    "vue-router": "^4.0.0"
+  }
+}
