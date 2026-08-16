@@ -36,14 +36,22 @@ const DESIGNER_COMPONENTS: Record<string, GrowRouteComponent> = {
     import('../pages/report-asset-manage/manage/report-asset-manage.vue'),
   ReportAssetDesign: () =>
     import('../pages/report-asset-manage/design/report-asset-design.vue'),
-  SchemaDesignerPlayground: () =>
-    import('../pages/schema-designer-playground/schema-designer-playground.vue'),
-  DataPrepPlayground: () =>
-    import('../pages/data-prep-playground/data-prep-playground.vue'),
-  DataCleanPlayground: () =>
-    import('../pages/data-clean-playground/data-clean-playground.vue'),
-  ProcessEnginePlayground: () =>
-    import('../pages/process-engine-playground/process-engine-playground.vue'),
+  SchemaAssetManage: () =>
+    import('../pages/schema-asset-manage/manage/schema-asset-manage.vue'),
+  SchemaAssetDesign: () =>
+    import('../pages/schema-asset-manage/design/schema-asset-design.vue'),
+  DataPrepAssetManage: () =>
+    import('../pages/data-prep-asset-manage/manage/data-prep-asset-manage.vue'),
+  DataPrepAssetDesign: () =>
+    import('../pages/data-prep-asset-manage/design/data-prep-asset-design.vue'),
+  DataCleanAssetManage: () =>
+    import('../pages/data-clean-asset-manage/manage/data-clean-asset-manage.vue'),
+  DataCleanAssetDesign: () =>
+    import('../pages/data-clean-asset-manage/design/data-clean-asset-design.vue'),
+  ProcessAssetManage: () =>
+    import('../pages/process-asset-manage/manage/process-asset-manage.vue'),
+  ProcessAssetDesign: () =>
+    import('../pages/process-asset-manage/design/process-asset-design.vue'),
 }
 
 function resolveDesignerComponent(config: DesignerRouteConfig): GrowRouteComponent {
@@ -70,6 +78,10 @@ export function resolveDesignerRoute(
   const designParentByName: Record<string, string> = {
     LowcodeAssetDesign: 'LowcodeAssetManage',
     ReportAssetDesign: 'ReportAssetManage',
+    SchemaAssetDesign: 'SchemaAssetManage',
+    DataPrepAssetDesign: 'DataPrepAssetManage',
+    DataCleanAssetDesign: 'DataCleanAssetManage',
+    ProcessAssetDesign: 'ProcessAssetManage',
   }
   const breadcrumbParentName = designParentByName[config.name]
   return {

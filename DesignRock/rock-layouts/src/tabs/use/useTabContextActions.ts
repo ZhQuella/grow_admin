@@ -67,7 +67,7 @@ export function useTabContextActions() {
           const parentTab = tabStore.findParentTabBySubPage(currentFullPath.value)
           if (parentTab) {
             tabStore.closeSubPage(parentTab.fullPath, currentFullPath.value)
-            navigateToTab(parentTab.fullPath)
+            navigateIfNeeded(parentTab.fullPath)
           }
           break
         }
