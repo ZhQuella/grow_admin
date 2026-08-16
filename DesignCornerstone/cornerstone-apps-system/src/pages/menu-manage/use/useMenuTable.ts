@@ -5,9 +5,10 @@ import { useMsg } from '@grow-admin-rock/components'
 import { MenuTypeEnum } from '@grow-admin-rock/constants'
 import { fetchSystemMenuTree } from '../../../api/systemMenu'
 import type { SystemMenuNode } from '../../../types/systemMenu'
-import { filterMenuTree } from './helpers'
+import { filterMenuTree, sortMenuTree } from './helpers'
 
 export type ManageTableColumn = ColumnBarItem & {
+  width?: number
   minWidth?: number
   fixed?: string | boolean
 }
@@ -74,7 +75,7 @@ export function useMenuTable() {
   ]
 
   const tableColumns = ref<ManageTableColumn[]>([
-    { title: '标题', field: 'title', visible: true, minWidth: 180 },
+    { title: '标题', field: 'title', visible: true, width: 280 },
     { title: '标识', field: 'name', visible: true, minWidth: 140 },
     { title: '类型', field: 'menuType', visible: true, minWidth: 90 },
     { title: '路径', field: 'path', visible: true, minWidth: 140 },
@@ -99,7 +100,7 @@ export function useMenuTable() {
     loading.value = true
     try {
       const data = await fetchSystemMenuTree()
-      sourceTree.value = Array.isArray(data) ? data : []
+      sourceTree.value = sortMenuTree(Array.isArray(data) ? data : [])
       tableKey.value += 1
     } catch (error) {
       message.error(error instanceof Error ? error.message : '加载失败')

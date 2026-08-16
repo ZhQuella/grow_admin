@@ -11,15 +11,6 @@ export const SANDBOX_MENU_LIST: SandboxMenuApiItem[] = [
     sort: 35,
     children: [
       {
-        name: 'SandboxOverview',
-        title: '沙箱工具',
-        icon: 'ant-design:experiment-outlined',
-        menuType: MenuTypeEnum.MENU,
-        isVisible: true,
-        isKeepAlive: true,
-        sort: 10,
-      },
-      {
         name: 'CodeSandboxDemo',
         title: '呈现沙箱',
         icon: 'ant-design:code-sandbox-outlined',

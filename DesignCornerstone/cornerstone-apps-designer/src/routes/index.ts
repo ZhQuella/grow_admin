@@ -28,6 +28,10 @@ export {
 } from './mergeMenu'
 
 const DESIGNER_COMPONENTS: Record<string, GrowRouteComponent> = {
+  OnlinePageManage: () =>
+    import('../pages/online-page-manage/manage/online-page-manage.vue'),
+  OnlinePageDesign: () =>
+    import('../pages/online-page-manage/design/online-page-design.vue'),
   LowcodeAssetManage: () =>
     import('../pages/lowcode-asset-manage/manage/lowcode-asset-manage.vue'),
   LowcodeAssetDesign: () =>
@@ -76,6 +80,7 @@ export function resolveDesignerRoute(
   fullPath = config.path,
 ): RouteRecordItem {
   const designParentByName: Record<string, string> = {
+    OnlinePageDesign: 'OnlinePageManage',
     LowcodeAssetDesign: 'LowcodeAssetManage',
     ReportAssetDesign: 'ReportAssetManage',
     SchemaAssetDesign: 'SchemaAssetManage',

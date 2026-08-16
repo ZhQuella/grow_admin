@@ -8,7 +8,7 @@ export const SYSTEM_MENU_LIST: SystemMenuApiItem[] = [
     icon: 'ant-design:setting-outlined',
     menuType: MenuTypeEnum.DIRECTORY,
     isVisible: true,
-    sort: 25,
+    sort: 37,
     children: [
       {
         name: 'MenuManage',

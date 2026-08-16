@@ -35,7 +35,8 @@
               :key="String(col.field)"
               :prop="String(col.field)"
               :label="col.title"
-              :min-width="col.minWidth || 120"
+              :width="col.width"
+              :min-width="col.minWidth || (col.width ? undefined : 120)"
               :fixed="col.fixed"
               :show-overflow-tooltip="col.field !== 'actions'"
             >
@@ -163,7 +164,6 @@
                 v-model="formModel.automationPage"
                 :options="automationPageOptions"
                 :placeholder="automationPagePlaceholder"
-                :disabled="formModel.automationType === 'sandbox'"
                 clearable
               />
             </GrowFormItem>

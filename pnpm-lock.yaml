@@ -69,6 +69,12 @@ importers:
 
   DesignCornerstone/cornerstone-apps-designer:
     dependencies:
+      '@grow-admin-cornerstone/apps-sandbox':
+        specifier: workspace:*
+        version: link:../cornerstone-apps-sandbox
+      '@grow-admin-rock/code-sandbox':
+        specifier: workspace:*
+        version: link:../../DesignRock/rock-code-sandbox
       '@grow-admin-rock/components':
         specifier: workspace:*
         version: link:../../DesignRock/rock-components

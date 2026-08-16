@@ -36,9 +36,40 @@ function ensureMenuComponentKey(node: MenuNode): MenuNode {
   return node
 }
 
+function indexByName(nodes: MenuNode[], map = new Map<string, MenuNode>()) {
+  for (const node of nodes) {
+    map.set(node.name, node)
+    if (node.children?.length) {
+      indexByName(node.children, map)
+    }
+  }
+  return map
+}
+
+function syncSourceMeta(store: MenuNode[], source: MenuNode[]) {
+  const sourceMap = indexByName(source)
+  const apply = (nodes: MenuNode[]) => {
+    for (const node of nodes) {
+      const src = sourceMap.get(node.name)
+      if (src) {
+        node.title = src.title
+        node.sort = src.sort
+        node.icon = src.icon
+      }
+      if (node.children?.length) {
+        apply(node.children)
+      }
+    }
+  }
+  apply(store)
+}
+
 function getStore(): MenuNode[] {
+  const source = clone(buildBackMenuList() as MenuNode[])
   if (!menuStore) {
-    menuStore = clone(buildBackMenuList() as MenuNode[])
+    menuStore = source
+  } else {
+    syncSourceMeta(menuStore, source)
   }
   menuStore.forEach(ensureMenuComponentKey)
   return menuStore

@@ -28,7 +28,6 @@ export {
 } from './mergeMenu'
 
 const SANDBOX_COMPONENTS: Record<string, GrowRouteComponent> = {
-  SandboxOverview: () => import('../pages/sandbox-overview/sandbox-overview.vue'),
   CodeSandboxDemo: () => import('../pages/code-sandbox-demo/code-sandbox-demo.vue'),
   CodeEditorDemo: () => import('../pages/code-editor-demo/code-editor-demo.vue'),
 }

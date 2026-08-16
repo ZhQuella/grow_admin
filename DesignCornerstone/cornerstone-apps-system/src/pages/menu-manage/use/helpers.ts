@@ -73,6 +73,15 @@ function matchesKeyword(node: SystemMenuNode, keyword: string) {
     .some((value) => String(value).toLowerCase().includes(text))
 }
 
+export function sortMenuTree(nodes: SystemMenuNode[]): SystemMenuNode[] {
+  return [...nodes]
+    .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
+    .map((node) => ({
+      ...node,
+      children: node.children?.length ? sortMenuTree(node.children) : node.children,
+    }))
+}
+
 export function filterMenuTree(
   nodes: SystemMenuNode[],
   query: Recordable<any>,
@@ -81,7 +90,7 @@ export function filterMenuTree(
   const menuType = query.menuType
   const visible = query.isVisible
 
-  return nodes.reduce<SystemMenuNode[]>((result, node) => {
+  const result = nodes.reduce<SystemMenuNode[]>((list, node) => {
     const children = node.children?.length
       ? filterMenuTree(node.children, query)
       : undefined
@@ -94,12 +103,14 @@ export function filterMenuTree(
     const selfMatched = typeMatched && visibleMatched && keywordMatched
 
     if (selfMatched || children?.length) {
-      result.push({
+      list.push({
         ...node,
         children: children?.length ? children : undefined,
       })
     }
 
-    return result
+    return list
   }, [])
+
+  return sortMenuTree(result)
 }

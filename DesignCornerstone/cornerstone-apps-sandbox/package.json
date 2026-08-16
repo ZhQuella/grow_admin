@@ -5,7 +5,8 @@
   "module": "index.ts",
   "exports": {
     ".": "./index.ts",
-    "./route-config": "./src/routes/route-config.ts"
+    "./route-config": "./src/routes/route-config.ts",
+    "./multi-file-editor": "./src/pages/sandbox-overview/component/MultiFileEditor.vue"
   },
   "license": "MIT",
   "description": "GrowAdmin-沙箱工具演示（rock-code-sandbox）",

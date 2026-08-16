@@ -95,14 +95,14 @@
                   title="刷新"
                   @click.stop="handleSubPageRefresh(subPage.fullPath)"
                 >
-                  <GrowIconify icon="ant-design:reload-outlined" :size="12" hover-pointer />
+                  <GrowIconify icon="ant-design:reload-outlined" :size="12" />
                 </span>
                 <span
                   class="tab-subpage-item__action"
                   title="关闭"
                   @click.stop="handleSubPageClose(subPage.fullPath)"
                 >
-                  <GrowIconify icon="ant-design:close-outlined" :size="12" hover-pointer />
+                  <GrowIconify icon="ant-design:close-outlined" :size="12" />
                 </span>
               </span>
             </div>
@@ -130,14 +130,14 @@
                   title="刷新"
                   @click.stop="handleSubPageRefresh(subPage.fullPath)"
                 >
-                  <GrowIconify icon="ant-design:reload-outlined" :size="12" hover-pointer />
+                  <GrowIconify icon="ant-design:reload-outlined" :size="12" />
                 </span>
                 <span
                   class="tab-subpage-item__action"
                   title="关闭"
                   @click.stop="handleSubPageClose(subPage.fullPath)"
                 >
-                  <GrowIconify icon="ant-design:close-outlined" :size="12" hover-pointer />
+                  <GrowIconify icon="ant-design:close-outlined" :size="12" />
                 </span>
               </span>
             </div>
@@ -284,22 +284,27 @@ function isActiveSubPage(subPageFullPath: string) {
   line-height: 22px;
 }
 
-.tab-subpage-dropdown-menu .el-dropdown-menu__item.tab-subpage-dropdown-item {
+.tab-subpage-dropdown-menu .el-dropdown-menu__item.tab-subpage-dropdown-item,
+.tab-subpage-dropdown-menu .ant-menu-item.tab-subpage-dropdown-item {
   cursor: default;
 }
 
-.tab-subpage-dropdown-menu .el-dropdown-menu__item.tab-subpage-dropdown-item:hover {
-  background-color: var(--el-dropdown-menuItem-hover-fill, var(--color-primary-a06));
+.tab-subpage-dropdown-menu .el-dropdown-menu__item.tab-subpage-dropdown-item:hover,
+.tab-subpage-dropdown-menu .ant-menu-item.tab-subpage-dropdown-item:hover {
+  background-color: var(--color-primary-a06);
   color: inherit;
 }
 
 .tab-subpage-dropdown-menu .el-dropdown-menu__item.tab-subpage-dropdown-item.is-active,
-.tab-subpage-dropdown-menu .el-dropdown-menu__item.tab-subpage-dropdown-item.is-active:hover {
+.tab-subpage-dropdown-menu .el-dropdown-menu__item.tab-subpage-dropdown-item.is-active:hover,
+.tab-subpage-dropdown-menu .ant-menu-item.tab-subpage-dropdown-item.is-active,
+.tab-subpage-dropdown-menu .ant-menu-item.tab-subpage-dropdown-item.is-active:hover {
   background-color: var(--color-primary-a12);
   color: var(--primary-color);
 }
 
-.tab-subpage-dropdown-menu .el-dropdown-menu__item.tab-subpage-dropdown-item.is-active .tab-subpage-item__title {
+.tab-subpage-dropdown-menu .el-dropdown-menu__item.tab-subpage-dropdown-item.is-active .tab-subpage-item__title,
+.tab-subpage-dropdown-menu .ant-menu-item.tab-subpage-dropdown-item.is-active .tab-subpage-item__title {
   color: var(--primary-color);
   font-weight: 500;
 }
@@ -337,17 +342,6 @@ function isActiveSubPage(subPageFullPath: string) {
   cursor: default;
 }
 
-.tab-subpage-dropdown-menu .ant-menu-item.tab-subpage-dropdown-item.is-active,
-.tab-subpage-dropdown-menu .ant-menu-item.tab-subpage-dropdown-item.is-active:hover {
-  background-color: var(--color-primary-a12);
-  color: var(--primary-color);
-}
-
-.tab-subpage-dropdown-menu .ant-menu-item.tab-subpage-dropdown-item.is-active .tab-subpage-item__title {
-  color: var(--primary-color);
-  font-weight: 500;
-}
-
 .tab-subpage-item {
   display: flex;
   align-items: center;
@@ -366,15 +360,6 @@ function isActiveSubPage(subPageFullPath: string) {
   cursor: pointer;
 }
 
-.tab-subpage-item__title:hover {
-  color: var(--primary-color);
-}
-
-.tab-subpage-dropdown-menu .el-dropdown-menu__item.is-active .tab-subpage-item__title:hover,
-.tab-subpage-dropdown-menu .ant-menu-item.is-active .tab-subpage-item__title:hover {
-  color: var(--primary-color);
-}
-
 .tab-subpage-item__actions {
   display: inline-flex;
   flex-shrink: 0;
@@ -385,19 +370,44 @@ function isActiveSubPage(subPageFullPath: string) {
 
 .tab-subpage-item__action {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   width: 20px;
   height: 20px;
+  padding: 0;
   border-radius: 4px;
+  line-height: 0;
   color: var(--text-color-secondary);
   cursor: pointer;
   transition: color 0.2s, background-color 0.2s;
 }
 
-.tab-subpage-item__action:hover {
+.tab-subpage-item__action .grow-iconify {
+  display: inline-flex !important;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  line-height: 0;
+  color: inherit !important;
+}
+
+.tab-subpage-item__action .grow-iconify svg,
+.tab-subpage-item__action .grow-iconify i {
+  display: block;
+  width: 12px;
+  height: 12px;
+  margin: 0;
+}
+
+.tab-subpage-item__action:hover,
+.tab-subpage-dropdown-menu .el-dropdown-menu__item.tab-subpage-dropdown-item.is-active .tab-subpage-item__action:hover,
+.tab-subpage-dropdown-menu .ant-menu-item.tab-subpage-dropdown-item.is-active .tab-subpage-item__action:hover {
   color: var(--primary-color);
-  background-color: var(--color-primary-a06);
+  background-color: var(--color-primary-a16);
 }
 
 .tab-context-dropdown-menu .tab-context-menu-item--divided {

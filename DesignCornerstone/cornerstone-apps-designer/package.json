@@ -13,6 +13,8 @@
     "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
   },
   "dependencies": {
+    "@grow-admin-cornerstone/apps-sandbox": "workspace:*",
+    "@grow-admin-rock/code-sandbox": "workspace:*",
     "@grow-admin-rock/data-clean": "workspace:*",
     "@grow-admin-rock/process-engine": "workspace:*",
     "@grow-admin-rock/data-prep": "workspace:*",

@@ -44,7 +44,10 @@ const REPORT_PAGE_OPTIONS = [
   { label: '分析报表', value: 'report-analysis' },
 ]
 
-const SANDBOX_PAGE_OPTIONS: Array<{ label: string, value: string }> = []
+const SANDBOX_PAGE_OPTIONS = [
+  { label: '示例欢迎页', value: 'demo_welcome' },
+  { label: '示例工作台', value: 'demo_workbench' },
+]
 
 function emptyForm(menuType: MenuTypeEnum): FormModel {
   return {
@@ -124,10 +127,7 @@ export function useMenuForm(options: UseMenuFormOptions) {
     return SANDBOX_PAGE_OPTIONS
   })
 
-  const automationPagePlaceholder = computed(() => {
-    if (formModel.automationType === 'sandbox') return '沙箱管理尚未接入'
-    return '请选择页面'
-  })
+  const automationPagePlaceholder = computed(() => '请选择页面')
 
   const openModeOptions = [
     { label: '内嵌 iframe', value: PageOpenModeEnum.IFRAME },
@@ -185,7 +185,7 @@ export function useMenuForm(options: UseMenuFormOptions) {
     }],
     automationPage: [{
       validator: (_rule: unknown, value: string, callback: (error?: Error) => void) => {
-        if (!isAutomationMenu.value || formModel.automationType === 'sandbox') {
+        if (!isAutomationMenu.value) {
           callback()
           return
         }
