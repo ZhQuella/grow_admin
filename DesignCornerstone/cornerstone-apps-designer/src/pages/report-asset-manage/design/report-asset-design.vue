@@ -2,19 +2,24 @@
   <div class="report-asset-design">
     <div class="report-asset-design__bar">
       <div class="report-asset-design__bar-left">
-        <GrowButton size="small" @click="onBack">返回</GrowButton>
         <div v-if="asset" class="report-asset-design__meta">
           <span class="report-asset-design__title">{{ asset.name }}</span>
-          <GrowTag size="small" type="info">报表</GrowTag>
           <span class="report-asset-design__code">{{ asset.code }}</span>
+          <GrowTag size="small" type="primary">报表</GrowTag>
           <span class="report-asset-design__version">
-            当前版本：{{ asset.currentVersion || '未发布' }}
+            当前版本:
           </span>
+          <GrowTag size="small" :type="publishStateTagType">{{ asset.currentVersion || '未发布' }}</GrowTag>
         </div>
       </div>
-      <GrowButton size="small" type="primary" :loading="saving" :disabled="!asset" @click="onSave">
-        保存
-      </GrowButton>
+      <div>
+        <GrowButton size="small" :loading="saving" :disabled="!asset" @click="onBack">
+          返回
+        </GrowButton>
+        <GrowButton size="small" type="primary" :loading="saving" :disabled="!asset" @click="onSave">
+          保存
+        </GrowButton>
+      </div>
     </div>
 
     <div class="report-asset-design__body">
@@ -42,6 +47,7 @@ const {
   loading,
   saving,
   asset,
+  publishStateTagType,
   designerSchema,
   schemaReady,
   designerRef,

@@ -211,7 +211,27 @@ export const useTabStore = defineStore({
       this.activeTab = normalizePath(fullPath)
     },
 
-    /** 切换 tab 时的目标路由：优先恢复 stack 子页面 */
+    /**
+     * 按当前地址记录离开后应恢复的位置：在子页则记下子页，在父页则清空。
+     * 只应在路由真正落到该地址时调用，不能在点击 tab 准备跳转时调用。
+     */
+    syncTabVisitPath(fullPath: string) {
+      const normalizedPath = normalizePath(fullPath)
+      const parentTab = this.findParentTabBySubPage(normalizedPath)
+      if (parentTab) {
+        parentTab.lastSubPagePath = normalizedPath
+        this.activeTab = parentTab.fullPath
+        return
+      }
+
+      const tab = this.tabList.find((item) => item.fullPath === normalizedPath)
+      if (tab) {
+        tab.lastSubPagePath = undefined
+        this.activeTab = normalizedPath
+      }
+    },
+
+    /** 点击 tab 时的目标路由：离开时在子页则恢复子页，否则进父页 */
     resolveTabNavigatePath(fullPath: string): string {
       const normalizedPath = normalizePath(fullPath)
       const tab = this.tabList.find((item) => item.fullPath === normalizedPath)
@@ -365,7 +385,7 @@ export const useTabStore = defineStore({
             tab.lastSubPagePath
             && !tab.subPages.some((subPage) => subPage.fullPath === tab.lastSubPagePath)
           ) {
-            tab.lastSubPagePath = tab.subPages[tab.subPages.length - 1]?.fullPath
+            tab.lastSubPagePath = undefined
           }
         }
 
@@ -491,7 +511,7 @@ export const useTabStore = defineStore({
         if (!existing.subPages) {
           existing.subPages = []
         }
-        this.activeTab = fullPath
+        this.syncTabVisitPath(fullPath)
         return existing
       }
 
@@ -500,7 +520,7 @@ export const useTabStore = defineStore({
       if (tab.isKeepAlive !== false) {
         this.addCache(tab.name)
       }
-      this.activeTab = fullPath
+      this.syncTabVisitPath(fullPath)
       return tab
     },
 
@@ -547,8 +567,7 @@ export const useTabStore = defineStore({
         }
       }
 
-      parentTab.lastSubPagePath = subPageFullPath
-      this.activeTab = parentTab.fullPath
+      this.syncTabVisitPath(subPageFullPath)
       return parentTab.fullPath
     },
 
@@ -569,8 +588,7 @@ export const useTabStore = defineStore({
         this.addCache(subPage.name)
       }
 
-      parentTab.lastSubPagePath = normalizedPath
-      this.activeTab = parentTab.fullPath
+      this.syncTabVisitPath(normalizedPath)
     },
 
     closeTab(fullPath: string): string | null {
@@ -622,7 +640,7 @@ export const useTabStore = defineStore({
       }
 
       if (tab.lastSubPagePath === normalizedSubPagePath) {
-        tab.lastSubPagePath = tab.subPages[tab.subPages.length - 1]?.fullPath
+        tab.lastSubPagePath = undefined
       }
 
       return normalizedParentPath
@@ -758,7 +776,7 @@ export const useTabStore = defineStore({
           existing.title = pendingTitle
           delete this.pendingTabTitles[fullPath]
         }
-        this.activeTab = fullPath
+        this.syncTabVisitPath(fullPath)
         return existing
       }
 
@@ -776,7 +794,7 @@ export const useTabStore = defineStore({
       if (newTab.isKeepAlive !== false) {
         this.addCache(newTab.name)
       }
-      this.activeTab = fullPath
+      this.syncTabVisitPath(fullPath)
       return newTab
     },
 

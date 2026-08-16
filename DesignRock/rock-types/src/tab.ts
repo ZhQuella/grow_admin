@@ -29,6 +29,6 @@ export interface TabItem {
   link?: string
   /** stack 模式下已打开的子页面 */
   subPages?: TabSubPage[]
-  /** 上次访问的子页面，切换 tab 后恢复用 */
+  /** 离开该 tab 时若在子页则记下子页路径；在父页时为空。仅点 tab 时据此恢复 */
   lastSubPagePath?: string
 }

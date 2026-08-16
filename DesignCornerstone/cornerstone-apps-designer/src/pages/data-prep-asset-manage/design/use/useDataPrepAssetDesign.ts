@@ -1,37 +1,36 @@
 import { ref, watch, computed } from 'vue'
-import type { ReportSchema } from '@grow-admin-rock/report-designer'
+import type { DataPrepDataset } from '@grow-admin-rock/data-prep'
 import { useMsg } from '@grow-admin-rock/components'
 import { useTabs } from '@grow-admin-rock/hooks'
 import { useRoute } from '@grow-admin-rock/middleware-router'
 import {
-  getReportAssetDetail,
-  saveReportAssetSchema,
-} from '../../../../api/reportAsset'
+  getDataPrepAssetDetail,
+  saveDataPrepAssetSchema,
+} from '../../../../api/dataPrepAsset'
 import {
-  createEmptyReportSchema,
-  type ReportAsset,
-} from '../../../../types/reportAsset'
+  createEmptyDataPrepSchema,
+  type DataPrepAsset,
+} from '../../../../types/dataPrepAsset'
 
-const ROUTE_NAME = 'ReportAssetDesign'
+const ROUTE_NAME = 'DataPrepAssetDesign'
 
-export function useReportAssetDesign() {
+export function useDataPrepAssetDesign() {
   const route = useRoute()
   const { setTab, closeCurrent } = useTabs()
   const message = useMsg()
 
   const loading = ref(false)
   const saving = ref(false)
-  const asset = ref<ReportAsset | null>(null)
-  const designerSchema = ref<ReportSchema | null>(null)
+  const asset = ref<DataPrepAsset | null>(null)
+  const designerSchema = ref<DataPrepDataset | null>(null)
   const schemaReady = ref(false)
-  const designerRef = ref<{ getSchema: () => ReportSchema } | null>(null)
 
-  const publishStateTagType = computed(() =>{
+  const publishStateTagType = computed(() => {
     if (!asset.value?.currentVersion) {
       return 'info'
     }
     return asset.value?.enabled ? 'success' : 'danger'
-  });
+  })
 
   async function loadAsset(id: string) {
     if (!id) {
@@ -48,13 +47,12 @@ export function useReportAssetDesign() {
     loading.value = true
     schemaReady.value = false
     try {
-      const detail = await getReportAssetDetail(id)
-      // 请求返回时可能已切到其他路由，避免串写
+      const detail = await getDataPrepAssetDetail(id)
       if (route.name !== ROUTE_NAME || String(route.params.id || '') !== id) {
         return
       }
       asset.value = detail
-      designerSchema.value = detail.draftSchema || createEmptyReportSchema()
+      designerSchema.value = detail.draftSchema || createEmptyDataPrepSchema()
       schemaReady.value = true
       setTab(`设计-${detail.name}`)
     } catch (error) {
@@ -72,12 +70,16 @@ export function useReportAssetDesign() {
     }
   }
 
+  async function persistSchema() {
+    if (!asset.value || !designerSchema.value) return
+    await saveDataPrepAssetSchema(asset.value.id, designerSchema.value)
+  }
+
   async function onSave() {
-    if (!asset.value || !designerRef.value) return
+    if (!asset.value || !designerSchema.value) return
     saving.value = true
     try {
-      const schema = designerRef.value.getSchema()
-      await saveReportAssetSchema(asset.value.id, schema)
+      await persistSchema()
       message.success('保存成功')
       closeCurrent()
     } catch (error) {
@@ -94,7 +96,6 @@ export function useReportAssetDesign() {
   watch(
     () => ({ name: route.name, id: String(route.params.id || '') }),
     ({ name, id }) => {
-      // keep-alive 下多个设计页会共享当前 route，仅在本路由激活时加载
       if (name !== ROUTE_NAME) return
       void loadAsset(id)
     },
@@ -108,7 +109,6 @@ export function useReportAssetDesign() {
     publishStateTagType,
     designerSchema,
     schemaReady,
-    designerRef,
     onSave,
     onBack,
   }

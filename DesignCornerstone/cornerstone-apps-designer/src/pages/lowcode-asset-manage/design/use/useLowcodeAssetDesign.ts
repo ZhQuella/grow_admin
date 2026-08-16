@@ -31,6 +31,13 @@ export function useLowcodeAssetDesign() {
     asset.value ? lowcodeAssetTypeLabel(asset.value.type) : '',
   )
 
+  const publishStateTagType = computed(() =>{
+    if (!asset.value?.currentVersion) {
+      return 'info'
+    }
+    return asset.value?.enabled ? 'success' : 'danger'
+  })
+
   async function loadAsset(id: string) {
     if (!id) {
       asset.value = null
@@ -77,6 +84,7 @@ export function useLowcodeAssetDesign() {
       const schema = designerRef.value.getSchema()
       await saveLowcodeAssetSchema(asset.value.id, schema)
       message.success('保存成功')
+      closeCurrent()
     } catch (error) {
       message.error(error instanceof Error ? error.message : '保存失败')
     } finally {
@@ -102,6 +110,7 @@ export function useLowcodeAssetDesign() {
     loading,
     saving,
     asset,
+    publishStateTagType,
     designerSchema,
     schemaReady,
     designerRef,

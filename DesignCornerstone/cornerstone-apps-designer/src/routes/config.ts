@@ -67,24 +67,52 @@ export const DESIGNER_ROUTE_STRUCTURES: DesignerRouteStructure[] = [
         ],
       },
       {
-        path: 'schema-designer-playground',
-        name: 'SchemaDesignerPlayground',
-        componentKey: 'SchemaDesignerPlayground',
+        path: 'schema-asset-manage',
+        name: 'SchemaAssetManage',
+        componentKey: 'SchemaAssetManage',
+        children: [
+          {
+            path: 'design/:id',
+            name: 'SchemaAssetDesign',
+            componentKey: 'SchemaAssetDesign',
+          },
+        ],
       },
       {
-        path: 'data-prep-playground',
-        name: 'DataPrepPlayground',
-        componentKey: 'DataPrepPlayground',
+        path: 'data-prep-asset-manage',
+        name: 'DataPrepAssetManage',
+        componentKey: 'DataPrepAssetManage',
+        children: [
+          {
+            path: 'design/:id',
+            name: 'DataPrepAssetDesign',
+            componentKey: 'DataPrepAssetDesign',
+          },
+        ],
       },
       {
-        path: 'data-clean-playground',
-        name: 'DataCleanPlayground',
-        componentKey: 'DataCleanPlayground',
+        path: 'data-clean-asset-manage',
+        name: 'DataCleanAssetManage',
+        componentKey: 'DataCleanAssetManage',
+        children: [
+          {
+            path: 'design/:id',
+            name: 'DataCleanAssetDesign',
+            componentKey: 'DataCleanAssetDesign',
+          },
+        ],
       },
       {
-        path: 'process-engine-playground',
-        name: 'ProcessEnginePlayground',
-        componentKey: 'ProcessEnginePlayground',
+        path: 'process-asset-manage',
+        name: 'ProcessAssetManage',
+        componentKey: 'ProcessAssetManage',
+        children: [
+          {
+            path: 'design/:id',
+            name: 'ProcessAssetDesign',
+            componentKey: 'ProcessAssetDesign',
+          },
+        ],
       },
     ],
   },
@@ -158,10 +186,14 @@ export const DESIGNER_COMPONENT_KEYS = new Set([
   'LowcodeAssetDesign',
   'ReportAssetManage',
   'ReportAssetDesign',
-  'SchemaDesignerPlayground',
-  'DataPrepPlayground',
-  'DataCleanPlayground',
-  'ProcessEnginePlayground',
+  'SchemaAssetManage',
+  'SchemaAssetDesign',
+  'DataPrepAssetManage',
+  'DataPrepAssetDesign',
+  'DataCleanAssetManage',
+  'DataCleanAssetDesign',
+  'ProcessAssetManage',
+  'ProcessAssetDesign',
 ])
 
 export const DESIGNER_COMPONENT_PAGE_NAMES: Record<string, string> = {
@@ -169,10 +201,14 @@ export const DESIGNER_COMPONENT_PAGE_NAMES: Record<string, string> = {
   LowcodeAssetDesign: 'LowcodeAssetDesignPage',
   ReportAssetManage: 'ReportAssetManagePage',
   ReportAssetDesign: 'ReportAssetDesignPage',
-  SchemaDesignerPlayground: 'SchemaDesignerPlaygroundPage',
-  DataPrepPlayground: 'DataPrepPlaygroundPage',
-  DataCleanPlayground: 'DataCleanPlaygroundPage',
-  ProcessEnginePlayground: 'ProcessEnginePlaygroundPage',
+  SchemaAssetManage: 'SchemaAssetManagePage',
+  SchemaAssetDesign: 'SchemaAssetDesignPage',
+  DataPrepAssetManage: 'DataPrepAssetManagePage',
+  DataPrepAssetDesign: 'DataPrepAssetDesignPage',
+  DataCleanAssetManage: 'DataCleanAssetManagePage',
+  DataCleanAssetDesign: 'DataCleanAssetDesignPage',
+  ProcessAssetManage: 'ProcessAssetManagePage',
+  ProcessAssetDesign: 'ProcessAssetDesignPage',
 }
 
 export function resolveDesignerPageComponentName(componentKey: string): string {

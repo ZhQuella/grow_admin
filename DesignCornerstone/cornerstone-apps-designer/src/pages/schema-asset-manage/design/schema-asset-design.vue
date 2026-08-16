@@ -1,12 +1,12 @@
 <template>
-  <div class="lowcode-asset-design">
-    <div class="lowcode-asset-design__bar">
-      <div class="lowcode-asset-design__bar-left">
-        <div class="lowcode-asset-design__meta" v-if="asset"> 
-          <span class="lowcode-asset-design__title">{{ asset.name }}</span>
-          <span class="lowcode-asset-design__code">{{ asset.code }}</span>
-          <GrowTag size="small" type="primary">{{ typeLabel }}</GrowTag>
-          <span class="lowcode-asset-design__version">
+  <div class="schema-asset-design">
+    <div class="schema-asset-design__bar">
+      <div class="schema-asset-design__bar-left">
+        <div v-if="asset" class="schema-asset-design__meta">
+          <span class="schema-asset-design__title">{{ asset.name }}</span>
+          <span class="schema-asset-design__code">{{ asset.code }}</span>
+          <GrowTag size="small" type="primary">建模</GrowTag>
+          <span class="schema-asset-design__version">
             当前版本:
           </span>
           <GrowTag size="small" :type="publishStateTagType">{{ asset.currentVersion || '未发布' }}</GrowTag>
@@ -22,13 +22,13 @@
       </div>
     </div>
 
-    <div class="lowcode-asset-design__body">
-      <GrowDesigner
-        v-if="schemaReady"
+    <div class="schema-asset-design__body">
+      <GrowSchemaDesigner
+        v-if="schemaReady && designerSchema"
         ref="designerRef"
-        :schema="designerSchema"
+        :model-value="designerSchema"
       />
-      <div v-else class="lowcode-asset-design__empty">
+      <div v-else class="schema-asset-design__empty">
         {{ loading ? '加载中…' : '资产不存在或加载失败' }}
       </div>
     </div>
@@ -36,11 +36,11 @@
 </template>
 
 <script lang="ts" setup>
-import { GrowDesigner } from '@grow-admin-rock/designer'
-import { useLowcodeAssetDesign } from './use/useLowcodeAssetDesign'
+import { GrowSchemaDesigner } from '@grow-admin-rock/schema-designer'
+import { useSchemaAssetDesign } from './use/useSchemaAssetDesign'
 
 defineOptions({
-  name: 'LowcodeAssetDesignPage',
+  name: 'SchemaAssetDesignPage',
 })
 
 const {
@@ -51,14 +51,13 @@ const {
   designerSchema,
   schemaReady,
   designerRef,
-  typeLabel,
   onSave,
   onBack,
-} = useLowcodeAssetDesign()
+} = useSchemaAssetDesign()
 </script>
 
 <style scoped>
-.lowcode-asset-design {
+.schema-asset-design {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -69,7 +68,7 @@ const {
   overflow: hidden;
 }
 
-.lowcode-asset-design__bar {
+.schema-asset-design__bar {
   box-sizing: border-box;
   display: flex;
   flex: 0 0 44px;
@@ -82,14 +81,14 @@ const {
   background: var(--component-background-color);
 }
 
-.lowcode-asset-design__bar-left {
+.schema-asset-design__bar-left {
   display: flex;
   align-items: center;
   gap: 12px;
   min-width: 0;
 }
 
-.lowcode-asset-design__meta {
+.schema-asset-design__meta {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -97,28 +96,28 @@ const {
   overflow: hidden;
 }
 
-.lowcode-asset-design__title {
+.schema-asset-design__title {
   font-size: 14px;
   font-weight: 600;
   color: var(--text-color);
   white-space: nowrap;
 }
 
-.lowcode-asset-design__code,
-.lowcode-asset-design__version {
+.schema-asset-design__code,
+.schema-asset-design__version {
   font-size: 12px;
   color: var(--text-color-secondary);
   white-space: nowrap;
 }
 
-.lowcode-asset-design__body {
+.schema-asset-design__body {
   position: relative;
   flex: 1;
   min-height: 0;
   overflow: hidden;
 }
 
-.lowcode-asset-design__empty {
+.schema-asset-design__empty {
   display: flex;
   align-items: center;
   justify-content: center;

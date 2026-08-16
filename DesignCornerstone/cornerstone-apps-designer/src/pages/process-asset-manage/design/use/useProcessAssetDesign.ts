@@ -1,37 +1,37 @@
 import { ref, watch, computed } from 'vue'
-import type { ReportSchema } from '@grow-admin-rock/report-designer'
+import type { ProcessFlow } from '@grow-admin-rock/process-engine'
 import { useMsg } from '@grow-admin-rock/components'
 import { useTabs } from '@grow-admin-rock/hooks'
 import { useRoute } from '@grow-admin-rock/middleware-router'
 import {
-  getReportAssetDetail,
-  saveReportAssetSchema,
-} from '../../../../api/reportAsset'
+  getProcessAssetDetail,
+  saveProcessAssetSchema,
+} from '../../../../api/processAsset'
 import {
-  createEmptyReportSchema,
-  type ReportAsset,
-} from '../../../../types/reportAsset'
+  createEmptyProcessSchema,
+  type ProcessAsset,
+} from '../../../../types/processAsset'
 
-const ROUTE_NAME = 'ReportAssetDesign'
+const ROUTE_NAME = 'ProcessAssetDesign'
 
-export function useReportAssetDesign() {
+export function useProcessAssetDesign() {
   const route = useRoute()
   const { setTab, closeCurrent } = useTabs()
   const message = useMsg()
 
   const loading = ref(false)
   const saving = ref(false)
-  const asset = ref<ReportAsset | null>(null)
-  const designerSchema = ref<ReportSchema | null>(null)
+  const asset = ref<ProcessAsset | null>(null)
+  const designerSchema = ref<ProcessFlow | null>(null)
   const schemaReady = ref(false)
-  const designerRef = ref<{ getSchema: () => ReportSchema } | null>(null)
+  const designerRef = ref<{ getFlow: () => ProcessFlow } | null>(null)
 
-  const publishStateTagType = computed(() =>{
+  const publishStateTagType = computed(() => {
     if (!asset.value?.currentVersion) {
       return 'info'
     }
     return asset.value?.enabled ? 'success' : 'danger'
-  });
+  })
 
   async function loadAsset(id: string) {
     if (!id) {
@@ -48,13 +48,12 @@ export function useReportAssetDesign() {
     loading.value = true
     schemaReady.value = false
     try {
-      const detail = await getReportAssetDetail(id)
-      // 请求返回时可能已切到其他路由，避免串写
+      const detail = await getProcessAssetDetail(id)
       if (route.name !== ROUTE_NAME || String(route.params.id || '') !== id) {
         return
       }
       asset.value = detail
-      designerSchema.value = detail.draftSchema || createEmptyReportSchema()
+      designerSchema.value = detail.draftSchema || createEmptyProcessSchema()
       schemaReady.value = true
       setTab(`设计-${detail.name}`)
     } catch (error) {
@@ -76,8 +75,8 @@ export function useReportAssetDesign() {
     if (!asset.value || !designerRef.value) return
     saving.value = true
     try {
-      const schema = designerRef.value.getSchema()
-      await saveReportAssetSchema(asset.value.id, schema)
+      const schema = designerRef.value.getFlow()
+      await saveProcessAssetSchema(asset.value.id, schema)
       message.success('保存成功')
       closeCurrent()
     } catch (error) {
@@ -94,7 +93,6 @@ export function useReportAssetDesign() {
   watch(
     () => ({ name: route.name, id: String(route.params.id || '') }),
     ({ name, id }) => {
-      // keep-alive 下多个设计页会共享当前 route，仅在本路由激活时加载
       if (name !== ROUTE_NAME) return
       void loadAsset(id)
     },

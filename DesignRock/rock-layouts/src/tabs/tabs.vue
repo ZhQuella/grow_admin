@@ -80,7 +80,7 @@ function handleTabChange(fullPath: string | number) {
 function handleTabClose(tab: TabItem) {
   if (tabStore.isSubPageOfTab(tab, currentFullPath.value)) {
     const parentPath = tabStore.closeSubPage(tab.fullPath, currentFullPath.value)
-    navigateToTab(parentPath)
+    navigateIfNeeded(parentPath)
     return
   }
 
@@ -119,14 +119,11 @@ watch(
   () => {
     setOpenTabPath(null)
     const normalizedPath = normalizePath(route.fullPath)
-    const parentTab = tabStore.findParentTabBySubPage(normalizedPath)
-    if (parentTab) {
+    if (tabStore.findParentTabBySubPage(normalizedPath)) {
       tabStore.syncStackSubPage(normalizedPath)
       return
     }
-    if (tabList.value.some((tab) => tab.fullPath === normalizedPath)) {
-      tabStore.setActiveTab(normalizedPath)
-    }
+    tabStore.syncTabVisitPath(normalizedPath)
   },
   { immediate: true },
 )

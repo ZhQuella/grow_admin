@@ -1,12 +1,12 @@
 <template>
-  <div class="lowcode-asset-design">
-    <div class="lowcode-asset-design__bar">
-      <div class="lowcode-asset-design__bar-left">
-        <div class="lowcode-asset-design__meta" v-if="asset"> 
-          <span class="lowcode-asset-design__title">{{ asset.name }}</span>
-          <span class="lowcode-asset-design__code">{{ asset.code }}</span>
-          <GrowTag size="small" type="primary">{{ typeLabel }}</GrowTag>
-          <span class="lowcode-asset-design__version">
+  <div class="process-asset-design">
+    <div class="process-asset-design__bar">
+      <div class="process-asset-design__bar-left">
+        <div v-if="asset" class="process-asset-design__meta">
+          <span class="process-asset-design__title">{{ asset.name }}</span>
+          <span class="process-asset-design__code">{{ asset.code }}</span>
+          <GrowTag size="small" type="primary">流程</GrowTag>
+          <span class="process-asset-design__version">
             当前版本:
           </span>
           <GrowTag size="small" :type="publishStateTagType">{{ asset.currentVersion || '未发布' }}</GrowTag>
@@ -22,13 +22,14 @@
       </div>
     </div>
 
-    <div class="lowcode-asset-design__body">
-      <GrowDesigner
-        v-if="schemaReady"
+    <div class="process-asset-design__body">
+      <GrowProcessDesigner
+        v-if="schemaReady && designerSchema"
         ref="designerRef"
-        :schema="designerSchema"
+        :model-value="designerSchema"
+        @save="onSave"
       />
-      <div v-else class="lowcode-asset-design__empty">
+      <div v-else class="process-asset-design__empty">
         {{ loading ? '加载中…' : '资产不存在或加载失败' }}
       </div>
     </div>
@@ -36,11 +37,11 @@
 </template>
 
 <script lang="ts" setup>
-import { GrowDesigner } from '@grow-admin-rock/designer'
-import { useLowcodeAssetDesign } from './use/useLowcodeAssetDesign'
+import { GrowProcessDesigner } from '@grow-admin-rock/process-engine'
+import { useProcessAssetDesign } from './use/useProcessAssetDesign'
 
 defineOptions({
-  name: 'LowcodeAssetDesignPage',
+  name: 'ProcessAssetDesignPage',
 })
 
 const {
@@ -51,14 +52,13 @@ const {
   designerSchema,
   schemaReady,
   designerRef,
-  typeLabel,
   onSave,
   onBack,
-} = useLowcodeAssetDesign()
+} = useProcessAssetDesign()
 </script>
 
 <style scoped>
-.lowcode-asset-design {
+.process-asset-design {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -69,7 +69,7 @@ const {
   overflow: hidden;
 }
 
-.lowcode-asset-design__bar {
+.process-asset-design__bar {
   box-sizing: border-box;
   display: flex;
   flex: 0 0 44px;
@@ -82,14 +82,14 @@ const {
   background: var(--component-background-color);
 }
 
-.lowcode-asset-design__bar-left {
+.process-asset-design__bar-left {
   display: flex;
   align-items: center;
   gap: 12px;
   min-width: 0;
 }
 
-.lowcode-asset-design__meta {
+.process-asset-design__meta {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -97,28 +97,28 @@ const {
   overflow: hidden;
 }
 
-.lowcode-asset-design__title {
+.process-asset-design__title {
   font-size: 14px;
   font-weight: 600;
   color: var(--text-color);
   white-space: nowrap;
 }
 
-.lowcode-asset-design__code,
-.lowcode-asset-design__version {
+.process-asset-design__code,
+.process-asset-design__version {
   font-size: 12px;
   color: var(--text-color-secondary);
   white-space: nowrap;
 }
 
-.lowcode-asset-design__body {
+.process-asset-design__body {
   position: relative;
   flex: 1;
   min-height: 0;
   overflow: hidden;
 }
 
-.lowcode-asset-design__empty {
+.process-asset-design__empty {
   display: flex;
   align-items: center;
   justify-content: center;
