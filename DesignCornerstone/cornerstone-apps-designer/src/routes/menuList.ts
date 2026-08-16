@@ -4,12 +4,32 @@ import type { DesignerMenuApiItem } from './config'
 export const DESIGNER_MENU_LIST: DesignerMenuApiItem[] = [
   {
     name: 'DesignerCatalog',
-    title: '设计器',
+    title: '自动化',
     icon: 'ant-design:appstore-outlined',
     menuType: MenuTypeEnum.DIRECTORY,
     isVisible: true,
     sort: 36,
     children: [
+      {
+        name: 'OnlinePageManage',
+        title: '在线页面管理',
+        icon: 'ant-design:code-sandbox-outlined',
+        menuType: MenuTypeEnum.MENU,
+        isVisible: true,
+        isKeepAlive: true,
+        sort: 1,
+        children: [
+          {
+            name: 'OnlinePageDesign',
+            title: '在线页面设计',
+            icon: 'ant-design:code-sandbox-outlined',
+            menuType: MenuTypeEnum.MENU,
+            isVisible: false,
+            isKeepAlive: true,
+            sort: 10,
+          },
+        ],
+      },
       {
         name: 'LowcodeAssetManage',
         title: '低代码资产管理',

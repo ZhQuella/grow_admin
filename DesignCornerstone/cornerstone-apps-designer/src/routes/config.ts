@@ -43,6 +43,18 @@ export const DESIGNER_ROUTE_STRUCTURES: DesignerRouteStructure[] = [
     name: 'DesignerCatalog',
     children: [
       {
+        path: 'online-page-manage',
+        name: 'OnlinePageManage',
+        componentKey: 'OnlinePageManage',
+        children: [
+          {
+            path: 'design/:id',
+            name: 'OnlinePageDesign',
+            componentKey: 'OnlinePageDesign',
+          },
+        ],
+      },
+      {
         path: 'lowcode-asset-manage',
         name: 'LowcodeAssetManage',
         componentKey: 'LowcodeAssetManage',
@@ -182,6 +194,8 @@ export function toDesignerRouteConfigs(
 }
 
 export const DESIGNER_COMPONENT_KEYS = new Set([
+  'OnlinePageManage',
+  'OnlinePageDesign',
   'LowcodeAssetManage',
   'LowcodeAssetDesign',
   'ReportAssetManage',
@@ -197,6 +211,8 @@ export const DESIGNER_COMPONENT_KEYS = new Set([
 ])
 
 export const DESIGNER_COMPONENT_PAGE_NAMES: Record<string, string> = {
+  OnlinePageManage: 'OnlinePageManagePage',
+  OnlinePageDesign: 'OnlinePageDesignPage',
   LowcodeAssetManage: 'LowcodeAssetManagePage',
   LowcodeAssetDesign: 'LowcodeAssetDesignPage',
   ReportAssetManage: 'ReportAssetManagePage',

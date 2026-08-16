@@ -50,10 +50,12 @@ export const WORKSPACE_ROUTE_STRUCTURES: WorkspaceRouteStructure[] = [
       {
         path: 'data-report',
         name: 'DataReport',
+        componentKey: 'DataReport',
       },
       {
         path: 'analysis',
         name: 'Analysis',
+        componentKey: 'Analysis',
       },
     ],
   },
@@ -64,6 +66,7 @@ export const WORKSPACE_ROUTE_STRUCTURES: WorkspaceRouteStructure[] = [
       {
         path: 'mixture-back-demo',
         name: 'MixtureBackDemo',
+        componentKey: 'MixtureBackDemo',
       },
     ],
   },

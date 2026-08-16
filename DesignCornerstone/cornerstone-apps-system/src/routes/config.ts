@@ -1,15 +1,15 @@
 import { MenuTypeEnum, PageOpenModeEnum } from '@grow-admin-rock/constants'
 
 /** 客户端路由结构：path、组件映射，不含展示信息 */
-export type SandboxRouteStructure = {
+export type SystemRouteStructure = {
   path: string
   name: string
   componentKey?: string
-  children?: SandboxRouteStructure[]
+  children?: SystemRouteStructure[]
 }
 
 /** 接口返回的菜单展示信息 */
-export type SandboxMenuApiItem = {
+export type SystemMenuApiItem = {
   name: string
   title: string
   icon?: string
@@ -22,11 +22,11 @@ export type SandboxMenuApiItem = {
   isExternalPage?: boolean
   openMode?: PageOpenModeEnum
   link?: string
-  children?: SandboxMenuApiItem[]
+  children?: SystemMenuApiItem[]
 }
 
 /** 合并后的完整菜单/路由配置 */
-export type SandboxRouteConfig = SandboxRouteStructure & {
+export type SystemRouteConfig = SystemRouteStructure & {
   title: string
   icon?: string
   menuType: MenuTypeEnum
@@ -40,31 +40,26 @@ export type SandboxRouteConfig = SandboxRouteStructure & {
   link?: string
 }
 
-export const SANDBOX_ROUTE_STRUCTURES: SandboxRouteStructure[] = [
+export const SYSTEM_ROUTE_STRUCTURES: SystemRouteStructure[] = [
   {
-    path: 'sandbox-catalog',
-    name: 'SandboxCatalog',
+    path: 'system-catalog',
+    name: 'SystemCatalog',
     children: [
       {
-        path: 'code-sandbox-demo',
-        name: 'CodeSandboxDemo',
-        componentKey: 'CodeSandboxDemo',
-      },
-      {
-        path: 'code-editor-demo',
-        name: 'CodeEditorDemo',
-        componentKey: 'CodeEditorDemo',
+        path: 'menu-manage',
+        name: 'MenuManage',
+        componentKey: 'MenuManage',
       },
     ],
   },
 ]
 
-export type SandboxRouteLeaf = SandboxRouteConfig & {
+export type SystemRouteLeaf = SystemRouteConfig & {
   fullPath: string
 }
 
 function buildChildParentPath(
-  config: SandboxRouteStructure,
+  config: SystemRouteStructure,
   parentPath: string,
   isRootLevel: boolean,
 ): string {
@@ -74,26 +69,26 @@ function buildChildParentPath(
   return parentPath ? `${parentPath}/${config.path}` : config.path
 }
 
-export function resolveSandboxRouteFullPath(
-  config: SandboxRouteStructure,
+export function resolveSystemRouteFullPath(
+  config: SystemRouteStructure,
   parentPath = '',
 ): string {
   return parentPath ? `${parentPath}/${config.path}` : config.path
 }
 
-export function flattenSandboxRouteConfigs(
-  configs: SandboxRouteConfig[],
+export function flattenSystemRouteConfigs(
+  configs: SystemRouteConfig[],
   parentPath = '',
   isRootLevel = true,
-): SandboxRouteLeaf[] {
+): SystemRouteLeaf[] {
   return configs.flatMap((config) => {
     if (config.children?.length) {
       const nextParentPath = buildChildParentPath(config, parentPath, isRootLevel)
-      const childRoutes = flattenSandboxRouteConfigs(config.children, nextParentPath, false)
+      const childRoutes = flattenSystemRouteConfigs(config.children, nextParentPath, false)
       const selfRoute = config.componentKey != null
         ? [{
             ...config,
-            fullPath: resolveSandboxRouteFullPath(config, parentPath),
+            fullPath: resolveSystemRouteFullPath(config, parentPath),
           }]
         : []
       return [...selfRoute, ...childRoutes]
@@ -101,12 +96,12 @@ export function flattenSandboxRouteConfigs(
 
     return [{
       ...config,
-      fullPath: resolveSandboxRouteFullPath(config, parentPath),
+      fullPath: resolveSystemRouteFullPath(config, parentPath),
     }]
   })
 }
 
-function withDefaultTitle(structure: SandboxRouteStructure): SandboxRouteConfig {
+function withDefaultTitle(structure: SystemRouteStructure): SystemRouteConfig {
   return {
     ...structure,
     title: structure.name,
@@ -116,27 +111,25 @@ function withDefaultTitle(structure: SandboxRouteStructure): SandboxRouteConfig 
   }
 }
 
-export function toSandboxRouteConfigs(
-  structures: SandboxRouteStructure[] = SANDBOX_ROUTE_STRUCTURES,
-): SandboxRouteConfig[] {
+export function toSystemRouteConfigs(
+  structures: SystemRouteStructure[] = SYSTEM_ROUTE_STRUCTURES,
+): SystemRouteConfig[] {
   return structures.map(withDefaultTitle)
 }
 
-export const SANDBOX_COMPONENT_KEYS = new Set([
-  'CodeSandboxDemo',
-  'CodeEditorDemo',
+export const SYSTEM_COMPONENT_KEYS = new Set([
+  'MenuManage',
 ])
 
-export const SANDBOX_COMPONENT_PAGE_NAMES: Record<string, string> = {
-  CodeSandboxDemo: 'CodeSandboxDemoPage',
-  CodeEditorDemo: 'CodeEditorDemoPage',
+export const SYSTEM_COMPONENT_PAGE_NAMES: Record<string, string> = {
+  MenuManage: 'MenuManagePage',
 }
 
-export function resolveSandboxPageComponentName(componentKey: string): string {
-  return SANDBOX_COMPONENT_PAGE_NAMES[componentKey] ?? componentKey
+export function resolveSystemPageComponentName(componentKey: string): string {
+  return SYSTEM_COMPONENT_PAGE_NAMES[componentKey] ?? componentKey
 }
 
-export function isSandboxRouteConfig(config: { componentKey?: string; name: string | symbol }): boolean {
+export function isSystemRouteConfig(config: { componentKey?: string, name: string | symbol }): boolean {
   const key = String(config.componentKey ?? config.name)
-  return SANDBOX_COMPONENT_KEYS.has(key)
+  return SYSTEM_COMPONENT_KEYS.has(key)
 }
