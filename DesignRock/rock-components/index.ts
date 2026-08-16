@@ -3,9 +3,14 @@ export {
   setNotice,
   setMessage,
   setDialog,
+  setLoadingBar,
   useNotice,
   useMsg,
   useDialog,
+  useLoadingBar,
+  useFallbackLoadingBar,
+  FallbackLoadingBarProvider,
+  type LoadingBarApi,
 } from './src';
 /** @alias useMsg */
 export { useMsg as useMessage } from './src';

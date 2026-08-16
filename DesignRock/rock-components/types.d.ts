@@ -21,6 +21,7 @@ declare module 'vue' {
     GrowMessageProvider: import('vue').Component;
     GrowNotificationProvider: import('vue').Component;
     GrowDialogProvider: import('vue').Component;
+    GrowLoadingBarProvider: import('vue').Component;
     GrowDialog: import('vue').Component;
     GrowDrawer: import('vue').Component;
     GrowDrawerContent: import('vue').Component;

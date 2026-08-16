@@ -1,7 +1,7 @@
 import type { App } from 'vue';
 import type { AppContext } from '@grow-admin-rock/base-package';
 import type { GrowAdminComponentDriver } from '@grow-admin-rock/component-driver';
-import { ContextParamDef, setMessage, setNotice, setDialog } from '@grow-admin-rock/components';
+import { ContextParamDef, setMessage, setNotice, setDialog, setLoadingBar, useFallbackLoadingBar } from '@grow-admin-rock/components';
 import { ComponentLibraryType } from '@grow-admin-rock/types';
 import { projectSetting } from './projectSetting';
 
@@ -14,16 +14,16 @@ const driverFactories: Record<ComponentLibraryType, () => Promise<DriverFactory>
     setMessage(() => ElMessage);
     setNotice(() => ElNotification);
     setDialog(() => ElMessageBox);
+    setLoadingBar(useFallbackLoadingBar);
     return () => EPComponentDriver.builder().enableAll();
   },
   [ComponentLibraryType.NaiveUI]: async () => {
     const { NaiveComponentDriver } = await import('@grow-admin-rock/component-driver-naive');
-    const { useMessage } = await import('naive-ui');
-    const { useNotification } = await import('naive-ui');
-    const { useDialog } = await import('naive-ui');
+    const { useMessage, useNotification, useDialog, useLoadingBar } = await import('naive-ui');
     setMessage(useMessage);
     setNotice(useNotification);
     setDialog(useDialog);
+    setLoadingBar(useLoadingBar);
     return () => NaiveComponentDriver.builder().enableAll();
   },
   [ComponentLibraryType.AntDesignVue]: async () => {
@@ -32,6 +32,7 @@ const driverFactories: Record<ComponentLibraryType, () => Promise<DriverFactory>
     setMessage(() => message);
     setNotice(() => notification);
     setDialog(() => Modal);
+    setLoadingBar(useFallbackLoadingBar);
     return () => AntdvComponentDriver.builder().enableAll();
   },
 };
