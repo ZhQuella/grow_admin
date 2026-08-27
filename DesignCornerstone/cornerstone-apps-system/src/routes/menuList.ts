@@ -70,7 +70,7 @@ export const SYSTEM_MENU_LIST: SystemMenuApiItem[] = [
             icon: 'ant-design:profile-outlined',
             menuType: MenuTypeEnum.MENU,
             isVisible: false,
-            isKeepAlive: false,
+            isKeepAlive: true,
             sort: 30,
           },
         ],

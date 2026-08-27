@@ -28,7 +28,7 @@ export function useTabRouteSync() {
 
     tabStore.openDynamicTab({
       fullPath: normalizePath(currentRoute.fullPath),
-      name: String(currentRoute.meta.componentName ?? currentRoute.name),
+      name: String(currentRoute.name),
       title: String(currentRoute.meta.title ?? currentRoute.name),
       isKeepAlive: currentRoute.meta.isKeepAlive !== false,
     })
@@ -38,7 +38,7 @@ export function useTabRouteSync() {
     const normalizedFullPath = normalizePath(currentRoute.fullPath)
 
     if (tabStore.findParentTabBySubPage(normalizedFullPath)) {
-      tabStore.syncStackSubPage(normalizedFullPath)
+      tabStore.syncStackSubPage(normalizedFullPath, currentRoute.meta.isKeepAlive !== false)
       return
     }
 

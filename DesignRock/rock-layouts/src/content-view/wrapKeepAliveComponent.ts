@@ -1,4 +1,4 @@
-import { cloneVNode, defineComponent, h, isVNode, type Component, type VNode } from 'vue'
+import { defineComponent, h, isVNode, type Component, type VNode } from 'vue'
 
 /** 按 cacheName 缓存组件类型，保证 keep-alive include 匹配到同一引用 */
 const resolvedComponents = new Map<string, Component>()
@@ -44,8 +44,8 @@ function resolveNamedType(inner: Component, cacheName: string): Component {
 }
 
 /**
- * router-view 插槽里的 Component 是 VNode，keep-alive 按 vnode.type 的 name 匹配 include。
- * 列表页注册时 extendComponent 已经改过 type.name；带 :id 的编辑页必须在这里改 type。
+ * 继续使用 router-view 给出的 VNode（官方 keep-alive 用法），只在 type.name
+ * 与 include 不一致时换成稳定的具名类型。不要 cloneVNode，也不要每次 h() 新节点。
  */
 export function wrapKeepAliveComponent(
   component: Component | VNode,
@@ -56,12 +56,10 @@ export function wrapKeepAliveComponent(
     if (typeof inner === 'string' || typeof inner === 'symbol' || inner == null) {
       return component
     }
-    if (componentTypeName(inner) === cacheName) {
-      return component
+    if (componentTypeName(inner) !== cacheName) {
+      component.type = resolveNamedType(inner, cacheName)
     }
-    const cloned = cloneVNode(component)
-    cloned.type = resolveNamedType(inner, cacheName)
-    return cloned
+    return component
   }
 
   if (componentTypeName(component) === cacheName) {
