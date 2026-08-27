@@ -120,7 +120,7 @@ watch(
     setOpenTabPath(null)
     const normalizedPath = normalizePath(route.fullPath)
     if (tabStore.findParentTabBySubPage(normalizedPath)) {
-      tabStore.syncStackSubPage(normalizedPath)
+      tabStore.syncStackSubPage(normalizedPath, route.meta.isKeepAlive !== false)
       return
     }
     tabStore.syncTabVisitPath(normalizedPath)

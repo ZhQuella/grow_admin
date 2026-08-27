@@ -41,7 +41,7 @@ function createRouteNavigate() {
         parentName,
         subPage: {
           fullPath: normalizePath(resolved.fullPath),
-          name: String(resolved.meta?.componentName ?? resolved.name),
+          name: String(resolved.name),
           title: String(resolved.meta?.title ?? resolved.name),
           isKeepAlive: resolved.meta?.isKeepAlive !== false,
         },

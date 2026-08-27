@@ -543,6 +543,7 @@ export const useTabStore = defineStore({
       const pendingTitle = this.pendingSubPageTitles[subPageFullPath]
       const existingSubPage = parentTab.subPages.find((item) => item.fullPath === subPageFullPath)
       if (existingSubPage) {
+        existingSubPage.isKeepAlive = params.subPage.isKeepAlive
         if (pendingTitle) {
           existingSubPage.title = pendingTitle
           delete this.pendingSubPageTitles[subPageFullPath]
@@ -551,6 +552,8 @@ export const useTabStore = defineStore({
         }
         if (existingSubPage.isKeepAlive !== false) {
           this.addCache(existingSubPage.name)
+        } else {
+          this.removeCache(existingSubPage.name)
         }
       } else {
         parentTab.subPages.push({
@@ -571,7 +574,7 @@ export const useTabStore = defineStore({
       return parentTab.fullPath
     },
 
-    syncStackSubPage(fullPath: string) {
+    syncStackSubPage(fullPath: string, isKeepAlive?: boolean) {
       const normalizedPath = normalizePath(fullPath)
       const parentTab = this.findParentTabBySubPage(normalizedPath)
       if (!parentTab) {
@@ -584,8 +587,13 @@ export const useTabStore = defineStore({
         subPage.title = pendingTitle
         delete this.pendingSubPageTitles[normalizedPath]
       }
+      if (subPage && isKeepAlive !== undefined) {
+        subPage.isKeepAlive = isKeepAlive
+      }
       if (subPage && subPage.isKeepAlive !== false) {
         this.addCache(subPage.name)
+      } else if (subPage) {
+        this.removeCache(subPage.name)
       }
 
       this.syncTabVisitPath(normalizedPath)
@@ -764,7 +772,7 @@ export const useTabStore = defineStore({
       const fullPath = normalizePath(tab.fullPath)
       const stackParentTab = this.findParentTabBySubPage(fullPath)
       if (stackParentTab) {
-        this.syncStackSubPage(fullPath)
+        this.syncStackSubPage(fullPath, tab.isKeepAlive)
         return stackParentTab
       }
 

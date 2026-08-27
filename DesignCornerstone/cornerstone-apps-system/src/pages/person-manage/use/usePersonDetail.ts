@@ -1,4 +1,4 @@
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useMsg } from '@grow-admin-rock/components'
 import { useRouteNavigate, useTabs } from '@grow-admin-rock/hooks'
@@ -57,7 +57,8 @@ export function usePersonDetail() {
 
   const loading = ref(false)
   const detail = ref<SystemPersonDetail | null>(null)
-  const personId = computed(() => String(route.params.id || ''))
+  const boundPersonId = String(route.params.id || '')
+  const personId = computed(() => boundPersonId)
 
   const historyRows = computed<PersonHistoryItem[]>(() => {
     const rows = detail.value?.history
@@ -221,8 +222,12 @@ export function usePersonDetail() {
   })
 
   async function load() {
-    if (!personId.value) {
+    if (!boundPersonId) {
       detail.value = null
+      return
+    }
+    if (detail.value && String(detail.value.userId) === boundPersonId) {
+      setTab(detail.value.name ? `详情-${detail.value.name}` : '人员详情')
       return
     }
     loading.value = true
@@ -250,14 +255,7 @@ export function usePersonDetail() {
     )
   }
 
-  watch(
-    () => ({ name: String(route.name), id: personId.value }),
-    ({ name }) => {
-      if (name !== 'PersonDetail') return
-      void load()
-    },
-    { immediate: true },
-  )
+  void load()
 
   return {
     loading,

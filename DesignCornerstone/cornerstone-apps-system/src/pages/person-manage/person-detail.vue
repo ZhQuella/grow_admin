@@ -2,7 +2,7 @@
   <div class="person-detail">
     <div class="person-detail__body">
       <GrowScrollbar height="100%">
-        <div v-if="loading" class="person-detail__hint">加载中…</div>
+        <div v-if="loading && !detail" class="person-detail__hint">加载中…</div>
         <div v-else-if="!detail" class="person-detail__hint">未找到该人员</div>
         <div v-else class="person-detail__content">
           <PersonSection v-for="section in sections" :key="section.title" :title="section.title">

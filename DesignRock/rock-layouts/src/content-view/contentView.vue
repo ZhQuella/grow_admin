@@ -51,9 +51,6 @@ const { canEmbedIFramePage } = storeToRefs(appConfig)
 const isCurrentRouteIframe = computed(() => isIframeRoute(route))
 
 function resolveRouteCacheBaseName(route: RouteLocationNormalizedLoaded) {
-  if (route.meta?.dynamicTab) {
-    return String(route.meta.componentName ?? route.name)
-  }
   return String(route.name)
 }
 
