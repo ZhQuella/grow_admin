@@ -70,6 +70,11 @@ export const SYSTEM_ROUTE_STRUCTURES: SystemRouteStructure[] = [
             name: 'PersonEdit',
             componentKey: 'PersonEdit',
           },
+          {
+            path: 'detail/:id',
+            name: 'PersonDetail',
+            componentKey: 'PersonDetail',
+          },
         ],
       },
     ],
@@ -145,6 +150,7 @@ export const SYSTEM_COMPONENT_KEYS = new Set([
   'PersonManage',
   'PersonCreate',
   'PersonEdit',
+  'PersonDetail',
 ])
 
 export const SYSTEM_COMPONENT_PAGE_NAMES: Record<string, string> = {
@@ -153,6 +159,7 @@ export const SYSTEM_COMPONENT_PAGE_NAMES: Record<string, string> = {
   PersonManage: 'PersonManagePage',
   PersonCreate: 'PersonFormPage',
   PersonEdit: 'PersonFormPage',
+  PersonDetail: 'PersonDetailPage',
 }
 
 export function resolveSystemPageComponentName(componentKey: string): string {

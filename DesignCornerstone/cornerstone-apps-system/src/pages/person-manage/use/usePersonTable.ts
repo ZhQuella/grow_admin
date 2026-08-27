@@ -85,14 +85,14 @@ export function usePersonTable() {
     { title: '入职时间', field: 'entryDate', visible: true, minWidth: 110 },
     { title: '角色', field: 'roles', visible: true, minWidth: 140 },
     { title: '最近变动', field: 'lastEventTitle', visible: true, minWidth: 120 },
-    { title: '操作', field: 'actions', visible: true, minWidth: 220, fixed: 'right' },
+    { title: '操作', field: 'actions', visible: true, minWidth: 280, fixed: 'right' },
   ])
 
   const leafColumns = computed(() => collectLeafColumns(tableColumns.value))
 
   async function loadList() {
     loading.value = true
-    try {
+    try {  
       const data = await fetchSystemPersonPage({
         ...query.value,
         deptId: deptId.value || undefined,

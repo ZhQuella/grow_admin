@@ -24,6 +24,31 @@ export function maskId(value?: string) {
   return `${text.slice(0, 4)}********${text.slice(-4)}`
 }
 
+export function maskBank(value?: string) {
+  const text = String(value || '')
+  if (text.length < 8) return text || '-'
+  return `${text.slice(0, 4)} **** **** ${text.slice(-4)}`
+}
+
+export function maskAccount(value?: string) {
+  const text = String(value || '')
+  if (text.length < 6) return text || '-'
+  return `${text.slice(0, 2)}****${text.slice(-4)}`
+}
+
+export function displayText(value?: string | number | null) {
+  const text = String(value ?? '').trim()
+  return text || '-'
+}
+
+export function optionLabel<T extends string>(
+  options: ReadonlyArray<{ label: string; value: T }>,
+  value?: string,
+) {
+  if (!value) return '-'
+  return options.find((item) => item.value === value)?.label || value
+}
+
 export function parseIdCard(idNumber: string) {
   const id = String(idNumber || '').trim()
   if (!/^\d{17}[\dXx]$/.test(id)) return null

@@ -67,7 +67,7 @@
               >
                 <template #default="{ row }">
                   <template v-if="col.field === 'name'">
-                    <GrowButton link type="primary" @click="openEdit(row)">{{ row.name }}</GrowButton>
+                    <GrowButton link type="primary" @click="openDetail(row)">{{ row.name }}</GrowButton>
                   </template>
                   <template v-else-if="col.field === 'employeeType'">
                     {{ employeeTypeLabel(row.employeeType) }}
@@ -96,6 +96,11 @@
                   </template>
                   <template v-else-if="col.field === 'actions'">
                     <div class="person-manage__actions">
+                      <GrowTooltip content="详情" placement="top">
+                        <GrowButton link type="primary" @click="openDetail(row)">
+                          <GrowIconify icon="ant-design:profile-outlined" :size="16" />
+                        </GrowButton>
+                      </GrowTooltip>
                       <GrowTooltip content="编辑" placement="top">
                         <GrowButton link type="primary" @click="openEdit(row)">
                           <GrowIconify icon="ant-design:edit-outlined" :size="16" />
@@ -231,6 +236,7 @@ const {
   onSizeChange,
   onDeptChange,
   openCreate,
+  openDetail,
   openEdit,
   deptTree,
   deptKeyword,
