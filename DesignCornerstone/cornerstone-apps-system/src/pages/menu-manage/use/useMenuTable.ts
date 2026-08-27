@@ -37,7 +37,7 @@ export function useMenuTable() {
   const searchList: SearchBarField[] = [
     {
       labelText: '关键字',
-      placeholder: '标题 / 标识 / 路径',
+      placeholder: '标题 / 标识 / 访问路径',
       elType: 'GrowInput',
       isDefault: true,
       model: 'keyword',
@@ -78,7 +78,7 @@ export function useMenuTable() {
     { title: '标题', field: 'title', visible: true, width: 280 },
     { title: '标识', field: 'name', visible: true, minWidth: 140 },
     { title: '类型', field: 'menuType', visible: true, minWidth: 90 },
-    { title: '路径', field: 'path', visible: true, minWidth: 140 },
+    { title: '访问路径', field: 'path', visible: true, minWidth: 140 },
     { title: '组件标识', field: 'componentKey', visible: true, minWidth: 140 },
     { title: '图标', field: 'icon', visible: true, minWidth: 180 },
     { title: '排序', field: 'sort', visible: true, minWidth: 80 },
@@ -89,7 +89,7 @@ export function useMenuTable() {
     { title: '外链', field: 'isExternalPage', visible: false, minWidth: 80 },
     { title: '打开方式', field: 'openMode', visible: false, minWidth: 100 },
     { title: '链接', field: 'link', visible: false, minWidth: 160 },
-    { title: '操作', field: 'actions', visible: true, minWidth: 140, fixed: 'right' },
+    { title: '操作', field: 'actions', visible: true, minWidth: 200, fixed: 'right' },
   ])
 
   const leafColumns = computed(() => collectLeafColumns(tableColumns.value))

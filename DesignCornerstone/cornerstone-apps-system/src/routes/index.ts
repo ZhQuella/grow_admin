@@ -30,6 +30,10 @@ export {
 
 const SYSTEM_COMPONENTS: Record<string, GrowRouteComponent> = {
   MenuManage: () => import('../pages/menu-manage/menu-manage.vue'),
+  RoleManage: () => import('../pages/role-manage/role-manage.vue'),
+  PersonManage: () => import('../pages/person-manage/person-manage.vue'),
+  PersonCreate: () => import('../pages/person-manage/person-form.vue'),
+  PersonEdit: () => import('../pages/person-manage/person-form.vue'),
 }
 
 function resolveSystemComponent(config: SystemRouteConfig): GrowRouteComponent {
@@ -49,15 +53,29 @@ export const SYSTEM_ROUTES: RouteRecordItem[] = flattenSystemRouteConfigs(
   component: resolveSystemComponent(config),
 }))
 
+const PERSON_FORM_PARENT_BY_NAME: Record<string, string> = {
+  PersonCreate: 'PersonManage',
+  PersonEdit: 'PersonManage',
+}
+
 export function resolveSystemRoute(
   config: SystemRouteConfig,
   fullPath = config.path,
 ): RouteRecordItem {
+  const breadcrumbParentName = PERSON_FORM_PARENT_BY_NAME[config.name]
   return {
     path: fullPath,
     name: config.name,
     component: resolveSystemComponent(config),
-    meta: { title: config.title },
+    meta: {
+      title: config.title,
+      ...(breadcrumbParentName
+        ? {
+            dynamicTab: true,
+            breadcrumbParentName,
+          }
+        : {}),
+    },
     icon: config.icon,
   }
 }
