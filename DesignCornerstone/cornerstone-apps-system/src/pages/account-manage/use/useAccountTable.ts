@@ -2,8 +2,8 @@ import { computed, ref } from 'vue'
 import type { SearchBarField } from '@grow-admin-rock/components/search-bar'
 import type { ColumnBarItem } from '@grow-admin-rock/components/column-bar'
 import { useMsg } from '@grow-admin-rock/components'
-import { fetchSystemRolePage } from '../../../api/systemRole'
-import { EDIT_SCOPE_OPTIONS, type SystemRoleListItem } from '../../../types/systemRole'
+import { fetchSystemAccountPage } from '../../../api/systemAccount'
+import type { SystemAccountListItem } from '../../../types/systemAccount'
 import { toMessage } from './helpers'
 
 export type ManageTableColumn = ColumnBarItem & {
@@ -25,11 +25,11 @@ function collectLeafColumns(list: ManageTableColumn[]): ManageTableColumn[] {
   return result
 }
 
-export function useRoleTable() {
+export function useAccountTable() {
   const message = useMsg()
 
   const loading = ref(false)
-  const tableData = ref<SystemRoleListItem[]>([])
+  const tableData = ref<SystemAccountListItem[]>([])
   const total = ref(0)
   const page = ref(1)
   const pageSize = ref(10)
@@ -38,7 +38,7 @@ export function useRoleTable() {
   const searchList: SearchBarField[] = [
     {
       labelText: '关键字',
-      placeholder: '名称 / 编码',
+      placeholder: '登录名 / 人员 / 部门',
       elType: 'GrowInput',
       isDefault: true,
       model: 'keyword',
@@ -60,30 +60,30 @@ export function useRoleTable() {
       ],
     },
     {
-      labelText: '行权限',
+      labelText: '绑定人员',
       elType: 'GrowSelect',
       isDefault: true,
-      model: 'editScope',
+      model: 'unbound',
       label: 'label',
       value: 'value',
       placeholder: '请选择',
       clearable: true,
-      options: EDIT_SCOPE_OPTIONS.map(({ label, value }) => ({ label, value })),
+      options: [
+        { label: '未绑定', value: 'true' },
+        { label: '已绑定', value: 'false' },
+      ],
     },
   ]
 
   const tableColumns = ref<ManageTableColumn[]>([
-    { title: '名称', field: 'name', visible: true, minWidth: 140 },
-    { title: '编码', field: 'code', visible: true, minWidth: 140 },
-    { title: '数据权限', field: 'dataPermCount', visible: true, minWidth: 110 },
-    { title: '账号', field: 'memberCount', visible: true, minWidth: 80 },
-    { title: '菜单', field: 'menuCount', visible: true, minWidth: 80 },
-    { title: '功能', field: 'functionCount', visible: true, minWidth: 80 },
-    { title: '排序', field: 'sort', visible: true, minWidth: 80 },
+    { title: '登录名', field: 'username', visible: true, minWidth: 140 },
+    { title: '绑定人员', field: 'personName', visible: true, minWidth: 120 },
+    { title: '部门', field: 'deptName', visible: true, minWidth: 140 },
+    { title: '角色', field: 'roles', visible: true, minWidth: 160 },
     { title: '启用', field: 'enabled', visible: true, minWidth: 90 },
-    { title: '更新时间', field: 'updatedAt', visible: true, minWidth: 160 },
+    { title: '最近登录', field: 'lastLoginAt', visible: true, minWidth: 160 },
     { title: '备注', field: 'remark', visible: false, minWidth: 160 },
-    { title: '操作', field: 'actions', visible: true, minWidth: 232, fixed: 'right' },
+    { title: '操作', field: 'actions', visible: true, minWidth: 220, fixed: 'right' },
   ])
 
   const leafColumns = computed(() => collectLeafColumns(tableColumns.value))
@@ -91,7 +91,7 @@ export function useRoleTable() {
   async function loadList() {
     loading.value = true
     try {
-      const data = await fetchSystemRolePage({
+      const data = await fetchSystemAccountPage({
         ...query.value,
         page: page.value,
         pageSize: pageSize.value,

@@ -89,14 +89,24 @@
 
           <PersonSection title="人事历史">
             <div v-if="!historyRows.length" class="person-detail__empty">暂无历史记录</div>
-            <div v-else class="person-detail__history">
-              <div v-for="item in historyRows" :key="item.id" class="person-detail__history-item">
-                <GrowTag :type="historyTag(item.type)" size="small">{{ item.title }}</GrowTag>
-                <span class="person-detail__history-date">{{ item.effectiveDate }}</span>
-                <span class="person-detail__history-summary">{{ item.summary }}</span>
-                <span class="person-detail__history-meta">{{ item.operator }} · {{ formatTime(item.createdAt) }}</span>
-              </div>
-            </div>
+            <GrowTimeline v-else class="person-detail__timeline">
+              <GrowTimelineItem
+                v-for="(item, index) in historyRows"
+                :key="item.id"
+                :timestamp="item.effectiveDate || formatTime(item.createdAt)"
+                :type="historyTag(item.type)"
+                :hollow="index !== 0"
+                placement="top"
+              >
+                <div class="person-detail__history-card">
+                  <GrowTag :type="historyTag(item.type)" size="small">{{ item.title }}</GrowTag>
+                  <p class="person-detail__history-summary">{{ item.summary }}</p>
+                  <div class="person-detail__history-meta">
+                    {{ item.operator }} · {{ formatTime(item.createdAt) }}
+                  </div>
+                </div>
+              </GrowTimelineItem>
+            </GrowTimeline>
           </PersonSection>
         </div>
       </GrowScrollbar>
@@ -150,11 +160,15 @@ function historyTag(type: PersonEventType | string) {
   box-sizing: border-box;
   height: 100%;
   min-height: 0;
+  padding: 10px;
+  background: var(--layout-container-background-color, #f0f2f5);
 }
 
 .person-detail__body {
   flex: 1;
   min-height: 0;
+  overflow: hidden;
+  border-radius: 8px 8px 0 0;
   background: var(--component-color, #fff);
 }
 
@@ -206,7 +220,8 @@ function historyTag(type: PersonEventType | string) {
   height: 48px;
   padding: 0 16px;
   border-top: 1px solid var(--el-border-color-lighter);
-  background: var(--layout-color);
+  border-radius: 0 0 8px 8px;
+  background: var(--component-color, #fff);
 }
 
 .person-detail__materials {
@@ -254,45 +269,28 @@ function historyTag(type: PersonEventType | string) {
   object-fit: cover;
 }
 
-.person-detail__history {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.person-detail__timeline {
+  padding: 4px 0 0 4px;
 }
 
-.person-detail__history-item {
-  display: grid;
-  grid-template-columns: auto 100px minmax(0, 1fr) auto;
-  gap: 8px 12px;
-  align-items: center;
-  font-size: 13px;
-}
-
-.person-detail__history-date,
-.person-detail__history-meta {
-  color: var(--text-color-secondary);
-  white-space: nowrap;
+.person-detail__history-card {
+  padding-bottom: 4px;
 }
 
 .person-detail__history-summary {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  margin: 8px 0 0;
+  line-height: 1.5;
+}
+
+.person-detail__history-meta {
+  margin-top: 6px;
+  color: var(--text-color-secondary);
+  font-size: 12px;
 }
 
 @media (max-width: 1200px) {
   .person-detail__materials {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .person-detail__history-item {
-    grid-template-columns: auto 1fr;
-  }
-
-  .person-detail__history-summary,
-  .person-detail__history-meta {
-    grid-column: 1 / -1;
   }
 }
 </style>

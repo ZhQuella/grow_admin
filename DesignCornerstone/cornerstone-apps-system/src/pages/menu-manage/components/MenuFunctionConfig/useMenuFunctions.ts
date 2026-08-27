@@ -1,5 +1,5 @@
 import { reactive, ref } from 'vue'
-import { useDialog, useMsg } from '@grow-admin-rock/components'
+import { driverRef, useDialog, useMsg } from '@grow-admin-rock/components'
 import {
   fetchSystemMenuFunctions,
   saveSystemMenuFunctions,
@@ -31,6 +31,17 @@ function emptyForm(): FormModel {
 
 function toMessage(error: unknown, fallback: string) {
   return error instanceof Error ? error.message : fallback
+}
+
+async function validateGrowForm(formRef: { value: unknown }) {
+  const form = driverRef(formRef as any) as { validate?: () => Promise<unknown> } | undefined
+  if (!form?.validate) {
+    throw new Error('表单未就绪')
+  }
+  const result = await form.validate()
+  if (result === false) {
+    throw new Error('校验未通过')
+  }
 }
 
 function nextDraftId() {
@@ -87,12 +98,13 @@ export function useMenuFunctions() {
 
   const formVisible = ref(false)
   const formMode = ref<'create' | 'edit'>('create')
-  const formRef = ref<{ validate?: () => Promise<boolean> } | null>(null)
+  const formRef = ref()
   const formModel = reactive<FormModel>(emptyForm())
 
   const formRules = {
     title: [{ required: true, message: '请填写名称', trigger: 'blur' }],
     code: [{
+      required: true,
       validator: (_rule: unknown, value: string, callback: (error?: Error) => void) => {
         const code = String(value || '').trim()
         if (!code) {
@@ -166,7 +178,7 @@ export function useMenuFunctions() {
     if (!menuName) return
 
     try {
-      await formRef.value?.validate?.()
+      await validateGrowForm(formRef)
     } catch {
       return
     }
@@ -176,6 +188,7 @@ export function useMenuFunctions() {
       code: formModel.code.trim(),
       sort: Number(formModel.sort ?? 0),
     }
+    if (!payload.title || !payload.code) return
 
     if (formMode.value === 'create') {
       list.value = sortFunctions([

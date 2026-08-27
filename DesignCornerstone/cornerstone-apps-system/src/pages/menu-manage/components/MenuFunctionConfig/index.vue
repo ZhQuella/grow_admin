@@ -12,44 +12,46 @@
     <div v-if="!list.length" class="menu-function-config__empty">
       暂无功能，点击上方新增
     </div>
-    <div v-else class="menu-function-config__list">
-      <div
-        v-for="row in list"
-        :key="row.id"
-        class="menu-function-config__item"
-        :class="{ 'is-disabled': !row.enabled }"
-      >
-        <div class="menu-function-config__item-main">
-          <div class="menu-function-config__item-title">
-            <span>{{ row.title }}</span>
+    <GrowScrollbar v-else height="360px">
+      <div class="menu-function-config__list">
+        <div
+          v-for="row in list"
+          :key="row.id"
+          class="menu-function-config__item"
+          :class="{ 'is-disabled': !row.enabled }"
+        >
+          <div class="menu-function-config__item-main">
+            <div class="menu-function-config__item-title">
+              <span>{{ row.title }}</span>
+            </div>
+            <div class="menu-function-config__item-meta">
+              {{ row.code }} · 排序 {{ row.sort }}
+            </div>
           </div>
-          <div class="menu-function-config__item-meta">
-            {{ row.code }} · 排序 {{ row.sort }}
+          <div class="menu-function-config__actions">
+            <GrowTooltip :content="row.enabled ? '停用' : '启用'" placement="top">
+              <span class="menu-function-config__switch">
+                <GrowSwitch
+                  :model-value="row.enabled"
+                  size="small"
+                  @update:model-value="(value) => onToggleEnabled(row, Boolean(value))"
+                />
+              </span>
+            </GrowTooltip>
+            <GrowTooltip content="编辑" placement="top">
+              <GrowButton class="menu-function-config__icon-btn" link type="primary" @click="openEdit(row)">
+                <GrowIconify icon="ant-design:edit-outlined" :size="16" />
+              </GrowButton>
+            </GrowTooltip>
+            <GrowTooltip content="删除" placement="top">
+              <GrowButton class="menu-function-config__icon-btn" link type="danger" @click="onDelete(row)">
+                <GrowIconify icon="ant-design:delete-outlined" :size="16" />
+              </GrowButton>
+            </GrowTooltip>
           </div>
-        </div>
-        <div class="menu-function-config__actions">
-          <GrowTooltip :content="row.enabled ? '停用' : '启用'" placement="top">
-            <span class="menu-function-config__switch">
-              <GrowSwitch
-                :model-value="row.enabled"
-                size="small"
-                @update:model-value="(value) => onToggleEnabled(row, Boolean(value))"
-              />
-            </span>
-          </GrowTooltip>
-          <GrowTooltip content="编辑" placement="top">
-            <GrowButton class="menu-function-config__icon-btn" link type="primary" @click="openEdit(row)">
-              <GrowIconify icon="ant-design:edit-outlined" :size="16" />
-            </GrowButton>
-          </GrowTooltip>
-          <GrowTooltip content="删除" placement="top">
-            <GrowButton class="menu-function-config__icon-btn" link type="danger" @click="onDelete(row)">
-              <GrowIconify icon="ant-design:delete-outlined" :size="16" />
-            </GrowButton>
-          </GrowTooltip>
         </div>
       </div>
-    </div>
+    </GrowScrollbar>
     <template #footer>
       <GrowSpace>
         <GrowButton @click="closeList">取消</GrowButton>
@@ -160,8 +162,6 @@ defineExpose({ open })
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 360px;
-  overflow: auto;
 }
 
 .menu-function-config__item {

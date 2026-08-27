@@ -13,7 +13,6 @@ import {
   type HistoryRecord,
   type PersonRecord,
 } from './orgStore'
-import { applyPersonRoleIds, listRoleOptions } from './systemRole'
 
 const EMPLOYEE_TYPES = new Set(['full_time', 'intern', 'part_time', 'contractor'])
 const EMPLOYEE_STATUSES = new Set(['probation', 'formal', 'resigned'])
@@ -78,12 +77,6 @@ function lastEvent(person: PersonRecord) {
   }
 }
 
-function toRoles(roleIds: string[]) {
-  const options = listRoleOptions()
-  const map = new Map(options.map((item) => [item.id, item]))
-  return roleIds.map((id) => map.get(id) || { id, name: id, code: id })
-}
-
 function toListItem(person: PersonRecord) {
   const event = lastEvent(person)
   return {
@@ -99,8 +92,6 @@ function toListItem(person: PersonRecord) {
     employeeStatus: person.employeeStatus,
     entryDate: person.entryDate,
     resignDate: person.resignDate,
-    roleIds: [...person.roleIds],
-    roles: toRoles(person.roleIds),
     lastEventTitle: event.lastEventTitle,
     lastEventAt: event.lastEventAt,
     updatedAt: person.updatedAt,
@@ -233,10 +224,6 @@ function applyPayload(person: PersonRecord, payload: Recordable<any>, isCreate: 
   if (supervisorId && supervisorId === person.userId) return '直属主管不能是本人'
   if (supervisorId && !findPerson(supervisorId)) return '直属主管不存在'
 
-  const roleIds = Array.isArray(payload.roleIds)
-    ? payload.roleIds.map((item: unknown) => String(item)).filter(Boolean)
-    : []
-
   person.name = name
   person.email = email
   person.employeeNo = employeeNo
@@ -294,8 +281,6 @@ function applyPayload(person: PersonRecord, payload: Recordable<any>, isCreate: 
   person.emergencyPhone = pickText(payload.emergencyPhone)
   person.familyMembers = normalizeFamily(payload.familyMembers)
   person.materials = payload.materials && typeof payload.materials === 'object' ? clone(payload.materials) : person.materials
-  person.roleIds = roleIds
-  applyPersonRoleIds(person.userId, roleIds)
   person.updatedAt = now()
   return ''
 }
@@ -452,7 +437,6 @@ const mocks: MockMethod[] = [
       if (personStore[index].employeeStatus !== 'resigned') {
         return resultError('在职人员不能删除，请先办理离职')
       }
-      applyPersonRoleIds(userId, [])
       const [removed] = personStore.splice(index, 1)
       return resultSuccess({ userId: removed.userId }, { message: '删除成功' })
     },

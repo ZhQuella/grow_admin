@@ -1,5 +1,5 @@
 import { reactive, ref } from 'vue'
-import { useMsg } from '@grow-admin-rock/components'
+import { driverRef, useMsg } from '@grow-admin-rock/components'
 import { createSystemRole, updateSystemRole } from '../../../api/systemRole'
 import {
   ROLE_CODE_MESSAGE,
@@ -26,6 +26,17 @@ function emptyForm(): FormModel {
   }
 }
 
+async function validateGrowForm(formRef: { value: unknown }) {
+  const form = driverRef(formRef as any) as { validate?: () => Promise<unknown> } | undefined
+  if (!form?.validate) {
+    throw new Error('表单未就绪')
+  }
+  const result = await form.validate()
+  if (result === false) {
+    throw new Error('校验未通过')
+  }
+}
+
 type UseRoleFormOptions = {
   onSuccess: () => void | Promise<void>
 }
@@ -36,7 +47,7 @@ export function useRoleForm(options: UseRoleFormOptions) {
   const formVisible = ref(false)
   const formMode = ref<'create' | 'edit'>('create')
   const formSubmitting = ref(false)
-  const formRef = ref<{ validate?: () => Promise<boolean> } | null>(null)
+  const formRef = ref()
   const formModel = reactive<FormModel>(emptyForm())
 
   const formRules = {
@@ -71,7 +82,7 @@ export function useRoleForm(options: UseRoleFormOptions) {
 
   async function submitForm() {
     try {
-      await formRef.value?.validate?.()
+      await validateGrowForm(formRef)
     } catch {
       return
     }

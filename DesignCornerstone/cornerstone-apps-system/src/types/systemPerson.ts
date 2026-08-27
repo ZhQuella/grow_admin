@@ -167,8 +167,6 @@ export type SystemPersonListItem = {
   employeeStatus: EmployeeStatus
   entryDate: string
   resignDate: string
-  roleIds: string[]
-  roles: PersonRoleRef[]
   lastEventTitle: string
   lastEventAt: string
   updatedAt: string

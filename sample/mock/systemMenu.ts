@@ -64,12 +64,33 @@ function syncSourceMeta(store: MenuNode[], source: MenuNode[]) {
   apply(store)
 }
 
+function syncMissingChildren(store: MenuNode[], source: MenuNode[]) {
+  const storeMap = indexByName(store)
+  const insertMissing = (sourceNodes: MenuNode[], storeSiblings: MenuNode[]) => {
+    for (const src of sourceNodes) {
+      if (!storeMap.has(src.name)) {
+        const cloned = clone(src)
+        storeSiblings.push(cloned)
+        indexByName([cloned], storeMap)
+        continue
+      }
+      const current = storeMap.get(src.name)
+      if (src.children?.length && current) {
+        current.children = current.children || []
+        insertMissing(src.children, current.children)
+      }
+    }
+  }
+  insertMissing(source, store)
+}
+
 function getStore(): MenuNode[] {
   const source = clone(buildBackMenuList() as MenuNode[])
   if (!menuStore) {
     menuStore = source
   } else {
     syncSourceMeta(menuStore, source)
+    syncMissingChildren(menuStore, source)
   }
   menuStore.forEach(ensureMenuComponentKey)
   return menuStore
@@ -194,6 +215,9 @@ function seedFunctions() {
     { id: 'pf_create', menuName: 'PersonManage', title: '新增', code: 'create', sort: 20, enabled: true },
     { id: 'pf_transfer', menuName: 'PersonManage', title: '调岗', code: 'transfer', sort: 30, enabled: true },
     { id: 'pf_resign', menuName: 'PersonManage', title: '离职', code: 'resign', sort: 40, enabled: true },
+    { id: 'af_query', menuName: 'AccountManage', title: '查询', code: 'query', sort: 10, enabled: true },
+    { id: 'af_create', menuName: 'AccountManage', title: '新增', code: 'create', sort: 20, enabled: true },
+    { id: 'af_reset', menuName: 'AccountManage', title: '重置密码', code: 'reset', sort: 30, enabled: true },
   ]
   for (const item of seeds) {
     if (!functionStore.has(item.id)) {
@@ -240,15 +264,12 @@ function withTableMeta(item: MenuColumn) {
 }
 
 function listTablesByMenu(menuName: string) {
-  return [...tableStore.values()]
-    .filter((item) => item.menuName === menuName)
-    .sort((a, b) => a.title.localeCompare(b.title, 'zh-CN') || a.code.localeCompare(b.code))
+  return [...tableStore.values()].filter((item) => item.menuName === menuName)
 }
 
 function listColumnsByMenu(menuName: string) {
   return [...columnStore.values()]
     .filter((item) => item.menuName === menuName)
-    .sort((a, b) => a.title.localeCompare(b.title, 'zh-CN') || a.code.localeCompare(b.code))
     .map(withTableMeta)
 }
 
@@ -358,8 +379,9 @@ function seedColumns() {
   const tables: MenuTable[] = [
     { menuName: 'MenuManage', code: 'menu_list', title: '菜单列表' },
     { menuName: 'RoleManage', code: 'role_list', title: '角色列表' },
-    { menuName: 'RoleManage', code: 'member_list', title: '绑定人员' },
+    { menuName: 'RoleManage', code: 'member_list', title: '绑定账号' },
     { menuName: 'PersonManage', code: 'person_list', title: '人员列表' },
+    { menuName: 'AccountManage', code: 'account_list', title: '账号列表' },
   ]
   const seeds: MenuColumn[] = [
     { id: 'mc_title', menuName: 'MenuManage', tableCode: 'menu_list', title: '标题', code: 'title', columnType: 'string', enabled: true },
@@ -370,9 +392,10 @@ function seedColumns() {
     { id: 'rc_name', menuName: 'RoleManage', tableCode: 'role_list', title: '名称', code: 'name', columnType: 'string', enabled: true },
     { id: 'rc_code', menuName: 'RoleManage', tableCode: 'role_list', title: '编码', code: 'code', columnType: 'string', enabled: true },
     { id: 'rc_scope', menuName: 'RoleManage', tableCode: 'role_list', title: '数据权限', code: 'dataScope', columnType: 'select', enabled: true },
-    { id: 'rc_member', menuName: 'RoleManage', tableCode: 'role_list', title: '人员', code: 'memberCount', columnType: 'number', enabled: true },
+    { id: 'rc_member', menuName: 'RoleManage', tableCode: 'role_list', title: '账号', code: 'memberCount', columnType: 'number', enabled: true },
     { id: 'rc_enabled', menuName: 'RoleManage', tableCode: 'role_list', title: '启用', code: 'enabled', columnType: 'boolean', enabled: true },
-    { id: 'rm_name', menuName: 'RoleManage', tableCode: 'member_list', title: '姓名', code: 'name', columnType: 'person', enabled: true },
+    { id: 'rm_name', menuName: 'RoleManage', tableCode: 'member_list', title: '登录名', code: 'username', columnType: 'string', enabled: true },
+    { id: 'rm_person', menuName: 'RoleManage', tableCode: 'member_list', title: '绑定人员', code: 'name', columnType: 'person', enabled: true },
     { id: 'rm_post', menuName: 'RoleManage', tableCode: 'member_list', title: '岗位', code: 'post', columnType: 'string', enabled: true },
     { id: 'rm_dept', menuName: 'RoleManage', tableCode: 'member_list', title: '部门', code: 'deptName', columnType: 'dept', enabled: true },
     { id: 'pc_name', menuName: 'PersonManage', tableCode: 'person_list', title: '姓名', code: 'name', columnType: 'person', enabled: true },
@@ -381,6 +404,11 @@ function seedColumns() {
     { id: 'pc_post', menuName: 'PersonManage', tableCode: 'person_list', title: '岗位', code: 'post', columnType: 'string', enabled: true },
     { id: 'pc_status', menuName: 'PersonManage', tableCode: 'person_list', title: '员工状态', code: 'employeeStatus', columnType: 'select', enabled: true },
     { id: 'pc_mobile', menuName: 'PersonManage', tableCode: 'person_list', title: '手机号', code: 'mobile', columnType: 'string', enabled: true },
+    { id: 'ac_username', menuName: 'AccountManage', tableCode: 'account_list', title: '登录名', code: 'username', columnType: 'string', enabled: true },
+    { id: 'ac_person', menuName: 'AccountManage', tableCode: 'account_list', title: '绑定人员', code: 'personName', columnType: 'person', enabled: true },
+    { id: 'ac_dept', menuName: 'AccountManage', tableCode: 'account_list', title: '部门', code: 'deptName', columnType: 'dept', enabled: true },
+    { id: 'ac_enabled', menuName: 'AccountManage', tableCode: 'account_list', title: '启用', code: 'enabled', columnType: 'boolean', enabled: true },
+    { id: 'ac_login', menuName: 'AccountManage', tableCode: 'account_list', title: '最近登录', code: 'lastLoginAt', columnType: 'date', enabled: true },
   ]
   for (const item of tables) {
     tableStore.set(tableKey(item.menuName, item.code), item)

@@ -82,7 +82,7 @@
 
 <script lang="ts" setup>
 import { computed, reactive, ref } from 'vue'
-import { useMsg } from '@grow-admin-rock/components'
+import { driverRef, useMsg } from '@grow-admin-rock/components'
 import {
   confirmSystemPerson,
   reinstateSystemPerson,
@@ -107,7 +107,7 @@ const submitting = ref(false)
 const mode = ref<EventMode>('transfer')
 const person = ref<SystemPersonListItem | null>(null)
 const deptTree = ref<SystemDeptTreeNode[]>([])
-const formRef = ref<{ validate?: () => Promise<boolean> } | null>(null)
+const formRef = ref()
 const form = reactive({
   deptId: '',
   post: '',
@@ -150,6 +150,17 @@ const rules = computed(() => {
   }
 })
 
+async function validateGrowForm(formRef: { value: unknown }) {
+  const form = driverRef(formRef as any) as { validate?: () => Promise<unknown> } | undefined
+  if (!form?.validate) {
+    throw new Error('表单未就绪')
+  }
+  const result = await form.validate()
+  if (result === false) {
+    throw new Error('校验未通过')
+  }
+}
+
 function resetForm(row: SystemPersonListItem) {
   form.deptId = row.deptId
   form.post = row.post
@@ -168,7 +179,7 @@ function open(nextMode: EventMode, row: SystemPersonListItem, tree: SystemDeptTr
 
 async function submit() {
   try {
-    await formRef.value?.validate?.()
+    await validateGrowForm(formRef)
   } catch {
     return
   }

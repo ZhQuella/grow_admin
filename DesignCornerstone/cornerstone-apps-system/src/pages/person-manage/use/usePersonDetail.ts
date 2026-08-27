@@ -135,11 +135,6 @@ export function usePersonDetail() {
           { label: '实际转正日期', value: formatDate(item.actualConfirmDate) },
           { label: '计划转正日期', value: formatDate(item.plannedConfirmDate) },
           { label: '岗位职级', value: displayText(item.jobGrade) },
-          {
-            label: '绑定角色',
-            value: item.roles?.length ? item.roles.map((role) => role.name).join('、') : '-',
-            span: 3,
-          },
         ],
       },
       {

@@ -34,7 +34,6 @@
         <GrowCol :span="12">
           <div class="person-manage__toolbar-left">
             <GrowButton type="primary" @click="openCreate()">新增人员</GrowButton>
-            <span class="person-manage__hint-text">新增即入职；调岗 / 转正 / 离职 / 复职会写入历史。账号绑定在后续「账号管理」中处理。</span>
           </div>
         </GrowCol>
         <GrowCol :span="12">
@@ -63,7 +62,7 @@
                 :width="col.width"
                 :min-width="col.minWidth || (col.width ? undefined : 120)"
                 :fixed="col.fixed"
-                :show-overflow-tooltip="col.field !== 'actions' && col.field !== 'roles'"
+                :show-overflow-tooltip="col.field !== 'actions'"
               >
                 <template #default="{ row }">
                   <template v-if="col.field === 'name'">
@@ -82,14 +81,6 @@
                   </template>
                   <template v-else-if="col.field === 'entryDate'">
                     {{ formatDate(row.entryDate) }}
-                  </template>
-                  <template v-else-if="col.field === 'roles'">
-                    <span v-if="!row.roles?.length">-</span>
-                    <span v-else class="person-manage__roles">
-                      <GrowTag v-for="role in row.roles" :key="role.id" size="small" type="info">
-                        {{ role.name }}
-                      </GrowTag>
-                    </span>
                   </template>
                   <template v-else-if="col.field === 'lastEventTitle'">
                     <span>{{ row.lastEventTitle || '-' }}</span>
@@ -397,12 +388,6 @@ async function confirmDelete() {
   padding: 12px;
   border-radius: 0 0 8px 8px;
   background: var(--component-color, #fff);
-}
-
-.person-manage__roles {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 4px;
 }
 
 .person-manage__actions {

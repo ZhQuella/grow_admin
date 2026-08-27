@@ -5,9 +5,13 @@ import {
   buildDeptTree,
   getDeptName,
   personStore,
-  replacePersonRolesForRole,
   toBriefPerson,
 } from './orgStore'
+import {
+  accountStore,
+  findAccount,
+  replaceAccountRolesForRole,
+} from './accountStore'
 
 const EDIT_SCOPES = new Set(['all', 'dept', 'dept_and_sub', 'custom', 'self', 'specified'])
 const VIEW_OTHERS = new Set(['all', 'self', 'specified', 'none'])
@@ -89,8 +93,19 @@ function emptyDataPerm(menuName: string, extra: Partial<DataPermRecord> = {}): D
   }
 }
 
-function toPerson(item: (typeof personStore)[number]) {
-  return toBriefPerson(item)
+function toAccountMember(accountId: string) {
+  const account = findAccount(accountId)
+  const person = account?.personId
+    ? personStore.find((item) => item.userId === account.personId)
+    : undefined
+  return {
+    userId: accountId,
+    accountId,
+    username: account?.username || accountId,
+    name: person?.name || '',
+    post: person?.post || '-',
+    deptName: person ? getDeptName(person.deptId) : '未绑定人员',
+  }
 }
 
 function createRoleStore(): RoleRecord[] {
@@ -103,9 +118,9 @@ function createRoleStore(): RoleRecord[] {
     enabled: true,
     remark: '内置角色，不能停用',
     builtIn: true,
-    menuNames: ['MenuManage', 'RoleManage', 'PersonManage'],
-    functionIds: ['mf_query', 'mf_export', 'pf_query', 'pf_create', 'pf_transfer', 'pf_resign'],
-    userIds: ['u2', 'u9'],
+    menuNames: ['MenuManage', 'RoleManage', 'PersonManage', 'AccountManage'],
+    functionIds: ['mf_query', 'mf_export', 'pf_query', 'pf_create', 'pf_transfer', 'pf_resign', 'af_query', 'af_create', 'af_reset'],
+    userIds: ['acc_admin', 'acc_u2', 'acc_u9'],
     dataPerms: [
       emptyDataPerm('MenuManage', {
         editScope: 'all',
@@ -119,6 +134,10 @@ function createRoleStore(): RoleRecord[] {
         editScope: 'all',
         columnIds: ['pc_name', 'pc_no', 'pc_dept', 'pc_post', 'pc_status', 'pc_mobile'],
       }),
+      emptyDataPerm('AccountManage', {
+        editScope: 'all',
+        columnIds: ['ac_username', 'ac_person', 'ac_dept', 'ac_enabled', 'ac_login'],
+      }),
     ],
     updatedAt: now(),
   },
@@ -131,7 +150,7 @@ function createRoleStore(): RoleRecord[] {
     remark: '本部门及下级可编辑，其它记录不可查看',
     menuNames: ['MenuManage'],
     functionIds: ['mf_query'],
-    userIds: ['u1', 'u3', 'u15'],
+    userIds: ['acc_u1', 'acc_u3', 'acc_u15'],
     dataPerms: [
       emptyDataPerm('MenuManage', {
         editScope: 'dept_and_sub',
@@ -149,19 +168,25 @@ function createRoleStore(): RoleRecord[] {
     remark: '仅本人数据，默认不开放菜单',
     menuNames: [],
     functionIds: [],
-    userIds: ['u6'],
+    userIds: ['acc_u6'],
     dataPerms: [],
     updatedAt: now(),
   },
   ]
 }
 
+const ROLE_STORE_VERSION = 2
+
 function getRoleStore() {
-  const g = globalThis as typeof globalThis & { __GROW_ROLE_STORE__?: RoleRecord[] }
-  if (!g.__GROW_ROLE_STORE__) {
+  const g = globalThis as typeof globalThis & {
+    __GROW_ROLE_STORE__?: RoleRecord[]
+    __GROW_ROLE_STORE_VERSION__?: number
+  }
+  if (!g.__GROW_ROLE_STORE__ || g.__GROW_ROLE_STORE_VERSION__ !== ROLE_STORE_VERSION) {
     g.__GROW_ROLE_STORE__ = createRoleStore()
+    g.__GROW_ROLE_STORE_VERSION__ = ROLE_STORE_VERSION
     for (const role of g.__GROW_ROLE_STORE__) {
-      replacePersonRolesForRole(role.id, role.userIds)
+      replaceAccountRolesForRole(role.id, role.userIds)
     }
   }
   return g.__GROW_ROLE_STORE__
@@ -191,8 +216,6 @@ function toListItem(role: RoleRecord) {
 }
 
 function toDetail(role: RoleRecord) {
-  const personMap = new Map(personStore.map((item) => [item.userId, item]))
-
   return {
     ...toListItem(role),
     menuNames: [...role.menuNames],
@@ -206,15 +229,7 @@ function toDetail(role: RoleRecord) {
       menuTitle: '',
     })),
     userIds: [...role.userIds],
-    members: role.userIds.map((userId) => {
-      const person = personMap.get(userId)
-      return {
-        userId,
-        name: person?.name || userId,
-        post: person?.post || '-',
-        deptName: person ? getDeptName(person.deptId) : '-',
-      }
-    }),
+    members: role.userIds.map((userId) => toAccountMember(userId)),
     dataPerms: role.dataPerms.map((item) => ({
       ...item,
       menuTitle: item.menuName,
@@ -247,15 +262,17 @@ export function listRoleOptions() {
   }))
 }
 
-export function applyPersonRoleIds(userId: string, roleIds: string[]) {
+export function applyAccountRoleIds(accountId: string, roleIds: string[]) {
   const set = new Set(roleIds)
   for (const role of roleStore) {
-    const has = role.userIds.includes(userId)
+    const has = role.userIds.includes(accountId)
     const should = set.has(role.id)
-    if (should && !has) role.userIds.push(userId)
-    if (has && !should) role.userIds = role.userIds.filter((id) => id !== userId)
+    if (should && !has) role.userIds.push(accountId)
+    if (has && !should) role.userIds = role.userIds.filter((id) => id !== accountId)
     if (has !== should) role.updatedAt = new Date().toISOString()
   }
+  const account = findAccount(accountId)
+  if (account) account.roleIds = [...set]
 }
 
 function pickBaseFields(payload: Recordable<any>, requireCode: boolean) {
@@ -491,11 +508,11 @@ const mocks: MockMethod[] = [
       const payload = (body || {}) as Recordable<any>
       const role = findRole(String(payload.id || '').trim())
       if (!role) return resultError('角色不存在')
-      const personIds = new Set(personStore.map((item) => item.userId))
+      const accountIds = new Set(accountStore.map((item) => item.accountId))
       const userIds = pickIds(payload.userIds)
-      if (userIds.some((id) => !personIds.has(id))) return resultError('存在无效人员')
+      if (userIds.some((id) => !accountIds.has(id))) return resultError('存在无效账号')
       role.userIds = userIds
-      replacePersonRolesForRole(role.id, userIds)
+      replaceAccountRolesForRole(role.id, userIds)
       role.updatedAt = now()
       return resultSuccess(toDetail(role), { message: '保存成功' })
     },
@@ -540,7 +557,7 @@ const mocks: MockMethod[] = [
     url: mockUrl('/system/persons'),
     method: 'post',
     timeout: 60,
-    response: () => resultSuccess(personStore.map(toPerson)),
+    response: () => resultSuccess(personStore.map(toBriefPerson)),
   },
   {
     url: mockUrl('/system/roles/options'),

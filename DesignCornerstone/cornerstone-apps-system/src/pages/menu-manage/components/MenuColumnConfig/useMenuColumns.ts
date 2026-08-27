@@ -1,5 +1,5 @@
 import { computed, reactive, ref } from 'vue'
-import { useDialog, useMsg } from '@grow-admin-rock/components'
+import { driverRef, useDialog, useMsg } from '@grow-admin-rock/components'
 import {
   fetchSystemMenuColumns,
   saveSystemMenuColumns,
@@ -52,12 +52,19 @@ function toMessage(error: unknown, fallback: string) {
   return error instanceof Error ? error.message : fallback
 }
 
-function nextDraftId() {
-  return `mc_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`
+async function validateGrowForm(formRef: { value: unknown }) {
+  const form = driverRef(formRef as any) as { validate?: () => Promise<unknown> } | undefined
+  if (!form?.validate) {
+    throw new Error('表单未就绪')
+  }
+  const result = await form.validate()
+  if (result === false) {
+    throw new Error('校验未通过')
+  }
 }
 
-function byTitleThenCode<T extends { title: string; code: string }>(items: T[]) {
-  return [...items].sort((a, b) => a.title.localeCompare(b.title, 'zh-CN') || a.code.localeCompare(b.code))
+function nextDraftId() {
+  return `mc_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`
 }
 
 function confirmWarning(dialog: any, options: {
@@ -107,17 +114,17 @@ export function useMenuColumns() {
 
   const formVisible = ref(false)
   const formMode = ref<'create' | 'edit'>('create')
-  const formRef = ref<{ validate?: () => Promise<boolean> } | null>(null)
+  const formRef = ref()
   const formModel = reactive<FormModel>(emptyForm())
 
   const tableFormVisible = ref(false)
   const tableFormMode = ref<'create' | 'edit'>('create')
-  const tableFormRef = ref<{ validate?: () => Promise<boolean> } | null>(null)
+  const tableFormRef = ref()
   const tableFormModel = reactive<TableFormModel>(emptyTableForm())
 
-  const groupedTables = computed(() => byTitleThenCode(tables.value).map((table) => ({
+  const groupedTables = computed(() => tables.value.map((table) => ({
     ...table,
-    items: byTitleThenCode(list.value.filter((item) => item.tableCode === table.code)),
+    items: list.value.filter((item) => item.tableCode === table.code),
   })))
 
   const currentTableTitle = computed(() => (
@@ -185,11 +192,11 @@ export function useMenuColumns() {
 
     try {
       const data = await fetchSystemMenuColumns(menuName)
-      tables.value = byTitleThenCode(Array.isArray(data?.tables) ? data.tables.map((item) => ({ ...item })) : [])
-      list.value = byTitleThenCode(Array.isArray(data?.items) ? data.items.map((item) => ({
+      tables.value = Array.isArray(data?.tables) ? data.tables.map((item) => ({ ...item })) : []
+      list.value = Array.isArray(data?.items) ? data.items.map((item) => ({
         ...item,
         columnType: isColumnType(item.columnType) ? item.columnType : 'string',
-      })) : [])
+      })) : []
     } catch (error) {
       message.error(toMessage(error, '加载失败'))
     }
@@ -225,7 +232,7 @@ export function useMenuColumns() {
 
   async function submitTableForm() {
     try {
-      await tableFormRef.value?.validate?.()
+      await validateGrowForm(tableFormRef)
     } catch {
       return
     }
@@ -234,14 +241,15 @@ export function useMenuColumns() {
       title: tableFormModel.title.trim(),
       code: tableFormModel.code.trim(),
     }
+    if (!payload.title || !payload.code) return
 
     if (tableFormMode.value === 'create') {
-      tables.value = byTitleThenCode([...tables.value, payload])
+      tables.value = [...tables.value, payload]
     } else {
       const from = tableFormModel.originalCode
-      tables.value = byTitleThenCode(tables.value.map((item) => (
+      tables.value = tables.value.map((item) => (
         item.code === from ? payload : item
-      )))
+      ))
       if (from !== payload.code) {
         list.value = list.value.map((item) => (
           item.tableCode === from
@@ -299,7 +307,7 @@ export function useMenuColumns() {
     if (!menuName) return
 
     try {
-      await formRef.value?.validate?.()
+      await validateGrowForm(formRef)
     } catch {
       return
     }
@@ -312,9 +320,10 @@ export function useMenuColumns() {
       tableCode: formModel.tableCode,
       tableTitle: table?.title || formModel.tableCode,
     }
+    if (!payload.title || !payload.code) return
 
     if (formMode.value === 'create') {
-      list.value = byTitleThenCode([
+      list.value = [
         ...list.value,
         {
           id: nextDraftId(),
@@ -322,11 +331,11 @@ export function useMenuColumns() {
           enabled: true,
           ...payload,
         },
-      ])
+      ]
     } else {
-      list.value = byTitleThenCode(list.value.map((item) => (
+      list.value = list.value.map((item) => (
         item.id === formModel.id ? { ...item, ...payload } : item
-      )))
+      ))
     }
 
     formVisible.value = false

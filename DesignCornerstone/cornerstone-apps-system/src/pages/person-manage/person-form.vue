@@ -203,26 +203,6 @@
             </GrowRow>
           </PersonSection>
 
-          <PersonSection title="角色权限">
-            <GrowRow :gutter="16">
-              <GrowCol :span="8">
-                <GrowFormItem label="绑定角色" prop="roleIds">
-                  <GrowSelect
-                    v-model="formModel.roleIds"
-                    :options="roleSelectOptions"
-                    label="label"
-                    value="value"
-                    multiple
-                    filterable
-                    collapse-tags
-                    clearable
-                    placeholder="请选择角色，可多选"
-                  />
-                </GrowFormItem>
-              </GrowCol>
-            </GrowRow>
-          </PersonSection>
-
           <PersonSection title="个人信息">
             <GrowRow :gutter="16">
               <GrowCol :span="4">
@@ -559,7 +539,6 @@ const {
   formRules,
   deptTree,
   supervisorOptions,
-  roleSelectOptions,
   tenureText,
   ageText,
   workYearsText,
@@ -579,6 +558,8 @@ const {
   box-sizing: border-box;
   height: 100%;
   min-height: 0;
+  padding: 10px;
+  background: var(--layout-container-background-color, #f0f2f5);
 }
 
 .person-form__bar {
@@ -590,7 +571,8 @@ const {
   height: 48px;
   padding: 0 16px;
   border-top: 1px solid var(--el-border-color-lighter);
-  background: var(--layout-color);
+  border-radius: 0 0 8px 8px;
+  background: var(--component-color, #fff);
 }
 
 .person-form__hint {
@@ -601,6 +583,8 @@ const {
 .person-form__body {
   flex: 1;
   min-height: 0;
+  overflow: hidden;
+  border-radius: 8px 8px 0 0;
   background: var(--component-color, #fff);
 }
 

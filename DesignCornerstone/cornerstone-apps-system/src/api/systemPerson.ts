@@ -83,9 +83,3 @@ export function reinstateSystemPerson(data: PersonReinstatePayload) {
     data,
   })
 }
-
-export function fetchSystemRoleOptions() {
-  return useRequest().post<Array<{ id: string; name: string; code: string }>>({
-    url: '/system/roles/options',
-  })
-}

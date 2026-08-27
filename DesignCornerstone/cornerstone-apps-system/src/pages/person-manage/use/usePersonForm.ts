@@ -1,13 +1,12 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { onBeforeRouteLeave, useRoute } from 'vue-router'
-import { useMsg } from '@grow-admin-rock/components'
+import { driverRef, useMsg } from '@grow-admin-rock/components'
 import { useTabs } from '@grow-admin-rock/hooks'
 import { fetchSystemDeptTree, fetchSystemPersons } from '../../../api/systemRole'
 import {
   createSystemPerson,
   getSystemPersonDetail,
   updateSystemPerson,
-  fetchSystemRoleOptions,
 } from '../../../api/systemPerson'
 import type { SystemDeptTreeNode, SystemPerson } from '../../../types/systemRole'
 import type {
@@ -44,7 +43,6 @@ function emptyForm(): FormModel {
     actualConfirmDate: '',
     plannedConfirmDate: '',
     jobGrade: '',
-    roleIds: [],
     idName: '',
     idNumber: '',
     birthDate: '',
@@ -87,6 +85,17 @@ function snapshotOf(model: FormModel) {
   return JSON.stringify(model)
 }
 
+async function validateGrowForm(formRef: { value: unknown }) {
+  const form = driverRef(formRef as any) as { validate?: () => Promise<unknown> } | undefined
+  if (!form?.validate) {
+    throw new Error('表单未就绪')
+  }
+  const result = await form.validate()
+  if (result === false) {
+    throw new Error('校验未通过')
+  }
+}
+
 export function usePersonForm() {
   const route = useRoute()
   const { setTab, closeCurrent } = useTabs()
@@ -94,11 +103,10 @@ export function usePersonForm() {
 
   const loading = ref(false)
   const saving = ref(false)
-  const formRef = ref<{ validate?: () => Promise<boolean> } | null>(null)
+  const formRef = ref()
   const formModel = reactive<FormModel>(emptyForm())
   const deptTree = ref<SystemDeptTreeNode[]>([])
   const persons = ref<SystemPerson[]>([])
-  const roleOptions = ref<Array<{ id: string; name: string; code: string }>>([])
   const snapshot = ref('')
 
   const isCreate = computed(() => String(route.name) === 'PersonCreate')
@@ -122,13 +130,6 @@ export function usePersonForm() {
         value: item.userId,
         label: `${item.name}（${item.deptName}）`,
       })),
-  )
-
-  const roleSelectOptions = computed(() =>
-    roleOptions.value.map((item) => ({
-      value: item.id,
-      label: item.name,
-    })),
   )
 
   const tenureText = computed(() =>
@@ -172,7 +173,6 @@ export function usePersonForm() {
       actualConfirmDate: detail.actualConfirmDate || '',
       plannedConfirmDate: detail.plannedConfirmDate || '',
       jobGrade: detail.jobGrade || '',
-      roleIds: Array.isArray(detail.roleIds) ? [...detail.roleIds] : [],
       idName: detail.idName || '',
       idNumber: detail.idNumber || '',
       birthDate: detail.birthDate || '',
@@ -212,14 +212,12 @@ export function usePersonForm() {
   }
 
   async function loadMeta() {
-    const [depts, people, roles] = await Promise.all([
+    const [depts, people] = await Promise.all([
       fetchSystemDeptTree(),
       fetchSystemPersons(),
-      fetchSystemRoleOptions(),
     ])
     deptTree.value = Array.isArray(depts) ? depts : []
     persons.value = Array.isArray(people) ? people : []
-    roleOptions.value = Array.isArray(roles) ? roles : []
   }
 
   async function load() {
@@ -267,7 +265,7 @@ export function usePersonForm() {
 
   async function submit() {
     try {
-      await formRef.value?.validate?.()
+      await validateGrowForm(formRef)
     } catch {
       message.warning('请先完善必填信息')
       return
@@ -334,7 +332,6 @@ export function usePersonForm() {
     formRules,
     deptTree,
     supervisorOptions,
-    roleSelectOptions,
     tenureText,
     ageText,
     workYearsText,

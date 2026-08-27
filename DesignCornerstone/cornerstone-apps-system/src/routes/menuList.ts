@@ -29,6 +29,15 @@ export const SYSTEM_MENU_LIST: SystemMenuApiItem[] = [
         sort: 20,
       },
       {
+        name: 'AccountManage',
+        title: '账号管理',
+        icon: 'ant-design:lock-outlined',
+        menuType: MenuTypeEnum.MENU,
+        isVisible: true,
+        isKeepAlive: true,
+        sort: 25,
+      },
+      {
         name: 'PersonManage',
         title: '人员管理',
         icon: 'ant-design:user-outlined',

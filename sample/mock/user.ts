@@ -5,12 +5,10 @@ import {
   resultError,
   resultSuccess,
 } from '@grow-admin-rock/mock/util';
-import { createFakeUserList } from './auth';
+import { createFakeUserList, findAuthUserByToken } from './auth';
 
-const fakeUser = createFakeUserList()[0];
-
-function toUserInfo() {
-  const { password, accessToken, desc, ...userInfo } = fakeUser;
+function toUserInfo(user = createFakeUserList()[0]) {
+  const { password, accessToken, desc, ...userInfo } = user;
   return userInfo;
 }
 
@@ -24,7 +22,8 @@ const mocks = [
       if (!token) {
         return resultError('未登录或登录已过期');
       }
-      return resultSuccess(toUserInfo(), { message: '获取用户信息成功' });
+      const current = findAuthUserByToken(token) || createFakeUserList()[0];
+      return resultSuccess(toUserInfo(current), { message: '获取用户信息成功' });
     },
   },
   {
