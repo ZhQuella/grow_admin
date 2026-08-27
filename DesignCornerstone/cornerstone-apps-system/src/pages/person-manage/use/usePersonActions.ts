@@ -11,6 +11,13 @@ export function usePersonActions() {
     )
   }
 
+  function openDetail(row: SystemPersonListItem) {
+    go(
+      { name: 'PersonDetail', params: { id: row.userId } },
+      { tabMode: 'stack', parentName: 'PersonManage' },
+    )
+  }
+
   function openEdit(row: SystemPersonListItem) {
     go(
       { name: 'PersonEdit', params: { id: row.userId } },
@@ -20,6 +27,7 @@ export function usePersonActions() {
 
   return {
     openCreate,
+    openDetail,
     openEdit,
   }
 }
