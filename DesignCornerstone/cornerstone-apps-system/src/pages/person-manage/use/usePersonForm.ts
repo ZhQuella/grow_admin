@@ -92,17 +92,6 @@ async function validateGrowForm(formRef: { value: unknown }) {
   }
 }
 
-async function validateGrowForm(formRef: { value: unknown }) {
-  const form = driverRef(formRef as any) as { validate?: () => Promise<unknown> } | undefined
-  if (!form?.validate) {
-    throw new Error('表单未就绪')
-  }
-  const result = await form.validate()
-  if (result === false) {
-    throw new Error('校验未通过')
-  }
-}
-
 export function usePersonForm() {
   const route = useRoute()
   const { setTab, closeCurrent } = useTabs()
