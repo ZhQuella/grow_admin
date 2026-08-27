@@ -1,5 +1,5 @@
 import { computed, reactive, ref, watch } from 'vue'
-import { onBeforeRouteLeave, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { driverRef, useMsg } from '@grow-admin-rock/components'
 import { useTabs } from '@grow-admin-rock/hooks'
 import { fetchSystemDeptTree, fetchSystemPersons } from '../../../api/systemRole'
@@ -81,10 +81,6 @@ function emptyForm(): FormModel {
   }
 }
 
-function snapshotOf(model: FormModel) {
-  return JSON.stringify(model)
-}
-
 async function validateGrowForm(formRef: { value: unknown }) {
   const form = driverRef(formRef as any) as { validate?: () => Promise<unknown> } | undefined
   if (!form?.validate) {
@@ -107,7 +103,6 @@ export function usePersonForm() {
   const formModel = reactive<FormModel>(emptyForm())
   const deptTree = ref<SystemDeptTreeNode[]>([])
   const persons = ref<SystemPerson[]>([])
-  const snapshot = ref('')
 
   const isCreate = computed(() => String(route.name) === 'PersonCreate')
   const personId = computed(() => String(route.params.id || ''))
@@ -141,13 +136,6 @@ export function usePersonForm() {
 
   const ageText = computed(() => calcAge(formModel.birthDate) || '系统计算')
   const workYearsText = computed(() => yearsAndMonths(formModel.firstWorkDate) || '系统计算')
-  const dirty = computed(() => snapshot.value !== '' && snapshotOf(formModel) !== snapshot.value)
-  let skipLeaveConfirm = false
-
-  function leaveToList() {
-    skipLeaveConfirm = true
-    closeCurrent()
-  }
 
   function applyDetail(detail: Recordable<any>) {
     Object.assign(formModel, emptyForm(), {
@@ -226,19 +214,21 @@ export function usePersonForm() {
       await loadMeta()
       if (isCreate.value) {
         Object.assign(formModel, emptyForm())
-        snapshot.value = snapshotOf(formModel)
         setTab('新增人员')
         return
       }
       const detail = await getSystemPersonDetail(personId.value)
       applyDetail(detail || {})
-      snapshot.value = snapshotOf(formModel)
       setTab(formModel.name ? `编辑-${formModel.name}` : '编辑人员')
     } catch (error) {
       message.error(toMessage(error, '加载失败'))
     } finally {
       loading.value = false
     }
+  }
+
+  function leaveToList() {
+    closeCurrent()
   }
 
   function onDeptChange(value: unknown) {
@@ -280,7 +270,6 @@ export function usePersonForm() {
         await updateSystemPerson(personId.value, payload)
         message.success('保存成功')
       }
-      snapshot.value = snapshotOf(formModel)
       leaveToList()
     } catch (error) {
       message.error(toMessage(error, '保存失败'))
@@ -290,22 +279,8 @@ export function usePersonForm() {
   }
 
   function onBack() {
-    if (!isCreate.value && dirty.value && !window.confirm('有未保存的修改，确定离开？')) return
     leaveToList()
   }
-
-  onBeforeRouteLeave((_to, _from, next) => {
-    if (skipLeaveConfirm || isCreate.value) {
-      skipLeaveConfirm = false
-      next()
-      return
-    }
-    if (dirty.value && !window.confirm('有未保存的修改，确定离开？')) {
-      next(false)
-      return
-    }
-    next()
-  })
 
   watch(
     () => formModel.idNumber,
@@ -314,14 +289,7 @@ export function usePersonForm() {
     },
   )
 
-  watch(
-    () => ({ name: String(route.name), id: personId.value }),
-    ({ name }) => {
-      if (name !== 'PersonCreate' && name !== 'PersonEdit') return
-      void load()
-    },
-    { immediate: true },
-  )
+  void load()
 
   return {
     loading,

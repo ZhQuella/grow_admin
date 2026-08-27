@@ -115,13 +115,13 @@ function onChange(key: MaterialKey, files: Array<{ name?: string; url?: string; 
   justify-content: center;
   padding: 0;
   line-height: 0 !important;
-  color: var(--el-text-color-placeholder);
-  background: var(--el-fill-color-lighter);
+  color: var(--text-color-secondary);
+  background: var(--layout-container-background-color);
 }
 
 .material-upload :deep(.el-upload--picture-card:hover) {
-  border-color: var(--el-color-primary);
-  color: var(--el-color-primary);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
 }
 
 .material-upload__plus {

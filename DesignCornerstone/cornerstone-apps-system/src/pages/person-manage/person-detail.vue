@@ -161,7 +161,7 @@ function historyTag(type: PersonEventType | string) {
   height: 100%;
   min-height: 0;
   padding: 10px;
-  background: var(--layout-container-background-color, #f0f2f5);
+  background: var(--layout-container-background-color);
 }
 
 .person-detail__body {
@@ -169,7 +169,7 @@ function historyTag(type: PersonEventType | string) {
   min-height: 0;
   overflow: hidden;
   border-radius: 8px 8px 0 0;
-  background: var(--component-color, #fff);
+  background: var(--component-background-color);
 }
 
 .person-detail__content {
@@ -182,7 +182,7 @@ function historyTag(type: PersonEventType | string) {
 
 .person-detail__label {
   margin-bottom: 6px;
-  color: var(--el-text-color-regular);
+  color: var(--text-color-secondary);
   font-size: 13px;
   line-height: 22px;
 }
@@ -219,9 +219,9 @@ function historyTag(type: PersonEventType | string) {
   justify-content: flex-end;
   height: 48px;
   padding: 0 16px;
-  border-top: 1px solid var(--el-border-color-lighter);
+  border-top: 1px solid var(--layout-border-color);
   border-radius: 0 0 8px 8px;
-  background: var(--component-color, #fff);
+  background: var(--component-background-color);
 }
 
 .person-detail__materials {
@@ -256,10 +256,10 @@ function historyTag(type: PersonEventType | string) {
   width: 96px;
   height: 96px;
   overflow: hidden;
-  border: 1px dashed var(--el-border-color);
+  border: 1px dashed var(--layout-border-color);
   border-radius: 8px;
-  color: var(--el-text-color-placeholder);
-  background: var(--el-fill-color-lighter);
+  color: var(--text-color-secondary);
+  background: var(--layout-container-background-color);
   font-size: 12px;
 }
 

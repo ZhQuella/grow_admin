@@ -315,7 +315,7 @@ async function confirmDelete() {
   min-height: 0;
   padding: 12px;
   border-radius: 8px;
-  background: var(--layout-color);
+  background: var(--component-background-color);
 }
 
 .person-manage__aside-head {
@@ -345,7 +345,7 @@ async function confirmDelete() {
   align-items: center;
   padding: 10px 12px;
   border-radius: 8px;
-  background: var(--layout-color);
+  background: var(--component-background-color);
 }
 
 .person-manage__toolbar-left {
@@ -374,7 +374,7 @@ async function confirmDelete() {
   margin-top: 10px;
   overflow: hidden;
   border-radius: 8px 8px 0 0;
-  background: var(--component-color, #fff);
+  background: var(--component-background-color);
 }
 
 .person-manage__watch {
@@ -387,7 +387,7 @@ async function confirmDelete() {
   justify-content: flex-end;
   padding: 12px;
   border-radius: 0 0 8px 8px;
-  background: var(--component-color, #fff);
+  background: var(--component-background-color);
 }
 
 .person-manage__actions {

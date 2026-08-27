@@ -273,7 +273,7 @@ defineExpose({ open })
 .role-detail__section {
   padding: 12px;
   border-radius: 8px;
-  background: var(--layout-color);
+  background: var(--layout-container-background-color);
 }
 
 .role-detail__title {
@@ -364,7 +364,7 @@ defineExpose({ open })
 .role-detail__person {
   padding: 10px 12px;
   border-radius: 8px;
-  background: var(--component-color, #fff);
+  background: var(--component-background-color);
 }
 
 .role-detail__person-name {

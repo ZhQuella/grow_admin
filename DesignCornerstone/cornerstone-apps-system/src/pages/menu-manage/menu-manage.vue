@@ -384,7 +384,7 @@ const {
   align-items: center;
   padding: 10px 12px;
   border-radius: 8px;
-  background: var(--layout-color);
+  background: var(--component-background-color);
 }
 
 .menu-manage__toolbar-left {
@@ -412,7 +412,7 @@ const {
   margin-top: 10px;
   overflow: hidden;
   border-radius: 8px;
-  background: var(--component-color, #fff);
+  background: var(--component-background-color);
 }
 
 .menu-manage__watch {
@@ -499,10 +499,10 @@ const {
   width: 40px;
   height: 40px;
   overflow: hidden;
-  border: 1px solid var(--layout-border-color, #dcdfe6);
+  border: 1px solid var(--layout-border-color);
   border-radius: 4px;
-  background: var(--layout-color, #fff);
-  color: var(--text-color-regular, #606266);
+  background: var(--component-background-color);
+  color: var(--text-color);
 }
 
 .menu-manage__icon-preview :deep(.grow-iconify) {

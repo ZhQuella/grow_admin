@@ -3,11 +3,11 @@ import { type ServiceIdentifier, diKT, resolveByKeyOrThrow } from '@grow-admin-r
 import { useRoute, Lib as routeLib } from '@grow-admin-rock/middleware-router'
 import type { RouteOperator } from '@grow-admin-rock/middleware-router'
 import type { RouteLocationRaw } from 'vue-router'
-import { useAuthMenuList, useTabStore } from '@grow-admin-rock/state'
+import { normalizeTabPath, useAuthMenuList, useTabStore } from '@grow-admin-rock/state'
 import type { GoTabOptions } from '@grow-admin-rock/types'
 
 function normalizePath(path: string): string {
-  return path.replace(/\/+$/, '') || '/'
+  return normalizeTabPath(path)
 }
 
 function createRouteNavigate() {

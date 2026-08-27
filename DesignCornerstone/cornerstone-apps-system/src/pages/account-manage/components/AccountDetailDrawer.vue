@@ -84,7 +84,7 @@ defineExpose({ open })
 .account-detail__section {
   padding: 12px;
   border-radius: 8px;
-  background: var(--layout-color);
+  background: var(--layout-container-background-color);
 }
 
 .account-detail__title {
