@@ -103,12 +103,14 @@
       </section>
 
       <section class="role-detail__section">
-        <h4 class="role-detail__title">绑定人员（{{ detail.members.length }}）</h4>
-        <div v-if="!detail.members.length" class="role-detail__hint">暂未绑定人员</div>
+        <h4 class="role-detail__title">绑定账号（{{ detail.members.length }}）</h4>
+        <div v-if="!detail.members.length" class="role-detail__hint">暂未绑定账号</div>
         <div v-else class="role-detail__people">
           <div v-for="member in detail.members" :key="member.userId" class="role-detail__person">
-            <div class="role-detail__person-name">{{ member.name }}</div>
-            <div class="role-detail__person-meta">{{ member.post }} · {{ member.deptName }}</div>
+            <div class="role-detail__person-name">{{ member.username || member.name }}</div>
+            <div class="role-detail__person-meta">
+              {{ member.name ? `${member.name} · ${member.deptName}` : member.deptName }}
+            </div>
           </div>
         </div>
       </section>

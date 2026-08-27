@@ -6,7 +6,6 @@
           <GrowSpace>
             <GrowButton type="primary" @click="openCreate()">新增</GrowButton>
           </GrowSpace>
-          <span class="menu-manage__hint">增删改仅作用于本页，不会同步到左侧菜单</span>
         </div>
       </GrowCol>
       <GrowCol :span="10">
@@ -232,7 +231,7 @@
             </GrowFormItem>
           </GrowCol>
           <GrowCol v-if="isExternalMenu" :span="24">
-            <GrowFormItem label="链接" prop="link">
+            <GrowFormItem label="链接" prop="link" required>
               <GrowInput v-model="formModel.link" maxlength="256" clearable placeholder="外链或 iframe 地址" />
             </GrowFormItem>
           </GrowCol>

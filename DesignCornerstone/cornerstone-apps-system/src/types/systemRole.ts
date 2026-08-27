@@ -72,6 +72,8 @@ export type RowFilterCondition = {
 
 export type SystemRoleMember = {
   userId: string
+  accountId?: string
+  username?: string
   name: string
   post: string
   deptName: string

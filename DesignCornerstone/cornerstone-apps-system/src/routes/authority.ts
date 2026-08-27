@@ -5,6 +5,7 @@ export const SYSTEM_ROUTE_AUTHORITY: Record<string, string[]> = {
   SystemCatalog: ['super'],
   MenuManage: ['super'],
   RoleManage: ['super'],
+  AccountManage: ['super'],
   PersonManage: ['super'],
   PersonCreate: ['super'],
   PersonEdit: ['super'],

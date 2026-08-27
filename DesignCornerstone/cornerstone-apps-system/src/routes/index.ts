@@ -31,6 +31,7 @@ export {
 const SYSTEM_COMPONENTS: Record<string, GrowRouteComponent> = {
   MenuManage: () => import('../pages/menu-manage/menu-manage.vue'),
   RoleManage: () => import('../pages/role-manage/role-manage.vue'),
+  AccountManage: () => import('../pages/account-manage/account-manage.vue'),
   PersonManage: () => import('../pages/person-manage/person-manage.vue'),
   PersonCreate: () => import('../pages/person-manage/person-form.vue'),
   PersonEdit: () => import('../pages/person-manage/person-form.vue'),

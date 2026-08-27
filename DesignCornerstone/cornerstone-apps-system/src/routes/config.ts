@@ -56,6 +56,11 @@ export const SYSTEM_ROUTE_STRUCTURES: SystemRouteStructure[] = [
         componentKey: 'RoleManage',
       },
       {
+        path: 'account-manage',
+        name: 'AccountManage',
+        componentKey: 'AccountManage',
+      },
+      {
         path: 'person-manage',
         name: 'PersonManage',
         componentKey: 'PersonManage',
@@ -147,6 +152,7 @@ export function toSystemRouteConfigs(
 export const SYSTEM_COMPONENT_KEYS = new Set([
   'MenuManage',
   'RoleManage',
+  'AccountManage',
   'PersonManage',
   'PersonCreate',
   'PersonEdit',
@@ -156,6 +162,7 @@ export const SYSTEM_COMPONENT_KEYS = new Set([
 export const SYSTEM_COMPONENT_PAGE_NAMES: Record<string, string> = {
   MenuManage: 'MenuManagePage',
   RoleManage: 'RoleManagePage',
+  AccountManage: 'AccountManagePage',
   PersonManage: 'PersonManagePage',
   PersonCreate: 'PersonFormPage',
   PersonEdit: 'PersonFormPage',

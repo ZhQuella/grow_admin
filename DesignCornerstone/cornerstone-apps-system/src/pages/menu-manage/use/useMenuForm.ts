@@ -1,5 +1,5 @@
 import { computed, reactive, ref } from 'vue'
-import { useMsg } from '@grow-admin-rock/components'
+import { driverRef, useMsg } from '@grow-admin-rock/components'
 import { MenuTypeEnum, PageOpenModeEnum } from '@grow-admin-rock/constants'
 import { createSystemMenu, updateSystemMenu } from '../../../api/systemMenu'
 import type { SystemMenuNode } from '../../../types/systemMenu'
@@ -74,6 +74,17 @@ function emptyForm(menuType: MenuTypeEnum): FormModel {
   }
 }
 
+async function validateGrowForm(formRef: { value: unknown }) {
+  const form = driverRef(formRef as any) as { validate?: () => Promise<unknown> } | undefined
+  if (!form?.validate) {
+    throw new Error('表单未就绪')
+  }
+  const result = await form.validate()
+  if (result === false) {
+    throw new Error('校验未通过')
+  }
+}
+
 function resolveMenuKind(row: SystemMenuNode): MenuKind {
   if (row.isExternalPage || row.openMode === PageOpenModeEnum.IFRAME || row.openMode === PageOpenModeEnum.BROWSER || row.link) {
     return 'external'
@@ -87,7 +98,7 @@ export function useMenuForm(options: UseMenuFormOptions) {
   const formVisible = ref(false)
   const formMode = ref<'create' | 'edit'>('create')
   const formSubmitting = ref(false)
-  const formRef = ref<{ validate?: () => Promise<boolean> } | null>(null)
+  const formRef = ref()
   const formModel = reactive<FormModel>(emptyForm(MenuTypeEnum.MENU))
 
   const parentTreeData = computed(() => {
@@ -354,7 +365,7 @@ export function useMenuForm(options: UseMenuFormOptions) {
 
   async function submitForm() {
     try {
-      await formRef.value?.validate?.()
+      await validateGrowForm(formRef)
     } catch {
       return
     }

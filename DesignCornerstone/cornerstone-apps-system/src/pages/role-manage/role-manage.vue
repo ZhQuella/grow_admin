@@ -6,7 +6,6 @@
           <GrowSpace>
             <GrowButton type="primary" @click="openCreate()">新增</GrowButton>
           </GrowSpace>
-          <span class="role-manage__hint">权限配置仅作用于本页 Mock，不会影响登录与菜单显隐</span>
         </div>
       </GrowCol>
       <GrowCol :span="10">
@@ -77,7 +76,7 @@
                         <GrowIconify icon="ant-design:edit-outlined" :size="16" />
                       </GrowButton>
                     </GrowTooltip>
-                    <GrowTooltip content="绑定人员" placement="top">
+                    <GrowTooltip content="绑定账号" placement="top">
                       <GrowButton link type="primary" @click="openMembers(row)">
                         <GrowIconify icon="ant-design:user-add-outlined" :size="16" />
                       </GrowButton>

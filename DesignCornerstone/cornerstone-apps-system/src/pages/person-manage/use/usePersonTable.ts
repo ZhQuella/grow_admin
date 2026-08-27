@@ -83,7 +83,6 @@ export function usePersonTable() {
     { title: '员工状态', field: 'employeeStatus', visible: true, minWidth: 90 },
     { title: '手机号', field: 'mobile', visible: true, minWidth: 130 },
     { title: '入职时间', field: 'entryDate', visible: true, minWidth: 110 },
-    { title: '角色', field: 'roles', visible: true, minWidth: 140 },
     { title: '最近变动', field: 'lastEventTitle', visible: true, minWidth: 120 },
     { title: '操作', field: 'actions', visible: true, minWidth: 280, fixed: 'right' },
   ])
