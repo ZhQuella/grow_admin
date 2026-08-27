@@ -14,6 +14,7 @@ type FormModel = {
   title: string
   path: string
   componentKey: string
+  customComponentKey: boolean
   icon: string
   menuType: MenuTypeEnum
   menuKind: MenuKind
@@ -56,6 +57,7 @@ function emptyForm(menuType: MenuTypeEnum): FormModel {
     title: '',
     path: '',
     componentKey: '',
+    customComponentKey: false,
     icon: '',
     menuType,
     menuKind: 'app',
@@ -103,6 +105,7 @@ export function useMenuForm(options: UseMenuFormOptions) {
   const isAutomationMenu = computed(() => isMenu.value && formModel.menuKind === 'automation')
   const isExternalMenu = computed(() => isMenu.value && formModel.menuKind === 'external')
   const showPath = computed(() => !isExternalMenu.value)
+  const showComponentKey = computed(() => isAppMenu.value || isAutomationMenu.value)
 
   const menuTypeOptions = [
     { label: '目录', value: MenuTypeEnum.DIRECTORY },
@@ -146,14 +149,6 @@ export function useMenuForm(options: UseMenuFormOptions) {
       },
       trigger: 'change',
     }],
-    name: [
-      { required: true, message: '请填写标识', trigger: 'blur' },
-      {
-        pattern: /^[A-Za-z][A-Za-z0-9_]*$/,
-        message: '标识需以字母开头，仅含字母数字下划线',
-        trigger: 'blur',
-      },
-    ],
     title: [{ required: true, message: '请填写标题', trigger: 'blur' }],
     path: [{
       validator: (_rule: unknown, value: string, callback: (error?: Error) => void) => {
@@ -162,26 +157,30 @@ export function useMenuForm(options: UseMenuFormOptions) {
           return
         }
         if (!String(value || '').trim()) {
-          callback(new Error('请填写路径'))
+          callback(new Error('请填写访问路径'))
           return
         }
         if (!/^[A-Za-z0-9_\-/:]+$/.test(String(value))) {
-          callback(new Error('路径仅含字母数字、中划线、下划线、斜杠或冒号'))
+          callback(new Error('访问路径仅含字母数字、中划线、下划线、斜杠或冒号'))
           return
         }
         callback()
       },
       trigger: 'blur',
     }],
-    componentKey: [{
+    automationType: [{
       validator: (_rule: unknown, value: string, callback: (error?: Error) => void) => {
-        if (isAppMenu.value && !String(value || '').trim()) {
-          callback(new Error('请填写组件标识'))
+        if (!isAutomationMenu.value) {
+          callback()
+          return
+        }
+        if (!value) {
+          callback(new Error('请选择页面类型'))
           return
         }
         callback()
       },
-      trigger: 'blur',
+      trigger: 'change',
     }],
     automationPage: [{
       validator: (_rule: unknown, value: string, callback: (error?: Error) => void) => {
@@ -226,6 +225,10 @@ export function useMenuForm(options: UseMenuFormOptions) {
   function onMenuKindChange(kind: MenuKind) {
     formModel.menuKind = kind
     formModel.automationPage = ''
+    formModel.customComponentKey = kind === 'automation'
+    if (!formModel.customComponentKey) {
+      formModel.componentKey = ''
+    }
     if (kind === 'external') {
       formModel.isExternalPage = true
       if (formModel.openMode === PageOpenModeEnum.ROUTE) {
@@ -236,6 +239,17 @@ export function useMenuForm(options: UseMenuFormOptions) {
     formModel.isExternalPage = false
     formModel.openMode = PageOpenModeEnum.ROUTE
     formModel.link = ''
+  }
+
+  function onCustomComponentKeyChange(value: boolean) {
+    if (isAutomationMenu.value) {
+      formModel.customComponentKey = true
+      return
+    }
+    formModel.customComponentKey = value
+    if (!value) {
+      formModel.componentKey = ''
+    }
   }
 
   function onAutomationTypeChange() {
@@ -258,12 +272,16 @@ export function useMenuForm(options: UseMenuFormOptions) {
   function openEdit(row: SystemMenuNode) {
     formMode.value = 'edit'
     const menuKind = row.menuType === MenuTypeEnum.MENU ? resolveMenuKind(row) : 'app'
+    const storedKey = row.componentKey || ''
+    const customComponentKey = menuKind === 'automation'
+      || (menuKind === 'app' && Boolean(storedKey && storedKey !== row.name))
     applyForm({
       parentName: findParentName(options.sourceTree.value, row.name),
       name: row.name,
       title: row.title,
       path: row.path,
-      componentKey: row.componentKey || (row.menuType === MenuTypeEnum.MENU ? row.name : ''),
+      componentKey: customComponentKey ? storedKey : '',
+      customComponentKey,
       icon: row.icon || '',
       menuType: row.menuType,
       menuKind,
@@ -283,15 +301,40 @@ export function useMenuForm(options: UseMenuFormOptions) {
     formVisible.value = true
   }
 
+  function toMenuName(value: string) {
+    const slug = value.trim().replace(/[^A-Za-z0-9_]/g, '_').replace(/^_+|_+$/g, '')
+    if (/^[A-Za-z][A-Za-z0-9_]*$/.test(slug)) return slug
+    if (slug && /^[0-9]/.test(slug)) return `M_${slug}`
+    return ''
+  }
+
+  function resolveName() {
+    if (formModel.name.trim()) return formModel.name.trim()
+    const fromKey = formModel.customComponentKey ? toMenuName(formModel.componentKey) : ''
+    if (fromKey) return fromKey
+    const fromPath = toMenuName(formModel.path)
+    if (fromPath) return fromPath
+    return `Menu_${Date.now()}`
+  }
+
+  function resolveComponentKey() {
+    if (!isAppMenu.value && !isAutomationMenu.value) {
+      return formModel.componentKey.trim() || undefined
+    }
+    if (formModel.customComponentKey) {
+      const key = formModel.componentKey.trim()
+      if (key) return key
+    }
+    return resolveName() || undefined
+  }
+
   function buildPayload() {
     return {
       parentName: formModel.parentName || undefined,
-      name: formModel.name.trim(),
+      name: resolveName(),
       title: formModel.title.trim(),
       path: formModel.path.trim(),
-      componentKey: isAppMenu.value
-        ? formModel.componentKey.trim()
-        : (formModel.componentKey.trim() || undefined),
+      componentKey: resolveComponentKey(),
       icon: formModel.icon.trim() || undefined,
       menuType: formModel.menuType,
       isVisible: formModel.isVisible,
@@ -352,6 +395,8 @@ export function useMenuForm(options: UseMenuFormOptions) {
     isAutomationMenu,
     isExternalMenu,
     showPath,
+    showComponentKey,
+    onCustomComponentKeyChange,
     menuTypeOptions,
     menuKindOptions,
     automationTypeOptions,

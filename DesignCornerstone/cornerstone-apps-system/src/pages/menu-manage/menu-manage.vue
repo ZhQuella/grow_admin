@@ -84,6 +84,16 @@
                         <GrowIconify icon="ant-design:edit-outlined" :size="16" />
                       </GrowButton>
                     </GrowTooltip>
+                    <GrowTooltip v-if="row.menuType === MenuTypeEnum.MENU" content="功能" placement="top">
+                      <GrowButton link type="primary" @click="openFunctions(row)">
+                        <GrowIconify icon="ant-design:control-outlined" :size="16" />
+                      </GrowButton>
+                    </GrowTooltip>
+                    <GrowTooltip v-if="row.menuType === MenuTypeEnum.MENU" content="表定义" placement="top">
+                      <GrowButton link type="primary" @click="openColumns(row)">
+                        <GrowIconify icon="ant-design:table-outlined" :size="16" />
+                      </GrowButton>
+                    </GrowTooltip>
                     <GrowTooltip content="删除" placement="top">
                       <GrowButton link type="danger" @click="onDelete(row)">
                         <GrowIconify icon="ant-design:delete-outlined" :size="16" />
@@ -149,8 +159,61 @@
               />
             </GrowFormItem>
           </GrowCol>
+          <GrowCol :span="12">
+            <GrowFormItem label="标题" prop="title">
+              <GrowInput v-model="formModel.title" maxlength="64" clearable placeholder="侧边栏显示名称" />
+            </GrowFormItem>
+          </GrowCol>
+          <GrowCol v-if="showComponentKey" :span="12">
+            <GrowFormItem label="组件标识">
+              <div class="menu-manage__custom-component">
+                <GrowSwitch
+                  :model-value="formModel.customComponentKey"
+                  :disabled="isAutomationMenu"
+                  @update:model-value="onCustomComponentKeyChange"
+                />
+                <GrowInput
+                  v-if="formModel.customComponentKey"
+                  v-model="formModel.componentKey"
+                  class="menu-manage__custom-component-input"
+                  maxlength="64"
+                  clearable
+                  placeholder="请填写组件标识"
+                />
+              </div>
+            </GrowFormItem>
+          </GrowCol>
+          <GrowCol v-if="showPath" :span="12">
+            <GrowFormItem label="访问路径" prop="path" required>
+              <GrowInput v-model="formModel.path" maxlength="128" clearable placeholder="如 menu-manage" />
+            </GrowFormItem>
+          </GrowCol>
+          <GrowCol v-if="isExternalMenu" :span="12">
+            <GrowFormItem label="打开方式" prop="openMode">
+              <GrowSelect v-model="formModel.openMode" :options="openModeOptions" />
+            </GrowFormItem>
+          </GrowCol>
+          <GrowCol :span="12">
+            <GrowFormItem label="图标" prop="icon" class="menu-manage__icon-item">
+              <div class="menu-manage__icon-field">
+                <GrowInput
+                  v-model="formModel.icon"
+                  maxlength="128"
+                  clearable
+                  placeholder="ant-design:menu-outlined"
+                />
+                <span class="menu-manage__icon-preview">
+                  <GrowIconify
+                    v-if="formModel.icon.trim()"
+                    :icon="formModel.icon.trim()"
+                    :size="24"
+                  />
+                </span>
+              </div>
+            </GrowFormItem>
+          </GrowCol>
           <GrowCol v-if="isAutomationMenu" :span="12">
-            <GrowFormItem label="页面类型" prop="automationType">
+            <GrowFormItem label="页面类型" prop="automationType" required>
               <GrowSelect
                 v-model="formModel.automationType"
                 :options="automationTypeOptions"
@@ -159,49 +222,13 @@
             </GrowFormItem>
           </GrowCol>
           <GrowCol v-if="isAutomationMenu" :span="12">
-            <GrowFormItem label="选择页面" prop="automationPage">
+            <GrowFormItem label="选择页面" prop="automationPage" required>
               <GrowSelect
                 v-model="formModel.automationPage"
                 :options="automationPageOptions"
                 :placeholder="automationPagePlaceholder"
                 clearable
               />
-            </GrowFormItem>
-          </GrowCol>
-          <GrowCol :span="12">
-            <GrowFormItem label="标题" prop="title">
-              <GrowInput v-model="formModel.title" maxlength="64" clearable placeholder="侧边栏显示名称" />
-            </GrowFormItem>
-          </GrowCol>
-          <GrowCol :span="12">
-            <GrowFormItem label="标识" prop="name">
-              <GrowInput
-                v-model="formModel.name"
-                maxlength="64"
-                clearable
-                :disabled="formMode === 'edit'"
-                placeholder="创建后不可修改"
-              />
-            </GrowFormItem>
-          </GrowCol>
-          <GrowCol v-if="showPath" :span="12">
-            <GrowFormItem label="路径" prop="path">
-              <GrowInput v-model="formModel.path" maxlength="128" clearable placeholder="如 menu-manage" />
-            </GrowFormItem>
-          </GrowCol>
-          <GrowCol v-if="isAppMenu" :span="12">
-            <GrowFormItem label="组件标识" prop="componentKey">
-              <GrowInput v-model="formModel.componentKey" maxlength="64" clearable placeholder="对应页面组件" />
-            </GrowFormItem>
-          </GrowCol>
-          <GrowCol :span="12">
-            <GrowFormItem label="图标" prop="icon">
-              <GrowInput v-model="formModel.icon" maxlength="128" clearable placeholder="ant-design:menu-outlined" />
-            </GrowFormItem>
-          </GrowCol>
-          <GrowCol v-if="isExternalMenu" :span="12">
-            <GrowFormItem label="打开方式" prop="openMode">
-              <GrowSelect v-model="formModel.openMode" :options="openModeOptions" />
             </GrowFormItem>
           </GrowCol>
           <GrowCol v-if="isExternalMenu" :span="24">
@@ -268,19 +295,37 @@
         </GrowSpace>
       </template>
     </GrowDialog>
+
+    <MenuFunctionConfig ref="functionConfigRef" />
+    <MenuColumnConfig ref="columnConfigRef" />
   </div>
 </template>
 
 <script lang="ts" setup>
+import { ref } from 'vue'
 import { GrowSearchBar } from '@grow-admin-rock/components/search-bar'
 import { GrowColumnBar } from '@grow-admin-rock/components/column-bar'
 import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
 import { MenuTypeEnum } from '@grow-admin-rock/constants'
+import type { SystemMenuNode } from '../../types/systemMenu'
+import MenuFunctionConfig from './components/MenuFunctionConfig/index.vue'
+import MenuColumnConfig from './components/MenuColumnConfig/index.vue'
 import { useMenuManage } from './use/useMenuManage'
 
 defineOptions({
   name: 'MenuManagePage',
 })
+
+const functionConfigRef = ref<{ open: (menu: SystemMenuNode) => void } | null>(null)
+const columnConfigRef = ref<{ open: (menu: SystemMenuNode) => void } | null>(null)
+
+function openFunctions(row: SystemMenuNode) {
+  functionConfigRef.value?.open(row)
+}
+
+function openColumns(row: SystemMenuNode) {
+  columnConfigRef.value?.open(row)
+}
 
 const {
   tableData,
@@ -297,10 +342,10 @@ const {
   formModel,
   formRules,
   parentTreeData,
-  isAppMenu,
   isAutomationMenu,
   isExternalMenu,
   showPath,
+  showComponentKey,
   menuTypeOptions,
   menuKindOptions,
   automationTypeOptions,
@@ -309,6 +354,7 @@ const {
   openModeOptions,
   onMenuKindChange,
   onAutomationTypeChange,
+  onCustomComponentKeyChange,
   openCreate,
   openCreateChild,
   openEdit,
@@ -398,6 +444,85 @@ const {
 .menu-manage__form :deep(.el-select),
 .menu-manage__form :deep(.el-tree-select) {
   width: 100%;
+}
+
+.menu-manage__custom-component {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 32px;
+}
+
+.menu-manage__custom-component :deep(.el-switch) {
+  flex-shrink: 0;
+}
+
+.menu-manage__custom-component-input,
+.menu-manage__custom-component :deep(.el-input) {
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
+}
+
+.menu-manage__icon-item :deep(.el-form-item__label) {
+  height: 40px;
+  line-height: 40px;
+}
+
+.menu-manage__icon-item :deep(.el-form-item__content) {
+  align-items: center;
+  min-height: 40px;
+}
+
+.menu-manage__icon-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+}
+
+.menu-manage__icon-field :deep(.el-input) {
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+}
+
+.menu-manage__icon-field :deep(.el-input__wrapper) {
+  height: 40px;
+  min-height: 40px;
+}
+
+.menu-manage__icon-preview {
+  position: relative;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  border: 1px solid var(--layout-border-color, #dcdfe6);
+  border-radius: 4px;
+  background: var(--layout-color, #fff);
+  color: var(--text-color-regular, #606266);
+}
+
+.menu-manage__icon-preview :deep(.grow-iconify) {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block !important;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  font-size: 24px;
+  line-height: 0;
+  transform: translate(-50%, -50%);
+}
+
+.menu-manage__icon-preview :deep(svg) {
+  display: block;
+  width: 24px !important;
+  height: 24px !important;
 }
 
 .menu-manage__switch-group {

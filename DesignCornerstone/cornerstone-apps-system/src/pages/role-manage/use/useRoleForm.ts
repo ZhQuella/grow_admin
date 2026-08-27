@@ -1,0 +1,117 @@
+import { reactive, ref } from 'vue'
+import { useMsg } from '@grow-admin-rock/components'
+import { createSystemRole, updateSystemRole } from '../../../api/systemRole'
+import {
+  ROLE_CODE_MESSAGE,
+  ROLE_CODE_PATTERN,
+  type SystemRoleListItem,
+} from '../../../types/systemRole'
+import { toMessage } from './helpers'
+
+type FormModel = {
+  id?: string
+  name: string
+  code: string
+  sort: number
+  remark: string
+}
+
+function emptyForm(): FormModel {
+  return {
+    id: undefined,
+    name: '',
+    code: '',
+    sort: 10,
+    remark: '',
+  }
+}
+
+type UseRoleFormOptions = {
+  onSuccess: () => void | Promise<void>
+}
+
+export function useRoleForm(options: UseRoleFormOptions) {
+  const message = useMsg()
+
+  const formVisible = ref(false)
+  const formMode = ref<'create' | 'edit'>('create')
+  const formSubmitting = ref(false)
+  const formRef = ref<{ validate?: () => Promise<boolean> } | null>(null)
+  const formModel = reactive<FormModel>(emptyForm())
+
+  const formRules = {
+    name: [{ required: true, message: '请填写名称', trigger: 'blur' }],
+    code: [
+      { required: true, message: '请填写编码', trigger: 'blur' },
+      {
+        pattern: ROLE_CODE_PATTERN,
+        message: ROLE_CODE_MESSAGE,
+        trigger: 'blur',
+      },
+    ],
+  }
+
+  function openCreate() {
+    formMode.value = 'create'
+    Object.assign(formModel, emptyForm())
+    formVisible.value = true
+  }
+
+  function openEdit(row: SystemRoleListItem) {
+    formMode.value = 'edit'
+    Object.assign(formModel, {
+      id: row.id,
+      name: row.name,
+      code: row.code,
+      sort: Number(row.sort ?? 10),
+      remark: row.remark || '',
+    })
+    formVisible.value = true
+  }
+
+  async function submitForm() {
+    try {
+      await formRef.value?.validate?.()
+    } catch {
+      return
+    }
+
+    formSubmitting.value = true
+    try {
+      if (formMode.value === 'create') {
+        await createSystemRole({
+          name: formModel.name.trim(),
+          code: formModel.code.trim(),
+          sort: Number(formModel.sort ?? 0),
+          remark: formModel.remark.trim(),
+        })
+        message.success('创建成功')
+      } else if (formModel.id) {
+        await updateSystemRole(formModel.id, {
+          name: formModel.name.trim(),
+          sort: Number(formModel.sort ?? 0),
+          remark: formModel.remark.trim(),
+        })
+        message.success('保存成功')
+      }
+      formVisible.value = false
+      await options.onSuccess()
+    } catch (error) {
+      message.error(toMessage(error, '保存失败'))
+    } finally {
+      formSubmitting.value = false
+    }
+  }
+
+  return {
+    formVisible,
+    formMode,
+    formSubmitting,
+    formRef,
+    formModel,
+    formRules,
+    openCreate,
+    openEdit,
+    submitForm,
+  }
+}

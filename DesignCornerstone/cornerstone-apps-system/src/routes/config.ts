@@ -50,6 +50,28 @@ export const SYSTEM_ROUTE_STRUCTURES: SystemRouteStructure[] = [
         name: 'MenuManage',
         componentKey: 'MenuManage',
       },
+      {
+        path: 'role-manage',
+        name: 'RoleManage',
+        componentKey: 'RoleManage',
+      },
+      {
+        path: 'person-manage',
+        name: 'PersonManage',
+        componentKey: 'PersonManage',
+        children: [
+          {
+            path: 'create',
+            name: 'PersonCreate',
+            componentKey: 'PersonCreate',
+          },
+          {
+            path: 'edit/:id',
+            name: 'PersonEdit',
+            componentKey: 'PersonEdit',
+          },
+        ],
+      },
     ],
   },
 ]
@@ -119,10 +141,18 @@ export function toSystemRouteConfigs(
 
 export const SYSTEM_COMPONENT_KEYS = new Set([
   'MenuManage',
+  'RoleManage',
+  'PersonManage',
+  'PersonCreate',
+  'PersonEdit',
 ])
 
 export const SYSTEM_COMPONENT_PAGE_NAMES: Record<string, string> = {
   MenuManage: 'MenuManagePage',
+  RoleManage: 'RoleManagePage',
+  PersonManage: 'PersonManagePage',
+  PersonCreate: 'PersonFormPage',
+  PersonEdit: 'PersonFormPage',
 }
 
 export function resolveSystemPageComponentName(componentKey: string): string {
