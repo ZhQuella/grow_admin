@@ -21,7 +21,7 @@ defineProps<{
   grid-template-columns: 88px minmax(0, 1fr);
   gap: 8px 16px;
   padding: 16px 0;
-  border-bottom: 1px solid var(--el-border-color-lighter);
+  border-bottom: 1px solid var(--layout-border-color);
 }
 
 .person-section:last-child {
@@ -31,6 +31,7 @@ defineProps<{
 .person-section__title {
   margin: 0;
   padding-top: 6px;
+  color: var(--text-color);
   font-size: 14px;
   font-weight: 600;
   line-height: 22px;

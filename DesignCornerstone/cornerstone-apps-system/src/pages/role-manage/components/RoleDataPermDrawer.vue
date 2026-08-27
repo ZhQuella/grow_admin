@@ -843,7 +843,7 @@ defineExpose({ open })
   padding: 16px;
   border: 1px solid var(--layout-border-color);
   border-radius: 10px;
-  background: var(--component-color, #fff);
+  background: var(--component-background-color);
 }
 
 .role-data-perm__card-head {
@@ -923,7 +923,7 @@ defineExpose({ open })
   flex-shrink: 0;
   border: 1px solid var(--layout-border-color);
   border-radius: 50%;
-  background: #fff;
+  background: var(--component-background-color);
 }
 
 .role-data-perm__radio.is-active .role-data-perm__radio-dot {

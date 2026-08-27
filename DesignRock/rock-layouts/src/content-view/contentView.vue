@@ -35,7 +35,7 @@ import { PageOpenModeEnum } from '@grow-admin-rock/constants'
 import { useRoute } from '@grow-admin-rock/middleware-router'
 import { RenderIframe } from '../embed-page'
 import { resolveTabCacheName, normalizeTabPath, storeToRefs, useAppConfig, useTabStore } from '@grow-admin-rock/state'
-import type { Component } from 'vue'
+import type { Component, VNode } from 'vue'
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
 import { useTabRouteSync } from '../tabs/use/useTabRouteSync'
 import { wrapKeepAliveComponent } from './wrapKeepAliveComponent'
@@ -67,7 +67,7 @@ function resolveRouteCacheName(route: RouteLocationNormalizedLoaded) {
 }
 
 function resolveViewComponent(
-  component: Component | null,
+  component: Component | VNode | null,
   viewRoute: RouteLocationNormalizedLoaded,
 ) {
   if (!component) {

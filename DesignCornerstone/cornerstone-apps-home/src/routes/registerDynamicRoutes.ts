@@ -230,20 +230,30 @@ function registerRoutesFromConfigs(configs: DynamicRouteConfig[]) {
     }
 
     const route = resolveDynamicRoute(config, fullPath)
+    const routeName = String(route.name)
+    const metaComponentName = resolveMetaComponentName(config, routeName)
+    const keepAlive = config.isKeepAlive ?? true
+
     if (router.hasRoute(route.name)) {
+      const existing = router.getRoutes().find((item) => item.name === route.name)
+      if (existing?.meta) {
+        existing.meta.componentName = metaComponentName
+        existing.meta.isKeepAlive = keepAlive
+      }
       return
     }
 
-    const routeName = String(route.name)
-    const metaComponentName = resolveMetaComponentName(config, routeName)
     const cacheName = resolveDynamicCacheName(fullPath, routeName)
+    const hasParamSegment = fullPath.includes(':')
     router.addRoute(HOME_ROUTE_NAME, {
       ...route,
-      component: extendComponent(route.component!, { name: cacheName }),
+      component: hasParamSegment
+        ? route.component!
+        : extendComponent(route.component!, { name: cacheName }),
       meta: {
         ...route.meta,
         componentName: metaComponentName,
-        isKeepAlive: config.isKeepAlive ?? true,
+        isKeepAlive: keepAlive,
         affix: config.affix ?? false,
         defaultShow: config.defaultShow ?? false,
         isExternalPage: config.isExternalPage,

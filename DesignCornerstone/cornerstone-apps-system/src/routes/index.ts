@@ -1,6 +1,7 @@
 import { MenuTypeEnum } from '@grow-admin-rock/constants'
 import {
   flattenSystemRouteConfigs,
+  resolveSystemPageComponentName,
   type SystemRouteConfig,
 } from './config'
 import { toSystemRouteConfigsFromMenu } from './mergeMenu'
@@ -66,12 +67,15 @@ export function resolveSystemRoute(
   fullPath = config.path,
 ): RouteRecordItem {
   const breadcrumbParentName = PERSON_FORM_PARENT_BY_NAME[config.name]
+  const componentKey = String(config.componentKey ?? config.name)
   return {
     path: fullPath,
     name: config.name,
     component: resolveSystemComponent(config),
     meta: {
       title: config.title,
+      componentName: resolveSystemPageComponentName(componentKey),
+      isKeepAlive: config.isKeepAlive !== false,
       ...(breadcrumbParentName
         ? {
             dynamicTab: true,

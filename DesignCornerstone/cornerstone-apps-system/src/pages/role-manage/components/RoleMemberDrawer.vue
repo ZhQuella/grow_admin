@@ -293,7 +293,7 @@ defineExpose({ open })
   gap: 12px;
   padding: 12px;
   border-radius: 8px;
-  background: var(--layout-color);
+  background: var(--layout-container-background-color);
 }
 
 .role-member__item-main {

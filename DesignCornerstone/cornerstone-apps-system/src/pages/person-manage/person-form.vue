@@ -71,7 +71,7 @@
               </GrowCol>
               <GrowCol :span="4">
                 <GrowFormItem label="职位" prop="post">
-                  <GrowInput v-model="formModel.post" maxlength="32" clearable placeholder="请输入" />
+                  <GrowInput v-model="formModel.post" maxlength="32" clearable autocomplete="off" placeholder="请输入" />
                 </GrowFormItem>
               </GrowCol>
               <GrowCol :span="4">
@@ -559,7 +559,7 @@ const {
   height: 100%;
   min-height: 0;
   padding: 10px;
-  background: var(--layout-container-background-color, #f0f2f5);
+  background: var(--layout-container-background-color);
 }
 
 .person-form__bar {
@@ -570,9 +570,9 @@ const {
   gap: 12px;
   height: 48px;
   padding: 0 16px;
-  border-top: 1px solid var(--el-border-color-lighter);
+  border-top: 1px solid var(--layout-border-color);
   border-radius: 0 0 8px 8px;
-  background: var(--component-color, #fff);
+  background: var(--component-background-color);
 }
 
 .person-form__hint {
@@ -585,7 +585,7 @@ const {
   min-height: 0;
   overflow: hidden;
   border-radius: 8px 8px 0 0;
-  background: var(--component-color, #fff);
+  background: var(--component-background-color);
 }
 
 .person-form__loading {

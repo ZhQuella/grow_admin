@@ -334,7 +334,7 @@ const {
   align-items: center;
   padding: 10px 12px;
   border-radius: 8px;
-  background: var(--layout-color);
+  background: var(--component-background-color);
 }
 
 .account-manage__toolbar-left {
@@ -362,7 +362,7 @@ const {
   margin-top: 10px;
   overflow: hidden;
   border-radius: 8px;
-  background: var(--component-color, #fff);
+  background: var(--component-background-color);
 }
 
 .account-manage__watch {
@@ -374,7 +374,7 @@ const {
   display: flex;
   justify-content: flex-end;
   padding: 12px;
-  background: var(--component-color, #fff);
+  background: var(--component-background-color);
 }
 
 .account-manage__roles {

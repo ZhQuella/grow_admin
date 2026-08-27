@@ -52,7 +52,7 @@ export const SYSTEM_MENU_LIST: SystemMenuApiItem[] = [
             icon: 'ant-design:user-add-outlined',
             menuType: MenuTypeEnum.MENU,
             isVisible: false,
-            isKeepAlive: false,
+            isKeepAlive: true,
             sort: 10,
           },
           {
@@ -61,7 +61,7 @@ export const SYSTEM_MENU_LIST: SystemMenuApiItem[] = [
             icon: 'ant-design:edit-outlined',
             menuType: MenuTypeEnum.MENU,
             isVisible: false,
-            isKeepAlive: false,
+            isKeepAlive: true,
             sort: 20,
           },
           {

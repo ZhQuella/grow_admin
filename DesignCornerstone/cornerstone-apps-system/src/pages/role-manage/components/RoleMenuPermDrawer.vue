@@ -150,7 +150,7 @@ defineExpose({ open })
 .role-menu-perm__tree {
   padding: 8px;
   border-radius: 8px;
-  background: var(--layout-color);
+  background: var(--layout-container-background-color);
 }
 </style>
 

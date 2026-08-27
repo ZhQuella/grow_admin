@@ -1,49 +1,71 @@
-import { defineComponent, h, shallowRef, type Component, type VNode } from 'vue'
+import { cloneVNode, defineComponent, h, isVNode, type Component, type VNode } from 'vue'
 
-type LazyComponentModule = {
-  default: Component
-}
-
-/** 按 cacheName 缓存 wrapper，保证 keep-alive 识别稳定的组件类型 */
+/** 按 cacheName 缓存组件类型，保证 keep-alive include 匹配到同一引用 */
 const resolvedComponents = new Map<string, Component>()
 
-/**
- * 以固定 name 的同步组件包装路由页面，供 keep-alive include 匹配。
- * 异步页面作为子节点渲染；wrapper 实例被 keep-alive 缓存时，子页面状态一并保留。
- */
-export function wrapKeepAliveComponent(
-  component: Component,
-  cacheName: string,
-): Component {
+function componentTypeName(type: unknown): string {
+  if (type == null || typeof type === 'string' || typeof type === 'symbol') {
+    return ''
+  }
+  if (typeof type === 'function') {
+    const fn = type as { displayName?: string, name?: string }
+    return fn.displayName || fn.name || ''
+  }
+  const obj = type as { name?: string, __name?: string }
+  return obj.name || obj.__name || ''
+}
+
+function stampKeepAliveName(component: Component, cacheName: string): Component {
+  if (typeof component === 'function') {
+    return defineComponent({
+      name: cacheName,
+      inheritAttrs: false,
+      setup(_, { attrs, slots }) {
+        return () => h(component as Component, attrs, slots)
+      },
+    })
+  }
+
+  return {
+    ...(component as object),
+    name: cacheName,
+    __name: cacheName,
+  } as Component
+}
+
+function resolveNamedType(inner: Component, cacheName: string): Component {
   const cached = resolvedComponents.get(cacheName)
   if (cached) {
     return cached
   }
+  const stamped = stampKeepAliveName(inner, cacheName)
+  resolvedComponents.set(cacheName, stamped)
+  return stamped
+}
 
-  const wrapped = defineComponent({
-    name: cacheName,
-    setup(props) {
-      const innerComponent = shallowRef<Component | null>(null)
+/**
+ * router-view 插槽里的 Component 是 VNode，keep-alive 按 vnode.type 的 name 匹配 include。
+ * 列表页注册时 extendComponent 已经改过 type.name；带 :id 的编辑页必须在这里改 type。
+ */
+export function wrapKeepAliveComponent(
+  component: Component | VNode,
+  cacheName: string,
+): Component | VNode {
+  if (isVNode(component)) {
+    const inner = component.type as Component
+    if (typeof inner === 'string' || typeof inner === 'symbol' || inner == null) {
+      return component
+    }
+    if (componentTypeName(inner) === cacheName) {
+      return component
+    }
+    const cloned = cloneVNode(component)
+    cloned.type = resolveNamedType(inner, cacheName)
+    return cloned
+  }
 
-      if (typeof component === 'function') {
-        const loader = component as () => Promise<LazyComponentModule>
-        void loader().then((mod) => {
-          innerComponent.value = mod.default
-        })
-      }
-      else {
-        innerComponent.value = component
-      }
-
-      return (): VNode | null => {
-        if (!innerComponent.value) {
-          return null
-        }
-        return h(innerComponent.value, props)
-      }
-    },
-  })
-
-  resolvedComponents.set(cacheName, wrapped)
-  return wrapped
+  if (componentTypeName(component) === cacheName) {
+    return component
+  }
+  return resolveNamedType(component, cacheName)
 }

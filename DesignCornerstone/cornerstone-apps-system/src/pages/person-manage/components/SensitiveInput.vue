@@ -1,8 +1,9 @@
 <template>
-  <div class="sensitive-input">
+  <div class="sensitive-input" :class="{ 'sensitive-input--masked': !visible }">
     <GrowInput
       :model-value="modelValue"
-      :type="visible ? 'text' : 'password'"
+      type="text"
+      autocomplete="off"
       :show-password="false"
       clearable
       :placeholder="placeholder"
@@ -46,5 +47,9 @@ function onInput(value: string | number) {
 
 .sensitive-input :deep(.el-input) {
   flex: 1;
+}
+
+.sensitive-input--masked :deep(input) {
+  -webkit-text-security: disc;
 }
 </style>
