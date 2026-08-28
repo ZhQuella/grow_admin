@@ -12,6 +12,7 @@ export default {
   layout: 'Layout',
   layoutRoof: 'Top Menu',
   layoutSide: 'Side Menu',
+  layoutMixed: 'Mixed Menu',
   reset: 'Reset',
   close: 'Close',
   transition: {

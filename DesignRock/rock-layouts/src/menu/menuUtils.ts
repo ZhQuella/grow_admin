@@ -43,3 +43,15 @@ export function shouldDisplayAsSubMenu(item: Menu, canEmbedIFramePage = true): b
   }
   return hasVisibleDirectChild(item, canEmbedIFramePage)
 }
+
+/** 根据当前路由找到其所属的一级菜单 */
+export function findRootMenuByPath(menus: Menu[], currentPath: string): Menu | null {
+  function containsPath(menu: Menu): boolean {
+    if (menu.path.startsWith('/') && menu.path === currentPath) {
+      return true
+    }
+    return menu.children?.some(containsPath) ?? false
+  }
+
+  return menus.find(containsPath) ?? null
+}

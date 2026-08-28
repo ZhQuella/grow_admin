@@ -67,5 +67,6 @@ export function useLayout() {
     syncLayoutByViewport,
     isSideLayout: computed(() => layoutType.value === SystemLayoutEnum.SIDE),
     isRoofLayout: computed(() => layoutType.value === SystemLayoutEnum.ROOF),
+    isMixedLayout: computed(() => layoutType.value === SystemLayoutEnum.MIXED),
   }
 }

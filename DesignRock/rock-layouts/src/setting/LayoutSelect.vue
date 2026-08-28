@@ -14,7 +14,7 @@ function onSelect(type: SystemLayoutType) {
 <template>
   <GrowForm label-width="100px" label-position="left" class="mb-5">
     <GrowFormItem :label="t('layout.setting.layout')">
-      <div class="flex">
+      <div class="flex gap-[15px]">
         <button
           type="button"
           class="h-[70px] w-[70px] cursor-pointer overflow-hidden rounded-[4px] border-2 border-solid p-[2px] transition-colors"
@@ -30,7 +30,7 @@ function onSelect(type: SystemLayoutType) {
 
         <button
           type="button"
-          class="mx-[15px] flex h-[70px] w-[70px] cursor-pointer overflow-hidden rounded-[4px] border-2 border-solid p-[2px] transition-colors"
+          class="flex h-[70px] w-[70px] cursor-pointer overflow-hidden rounded-[4px] border-2 border-solid p-[2px] transition-colors"
           :class="layoutType === SystemLayoutEnum.SIDE ? 'border-primary' : 'border-border'"
           :aria-label="t('layout.setting.layoutSide')"
           :title="t('layout.setting.layoutSide')"
@@ -40,6 +40,21 @@ function onSelect(type: SystemLayoutType) {
           <div class="ml-[2px] w-[40px]">
             <div class="mb-[2px] h-[10px] bg-text-secondary opacity-60" />
             <div class="h-[49px] bg-layout" />
+          </div>
+        </button>
+
+        <button
+          type="button"
+          class="h-[70px] w-[70px] cursor-pointer overflow-hidden rounded-[4px] border-2 border-solid p-[2px] transition-colors"
+          :class="layoutType === SystemLayoutEnum.MIXED ? 'border-primary' : 'border-border'"
+          :aria-label="t('layout.setting.layoutMixed')"
+          :title="t('layout.setting.layoutMixed')"
+          @click="onSelect(SystemLayoutEnum.MIXED)"
+        >
+          <div class="mb-[2px] h-[15px] bg-primary" />
+          <div class="flex h-[45px]">
+            <div class="w-[20px] bg-primary opacity-75" />
+            <div class="ml-[2px] flex-1 bg-layout" />
           </div>
         </button>
       </div>

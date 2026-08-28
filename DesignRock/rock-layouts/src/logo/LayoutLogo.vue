@@ -13,15 +13,16 @@ const props = withDefaults(
 
 const appConfig = useAppConfig()
 const { systemName } = storeToRefs(appConfig)
-const { collapsed, isRoofLayout } = useLayout()
+const { collapsed, isRoofLayout, isMixedLayout } = useLayout()
 
-const showSystemName = computed(() => isRoofLayout.value || !collapsed.value)
+const isTopLayout = computed(() => isRoofLayout.value || isMixedLayout.value)
+const showSystemName = computed(() => isTopLayout.value || !collapsed.value)
 </script>
 
 <template>
   <div
     class="box-border flex h-full min-w-0 items-center overflow-hidden px-3"
-    :class="isRoofLayout ? 'w-auto shrink-0 justify-start' : 'w-full justify-center'"
+    :class="isTopLayout ? 'w-auto shrink-0 justify-start' : 'w-full justify-center'"
   >
     <div class="flex min-w-0 max-w-full items-center gap-2">
       <img

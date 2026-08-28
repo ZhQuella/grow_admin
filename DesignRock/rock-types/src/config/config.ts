@@ -110,7 +110,7 @@ export interface DefineAppConfigOptions {
   // Whether to show the lock screen
   useLockPage: boolean
   transition: TransitionConfigOptions
-  // System layout type (side / roof)
+  // System layout type (side / roof / mixed)
   layoutType: SystemLayoutType
   // System display name
   systemName: string

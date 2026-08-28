@@ -34,11 +34,19 @@ defineOptions({
 const props = defineProps<{
   item: Menu
   canEmbedIFramePage?: boolean
+  forceMenuItem?: boolean
+  index?: string
 }>()
 
-const displayAsSubMenu = computed(() => shouldDisplayAsSubMenu(props.item, props.canEmbedIFramePage ?? true))
+const displayAsSubMenu = computed(() => {
+  return !props.forceMenuItem
+    && shouldDisplayAsSubMenu(props.item, props.canEmbedIFramePage ?? true)
+})
 const shouldRender = computed(() => shouldRenderMenuItem(props.item, props.canEmbedIFramePage ?? true))
 const menuIndex = computed(() => {
+  if (props.index) {
+    return props.index
+  }
   if (props.item.openMode === PageOpenModeEnum.BROWSER) {
     return props.item.name
   }
