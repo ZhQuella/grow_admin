@@ -8,8 +8,13 @@
             <LayoutLogo />
           </template>
 
-          <template #menu>
-            <Menu :key="layoutType" />
+          <template #menu="{ menuLevel, activeRootMenu, selectRootMenu }">
+            <Menu
+              :key="`${layoutType}-${menuLevel}`"
+              :level="menuLevel"
+              :active-root-menu="activeRootMenu"
+              @select-root="selectRootMenu"
+            />
           </template>
 
           <template #bread>

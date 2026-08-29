@@ -24,7 +24,7 @@ export function useLayoutResponsive() {
 
   onMounted(() => {
     if (
-      layoutType.value === SystemLayoutEnum.SIDE
+      layoutType.value !== SystemLayoutEnum.ROOF
       && window.innerWidth < SIDE_LAYOUT_BREAKPOINT
     ) {
       syncLayoutByViewport()

@@ -12,6 +12,7 @@ export default {
   layout: '布局',
   layoutRoof: '顶部菜单',
   layoutSide: '侧边菜单',
+  layoutMixed: '混合菜单',
   reset: '重置配置',
   close: '关闭',
   transition: {
