@@ -45,13 +45,13 @@
       </div>
     </section>
 
-    <GrowForm :model="form" :rules="rules" label-position="top" :validate-on-rule-change="false">
+    <GrowForm ref="formRef" :model="form" :rules="rules" label-position="top" :validate-on-rule-change="false">
     <section class="transfer-block">
       <div class="transfer-block__title">{{ actionTitle }}</div>
       <p v-if="sourceHint" class="transfer-current__hint">{{ sourceHint }}</p>
       <GrowRow :gutter="16">
         <GrowCol v-show="!isEnd" :span="12">
-          <GrowFormItem :label="deptLabel">
+          <GrowFormItem :label="deptLabel" prop="deptId">
             <GrowTreeSelect
               :model-value="form.deptId"
               :data="deptTree"
@@ -65,7 +65,7 @@
           </GrowFormItem>
         </GrowCol>
         <GrowCol v-show="!isEnd" :span="12">
-          <GrowFormItem :label="postLabel">
+          <GrowFormItem :label="postLabel" prop="postId">
             <GrowSelect
               v-model="form.postId"
               :options="postOptions"
@@ -93,7 +93,7 @@
           </GrowFormItem>
         </GrowCol>
         <GrowCol :span="12">
-          <GrowFormItem :label="dateLabel">
+          <GrowFormItem :label="dateLabel" prop="effectiveDate">
             <GrowDatePicker v-model="form.effectiveDate" value-format="YYYY-MM-DD" placeholder="请选择" style="width: 100%" />
           </GrowFormItem>
         </GrowCol>
@@ -111,7 +111,7 @@
           </GrowFormItem>
         </GrowCol>
         <GrowCol v-show="!isEnd" :span="12">
-          <GrowFormItem label="协同上级">
+          <GrowFormItem label="协同上级" prop="collaboratorIds">
             <GrowSelect
               v-model="form.collaboratorIds"
               :options="collaboratorOptions"
@@ -138,7 +138,8 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
+import { driverRef } from '@grow-admin-rock/components'
 import { transferSystemPerson } from '../../../../api/systemPerson'
 import { fetchSystemPosts } from '../../../../api/systemPost'
 import { fetchSystemPersons } from '../../../../api/systemRole'
@@ -153,7 +154,7 @@ import {
   type TransferType,
 } from '../../../../types/systemPerson'
 import type { SystemDeptTreeNode } from '../../../../types/systemRole'
-import { pickSelectId, todayText, toPostSelectOptions } from '../../use/helpers'
+import { pickSelectId, todayText, toPostSelectOptions, validateGrowForm } from '../../use/helpers'
 
 defineOptions({ name: 'TransferEventForm' })
 
@@ -168,6 +169,7 @@ const emit = defineEmits<{
   change: [type: TransferType]
 }>()
 
+const formRef = ref()
 const posts = ref<SystemPostOption[]>([])
 const postLoadSeq = ref(0)
 const supervisorOptions = ref<Array<{ label: string; value: string }>>([])
@@ -232,7 +234,34 @@ const overstaffHint = computed(() => {
   return ''
 })
 
-const rules = {}
+const requiredDept = [{ required: true, message: '请选择部门', trigger: 'change' }]
+const requiredPost = [{ required: true, message: '请选择岗位', trigger: 'change' }]
+const rules = computed(() => ({
+  deptId: isEnd.value ? [] : requiredDept,
+  postId: isEnd.value ? [] : requiredPost,
+  effectiveDate: [{
+    required: true,
+    message: isEnd.value ? '请选择结束日期' : '请选择生效日期',
+    trigger: 'change',
+  }],
+  collaboratorIds: [{
+    validator: (_rule: unknown, value: string[], callback: (error?: Error) => void) => {
+      if (form.supervisorId && (value || []).includes(form.supervisorId)) {
+        callback(new Error('同一任职下协同上级不能与主上级重复'))
+        return
+      }
+      callback()
+    },
+    trigger: 'change',
+  }],
+}))
+
+function clearFormValidate() {
+  nextTick(() => {
+    const inst = driverRef(formRef as never) as { clearValidate?: () => void } | undefined
+    inst?.clearValidate?.()
+  })
+}
 
 function isSource(row: PersonAssignment) {
   if (form.transferType === 'part_time_add') return false
@@ -298,6 +327,7 @@ function setAction(type: TransferType, row?: PersonAssignment) {
     applyDestination(row || (type === 'primary' ? primary.value : undefined))
   }
   emit('change', type)
+  clearFormValidate()
 }
 
 function selectSource(row: PersonAssignment) {
@@ -357,20 +387,12 @@ async function loadSupervisors() {
 }
 
 async function submit() {
-  if (!form.effectiveDate) {
-    throw new Error('请选择日期')
-  }
-  if (form.transferType !== 'part_time_end' && (!form.deptId || !form.postId)) {
-    throw new Error('请选择部门和岗位')
-  }
+  await validateGrowForm(formRef)
   if (
     (form.transferType === 'part_time_change' || form.transferType === 'part_time_end')
     && !form.assignmentId
   ) {
     throw new Error('请先选择要操作的兼职')
-  }
-  if (form.supervisorId && form.collaboratorIds.includes(form.supervisorId)) {
-    throw new Error('同一任职下协同上级不能与主上级重复')
   }
   const post = posts.value.find((item) => item.id === form.postId)
   await transferSystemPerson({

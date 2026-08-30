@@ -25,7 +25,7 @@
                 show-checkbox
                 default-expand-all
                 :default-checked-keys="checkedKeys"
-                :props="{ label: 'title', children: 'children' }"
+                :props="{ label: 'title', children: 'children', disabled: 'disabled' }"
                 @check="onCheck"
               />
             </div>

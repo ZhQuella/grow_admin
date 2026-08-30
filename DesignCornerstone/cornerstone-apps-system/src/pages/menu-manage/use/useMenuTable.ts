@@ -72,6 +72,19 @@ export function useMenuTable() {
         { label: '隐藏', value: 'false' },
       ],
     },
+    {
+      labelText: '状态',
+      elType: 'GrowSelect',
+      model: 'enabled',
+      label: 'label',
+      value: 'value',
+      placeholder: '请选择',
+      clearable: true,
+      options: [
+        { label: '启用', value: 'true' },
+        { label: '停用', value: 'false' },
+      ],
+    },
   ]
 
   const tableColumns = ref<ManageTableColumn[]>([
@@ -82,6 +95,7 @@ export function useMenuTable() {
     { title: '组件标识', field: 'componentKey', visible: true, minWidth: 140 },
     { title: '图标', field: 'icon', visible: true, minWidth: 180 },
     { title: '排序', field: 'sort', visible: true, minWidth: 80 },
+    { title: '状态', field: 'enabled', visible: true, minWidth: 90 },
     { title: '显示', field: 'isVisible', visible: true, minWidth: 80 },
     { title: '缓存', field: 'isKeepAlive', visible: false, minWidth: 80 },
     { title: '固定标签', field: 'affix', visible: false, minWidth: 90 },

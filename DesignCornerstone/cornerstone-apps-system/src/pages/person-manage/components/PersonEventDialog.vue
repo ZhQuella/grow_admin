@@ -40,16 +40,13 @@ const emit = defineEmits<{
 
 const ConfirmEventForm = defineAsyncComponent(() => import('./events/ConfirmEventForm.vue'))
 const ResignEventForm = defineAsyncComponent(() => import('./events/ResignEventForm.vue'))
-const StatusDateEventForm = defineAsyncComponent(() => import('./events/StatusDateEventForm.vue'))
 const ReturnEventForm = defineAsyncComponent(() => import('./events/ReturnEventForm.vue'))
 const DeleteEventForm = defineAsyncComponent(() => import('./events/DeleteEventForm.vue'))
 
 const EVENT_COMPONENTS: Record<Exclude<PersonEventMode, 'transfer'>, Component> = {
   confirm: ConfirmEventForm,
   resign: ResignEventForm,
-  disable: StatusDateEventForm,
-  enable: StatusDateEventForm,
-  retire: StatusDateEventForm,
+  retire: ResignEventForm,
   reinstate: ReturnEventForm,
   rehire: ReturnEventForm,
   delete: DeleteEventForm,
@@ -58,8 +55,6 @@ const EVENT_COMPONENTS: Record<Exclude<PersonEventMode, 'transfer'>, Component> 
 const EVENT_TITLES: Record<Exclude<PersonEventMode, 'transfer'>, string> = {
   confirm: '转正',
   resign: '离职',
-  disable: '停用',
-  enable: '启用',
   retire: '退休',
   reinstate: '复职',
   rehire: '返聘',
@@ -77,11 +72,11 @@ const panelRef = ref<{ submit: () => Promise<void> } | null>(null)
 
 const eventComponent = computed(() => EVENT_COMPONENTS[mode.value])
 const panelMode = computed(() => {
-  if (mode.value === 'disable' || mode.value === 'enable' || mode.value === 'retire') return mode.value
+  if (mode.value === 'resign' || mode.value === 'retire') return mode.value
   if (mode.value === 'reinstate' || mode.value === 'rehire') return mode.value
   return undefined
 })
-const dialogWidth = computed(() => (mode.value === 'resign' ? '640px' : '520px'))
+const dialogWidth = computed(() => (mode.value === 'resign' || mode.value === 'retire' ? '640px' : '520px'))
 const title = computed(() => {
   const name = person.value?.name || ''
   const label = EVENT_TITLES[mode.value]

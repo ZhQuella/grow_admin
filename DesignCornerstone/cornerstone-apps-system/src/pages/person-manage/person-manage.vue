@@ -107,16 +107,6 @@
                           <GrowIconify icon="ant-design:check-circle-outlined" :size="16" />
                         </GrowButton>
                       </GrowTooltip>
-                      <GrowTooltip v-if="canPersonAction(row.employeeStatus, 'disable')" content="停用" placement="top">
-                        <GrowButton link type="warning" @click="openEvent('disable', row)">
-                          <GrowIconify icon="ant-design:stop-outlined" :size="16" />
-                        </GrowButton>
-                      </GrowTooltip>
-                      <GrowTooltip v-if="canPersonAction(row.employeeStatus, 'enable')" content="启用" placement="top">
-                        <GrowButton link type="primary" @click="openEvent('enable', row)">
-                          <GrowIconify icon="ant-design:play-circle-outlined" :size="16" />
-                        </GrowButton>
-                      </GrowTooltip>
                       <GrowTooltip v-if="canPersonAction(row.employeeStatus, 'resign')" content="离职" placement="top">
                         <GrowButton link type="danger" @click="openEvent('resign', row)">
                           <GrowIconify icon="ant-design:logout-outlined" :size="16" />

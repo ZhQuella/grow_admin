@@ -1,6 +1,7 @@
 import { reactive, ref } from 'vue'
 import { driverRef, useDialog, useMsg } from '@grow-admin-rock/components'
 import {
+  fetchSystemMenuFunctionDeleteImpact,
   fetchSystemMenuFunctions,
   saveSystemMenuFunctions,
 } from '../../../../api/systemMenuFunction'
@@ -15,6 +16,8 @@ type FormModel = {
   id: string
   title: string
   code: string
+  group: string
+  description: string
   sort: number
   enabled: boolean
 }
@@ -24,6 +27,8 @@ function emptyForm(): FormModel {
     id: '',
     title: '',
     code: '',
+    group: '',
+    description: '',
     sort: 10,
     enabled: true,
   }
@@ -88,12 +93,13 @@ function confirmWarning(dialog: any, options: {
 }
 
 export function useMenuFunctions() {
-  const message = useMsg()
-  const dialog = useDialog()
+  const message = useMsg() as any
+  const dialog = useDialog() as any
 
   const listVisible = ref(false)
   const listSaving = ref(false)
   const list = ref<SystemMenuFunction[]>([])
+  const persistedIds = ref<Set<string>>(new Set())
   const menu = ref<SystemMenuNode | null>(null)
 
   const formVisible = ref(false)
@@ -135,6 +141,7 @@ export function useMenuFunctions() {
     try {
       const data = await fetchSystemMenuFunctions(menuName)
       list.value = sortFunctions(Array.isArray(data) ? data.map((item) => ({ ...item })) : [])
+      persistedIds.value = new Set(list.value.map((item) => item.id))
     } catch (error) {
       message.error(toMessage(error, '加载失败'))
     }
@@ -167,6 +174,8 @@ export function useMenuFunctions() {
       id: row.id,
       title: row.title,
       code: row.code,
+      group: row.group || '',
+      description: row.description || '',
       sort: Number(row.sort ?? 10),
       enabled: row.enabled !== false,
     })
@@ -186,6 +195,8 @@ export function useMenuFunctions() {
     const payload = {
       title: formModel.title.trim(),
       code: formModel.code.trim(),
+      group: formModel.group.trim(),
+      description: formModel.description.trim(),
       sort: Number(formModel.sort ?? 0),
     }
     if (!payload.title || !payload.code) return
@@ -223,9 +234,19 @@ export function useMenuFunctions() {
   }
 
   async function onDelete(row: SystemMenuFunction) {
+    let roleGrantCount = 0
+    if (persistedIds.value.has(row.id)) {
+      try {
+        const impact = await fetchSystemMenuFunctionDeleteImpact(row.id)
+        roleGrantCount = impact.roleGrantCount
+      } catch (error) {
+        message.error(toMessage(error, '加载影响范围失败'))
+        return
+      }
+    }
     const ok = await confirmWarning(dialog, {
       title: '删除确认',
-      content: `确认移除功能「${row.title}」？`,
+      content: `确认移除功能「${row.title}」？将同步清理角色功能授权 ${roleGrantCount} 项。`,
       confirmText: '删除',
     })
     if (!ok) return
@@ -244,6 +265,8 @@ export function useMenuFunctions() {
           id: item.id,
           title: item.title,
           code: item.code,
+          group: item.group,
+          description: item.description,
           sort: item.sort,
           enabled: item.enabled,
         })),

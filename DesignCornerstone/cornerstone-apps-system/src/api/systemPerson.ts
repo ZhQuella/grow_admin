@@ -79,20 +79,6 @@ export function resignSystemPerson(data: PersonResignPayload) {
   })
 }
 
-export function disableSystemPerson(data: PersonStatusPayload) {
-  return useRequest().post<SystemPersonDetail>({
-    url: '/system/person/disable',
-    data,
-  })
-}
-
-export function enableSystemPerson(data: PersonStatusPayload) {
-  return useRequest().post<SystemPersonDetail>({
-    url: '/system/person/enable',
-    data,
-  })
-}
-
 export function retireSystemPerson(data: PersonStatusPayload) {
   return useRequest().post<SystemPersonDetail>({
     url: '/system/person/retire',

@@ -119,8 +119,12 @@ export function usePersonForm() {
       message.warning('必须且只能设置一条主职')
       return
     }
-    if (active.some((item) => !item.deptId || !item.postId || !item.startDate)) {
-      message.warning('请完善任职关系的部门、岗位和开始日期')
+    if (active.some((item) => !item.deptId || !item.postId)) {
+      message.warning('请完善任职关系的部门和岗位')
+      return
+    }
+    if (active.some((item) => item.type === 'part_time' && !item.startDate)) {
+      message.warning('请选择兼职开始日期')
       return
     }
     const keys = new Set<string>()

@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  vue-tsc@1.8.27:
+    hash: 3f5057fe0cf3bb15bfc8053bb8cf9907fa6ef21537cc07c9222029bca7eb40b1
+    path: patches/vue-tsc@1.8.27.patch
+
 importers:
 
   .:
@@ -59,7 +64,7 @@ importers:
         version: 5.9.3
       unbuild:
         specifier: ^1.1.2
-        version: 1.2.1(sass@1.100.0)(vue-tsc@1.8.27(typescript@5.9.3))
+        version: 1.2.1(sass@1.100.0)(vue-tsc@1.8.27(patch_hash=3f5057fe0cf3bb15bfc8053bb8cf9907fa6ef21537cc07c9222029bca7eb40b1)(typescript@5.9.3))
       vite:
         specifier: 4.3.9
         version: 4.3.9(@types/node@25.9.1)(less@4.6.4)(sass@1.100.0)(terser@5.47.1)
@@ -135,7 +140,7 @@ importers:
         version: 4.3.9(@types/node@25.9.1)(less@4.6.4)(sass@1.100.0)(terser@5.47.1)
       vue-tsc:
         specifier: ^1.0.24
-        version: 1.8.27(typescript@5.9.3)
+        version: 1.8.27(patch_hash=3f5057fe0cf3bb15bfc8053bb8cf9907fa6ef21537cc07c9222029bca7eb40b1)(typescript@5.9.3)
 
   DesignCornerstone/cornerstone-apps-external:
     dependencies:
@@ -166,7 +171,7 @@ importers:
         version: 4.3.9(@types/node@25.9.1)(less@4.6.4)(sass@1.100.0)(terser@5.47.1)
       vue-tsc:
         specifier: ^1.0.24
-        version: 1.8.27(typescript@5.9.3)
+        version: 1.8.27(patch_hash=3f5057fe0cf3bb15bfc8053bb8cf9907fa6ef21537cc07c9222029bca7eb40b1)(typescript@5.9.3)
 
   DesignCornerstone/cornerstone-apps-feat:
     dependencies:
@@ -206,7 +211,7 @@ importers:
         version: 4.3.9(@types/node@25.9.1)(less@4.6.4)(sass@1.100.0)(terser@5.47.1)
       vue-tsc:
         specifier: ^1.0.24
-        version: 1.8.27(typescript@5.9.3)
+        version: 1.8.27(patch_hash=3f5057fe0cf3bb15bfc8053bb8cf9907fa6ef21537cc07c9222029bca7eb40b1)(typescript@5.9.3)
 
   DesignCornerstone/cornerstone-apps-home:
     dependencies:
@@ -267,7 +272,7 @@ importers:
         version: 4.3.9(@types/node@25.9.1)(less@4.6.4)(sass@1.100.0)(terser@5.47.1)
       vue-tsc:
         specifier: ^1.0.24
-        version: 1.8.27(typescript@5.9.3)
+        version: 1.8.27(patch_hash=3f5057fe0cf3bb15bfc8053bb8cf9907fa6ef21537cc07c9222029bca7eb40b1)(typescript@5.9.3)
 
   DesignCornerstone/cornerstone-apps-login:
     dependencies:
@@ -313,7 +318,7 @@ importers:
         version: 4.3.9(@types/node@25.9.1)(less@4.6.4)(sass@1.100.0)(terser@5.47.1)
       vue-tsc:
         specifier: ^1.0.24
-        version: 1.8.27(typescript@5.9.3)
+        version: 1.8.27(patch_hash=3f5057fe0cf3bb15bfc8053bb8cf9907fa6ef21537cc07c9222029bca7eb40b1)(typescript@5.9.3)
 
   DesignCornerstone/cornerstone-apps-sandbox:
     dependencies:
@@ -362,7 +367,7 @@ importers:
         version: 4.3.9(@types/node@25.9.1)(less@4.6.4)(sass@1.100.0)(terser@5.47.1)
       vue-tsc:
         specifier: ^1.0.24
-        version: 1.8.27(typescript@5.9.3)
+        version: 1.8.27(patch_hash=3f5057fe0cf3bb15bfc8053bb8cf9907fa6ef21537cc07c9222029bca7eb40b1)(typescript@5.9.3)
 
   DesignCornerstone/cornerstone-apps-system:
     dependencies:
@@ -405,7 +410,7 @@ importers:
         version: 4.3.9(@types/node@25.9.1)(less@4.6.4)(sass@1.100.0)(terser@5.47.1)
       vue-tsc:
         specifier: ^1.0.24
-        version: 1.8.27(typescript@5.9.3)
+        version: 1.8.27(patch_hash=3f5057fe0cf3bb15bfc8053bb8cf9907fa6ef21537cc07c9222029bca7eb40b1)(typescript@5.9.3)
 
   DesignCornerstone/cornerstone-apps-workspace:
     dependencies:
@@ -439,7 +444,7 @@ importers:
         version: 4.3.9(@types/node@25.9.1)(less@4.6.4)(sass@1.100.0)(terser@5.47.1)
       vue-tsc:
         specifier: ^1.0.24
-        version: 1.8.27(typescript@5.9.3)
+        version: 1.8.27(patch_hash=3f5057fe0cf3bb15bfc8053bb8cf9907fa6ef21537cc07c9222029bca7eb40b1)(typescript@5.9.3)
       vue3-grid-layout:
         specifier: ^1.0.0
         version: 1.0.0(@interactjs/core@1.10.27(@interactjs/utils@1.10.27))(@interactjs/utils@1.10.27)(typescript@5.9.3)
@@ -1448,7 +1453,7 @@ importers:
         version: 2.9.8(mockjs@1.1.0)(vite@4.3.9(@types/node@25.9.1)(less@4.6.4)(sass@1.100.0)(terser@5.47.1))
       vue-tsc:
         specifier: ^1.0.24
-        version: 1.8.27(typescript@5.9.3)
+        version: 1.8.27(patch_hash=3f5057fe0cf3bb15bfc8053bb8cf9907fa6ef21537cc07c9222029bca7eb40b1)(typescript@5.9.3)
 
   scripts:
     devDependencies:
@@ -13180,7 +13185,7 @@ snapshots:
 
   mkdirp@1.0.4: {}
 
-  mkdist@1.6.0(sass@1.100.0)(typescript@5.9.3)(vue-tsc@1.8.27(typescript@5.9.3)):
+  mkdist@1.6.0(sass@1.100.0)(typescript@5.9.3)(vue-tsc@1.8.27(patch_hash=3f5057fe0cf3bb15bfc8053bb8cf9907fa6ef21537cc07c9222029bca7eb40b1)(typescript@5.9.3)):
     dependencies:
       autoprefixer: 10.5.0(postcss@8.5.15)
       citty: 0.1.6
@@ -13198,7 +13203,7 @@ snapshots:
     optionalDependencies:
       sass: 1.100.0
       typescript: 5.9.3
-      vue-tsc: 1.8.27(typescript@5.9.3)
+      vue-tsc: 1.8.27(patch_hash=3f5057fe0cf3bb15bfc8053bb8cf9907fa6ef21537cc07c9222029bca7eb40b1)(typescript@5.9.3)
 
   mlly@1.8.2:
     dependencies:
@@ -15006,7 +15011,7 @@ snapshots:
       has-symbols: 1.1.0
       which-boxed-primitive: 1.1.1
 
-  unbuild@1.2.1(sass@1.100.0)(vue-tsc@1.8.27(typescript@5.9.3)):
+  unbuild@1.2.1(sass@1.100.0)(vue-tsc@1.8.27(patch_hash=3f5057fe0cf3bb15bfc8053bb8cf9907fa6ef21537cc07c9222029bca7eb40b1)(typescript@5.9.3)):
     dependencies:
       '@rollup/plugin-alias': 5.1.1(rollup@3.30.0)
       '@rollup/plugin-commonjs': 24.1.0(rollup@3.30.0)
@@ -15022,7 +15027,7 @@ snapshots:
       hookable: 5.5.3
       jiti: 1.21.7
       magic-string: 0.30.21
-      mkdist: 1.6.0(sass@1.100.0)(typescript@5.9.3)(vue-tsc@1.8.27(typescript@5.9.3))
+      mkdist: 1.6.0(sass@1.100.0)(typescript@5.9.3)(vue-tsc@1.8.27(patch_hash=3f5057fe0cf3bb15bfc8053bb8cf9907fa6ef21537cc07c9222029bca7eb40b1)(typescript@5.9.3))
       mlly: 1.8.2
       mri: 1.2.0
       pathe: 1.1.2
@@ -15420,7 +15425,7 @@ snapshots:
       de-indent: 1.0.2
       he: 1.2.0
 
-  vue-tsc@1.8.27(typescript@5.9.3):
+  vue-tsc@1.8.27(patch_hash=3f5057fe0cf3bb15bfc8053bb8cf9907fa6ef21537cc07c9222029bca7eb40b1)(typescript@5.9.3):
     dependencies:
       '@volar/typescript': 1.11.1
       '@vue/language-core': 1.8.27(typescript@5.9.3)

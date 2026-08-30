@@ -275,6 +275,92 @@ export function applyAccountRoleIds(accountId: string, roleIds: string[]) {
   if (account) account.roleIds = [...set]
 }
 
+export function countRoleMenuGrants(menuNames: string[]) {
+  const names = new Set(menuNames)
+  return roleStore.reduce(
+    (count, role) => count + role.menuNames.filter((name) => names.has(name)).length,
+    0,
+  )
+}
+
+export function countRoleFunctionGrants(functionIds: string[]) {
+  const ids = new Set(functionIds)
+  return roleStore.reduce(
+    (count, role) => count + role.functionIds.filter((id) => ids.has(id)).length,
+    0,
+  )
+}
+
+export function countRoleDataPermissions(menuNames: string[]) {
+  const names = new Set(menuNames)
+  return roleStore.reduce(
+    (count, role) => count + role.dataPerms.filter((item) => names.has(item.menuName)).length,
+    0,
+  )
+}
+
+export function countRoleColumnPermissions(columnIds: string[]) {
+  const ids = new Set(columnIds)
+  return roleStore.reduce((count, role) => count + role.dataPerms.reduce(
+    (subtotal, item) => subtotal + item.columnIds.filter((id) => ids.has(id)).length,
+    0,
+  ), 0)
+}
+
+export function countRoleQueryReferences(columnIds: string[]) {
+  const ids = new Set(columnIds)
+  return roleStore.reduce((count, role) => count + role.dataPerms.reduce((subtotal, item) => (
+    subtotal
+    + item.selfRelated.columnIds.filter((id) => ids.has(id)).length
+    + item.viewSelfRelated.columnIds.filter((id) => ids.has(id)).length
+    + item.filters.filter((filter) => ids.has(filter.columnId)).length
+    + item.viewFilters.filter((filter) => ids.has(filter.columnId)).length
+  ), 0), 0)
+}
+
+export function renameRoleMenuReferences(from: string, to: string) {
+  if (!from || !to || from === to) return
+  for (const role of roleStore) {
+    role.menuNames = [...new Set(role.menuNames.map((name) => (name === from ? to : name)))]
+    role.dataPerms.forEach((item) => {
+      if (item.menuName === from) item.menuName = to
+    })
+  }
+}
+
+export function removeRoleMenuReferences(
+  menuNames: string[],
+  functionIds: string[],
+) {
+  const names = new Set(menuNames)
+  const functions = new Set(functionIds)
+  for (const role of roleStore) {
+    role.menuNames = role.menuNames.filter((name) => !names.has(name))
+    role.functionIds = role.functionIds.filter((id) => !functions.has(id))
+    role.dataPerms = role.dataPerms.filter((item) => !names.has(item.menuName))
+  }
+}
+
+export function removeRoleFunctionReferences(functionIds: string[]) {
+  const ids = new Set(functionIds)
+  for (const role of roleStore) {
+    role.functionIds = role.functionIds.filter((id) => !ids.has(id))
+  }
+}
+
+export function removeRoleColumnReferences(columnIds: string[]) {
+  const ids = new Set(columnIds)
+  for (const role of roleStore) {
+    for (const item of role.dataPerms) {
+      item.columnIds = item.columnIds.filter((id) => !ids.has(id))
+      item.selfRelated.columnIds = item.selfRelated.columnIds.filter((id) => !ids.has(id))
+      item.viewSelfRelated.columnIds = item.viewSelfRelated.columnIds.filter((id) => !ids.has(id))
+      item.filters = item.filters.filter((filter) => !ids.has(filter.columnId))
+      item.viewFilters = item.viewFilters.filter((filter) => !ids.has(filter.columnId))
+    }
+  }
+}
+
 function pickBaseFields(payload: Recordable<any>, requireCode: boolean) {
   const name = String(payload.name || '').trim()
   const code = String(payload.code || '').trim()

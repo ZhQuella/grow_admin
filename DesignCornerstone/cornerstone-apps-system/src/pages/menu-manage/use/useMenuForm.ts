@@ -1,7 +1,11 @@
 import { computed, reactive, ref } from 'vue'
-import { driverRef, useMsg } from '@grow-admin-rock/components'
+import { driverRef, useDialog, useMsg } from '@grow-admin-rock/components'
 import { MenuTypeEnum, PageOpenModeEnum } from '@grow-admin-rock/constants'
-import { createSystemMenu, updateSystemMenu } from '../../../api/systemMenu'
+import {
+  createSystemMenu,
+  fetchSystemMenuCodeImpact,
+  updateSystemMenu,
+} from '../../../api/systemMenu'
 import type { SystemMenuNode } from '../../../types/systemMenu'
 import { toParentTreeData, findParentName, findNodeByName, collectNodeNames } from './helpers'
 
@@ -20,6 +24,8 @@ type FormModel = {
   menuKind: MenuKind
   automationType: AutomationType
   automationPage: string
+  enabled: boolean
+  description: string
   isVisible: boolean
   isKeepAlive: boolean
   affix: boolean
@@ -63,6 +69,8 @@ function emptyForm(menuType: MenuTypeEnum): FormModel {
     menuKind: 'app',
     automationType: 'lowcode',
     automationPage: '',
+    enabled: true,
+    description: '',
     isVisible: true,
     isKeepAlive: menuType === MenuTypeEnum.MENU,
     affix: false,
@@ -93,18 +101,20 @@ function resolveMenuKind(row: SystemMenuNode): MenuKind {
 }
 
 export function useMenuForm(options: UseMenuFormOptions) {
-  const message = useMsg()
+  const message = useMsg() as any
+  const dialog = useDialog() as any
 
   const formVisible = ref(false)
   const formMode = ref<'create' | 'edit'>('create')
   const formSubmitting = ref(false)
   const formRef = ref()
+  const originalName = ref('')
   const formModel = reactive<FormModel>(emptyForm(MenuTypeEnum.MENU))
 
   const parentTreeData = computed(() => {
     const disabledNames = new Set<string>()
-    if (formMode.value === 'edit' && formModel.name) {
-      const current = findNodeByName(options.sourceTree.value, formModel.name)
+    if (formMode.value === 'edit' && originalName.value) {
+      const current = findNodeByName(options.sourceTree.value, originalName.value)
       if (current) {
         collectNodeNames(current).forEach((name) => disabledNames.add(name))
       }
@@ -149,6 +159,22 @@ export function useMenuForm(options: UseMenuFormOptions) {
   ]
 
   const formRules = {
+    name: [{
+      required: true,
+      validator: (_rule: unknown, value: string, callback: (error?: Error) => void) => {
+        const name = String(value || '').trim()
+        if (!name) {
+          callback(new Error('请填写标识'))
+          return
+        }
+        if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(name)) {
+          callback(new Error('标识需以字母开头，仅含字母、数字和下划线'))
+          return
+        }
+        callback()
+      },
+      trigger: 'blur',
+    }],
     menuType: [{ required: true, message: '请选择类型', trigger: 'change' }],
     menuKind: [{
       validator: (_rule: unknown, value: string, callback: (error?: Error) => void) => {
@@ -269,6 +295,7 @@ export function useMenuForm(options: UseMenuFormOptions) {
 
   function openCreate(menuType: MenuTypeEnum = MenuTypeEnum.MENU, parentName?: string) {
     formMode.value = 'create'
+    originalName.value = ''
     applyForm({
       ...emptyForm(menuType),
       parentName,
@@ -282,6 +309,7 @@ export function useMenuForm(options: UseMenuFormOptions) {
 
   function openEdit(row: SystemMenuNode) {
     formMode.value = 'edit'
+    originalName.value = row.name
     const menuKind = row.menuType === MenuTypeEnum.MENU ? resolveMenuKind(row) : 'app'
     const storedKey = row.componentKey || ''
     const customComponentKey = menuKind === 'automation'
@@ -298,6 +326,8 @@ export function useMenuForm(options: UseMenuFormOptions) {
       menuKind,
       automationType: 'lowcode',
       automationPage: '',
+      enabled: row.enabled !== false,
+      description: row.description || '',
       isVisible: row.isVisible !== false,
       isKeepAlive: Boolean(row.isKeepAlive),
       affix: Boolean(row.affix),
@@ -344,10 +374,12 @@ export function useMenuForm(options: UseMenuFormOptions) {
       parentName: formModel.parentName || undefined,
       name: resolveName(),
       title: formModel.title.trim(),
-      path: formModel.path.trim(),
+      path: formModel.path.trim() || (isExternalMenu.value ? resolveName() : ''),
       componentKey: resolveComponentKey(),
       icon: formModel.icon.trim() || undefined,
       menuType: formModel.menuType,
+      enabled: formModel.enabled,
+      description: formModel.description.trim() || undefined,
       isVisible: formModel.isVisible,
       isKeepAlive: formModel.isKeepAlive,
       affix: formModel.affix,
@@ -360,7 +392,34 @@ export function useMenuForm(options: UseMenuFormOptions) {
   }
 
   function shouldPersist() {
-    return !isMenu.value || isAppMenu.value
+    return !isAutomationMenu.value
+  }
+
+  function confirmCodeChange(content: string): Promise<boolean> {
+    if (dialog && typeof (dialog as any).warning === 'function' && (dialog as any).warning.length <= 1) {
+      return new Promise((resolve) => {
+        ;(dialog as any).warning({
+          title: '修改标识确认',
+          content,
+          positiveText: '确认修改',
+          negativeText: '取消',
+          onPositiveClick: () => resolve(true),
+          onNegativeClick: () => resolve(false),
+          onClose: () => resolve(false),
+        })
+      })
+    }
+    if (dialog && typeof (dialog as any).confirm === 'function') {
+      const result = (dialog as any).confirm(content, '修改标识确认', {
+        type: 'warning',
+        confirmButtonText: '确认修改',
+        cancelButtonText: '取消',
+      })
+      if (result && typeof result.then === 'function') {
+        return result.then(() => true).catch(() => false)
+      }
+    }
+    return Promise.resolve(window.confirm(content))
   }
 
   async function submitForm() {
@@ -377,12 +436,19 @@ export function useMenuForm(options: UseMenuFormOptions) {
 
     formSubmitting.value = true
     try {
+      const payload = buildPayload()
       if (formMode.value === 'create') {
-        await createSystemMenu(buildPayload())
+        await createSystemMenu(payload)
         message.success('创建成功')
       } else {
-        const { name, ...rest } = buildPayload()
-        await updateSystemMenu(name, rest)
+        if (payload.name !== originalName.value) {
+          const impact = await fetchSystemMenuCodeImpact(originalName.value)
+          const ok = await confirmCodeChange(
+            `菜单标识将由「${originalName.value}」改为「${payload.name}」。受影响：角色菜单授权 ${impact.roleMenuGrantCount} 项、功能 ${impact.functionCount} 项、数据表 ${impact.tableCount} 张、数据权限 ${impact.dataPermissionCount} 项；确认后将同步更新引用。`,
+          )
+          if (!ok) return
+        }
+        await updateSystemMenu(originalName.value, payload)
         message.success('保存成功')
       }
       formVisible.value = false

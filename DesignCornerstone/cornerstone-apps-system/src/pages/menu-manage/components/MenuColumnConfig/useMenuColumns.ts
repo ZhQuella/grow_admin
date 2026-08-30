@@ -1,7 +1,9 @@
 import { computed, reactive, ref } from 'vue'
 import { driverRef, useDialog, useMsg } from '@grow-admin-rock/components'
 import {
+  fetchSystemMenuColumnImpact,
   fetchSystemMenuColumns,
+  fetchSystemMenuTableDeleteImpact,
   saveSystemMenuColumns,
 } from '../../../../api/systemMenuColumn'
 import type { SystemMenuNode } from '../../../../types/systemMenu'
@@ -16,27 +18,41 @@ import {
 
 type FormModel = {
   id: string
+  originalCode: string
   tableCode: string
   title: string
   code: string
   columnType: ColumnType
   enabled: boolean
+  columnPermission: boolean
+  formFill: boolean
+  queryFilter: boolean
+  sort: number
+  description: string
 }
 
 type TableFormModel = {
   originalCode: string
   title: string
   code: string
+  description: string
+  sort: number
 }
 
 function emptyForm(): FormModel {
   return {
     id: '',
+    originalCode: '',
     tableCode: '',
     title: '',
     code: '',
     columnType: 'string',
     enabled: true,
+    columnPermission: true,
+    formFill: true,
+    queryFilter: true,
+    sort: 10,
+    description: '',
   }
 }
 
@@ -45,6 +61,8 @@ function emptyTableForm(): TableFormModel {
     originalCode: '',
     title: '',
     code: '',
+    description: '',
+    sort: 10,
   }
 }
 
@@ -103,14 +121,16 @@ function confirmWarning(dialog: any, options: {
 }
 
 export function useMenuColumns() {
-  const message = useMsg()
-  const dialog = useDialog()
+  const message = useMsg() as any
+  const dialog = useDialog() as any
 
   const listVisible = ref(false)
   const listSaving = ref(false)
   const list = ref<SystemMenuColumn[]>([])
   const tables = ref<SystemMenuTable[]>([])
   const menu = ref<SystemMenuNode | null>(null)
+  const persistedColumnIds = ref<Set<string>>(new Set())
+  const persistedTableCodeByCurrent = ref<Map<string, string>>(new Map())
 
   const formVisible = ref(false)
   const formMode = ref<'create' | 'edit'>('create')
@@ -122,10 +142,14 @@ export function useMenuColumns() {
   const tableFormRef = ref()
   const tableFormModel = reactive<TableFormModel>(emptyTableForm())
 
-  const groupedTables = computed(() => tables.value.map((table) => ({
-    ...table,
-    items: list.value.filter((item) => item.tableCode === table.code),
-  })))
+  const groupedTables = computed(() => [...tables.value]
+    .sort((a, b) => a.sort - b.sort || a.title.localeCompare(b.title, 'zh-CN'))
+    .map((table) => ({
+      ...table,
+      items: list.value
+        .filter((item) => item.tableCode === table.code)
+        .sort((a, b) => a.sort - b.sort || a.title.localeCompare(b.title, 'zh-CN')),
+    })))
 
   const currentTableTitle = computed(() => (
     tables.value.find((item) => item.code === formModel.tableCode)?.title || formModel.tableCode
@@ -197,6 +221,10 @@ export function useMenuColumns() {
         ...item,
         columnType: isColumnType(item.columnType) ? item.columnType : 'string',
       })) : []
+      persistedTableCodeByCurrent.value = new Map(
+        tables.value.map((item) => [item.code, item.code]),
+      )
+      persistedColumnIds.value = new Set(list.value.map((item) => item.id))
     } catch (error) {
       message.error(toMessage(error, '加载失败'))
     }
@@ -215,8 +243,9 @@ export function useMenuColumns() {
   }
 
   function openCreateTable() {
+    const maxSort = tables.value.reduce((max, item) => Math.max(max, Number(item.sort ?? 0)), 0)
     tableFormMode.value = 'create'
-    Object.assign(tableFormModel, emptyTableForm())
+    Object.assign(tableFormModel, { ...emptyTableForm(), sort: maxSort + 10 })
     tableFormVisible.value = true
   }
 
@@ -226,6 +255,8 @@ export function useMenuColumns() {
       originalCode: row.code,
       title: row.title,
       code: row.code,
+      description: row.description || '',
+      sort: Number(row.sort ?? 10),
     })
     tableFormVisible.value = true
   }
@@ -240,6 +271,8 @@ export function useMenuColumns() {
     const payload = {
       title: tableFormModel.title.trim(),
       code: tableFormModel.code.trim(),
+      description: tableFormModel.description.trim(),
+      sort: Number(tableFormModel.sort ?? 0),
     }
     if (!payload.title || !payload.code) return
 
@@ -247,10 +280,13 @@ export function useMenuColumns() {
       tables.value = [...tables.value, payload]
     } else {
       const from = tableFormModel.originalCode
+      const persistedCode = persistedTableCodeByCurrent.value.get(from)
       tables.value = tables.value.map((item) => (
         item.code === from ? payload : item
       ))
       if (from !== payload.code) {
+        persistedTableCodeByCurrent.value.delete(from)
+        if (persistedCode) persistedTableCodeByCurrent.value.set(payload.code, persistedCode)
         list.value = list.value.map((item) => (
           item.tableCode === from
             ? { ...item, tableCode: payload.code, tableTitle: payload.title }
@@ -267,24 +303,43 @@ export function useMenuColumns() {
   }
 
   async function onDeleteTable(row: SystemMenuTable) {
-    const count = list.value.filter((item) => item.tableCode === row.code).length
+    const menuName = menu.value?.name
+    if (!menuName) return
+    let impact = {
+      fieldCount: list.value.filter((item) => item.tableCode === row.code).length,
+      columnPermissionCount: 0,
+      formConfigCount: 0,
+      queryConditionCount: 0,
+    }
+    const persistedCode = persistedTableCodeByCurrent.value.get(row.code)
+    if (persistedCode) {
+      try {
+        impact = await fetchSystemMenuTableDeleteImpact(menuName, persistedCode)
+      } catch (error) {
+        message.error(toMessage(error, '加载影响范围失败'))
+        return
+      }
+    }
     const ok = await confirmWarning(dialog, {
       title: '删除确认',
-      content: count
-        ? `确认删除表「${row.title}」及其 ${count} 个列？`
-        : `确认删除表「${row.title}」？`,
+      content: `确认删除表「${row.title}」？将同时删除字段 ${impact.fieldCount} 个，并清理列权限 ${impact.columnPermissionCount} 项、表单配置 ${impact.formConfigCount} 项、查询条件 ${impact.queryConditionCount} 项。`,
       confirmText: '删除',
     })
     if (!ok) return
+    persistedTableCodeByCurrent.value.delete(row.code)
     tables.value = tables.value.filter((item) => item.code !== row.code)
     list.value = list.value.filter((item) => item.tableCode !== row.code)
   }
 
   function openCreate(tableCode: string) {
+    const maxSort = list.value
+      .filter((item) => item.tableCode === tableCode)
+      .reduce((max, item) => Math.max(max, Number(item.sort ?? 0)), 0)
     formMode.value = 'create'
     Object.assign(formModel, {
       ...emptyForm(),
       tableCode,
+      sort: maxSort + 10,
     })
     formVisible.value = true
   }
@@ -293,11 +348,17 @@ export function useMenuColumns() {
     formMode.value = 'edit'
     Object.assign(formModel, {
       id: row.id,
+      originalCode: row.code,
       tableCode: row.tableCode,
       title: row.title,
       code: row.code,
       columnType: isColumnType(row.columnType) ? row.columnType : 'string',
       enabled: row.enabled !== false,
+      columnPermission: row.columnPermission !== false,
+      formFill: row.formFill !== false,
+      queryFilter: row.queryFilter !== false,
+      sort: Number(row.sort ?? 10),
+      description: row.description || '',
     })
     formVisible.value = true
   }
@@ -319,6 +380,12 @@ export function useMenuColumns() {
       columnType: formModel.columnType,
       tableCode: formModel.tableCode,
       tableTitle: table?.title || formModel.tableCode,
+      enabled: formModel.enabled,
+      columnPermission: formModel.columnPermission,
+      formFill: formModel.formFill,
+      queryFilter: formModel.queryFilter,
+      sort: Number(formModel.sort ?? 0),
+      description: formModel.description.trim(),
     }
     if (!payload.title || !payload.code) return
 
@@ -328,11 +395,28 @@ export function useMenuColumns() {
         {
           id: nextDraftId(),
           menuName,
-          enabled: true,
           ...payload,
         },
       ]
     } else {
+      if (payload.code !== formModel.originalCode && persistedColumnIds.value.has(formModel.id)) {
+        let impact
+        try {
+          impact = await fetchSystemMenuColumnImpact(formModel.id)
+        } catch (error) {
+          message.error(toMessage(error, '加载影响范围失败'))
+          return
+        }
+        const total = impact.columnPermissionCount + impact.formConfigCount + impact.queryConditionCount
+        if (total > 0) {
+          const ok = await confirmWarning(dialog, {
+            title: '修改标识确认',
+            content: `字段标识将由「${formModel.originalCode}」改为「${payload.code}」。受影响：列权限 ${impact.columnPermissionCount} 项、表单配置 ${impact.formConfigCount} 项、查询条件 ${impact.queryConditionCount} 项；确认后保留现有配置。`,
+            confirmText: '确认修改',
+          })
+          if (!ok) return
+        }
+      }
       list.value = list.value.map((item) => (
         item.id === formModel.id ? { ...item, ...payload } : item
       ))
@@ -354,13 +438,7 @@ export function useMenuColumns() {
     row.enabled = enabled
   }
 
-  async function onDelete(row: SystemMenuColumn) {
-    const ok = await confirmWarning(dialog, {
-      title: '删除确认',
-      content: `确认移除列「${row.title}」？`,
-      confirmText: '删除',
-    })
-    if (!ok) return
+  function onDelete(row: SystemMenuColumn) {
     list.value = list.value.filter((item) => item.id !== row.id)
   }
 
@@ -375,6 +453,8 @@ export function useMenuColumns() {
         tables: tables.value.map((item) => ({
           code: item.code,
           title: item.title,
+          description: item.description,
+          sort: item.sort,
         })),
         items: list.value.map((item) => ({
           id: item.id,
@@ -383,6 +463,11 @@ export function useMenuColumns() {
           code: item.code,
           columnType: item.columnType,
           enabled: item.enabled,
+          columnPermission: item.columnPermission,
+          formFill: item.formFill,
+          queryFilter: item.queryFilter,
+          sort: item.sort,
+          description: item.description,
         })),
       })
       message.success('保存成功')

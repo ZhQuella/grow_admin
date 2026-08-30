@@ -50,7 +50,7 @@ export type PersonRecord = {
   jobCode: string
   jobTitle: string
   employeeType: 'full_time' | 'intern' | 'part_time' | 'contractor'
-  employeeStatus: 'pending' | 'probation' | 'formal' | 'disabled' | 'resigned' | 'retired' | 'rehired'
+  employeeStatus: 'pending' | 'probation' | 'formal' | 'resigned' | 'retired' | 'rehired'
   previousStatus?: PersonRecord['employeeStatus']
   collaboratorIds?: string[]
   assignments?: Array<{

@@ -5,10 +5,22 @@
       <div v-if="canEdit || $slots.extra" class="person-section__extra">
         <slot name="extra">
           <template v-if="editing">
-            <GrowButton link @click="emit('cancel')">取消</GrowButton>
-            <GrowButton link type="primary" :loading="saving" @click="emit('save')">保存</GrowButton>
+            <GrowTooltip content="取消" placement="top">
+              <GrowButton link @click="emit('cancel')">
+                <GrowIconify icon="ant-design:close-outlined" :size="16" />
+              </GrowButton>
+            </GrowTooltip>
+            <GrowTooltip content="保存" placement="top">
+              <GrowButton link type="primary" :loading="saving" @click="emit('save')">
+                <GrowIconify icon="ant-design:check-outlined" :size="16" />
+              </GrowButton>
+            </GrowTooltip>
           </template>
-          <GrowButton v-else link type="primary" @click="emit('edit', title)">编辑</GrowButton>
+          <GrowTooltip v-else content="编辑" placement="top">
+            <GrowButton link type="primary" @click="emit('edit', title)">
+              <GrowIconify icon="ant-design:edit-outlined" :size="16" />
+            </GrowButton>
+          </GrowTooltip>
         </slot>
       </div>
       <slot />

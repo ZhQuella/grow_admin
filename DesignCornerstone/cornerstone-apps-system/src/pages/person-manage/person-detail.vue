@@ -49,30 +49,13 @@
             </GrowRow>
           </PersonSection>
 
-          <PersonSection
-            title="任职与上下级"
-            :can-edit="canEdit"
-            :editing="editingSection === '任职与上下级'"
-            :saving="saving"
-            @edit="startEdit"
-            @save="saveSection"
-            @cancel="cancelEdit"
-          >
-            <GrowForm
-              v-if="canEdit"
-              v-show="editingSection === '任职与上下级'"
-              :model="formModel"
-              label-position="top"
+          <PersonSection title="任职与上下级">
+            <div v-if="!assignmentRows.length" class="person-detail__empty">暂无任职关系</div>
+            <div
+              v-for="row in assignmentRows"
+              :key="row.id"
+              class="person-detail__card"
             >
-              <PersonProfileForm v-bind="profileBind" section="任职与上下级" lock-assignment />
-            </GrowForm>
-            <div v-show="editingSection !== '任职与上下级'">
-              <div v-if="!assignmentRows.length" class="person-detail__empty">暂无任职关系</div>
-              <div
-                v-for="row in assignmentRows"
-                :key="row.id"
-                class="person-detail__card"
-              >
                 <div class="person-detail__card-head">
                   <GrowTag :type="row.type === 'primary' ? 'primary' : 'info'" size="small">
                     {{ assignmentTypeLabel(row.type) }}
@@ -81,23 +64,6 @@
                     {{ assignmentStatusLabel(row.status) }}
                   </GrowTag>
                   <span class="person-detail__card-meta">{{ row.occupyHeadcount ? '占用编制' : '不占编制' }}</span>
-                  <GrowTooltip v-if="canTransfer && row.type === 'primary' && row.status === 'active'" content="调整主职" placement="top">
-                    <GrowButton link type="primary" @click="openTransfer">
-                      <GrowIconify icon="ant-design:swap-outlined" :size="16" />
-                    </GrowButton>
-                  </GrowTooltip>
-                  <div v-if="canTransfer && row.type === 'part_time' && row.status === 'active'" class="person-detail__card-actions">
-                    <GrowTooltip content="设置为主岗" placement="top">
-                      <GrowButton class="person-detail__card-icon" link type="primary" @click="openSetPrimary(row)">
-                        <GrowIconify icon="ant-design:to-top-outlined" :size="16" />
-                      </GrowButton>
-                    </GrowTooltip>
-                    <GrowTooltip content="停止兼职" placement="top">
-                      <GrowButton class="person-detail__card-icon" link type="danger" @click="openEndPartTime(row)">
-                        <GrowIconify icon="ant-design:minus-circle-outlined" :size="16" />
-                      </GrowButton>
-                    </GrowTooltip>
-                  </div>
                 </div>
                 <GrowRow :gutter="16">
                   <GrowCol :span="6">
@@ -158,15 +124,6 @@
                     </div>
                   </GrowCol>
                 </GrowRow>
-              </div>
-              <GrowRow :gutter="16">
-                <GrowCol :span="12">
-                  <div class="person-detail__item">
-                    <div class="person-detail__label">下级人员</div>
-                    <div class="person-detail__value">{{ subordinateText }}</div>
-                  </div>
-                </GrowCol>
-              </GrowRow>
             </div>
           </PersonSection>
 
@@ -286,6 +243,7 @@
                   </GrowCol>
                 </GrowRow>
               </div>
+              <div class="person-detail__editor-spacer" />
             </div>
           </PersonSection>
 
@@ -313,31 +271,31 @@
                 class="person-detail__family"
               >
                 <GrowRow :gutter="16">
-                  <GrowCol :span="6">
+                  <GrowCol :span="4">
                     <div class="person-detail__item">
                       <div class="person-detail__label">姓名</div>
                       <div class="person-detail__value">{{ row.name }}</div>
                     </div>
                   </GrowCol>
-                  <GrowCol :span="6">
+                  <GrowCol :span="4">
                     <div class="person-detail__item">
                       <div class="person-detail__label">关系</div>
                       <div class="person-detail__value">{{ row.relation }}</div>
                     </div>
                   </GrowCol>
-                  <GrowCol :span="6">
+                  <GrowCol :span="4">
                     <div class="person-detail__item">
                       <div class="person-detail__label">性别</div>
                       <div class="person-detail__value">{{ row.gender }}</div>
                     </div>
                   </GrowCol>
-                  <GrowCol :span="6">
+                  <GrowCol :span="4">
                     <div class="person-detail__item">
                       <div class="person-detail__label">生日</div>
                       <div class="person-detail__value">{{ row.birthday }}</div>
                     </div>
                   </GrowCol>
-                  <GrowCol :span="6">
+                  <GrowCol :span="4">
                     <div class="person-detail__item">
                       <div class="person-detail__label">电话</div>
                       <div class="person-detail__value">{{ row.phone }}</div>
@@ -345,6 +303,7 @@
                   </GrowCol>
                 </GrowRow>
               </div>
+              <div class="person-detail__editor-spacer" />
             </div>
           </PersonSection>
 
@@ -424,10 +383,8 @@ import {
   assignmentStatusLabel,
   assignmentTypeLabel,
   canPersonAction,
-  type PersonAssignment,
   type PersonEventType,
   type SystemPersonListItem,
-  type TransferIntent,
 } from '../../types/systemPerson'
 import type { SystemDeptTreeNode } from '../../types/systemRole'
 import PersonTransferDrawer from './components/PersonTransferDrawer.vue'
@@ -458,7 +415,6 @@ const {
   familyRows,
   historyRows,
   assignmentRows,
-  subordinates,
   startEdit,
   cancelEdit,
   saveSection,
@@ -472,7 +428,7 @@ const {
 } = usePersonDetail()
 
 const transferRef = ref<{
-  open: (row: SystemPersonListItem, tree: SystemDeptTreeNode[], intent?: TransferIntent) => void
+  open: (row: SystemPersonListItem, tree: SystemDeptTreeNode[]) => void
 } | null>(null)
 
 const canTransfer = computed(() => canPersonAction(detail.value?.employeeStatus, 'transfer'))
@@ -480,23 +436,6 @@ const canTransfer = computed(() => canPersonAction(detail.value?.employeeStatus,
 function openTransfer() {
   if (!detail.value) return
   transferRef.value?.open(detail.value, deptTree.value)
-}
-
-function openSetPrimary(row: PersonAssignment) {
-  if (!detail.value) return
-  transferRef.value?.open(detail.value, deptTree.value, {
-    transferType: 'part_time_change',
-    assignmentId: row.id,
-    assignmentType: 'primary',
-  })
-}
-
-function openEndPartTime(row: PersonAssignment) {
-  if (!detail.value) return
-  transferRef.value?.open(detail.value, deptTree.value, {
-    transferType: 'part_time_end',
-    assignmentId: row.id,
-  })
 }
 
 function onEventSuccess() {
@@ -535,9 +474,6 @@ const followSections = [
   '银行卡信息',
 ]
 
-const subordinateText = computed(() =>
-  subordinates.value.length ? subordinates.value.map((item) => item.name).join('、') : '-',
-)
 const accountStatusText = computed(() => {
   const enabled = detail.value?.account?.enabled ?? detail.value?.accountEnabled
   if (detail.value?.account?.username || detail.value?.accountUsername) {
@@ -647,18 +583,6 @@ function historyTag(type: PersonEventType | string) {
   font-size: 12px;
 }
 
-.person-detail__card-actions {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: 0;
-}
-
-.person-detail__card-actions :deep(.el-button) {
-  padding: 0 2px;
-  min-width: auto;
-}
-
 .person-detail__divider {
   height: 1px;
   margin: 0 0 8px;
@@ -666,7 +590,11 @@ function historyTag(type: PersonEventType | string) {
 }
 
 .person-detail__family + .person-detail__family {
-  margin-top: 8px;
+  margin-top: 0;
+}
+
+.person-detail__editor-spacer {
+  height: 22px;
 }
 
 .person-detail__bar {

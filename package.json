@@ -33,6 +33,11 @@
   },
   "license": "ISC",
   "packageManager": "pnpm@10.32.1",
+  "pnpm": {
+    "patchedDependencies": {
+      "vue-tsc@1.8.27": "patches/vue-tsc@1.8.27.patch"
+    }
+  },
   "dependencies": {
     "inversify": "^8.1.0",
     "lodash-es": "^4.18.1",

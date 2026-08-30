@@ -5,7 +5,6 @@ export const EMPLOYEE_STATUS_VALUES = [
   'pending',
   'probation',
   'formal',
-  'disabled',
   'resigned',
   'retired',
   'rehired',
@@ -37,8 +36,6 @@ export type PersonEventType = (typeof PERSON_EVENT_VALUES)[number]
 export const PERSON_EVENT_MODES = [
   'transfer',
   'confirm',
-  'disable',
-  'enable',
   'resign',
   'retire',
   'reinstate',
@@ -113,7 +110,6 @@ export const EMPLOYEE_STATUS_OPTIONS: Array<{ label: string; value: EmployeeStat
   { label: '待入职', value: 'pending' },
   { label: '试用', value: 'probation' },
   { label: '正式', value: 'formal' },
-  { label: '停用', value: 'disabled' },
   { label: '离职', value: 'resigned' },
   { label: '退休', value: 'retired' },
   { label: '返聘', value: 'rehired' },
@@ -250,12 +246,10 @@ export function occupyHeadcount(type?: AssignmentType | string) {
 }
 
 const ACTION_STATUS_MAP: Record<PersonEventMode | 'edit', EmployeeStatus[]> = {
-  edit: ['pending', 'probation', 'formal', 'disabled', 'resigned', 'retired', 'rehired'],
-  transfer: ['pending', 'probation', 'formal', 'disabled', 'rehired'],
+  edit: ['pending', 'probation', 'formal', 'resigned', 'retired', 'rehired'],
+  transfer: ['pending', 'probation', 'formal', 'rehired'],
   confirm: ['pending', 'probation'],
-  disable: ['pending', 'probation', 'formal', 'rehired'],
-  enable: ['disabled'],
-  resign: ['pending', 'probation', 'formal', 'disabled', 'rehired'],
+  resign: ['pending', 'probation', 'formal', 'rehired'],
   retire: ['formal', 'rehired'],
   reinstate: ['resigned'],
   rehire: ['resigned', 'retired'],
@@ -519,6 +513,7 @@ export type PersonResignPayload = {
 export type PersonStatusPayload = {
   userId: string
   effectiveDate: string
+  reason?: string
   remark: string
   employeeStatus?: Extract<EmployeeStatus, 'probation' | 'formal'>
 }
@@ -526,11 +521,6 @@ export type PersonStatusPayload = {
 export type PersonReinstatePayload = {
   userId: string
   mode: 'reinstate' | 'rehire'
-  deptId: string
-  postId: string
-  post?: string
-  assignmentType?: AssignmentType
-  supervisorId?: string
   accountId?: string
   effectiveDate: string
   employeeStatus?: Extract<EmployeeStatus, 'probation' | 'formal' | 'rehired'>

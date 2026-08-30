@@ -191,5 +191,6 @@ export type SystemDeptTreeNode = {
 export type RolePermTreeNode = {
   key: string
   title: string
+  disabled?: boolean
   children?: RolePermTreeNode[]
 }

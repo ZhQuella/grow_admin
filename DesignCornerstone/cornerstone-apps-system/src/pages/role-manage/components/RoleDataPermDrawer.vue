@@ -88,7 +88,7 @@
                         <RowSelfRelatedEditor
                           v-if="activeDraft.editScope === item.value && item.value === 'self'"
                           :model-value="activeDraft.selfRelated"
-                          :columns="activeColumns"
+                          :columns="columnsForReferences(activeDraft.selfRelated.columnIds)"
                           @update:model-value="(value) => { activeDraft.selfRelated = value }"
                         />
                         <div
@@ -136,7 +136,7 @@
                         <RowFilterEditor
                           v-if="activeDraft.editScope === item.value && item.value === 'specified'"
                           :model-value="activeDraft.filters"
-                          :columns="enabledColumns"
+                          :columns="columnsForFilters(activeDraft.filters)"
                           :dept-tree="deptTree"
                           @update:model-value="(value) => { activeDraft.filters = value }"
                         />
@@ -172,13 +172,13 @@
                         <RowSelfRelatedEditor
                           v-if="activeDraft.viewOther === item.value && item.value === 'self'"
                           :model-value="activeDraft.viewSelfRelated"
-                          :columns="activeColumns"
+                          :columns="columnsForReferences(activeDraft.viewSelfRelated.columnIds)"
                           @update:model-value="(value) => { activeDraft.viewSelfRelated = value }"
                         />
                         <RowFilterEditor
                           v-if="activeDraft.viewOther === item.value && item.value === 'specified'"
                           :model-value="activeDraft.viewFilters"
-                          :columns="enabledColumns"
+                          :columns="columnsForFilters(activeDraft.viewFilters)"
                           :dept-tree="deptTree"
                           @update:model-value="(value) => { activeDraft.viewFilters = value }"
                         />
@@ -226,18 +226,19 @@
                           class="role-data-perm__column"
                           :class="{
                             'is-checked': activeDraft.columnIds.includes(col.id),
-                            'is-disabled': !col.enabled,
+                            'is-disabled': !isColumnPermissionAvailable(col),
                           }"
                         >
                           <GrowCheckbox
                             :model-value="activeDraft.columnIds.includes(col.id)"
-                            :disabled="!col.enabled"
+                            :disabled="!isColumnPermissionAvailable(col)"
                             @update:model-value="(value) => onToggleColumn(col.id, Boolean(value))"
                           />
                           <span class="role-data-perm__column-text">
                             <span class="role-data-perm__column-title">
                               {{ col.title }}
                               <GrowTag v-if="!col.enabled" type="info" size="small">停用</GrowTag>
+                              <GrowTag v-else-if="!col.columnPermission" type="info" size="small">不可分配</GrowTag>
                             </span>
                             <span class="role-data-perm__column-code">{{ col.code }}</span>
                           </span>
@@ -354,7 +355,24 @@ const activeColumns = computed(() =>
     .sort((a, b) => a.title.localeCompare(b.title, 'zh-CN') || a.code.localeCompare(b.code)),
 )
 
-const enabledColumns = computed(() => activeColumns.value.filter((item) => item.enabled !== false))
+const enabledColumns = computed(() => activeColumns.value.filter(isColumnPermissionAvailable))
+const queryColumns = computed(() => activeColumns.value.filter(
+  (item) => item.enabled !== false && item.queryFilter !== false,
+))
+
+function isColumnPermissionAvailable(item: SystemMenuColumn) {
+  return item.enabled !== false && item.columnPermission !== false
+}
+
+function columnsForReferences(columnIds: string[]) {
+  const selected = new Set(columnIds)
+  const available = new Set(queryColumns.value.map((item) => item.id))
+  return activeColumns.value.filter((item) => available.has(item.id) || selected.has(item.id))
+}
+
+function columnsForFilters(filters: SystemRoleDataPermItem['filters']) {
+  return columnsForReferences(filters.map((item) => item.columnId))
+}
 
 const columnGroups = computed(() => {
   const groups: Array<{ code: string; title: string; columns: SystemMenuColumn[] }> = []
@@ -434,14 +452,14 @@ function collectDeptIds(nodes: SystemDeptTreeNode[]): string[] {
 }
 
 function tableEnabledCount(group: { columns: SystemMenuColumn[] }) {
-  return group.columns.filter((item) => item.enabled !== false).length
+  return group.columns.filter(isColumnPermissionAvailable).length
 }
 
 function tableCheckedCount(group: { columns: SystemMenuColumn[] }) {
   const draft = activeDraft.value
   if (!draft) return 0
   const ids = new Set(draft.columnIds)
-  return group.columns.filter((item) => item.enabled !== false && ids.has(item.id)).length
+  return group.columns.filter((item) => isColumnPermissionAvailable(item) && ids.has(item.id)).length
 }
 
 function isDirectoryNode(data: GrantedMenuTreeNode | undefined) {
@@ -528,7 +546,7 @@ function selectTableColumns(tableCode: string) {
   if (!current) return
   const ids = new Set(current.columnIds)
   for (const col of activeColumns.value) {
-    if (col.tableCode === tableCode && col.enabled !== false) ids.add(col.id)
+    if (col.tableCode === tableCode && isColumnPermissionAvailable(col)) ids.add(col.id)
   }
   current.columnIds = [...ids]
 }
@@ -574,7 +592,7 @@ function emptyDraft(menuName: string): Draft {
     filters: [],
     viewFilters: [],
     columnIds: columns.value
-      .filter((item) => item.menuName === menuName && item.enabled !== false)
+      .filter((item) => item.menuName === menuName && isColumnPermissionAvailable(item))
       .map((item) => item.id),
   }
 }

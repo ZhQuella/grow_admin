@@ -2,34 +2,34 @@
   <div class="assignment-editor">
     <div v-for="(row, index) in rows" :key="row.id" class="assignment-editor__card">
       <div class="assignment-editor__head">
-        <GrowSelect
-          v-if="!readonly && !lockAssignment"
-          class="assignment-editor__type"
-          :model-value="row.type"
-          :options="ASSIGNMENT_TYPE_OPTIONS"
-          label="label"
-          value="value"
-          placeholder="任职类型"
-          @update:model-value="(value) => onTypeChange(row, String(value || 'primary'))"
-        />
-        <GrowTag v-else :type="row.type === 'primary' ? 'primary' : 'info'" size="small">
+        <GrowTag v-if="readonly || lockAssignment" :type="row.type === 'primary' ? 'primary' : 'info'" size="small">
           {{ row.type === 'primary' ? '主职' : '兼职' }}
         </GrowTag>
-        <GrowTag v-if="row.status" :type="row.status === 'active' ? 'success' : 'info'" size="small">
-          {{ assignmentStatusLabel(row.status) }}
-        </GrowTag>
-        <span class="assignment-editor__headcount">{{ row.occupyHeadcount ? '占用编制' : '不占编制' }}</span>
-        <GrowButton
-          v-if="!readonly && !lockAssignment"
-          link
-          type="danger"
-          :disabled="rows.length <= 1"
-          @click="remove(index)"
-        >
-          删除
-        </GrowButton>
+        <GrowTooltip v-if="!readonly && !lockAssignment" content="删除" placement="top">
+          <GrowButton
+            class="assignment-editor__remove"
+            link
+            type="danger"
+            :disabled="rows.length <= 1"
+            @click="remove(index)"
+          >
+            <GrowIconify icon="ant-design:delete-outlined" :size="16" />
+          </GrowButton>
+        </GrowTooltip>
       </div>
       <GrowRow :gutter="16">
+        <GrowCol v-if="!readonly && !lockAssignment" :span="6">
+          <GrowFormItem label="任职类型">
+            <GrowSelect
+              :model-value="row.type"
+              :options="ASSIGNMENT_TYPE_OPTIONS"
+              label="label"
+              value="value"
+              placeholder="请选择"
+              @update:model-value="(value) => onTypeChange(row, String(value || 'primary'))"
+            />
+          </GrowFormItem>
+        </GrowCol>
         <GrowCol :span="6">
           <GrowFormItem label="部门">
             <GrowTreeSelect
@@ -95,7 +95,7 @@
             />
           </GrowFormItem>
         </GrowCol>
-        <GrowCol :span="6">
+        <GrowCol v-if="row.type === 'part_time'" :span="6">
           <GrowFormItem label="开始日期">
             <GrowDatePicker
               :model-value="row.startDate"
@@ -107,7 +107,7 @@
             />
           </GrowFormItem>
         </GrowCol>
-        <GrowCol :span="6">
+        <GrowCol v-if="row.type === 'part_time'" :span="6">
           <GrowFormItem label="结束日期">
             <GrowDatePicker
               :model-value="row.endDate"
@@ -155,7 +155,12 @@
       </GrowRow>
     </div>
     <p v-if="overstaffHint" class="assignment-editor__warn">{{ overstaffHint }}</p>
-    <GrowButton v-if="!readonly && !lockAssignment" link type="primary" @click="add">+ 添加任职</GrowButton>
+    <div v-if="!readonly && !lockAssignment" class="assignment-editor__add">
+      <GrowButton link type="primary" @click="add">
+        <GrowIconify icon="ant-design:plus-outlined" :size="16" />
+        添加任职
+      </GrowButton>
+    </div>
   </div>
 </template>
 
@@ -165,7 +170,6 @@ import { useDialog } from '@grow-admin-rock/components'
 import { fetchSystemPosts } from '../../../api/systemPost'
 import {
   ASSIGNMENT_TYPE_OPTIONS,
-  assignmentStatusLabel,
   occupyHeadcount,
   type AssignmentType,
   type PersonAssignment,
@@ -296,7 +300,7 @@ async function onTypeChange(row: PersonAssignment, type: string) {
       if (!ok) return
       emitRows(rows.value.map((item) => {
         if (item.id === row.id) {
-          return { ...item, type: 'primary' as AssignmentType, occupyHeadcount: true }
+          return { ...item, type: 'primary' as AssignmentType, occupyHeadcount: true, endDate: '' }
         }
         if (item.id === current.id) {
           return { ...item, type: 'part_time' as AssignmentType, occupyHeadcount: false }
@@ -306,7 +310,11 @@ async function onTypeChange(row: PersonAssignment, type: string) {
       return
     }
   }
-  patch(row, { type: next as AssignmentType, occupyHeadcount: occupyHeadcount(next) })
+  patch(row, {
+    type: next as AssignmentType,
+    occupyHeadcount: occupyHeadcount(next),
+    endDate: next === 'primary' ? '' : row.endDate,
+  })
 }
 
 function collaboratorOptionsOf(row: PersonAssignment) {
@@ -376,14 +384,8 @@ watch(
   margin-bottom: 4px;
 }
 
-.assignment-editor__type {
-  width: 108px;
-}
-
-.assignment-editor__headcount {
-  flex: 1;
-  color: var(--text-color-secondary);
-  font-size: 12px;
+.assignment-editor__remove {
+  margin-left: auto;
 }
 
 .assignment-editor__divider {
@@ -407,5 +409,18 @@ watch(
   margin: 0;
   color: var(--el-color-warning);
   font-size: 12px;
+}
+
+.assignment-editor__add {
+  display: flex;
+  justify-content: center;
+}
+
+.assignment-editor__add :deep(.el-button) {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: auto;
+  padding: 0 8px;
 }
 </style>

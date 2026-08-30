@@ -15,24 +15,25 @@
       <span>字段包含成员本人的记录</span>
     </label>
     <div v-if="modelValue.fieldContainsSelf" class="row-self__fields">
-      <p v-if="!enabledColumns.length" class="row-self__hint">该菜单暂无表定义列，无法勾选字段</p>
+      <p v-if="!columns.length" class="row-self__hint">该菜单暂无可用字段，无法勾选字段</p>
       <label
-        v-for="col in enabledColumns"
+        v-for="col in columns"
         :key="col.id"
         class="row-self__field"
       >
         <GrowCheckbox
           :model-value="modelValue.columnIds.includes(col.id)"
+          :disabled="!isAvailable(col)"
           @update:model-value="(value) => toggleColumn(col.id, Boolean(value))"
         />
         <span>{{ fieldLabel(col) }}</span>
+        <GrowTag v-if="!isAvailable(col)" type="info" size="small">不可用</GrowTag>
       </label>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
 import type { SystemMenuColumn } from '../../../types/systemMenuColumn'
 import type { SelfRelatedConfig } from '../../../types/systemRole'
 
@@ -47,7 +48,9 @@ const emit = defineEmits<{
   'update:modelValue': [value: SelfRelatedConfig]
 }>()
 
-const enabledColumns = computed(() => props.columns.filter((item) => item.enabled !== false))
+function isAvailable(col: SystemMenuColumn) {
+  return col.enabled !== false && col.queryFilter !== false
+}
 
 function fieldLabel(col: SystemMenuColumn) {
   return col.tableTitle ? `${col.tableTitle} / ${col.title}` : col.title

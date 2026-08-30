@@ -14,7 +14,7 @@ import {
   type HistoryRecord,
   type PersonRecord,
 } from './orgStore'
-import { findAccountByPersonId } from './accountStore'
+import { findAccount, findAccountByPersonId } from './accountStore'
 
 const EMPLOYEE_TYPES = new Set(['full_time', 'intern', 'part_time', 'contractor'])
 
@@ -22,7 +22,6 @@ const EMPLOYEE_STATUSES = new Set([
   'pending',
   'probation',
   'formal',
-  'disabled',
   'resigned',
   'retired',
   'rehired',
@@ -115,6 +114,17 @@ function ensureAssignments(person: PersonRecord) {
   }
   person.assignments = [assignment]
   return person.assignments
+}
+
+function assignAccount(userId: string, accountId: string) {
+  if (!accountId) return
+  const next = findAccount(accountId)
+  if (!next) return resultError('账号不存在')
+  if (next.personId && next.personId !== userId) return resultError('账号已被占用')
+  const prev = findAccountByPersonId(userId)
+  if (prev && prev.accountId !== accountId) prev.personId = ''
+  next.personId = userId
+  next.enabled = true
 }
 
 function personAccount(person: PersonRecord) {
@@ -825,54 +835,19 @@ const mocks: MockMethod[] = [
       if (!person) return resultError('人员不存在')
       if (person.employeeStatus !== 'resigned') return resultError('仅离职人员可复职')
       const remark = pickText(payload.remark)
-      const deptId = pickText(payload.deptId) || person.deptId
-      const post = pickText(payload.post) || person.post
       const effectiveDate = pickText(payload.effectiveDate) || today()
-      if (!getDeptName(deptId)) return resultError('部门不存在')
-      person.deptId = deptId
-      person.mainDeptId = deptId
-      person.post = post
-      person.jobTitle = post
+      const assigned = assignAccount(person.userId, pickText(payload.accountId))
+      if (assigned) return assigned
       person.employeeStatus = pickText(payload.employeeStatus) === 'probation' ? 'probation' : 'formal'
-      person.entryDate = effectiveDate
       person.resignDate = ''
       person.updatedAt = now()
       pushHistory(person, {
         type: 'reinstate',
         title: '复职',
-        summary: `复职至 ${getDeptName(deptId)}，岗位 ${post || '-'}`,
+        summary: remark,
         effectiveDate,
-        extra: { remark },
       })
       return resultSuccess(toDetail(person), { message: '复职成功' })
-    },
-  },
-  {
-    url: mockUrl('/system/person/disable'),
-    method: 'post',
-    timeout: 80,
-    response: ({ body }) => changeStatus(body, 'disabled', 'disable', '停用'),
-  },
-  {
-    url: mockUrl('/system/person/enable'),
-    method: 'post',
-    timeout: 80,
-    response: ({ body }) => {
-      const payload = (body || {}) as Recordable<any>
-      const person = findPerson(pickText(payload.userId))
-      if (!person) return resultError('人员不存在')
-      if (person.employeeStatus !== 'disabled') return resultError('仅停用人员可启用')
-      const remark = pickText(payload.remark)
-      const next = pickText(payload.employeeStatus) === 'probation' ? 'probation' : 'formal'
-      person.employeeStatus = next
-      person.updatedAt = now()
-      pushHistory(person, {
-        type: 'enable',
-        title: '启用',
-        summary: remark,
-        effectiveDate: pickText(payload.effectiveDate) || today(),
-      })
-      return resultSuccess(toDetail(person), { message: '启用成功' })
     },
   },
   {
@@ -893,42 +868,11 @@ const mocks: MockMethod[] = [
         return resultError('仅离职或退休人员可返聘')
       }
       const remark = pickText(payload.remark)
-      const deptId = pickText(payload.deptId)
-      const post = pickText(payload.post)
       const effectiveDate = pickText(payload.effectiveDate) || today()
-      if (!getDeptName(deptId)) return resultError('请选择部门')
-      ensureAssignments(person).forEach((item) => {
-        if (item.status === 'active') {
-          item.status = 'ended'
-          item.endDate = effectiveDate
-        }
-      })
-      person.assignments = [
-        ...(person.assignments || []),
-        {
-          id: `as_${Date.now().toString(36)}`,
-          deptId,
-          deptName: getDeptName(deptId),
-          postId: pickText(payload.postId) || `post_${deptId}_${post || 'default'}`,
-          postName: post,
-          type: pickText(payload.assignmentType) === 'part_time' ? 'part_time' : 'primary',
-          startDate: effectiveDate,
-          endDate: '',
-          status: 'active',
-          occupyHeadcount: pickText(payload.assignmentType) !== 'part_time',
-        },
-      ]
-      person.deptId = deptId
-      person.mainDeptId = deptId
-      person.post = post
-      person.supervisorId = pickText(payload.supervisorId) || person.supervisorId
+      const assigned = assignAccount(person.userId, pickText(payload.accountId))
+      if (assigned) return assigned
       person.employeeStatus = 'rehired'
       person.updatedAt = now()
-      const accountId = pickText(payload.accountId)
-      if (accountId) {
-        const account = findAccountByPersonId(person.userId)
-        if (account && account.accountId === accountId) account.enabled = true
-      }
       pushHistory(person, {
         type: 'rehire',
         title: '返聘',
@@ -976,14 +920,14 @@ const mocks: MockMethod[] = [
 function changeStatus(
   body: unknown,
   status: PersonRecord['employeeStatus'],
-  type: 'disable' | 'retire',
+  type: 'retire',
   title: string,
 ) {
   const payload = (body || {}) as Recordable<any>
   const person = findPerson(pickText(payload.userId))
   if (!person) return resultError('人员不存在')
   const remark = pickText(payload.remark)
-  if (type === 'retire' && person.employeeStatus !== 'formal' && person.employeeStatus !== 'rehired') {
+  if (person.employeeStatus !== 'formal' && person.employeeStatus !== 'rehired') {
     return resultError('仅正式或返聘人员可退休')
   }
   person.previousStatus = person.employeeStatus
@@ -996,6 +940,8 @@ function changeStatus(
         item.endDate = person.retireDate || today()
       }
     })
+    const account = findAccountByPersonId(person.userId)
+    if (account) account.enabled = false
   }
   person.updatedAt = now()
   pushHistory(person, {
@@ -1003,6 +949,7 @@ function changeStatus(
     title,
     summary: remark,
     effectiveDate: pickText(payload.effectiveDate) || today(),
+    extra: { reason: pickText(payload.reason) },
   })
   return resultSuccess(toDetail(person), { message: `${title}成功` })
 }

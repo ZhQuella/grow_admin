@@ -30,11 +30,13 @@ export function buildRolePermTree(
           title: fn.enabled === false
             ? `${fn.title}（${fn.code} · 已停用）`
             : `${fn.title}（${fn.code}）`,
+          disabled: fn.enabled === false,
         })))
       }
       return {
         key: node.menuType === MenuTypeEnum.DIRECTORY ? `dir:${node.name}` : `menu:${node.name}`,
-        title: node.title,
+        title: node.enabled === false ? `${node.title}（已停用）` : node.title,
+        disabled: node.enabled === false,
         ...(children.length ? { children } : {}),
       }
     })

@@ -1,33 +1,68 @@
 <template>
   <div class="family-editor">
-    <div v-for="(row, index) in modelValue" :key="row.id" class="family-editor__row">
-      <GrowInput v-model="row.name" placeholder="姓名(家人)" />
-      <GrowSelect
-        v-model="row.relation"
-        :options="FAMILY_RELATION_OPTIONS"
-        label="label"
-        value="value"
-        clearable
-        placeholder="关系"
-      />
-      <GrowSelect
-        v-model="row.gender"
-        :options="GENDER_OPTIONS"
-        label="label"
-        value="value"
-        clearable
-        placeholder="性别"
-      />
-      <GrowDatePicker
-        v-model="row.birthday"
-        value-format="YYYY-MM-DD"
-        placeholder="生日"
-        style="width: 100%"
-      />
-      <GrowInput v-model="row.phone" placeholder="电话" />
-      <GrowButton link type="danger" :disabled="modelValue.length <= 1" @click="remove(index)">删除</GrowButton>
+    <div v-for="(row, index) in modelValue" :key="row.id">
+      <GrowRow :gutter="16">
+        <GrowCol :span="4">
+          <GrowFormItem label="姓名">
+            <GrowInput v-model="row.name" placeholder="请输入" />
+          </GrowFormItem>
+        </GrowCol>
+        <GrowCol :span="4">
+          <GrowFormItem label="关系">
+            <GrowSelect
+              v-model="row.relation"
+              :options="FAMILY_RELATION_OPTIONS"
+              label="label"
+              value="value"
+              clearable
+              placeholder="请选择"
+            />
+          </GrowFormItem>
+        </GrowCol>
+        <GrowCol :span="4">
+          <GrowFormItem label="性别">
+            <GrowSelect
+              v-model="row.gender"
+              :options="GENDER_OPTIONS"
+              label="label"
+              value="value"
+              clearable
+              placeholder="请选择"
+            />
+          </GrowFormItem>
+        </GrowCol>
+        <GrowCol :span="4">
+          <GrowFormItem label="生日">
+            <GrowDatePicker
+              v-model="row.birthday"
+              value-format="YYYY-MM-DD"
+              placeholder="请选择"
+              style="width: 100%"
+            />
+          </GrowFormItem>
+        </GrowCol>
+        <GrowCol :span="4">
+          <GrowFormItem label="电话">
+            <GrowInput v-model="row.phone" placeholder="请输入" />
+          </GrowFormItem>
+        </GrowCol>
+        <GrowCol :span="4">
+          <GrowFormItem class="family-editor__op" label="&#8203;">
+            <GrowTooltip content="删除" placement="top">
+              <GrowButton link type="danger" :disabled="modelValue.length <= 1" @click="remove(index)">
+                <GrowIconify icon="ant-design:delete-outlined" :size="16" />
+              </GrowButton>
+            </GrowTooltip>
+          </GrowFormItem>
+        </GrowCol>
+      </GrowRow>
     </div>
-    <GrowButton link type="primary" @click="add">+ 添加家庭成员</GrowButton>
+    <div class="family-editor__add">
+      <GrowButton link type="primary" @click="add">
+        <GrowIconify icon="ant-design:plus-outlined" :size="16" />
+        添加家庭成员
+      </GrowButton>
+    </div>
   </div>
 </template>
 
@@ -66,28 +101,30 @@ watch(() => props.modelValue.length, ensureRow)
 </script>
 
 <style scoped>
-.family-editor {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.family-editor__row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr auto;
-  gap: 8px;
-  align-items: center;
-}
-
-.family-editor__row :deep(.el-input),
-.family-editor__row :deep(.el-select),
-.family-editor__row :deep(.el-date-editor) {
+.family-editor :deep(.el-input),
+.family-editor :deep(.el-select),
+.family-editor :deep(.el-date-editor) {
   width: 100%;
 }
 
-@media (max-width: 1100px) {
-  .family-editor__row {
-    grid-template-columns: 1fr 1fr;
-  }
+.family-editor :deep(.el-form-item) {
+  margin-bottom: 12px;
+}
+
+.family-editor__op :deep(.el-form-item__label) {
+  visibility: hidden;
+}
+
+.family-editor__add {
+  display: flex;
+  justify-content: center;
+}
+
+.family-editor__add :deep(.el-button) {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: auto;
+  padding: 0 8px;
 }
 </style>
