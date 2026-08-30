@@ -169,6 +169,7 @@
     </div>
 
     <PersonHistoryDrawer ref="historyRef" />
+    <PersonTransferDrawer ref="transferRef" @success="loadList" />
     <PersonEventDialog ref="eventRef" @success="loadList" />
   </div>
 </template>
@@ -184,9 +185,11 @@ import {
   employeeTypeLabel,
   type PersonEventMode,
   type SystemPersonListItem,
+  type TransferIntent,
 } from '../../types/systemPerson'
 import type { SystemDeptTreeNode } from '../../types/systemRole'
 import PersonHistoryDrawer from './components/PersonHistoryDrawer.vue'
+import PersonTransferDrawer from './components/PersonTransferDrawer.vue'
 import PersonEventDialog from './components/PersonEventDialog.vue'
 import { usePersonManage } from './use/usePersonManage'
 import { statusTag } from './use/helpers'
@@ -194,8 +197,11 @@ import { statusTag } from './use/helpers'
 defineOptions({ name: 'PersonManagePage' })
 
 const historyRef = ref<{ open: (row: SystemPersonListItem) => void } | null>(null)
+const transferRef = ref<{
+  open: (row: SystemPersonListItem, tree: SystemDeptTreeNode[], intent?: TransferIntent) => void
+} | null>(null)
 const eventRef = ref<{
-  open: (mode: PersonEventMode, row: SystemPersonListItem, tree: SystemDeptTreeNode[]) => void
+  open: (mode: Exclude<PersonEventMode, 'transfer'>, row: SystemPersonListItem, tree: SystemDeptTreeNode[]) => void
 } | null>(null)
 
 const {
@@ -246,6 +252,10 @@ function openHistory(row: SystemPersonListItem) {
 }
 
 function openEvent(mode: PersonEventMode, row: SystemPersonListItem) {
+  if (mode === 'transfer') {
+    transferRef.value?.open(row, deptTree.value)
+    return
+  }
   eventRef.value?.open(mode, row, deptTree.value)
 }
 </script>

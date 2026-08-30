@@ -418,24 +418,24 @@ export function usePersonDetail() {
     onIdNumberBlur,
     assignmentRows: computed<PersonAssignment[]>(() => {
       const item = detail.value
-      return (item?.assignments || []).map((row) => (
-        row.type === 'primary'
-          ? {
-              ...row,
-              jobCode: row.jobCode || item?.jobCode || '',
-              jobTitle: row.jobTitle || item?.jobTitle || '',
-              jobGrade: row.jobGrade || item?.jobGrade || '',
-              supervisorId: row.supervisorId || item?.supervisorId || '',
-              supervisorName: row.supervisorName || item?.supervisorName || '',
-              collaboratorIds: row.collaboratorIds?.length ? row.collaboratorIds : (item?.collaboratorIds || []),
-              collaboratorNames: row.collaboratorNames?.length
-                ? row.collaboratorNames
-                : (item?.collaborators || []).map((ref) => ref.name),
-            }
-          : row
-      ))
+      return (item?.assignments || []).map((row) => {
+        if (row.type !== 'primary' || row.status === 'ended') return row
+        return {
+          ...row,
+          jobCode: row.jobCode || item?.jobCode || '',
+          jobTitle: row.jobTitle || item?.jobTitle || '',
+          jobGrade: row.jobGrade || item?.jobGrade || '',
+          supervisorId: row.supervisorId || item?.supervisorId || '',
+          supervisorName: row.supervisorName || item?.supervisorName || '',
+          collaboratorIds: row.collaboratorIds?.length ? row.collaboratorIds : (item?.collaboratorIds || []),
+          collaboratorNames: row.collaboratorNames?.length
+            ? row.collaboratorNames
+            : (item?.collaborators || []).map((ref) => ref.name),
+        }
+      })
     }),
     subordinates: computed<PersonSuperiorRef[]>(() => detail.value?.subordinates || []),
+    reload: () => load(true),
     onBack,
   }
 }

@@ -61,6 +61,19 @@ export const TRANSFER_TYPE_VALUES = [
 ] as const
 export type TransferType = (typeof TRANSFER_TYPE_VALUES)[number]
 
+export type TransferIntent = {
+  transferType?: TransferType
+  assignmentId?: string
+  assignmentType?: AssignmentType
+}
+
+export const TRANSFER_ACTION_LABELS: Record<TransferType, string> = {
+  primary: '调整主职',
+  part_time_add: '新增兼职',
+  part_time_change: '调整兼职',
+  part_time_end: '停止兼职',
+}
+
 export const ID_TYPE_VALUES = ['id_card', 'passport', 'other'] as const
 export type PersonIdType = (typeof ID_TYPE_VALUES)[number]
 
@@ -474,9 +487,15 @@ export type PersonTransferPayload = {
   userId: string
   transferType: TransferType
   assignmentId?: string
+  assignmentType?: AssignmentType
   deptId: string
   postId: string
   post?: string
+  jobTitle?: string
+  jobGrade?: string
+  jobCode?: string
+  supervisorId?: string
+  collaboratorIds?: string[]
   effectiveDate: string
   remark: string
 }

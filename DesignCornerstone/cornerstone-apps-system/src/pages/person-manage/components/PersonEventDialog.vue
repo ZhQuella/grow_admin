@@ -38,15 +38,13 @@ const emit = defineEmits<{
   success: []
 }>()
 
-const TransferEventForm = defineAsyncComponent(() => import('./events/TransferEventForm.vue'))
 const ConfirmEventForm = defineAsyncComponent(() => import('./events/ConfirmEventForm.vue'))
 const ResignEventForm = defineAsyncComponent(() => import('./events/ResignEventForm.vue'))
 const StatusDateEventForm = defineAsyncComponent(() => import('./events/StatusDateEventForm.vue'))
 const ReturnEventForm = defineAsyncComponent(() => import('./events/ReturnEventForm.vue'))
 const DeleteEventForm = defineAsyncComponent(() => import('./events/DeleteEventForm.vue'))
 
-const EVENT_COMPONENTS: Record<PersonEventMode, Component> = {
-  transfer: TransferEventForm,
+const EVENT_COMPONENTS: Record<Exclude<PersonEventMode, 'transfer'>, Component> = {
   confirm: ConfirmEventForm,
   resign: ResignEventForm,
   disable: StatusDateEventForm,
@@ -57,8 +55,7 @@ const EVENT_COMPONENTS: Record<PersonEventMode, Component> = {
   delete: DeleteEventForm,
 }
 
-const EVENT_TITLES: Record<PersonEventMode, string> = {
-  transfer: '调岗',
+const EVENT_TITLES: Record<Exclude<PersonEventMode, 'transfer'>, string> = {
   confirm: '转正',
   resign: '离职',
   disable: '停用',
@@ -72,7 +69,7 @@ const EVENT_TITLES: Record<PersonEventMode, string> = {
 const message = useMsg()
 const visible = ref(false)
 const submitting = ref(false)
-const mode = ref<PersonEventMode>('transfer')
+const mode = ref<Exclude<PersonEventMode, 'transfer'>>('confirm')
 const person = ref<SystemPersonListItem | null>(null)
 const detail = ref<SystemPersonDetail | null>(null)
 const deptTree = ref<SystemDeptTreeNode[]>([])
@@ -84,14 +81,14 @@ const panelMode = computed(() => {
   if (mode.value === 'reinstate' || mode.value === 'rehire') return mode.value
   return undefined
 })
-const dialogWidth = computed(() => (mode.value === 'resign' || mode.value === 'transfer' ? '640px' : '520px'))
+const dialogWidth = computed(() => (mode.value === 'resign' ? '640px' : '520px'))
 const title = computed(() => {
   const name = person.value?.name || ''
   const label = EVENT_TITLES[mode.value]
   return name ? `${label} · ${name}` : label
 })
 
-async function open(nextMode: PersonEventMode, row: SystemPersonListItem, tree: SystemDeptTreeNode[]) {
+async function open(nextMode: Exclude<PersonEventMode, 'transfer'>, row: SystemPersonListItem, tree: SystemDeptTreeNode[]) {
   mode.value = nextMode
   person.value = row
   deptTree.value = tree

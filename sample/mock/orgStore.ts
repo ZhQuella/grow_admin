@@ -254,6 +254,63 @@ function getOrgGlobal(): OrgGlobal {
       zhang.familyMembers = [
         { id: 'fm_u1_1', name: '张母', relation: '母亲', gender: 'female', birthday: '1968-05-01', phone: '13900001111' },
       ]
+      zhang.jobTitle = '前端开发工程师'
+      zhang.jobGrade = 'P6'
+      zhang.jobCode = 'P-FE-01'
+      zhang.collaboratorIds = ['u2']
+      zhang.assignments = [
+        {
+          id: 'as_u1_primary',
+          deptId: 'd-dl-fe',
+          deptName: '前端组',
+          postId: 'post_d-dl-fe_开发工程师',
+          postName: '开发工程师',
+          jobCode: 'P-FE-01',
+          jobTitle: '前端开发工程师',
+          jobGrade: 'P6',
+          type: 'primary',
+          startDate: zhang.entryDate,
+          endDate: '',
+          status: 'active',
+          occupyHeadcount: true,
+          supervisorId: 'u5',
+          collaboratorIds: ['u2'],
+        },
+        {
+          id: 'as_u1_be',
+          deptId: 'd-dl-be',
+          deptName: '后端组',
+          postId: 'post_d-dl-be_开发工程师',
+          postName: '开发工程师',
+          jobCode: 'P-BE-PT',
+          jobTitle: '后端协作开发',
+          jobGrade: 'P5',
+          type: 'part_time',
+          startDate: '2024-09-01',
+          endDate: '',
+          status: 'active',
+          occupyHeadcount: false,
+          supervisorId: 'u3',
+          collaboratorIds: [],
+        },
+        {
+          id: 'as_u1_frontier',
+          deptId: 'd-frontier',
+          deptName: '前沿部署组',
+          postId: 'post_d-frontier_开发工程师',
+          postName: '开发工程师',
+          jobCode: 'P-FR-PT',
+          jobTitle: '前端顾问',
+          jobGrade: 'P5',
+          type: 'part_time',
+          startDate: '2025-01-15',
+          endDate: '',
+          status: 'active',
+          occupyHeadcount: false,
+          supervisorId: 'u11',
+          collaboratorIds: [],
+        },
+      ]
       zhang.history.push({
         id: 'h_u1_transfer',
         type: 'transfer',
@@ -264,7 +321,27 @@ function getOrgGlobal(): OrgGlobal {
         createdAt: iso('2023-04-01'),
         extra: { fromPost: '前端开发', toPost: '开发工程师' },
       })
-      zhang.updatedAt = iso('2023-04-01')
+      zhang.history.push({
+        id: 'h_u1_part_be',
+        type: 'transfer',
+        title: '兼职任职',
+        summary: '兼任后端组开发工程师',
+        effectiveDate: '2024-09-01',
+        operator: '钱七',
+        createdAt: iso('2024-09-01'),
+        extra: { toDept: '后端组', toPost: '开发工程师', assignmentType: 'part_time' },
+      })
+      zhang.history.push({
+        id: 'h_u1_part_frontier',
+        type: 'transfer',
+        title: '兼职任职',
+        summary: '兼任前沿部署组前端顾问',
+        effectiveDate: '2025-01-15',
+        operator: '钱七',
+        createdAt: iso('2025-01-15'),
+        extra: { toDept: '前沿部署组', toPost: '开发工程师', assignmentType: 'part_time' },
+      })
+      zhang.updatedAt = iso('2025-01-15')
     }
     const li = personStore.find((item) => item.userId === 'u2')
     if (li) {

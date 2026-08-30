@@ -639,58 +639,101 @@ const mocks: MockMethod[] = [
       const assignmentId = pickText(payload.assignmentId)
       if (transferType !== 'part_time_end' && (!deptId || !getDeptName(deptId))) return resultError('请选择有效部门')
 
+      const jobTitle = pickText(payload.jobTitle) || post
+      const jobGrade = pickText(payload.jobGrade)
+      const jobCode = pickText(payload.jobCode)
+      const supervisorId = pickText(payload.supervisorId)
+      const collaboratorIds = Array.isArray(payload.collaboratorIds)
+        ? payload.collaboratorIds.map(String).filter((id) => id && id !== supervisorId)
+        : []
+      const nextType = pickText(payload.assignmentType) === 'part_time'
+        ? 'part_time'
+        : pickText(payload.assignmentType) === 'primary'
+          ? 'primary'
+          : (transferType === 'primary' ? 'primary' : 'part_time')
+      const nextRow = (type: 'primary' | 'part_time') => ({
+        id: `as_${Date.now().toString(36)}`,
+        deptId,
+        deptName: getDeptName(deptId),
+        postId: postId || `post_${deptId}_${post || 'default'}`,
+        postName: post,
+        jobTitle,
+        jobGrade,
+        jobCode,
+        type,
+        startDate: effectiveDate,
+        endDate: '',
+        status: 'active' as const,
+        occupyHeadcount: type === 'primary',
+        supervisorId,
+        collaboratorIds,
+      })
+
       if (transferType === 'primary') {
         const current = assignments.find((item) => item.type === 'primary' && item.status === 'active')
         if (current) {
           current.status = 'ended'
           current.endDate = effectiveDate
         }
-        assignments.push({
-          id: `as_${Date.now().toString(36)}`,
-          deptId,
-          deptName: getDeptName(deptId),
-          postId: postId || `post_${deptId}_${post || 'default'}`,
-          postName: post,
-          type: 'primary',
-          startDate: effectiveDate,
-          endDate: '',
-          status: 'active',
-          occupyHeadcount: true,
-        })
-        person.deptId = deptId
-        person.mainDeptId = deptId
-        person.post = post
+        assignments.push(nextRow(nextType))
+        if (nextType === 'primary') {
+          person.deptId = deptId
+          person.mainDeptId = deptId
+          person.post = post
+          person.jobTitle = jobTitle
+          person.jobGrade = jobGrade
+          person.jobCode = jobCode
+          person.supervisorId = supervisorId
+          person.collaboratorIds = collaboratorIds
+        }
       } else if (transferType === 'part_time_add') {
-        assignments.push({
-          id: `as_${Date.now().toString(36)}`,
-          deptId,
-          deptName: getDeptName(deptId),
-          postId: postId || `post_${deptId}_${post || 'default'}`,
-          postName: post,
-          type: 'part_time',
-          startDate: effectiveDate,
-          endDate: '',
-          status: 'active',
-          occupyHeadcount: false,
-        })
+        assignments.push(nextRow(nextType === 'primary' ? 'primary' : 'part_time'))
+        if (nextType === 'primary') {
+          assignments.forEach((item) => {
+            if (item.type === 'primary' && item.status === 'active' && item.id !== assignments[assignments.length - 1]?.id) {
+              item.type = 'part_time'
+              item.occupyHeadcount = false
+            }
+          })
+          person.deptId = deptId
+          person.mainDeptId = deptId
+          person.post = post
+        }
       } else if (transferType === 'part_time_change') {
         const current = assignments.find((item) => item.id === assignmentId)
-        if (current) {
-          current.status = 'ended'
-          current.endDate = effectiveDate
+        if (nextType === 'primary' && current && current.status === 'active') {
+          assignments.forEach((item) => {
+            if (item.id !== current.id && item.type === 'primary' && item.status === 'active') {
+              item.type = 'part_time'
+              item.occupyHeadcount = false
+            }
+          })
+          current.type = 'primary'
+          current.occupyHeadcount = true
+          current.deptId = deptId || current.deptId
+          current.deptName = deptId ? getDeptName(deptId) : current.deptName
+          current.postId = postId || current.postId
+          current.postName = post || current.postName
+          current.jobTitle = jobTitle || current.jobTitle
+          current.jobGrade = jobGrade || current.jobGrade
+          current.jobCode = jobCode || current.jobCode
+          current.supervisorId = supervisorId
+          current.collaboratorIds = collaboratorIds
+          person.deptId = current.deptId
+          person.mainDeptId = current.deptId
+          person.post = current.postName
+          person.jobTitle = current.jobTitle
+          person.jobGrade = current.jobGrade
+          person.jobCode = current.jobCode
+          person.supervisorId = supervisorId
+          person.collaboratorIds = collaboratorIds
+        } else {
+          if (current) {
+            current.status = 'ended'
+            current.endDate = effectiveDate
+          }
+          assignments.push(nextRow(nextType))
         }
-        assignments.push({
-          id: `as_${Date.now().toString(36)}`,
-          deptId,
-          deptName: getDeptName(deptId),
-          postId: postId || `post_${deptId}_${post || 'default'}`,
-          postName: post,
-          type: 'part_time',
-          startDate: effectiveDate,
-          endDate: '',
-          status: 'active',
-          occupyHeadcount: false,
-        })
       } else if (transferType === 'part_time_end') {
         const current = assignments.find((item) => item.id === assignmentId)
         if (current) {

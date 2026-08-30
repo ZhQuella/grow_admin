@@ -104,16 +104,19 @@ export function applyPersonDetail(formModel: PersonFormModel, detail: Recordable
     collaboratorIds: Array.isArray(detail.collaboratorIds) ? [...detail.collaboratorIds] : [],
     assignments: (() => {
       const rows = Array.isArray(detail.assignments)
-        ? detail.assignments.map((item: PersonAssignment) => ({
-            ...item,
-            jobCode: item.jobCode || (item.type === 'primary' ? detail.jobCode : '') || '',
-            jobTitle: item.jobTitle || (item.type === 'primary' ? detail.jobTitle : '') || '',
-            jobGrade: item.jobGrade || (item.type === 'primary' ? detail.jobGrade : '') || '',
-            supervisorId: item.supervisorId || (item.type === 'primary' ? detail.supervisorId : '') || '',
-            collaboratorIds: item.collaboratorIds?.length
-              ? [...item.collaboratorIds]
-              : (item.type === 'primary' && Array.isArray(detail.collaboratorIds) ? [...detail.collaboratorIds] : []),
-          }))
+        ? detail.assignments.map((item: PersonAssignment) => {
+            const usePerson = item.type === 'primary' && item.status !== 'ended'
+            return {
+              ...item,
+              jobCode: item.jobCode || (usePerson ? detail.jobCode : '') || '',
+              jobTitle: item.jobTitle || (usePerson ? detail.jobTitle : '') || '',
+              jobGrade: item.jobGrade || (usePerson ? detail.jobGrade : '') || '',
+              supervisorId: item.supervisorId || (usePerson ? detail.supervisorId : '') || '',
+              collaboratorIds: item.collaboratorIds?.length
+                ? [...item.collaboratorIds]
+                : (usePerson && Array.isArray(detail.collaboratorIds) ? [...detail.collaboratorIds] : []),
+            }
+          })
         : []
       return rows.some(hasAssignmentContent) ? rows : [emptyAssignment()]
     })(),

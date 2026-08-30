@@ -2,8 +2,21 @@
   <div class="assignment-editor">
     <div v-for="(row, index) in rows" :key="row.id" class="assignment-editor__card">
       <div class="assignment-editor__head">
-        <GrowTag :type="row.type === 'primary' ? 'primary' : 'info'" size="small">
+        <GrowSelect
+          v-if="!readonly && !lockAssignment"
+          class="assignment-editor__type"
+          :model-value="row.type"
+          :options="ASSIGNMENT_TYPE_OPTIONS"
+          label="label"
+          value="value"
+          placeholder="任职类型"
+          @update:model-value="(value) => onTypeChange(row, String(value || 'primary'))"
+        />
+        <GrowTag v-else :type="row.type === 'primary' ? 'primary' : 'info'" size="small">
           {{ row.type === 'primary' ? '主职' : '兼职' }}
+        </GrowTag>
+        <GrowTag v-if="row.status" :type="row.status === 'active' ? 'success' : 'info'" size="small">
+          {{ assignmentStatusLabel(row.status) }}
         </GrowTag>
         <span class="assignment-editor__headcount">{{ row.occupyHeadcount ? '占用编制' : '不占编制' }}</span>
         <GrowButton
@@ -17,19 +30,6 @@
         </GrowButton>
       </div>
       <GrowRow :gutter="16">
-        <GrowCol :span="6">
-          <GrowFormItem label="任职类型">
-            <GrowSelect
-              :model-value="row.type"
-              :options="ASSIGNMENT_TYPE_OPTIONS"
-              label="label"
-              value="value"
-              :disabled="readonly || lockAssignment"
-              placeholder="请选择"
-              @update:model-value="(value) => onTypeChange(row, String(value || 'primary'))"
-            />
-          </GrowFormItem>
-        </GrowCol>
         <GrowCol :span="6">
           <GrowFormItem label="部门">
             <GrowTreeSelect
@@ -107,6 +107,18 @@
             />
           </GrowFormItem>
         </GrowCol>
+        <GrowCol :span="6">
+          <GrowFormItem label="结束日期">
+            <GrowDatePicker
+              :model-value="row.endDate"
+              value-format="YYYY-MM-DD"
+              :disabled="readonly || lockAssignment"
+              placeholder="请选择"
+              style="width: 100%"
+              @update:model-value="(value) => patch(row, { endDate: String(value || '') })"
+            />
+          </GrowFormItem>
+        </GrowCol>
       </GrowRow>
       <div class="assignment-editor__divider" />
       <GrowRow :gutter="16">
@@ -153,6 +165,7 @@ import { useDialog } from '@grow-admin-rock/components'
 import { fetchSystemPosts } from '../../../api/systemPost'
 import {
   ASSIGNMENT_TYPE_OPTIONS,
+  assignmentStatusLabel,
   occupyHeadcount,
   type AssignmentType,
   type PersonAssignment,
@@ -361,6 +374,10 @@ watch(
   gap: 8px;
   min-height: 28px;
   margin-bottom: 4px;
+}
+
+.assignment-editor__type {
+  width: 108px;
 }
 
 .assignment-editor__headcount {

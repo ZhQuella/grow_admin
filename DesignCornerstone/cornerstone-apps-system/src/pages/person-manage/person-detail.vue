@@ -81,6 +81,23 @@
                     {{ assignmentStatusLabel(row.status) }}
                   </GrowTag>
                   <span class="person-detail__card-meta">{{ row.occupyHeadcount ? '占用编制' : '不占编制' }}</span>
+                  <GrowTooltip v-if="canTransfer && row.type === 'primary' && row.status === 'active'" content="调整主职" placement="top">
+                    <GrowButton link type="primary" @click="openTransfer">
+                      <GrowIconify icon="ant-design:swap-outlined" :size="16" />
+                    </GrowButton>
+                  </GrowTooltip>
+                  <div v-if="canTransfer && row.type === 'part_time' && row.status === 'active'" class="person-detail__card-actions">
+                    <GrowTooltip content="设置为主岗" placement="top">
+                      <GrowButton class="person-detail__card-icon" link type="primary" @click="openSetPrimary(row)">
+                        <GrowIconify icon="ant-design:to-top-outlined" :size="16" />
+                      </GrowButton>
+                    </GrowTooltip>
+                    <GrowTooltip content="停止兼职" placement="top">
+                      <GrowButton class="person-detail__card-icon" link type="danger" @click="openEndPartTime(row)">
+                        <GrowIconify icon="ant-design:minus-circle-outlined" :size="16" />
+                      </GrowButton>
+                    </GrowTooltip>
+                  </div>
                 </div>
                 <GrowRow :gutter="16">
                   <GrowCol :span="6">
@@ -391,20 +408,29 @@
     <div class="person-detail__bar">
       <GrowSpace>
         <GrowButton @click="onBack">返回</GrowButton>
+        <GrowButton v-if="canTransfer" type="primary" @click="openTransfer">调岗</GrowButton>
       </GrowSpace>
     </div>
+
+    <PersonTransferDrawer ref="transferRef" @success="onEventSuccess" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import {
   MATERIAL_KEYS,
   MATERIAL_LABELS,
   assignmentStatusLabel,
   assignmentTypeLabel,
+  canPersonAction,
+  type PersonAssignment,
   type PersonEventType,
+  type SystemPersonListItem,
+  type TransferIntent,
 } from '../../types/systemPerson'
+import type { SystemDeptTreeNode } from '../../types/systemRole'
+import PersonTransferDrawer from './components/PersonTransferDrawer.vue'
 import PersonProfileForm from './components/PersonProfileForm.vue'
 import PersonSection from './components/PersonSection.vue'
 import SensitiveText from './components/SensitiveText.vue'
@@ -441,8 +467,42 @@ const {
   onFamilyChange,
   onMaterialsChange,
   onIdNumberBlur,
+  reload,
   onBack,
 } = usePersonDetail()
+
+const transferRef = ref<{
+  open: (row: SystemPersonListItem, tree: SystemDeptTreeNode[], intent?: TransferIntent) => void
+} | null>(null)
+
+const canTransfer = computed(() => canPersonAction(detail.value?.employeeStatus, 'transfer'))
+
+function openTransfer() {
+  if (!detail.value) return
+  transferRef.value?.open(detail.value, deptTree.value)
+}
+
+function openSetPrimary(row: PersonAssignment) {
+  if (!detail.value) return
+  transferRef.value?.open(detail.value, deptTree.value, {
+    transferType: 'part_time_change',
+    assignmentId: row.id,
+    assignmentType: 'primary',
+  })
+}
+
+function openEndPartTime(row: PersonAssignment) {
+  if (!detail.value) return
+  transferRef.value?.open(detail.value, deptTree.value, {
+    transferType: 'part_time_end',
+    assignmentId: row.id,
+  })
+}
+
+function onEventSuccess() {
+  cancelEdit()
+  void reload()
+}
 
 const profileBind = computed(() => ({
   bare: true,
@@ -582,8 +642,21 @@ function historyTag(type: PersonEventType | string) {
 }
 
 .person-detail__card-meta {
+  flex: 1;
   color: var(--text-color-secondary);
   font-size: 12px;
+}
+
+.person-detail__card-actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0;
+}
+
+.person-detail__card-actions :deep(.el-button) {
+  padding: 0 2px;
+  min-width: auto;
 }
 
 .person-detail__divider {
