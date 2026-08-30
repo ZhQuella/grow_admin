@@ -117,6 +117,10 @@ export function getAccountStore() {
 
 export const accountStore = getAccountStore()
 
+export function findAccountByPersonId(personId: string) {
+  return accountStore.find((item) => item.personId === personId)
+}
+
 export function findAccount(accountId: string) {
   return accountStore.find((item) => item.accountId === accountId)
 }

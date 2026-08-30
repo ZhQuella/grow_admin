@@ -1,6 +1,5 @@
 <template>
   <div class="family-editor">
-    <div v-if="!modelValue.length" class="family-editor__empty">暂无家庭成员，可点击下方添加</div>
     <div v-for="(row, index) in modelValue" :key="row.id" class="family-editor__row">
       <GrowInput v-model="row.name" placeholder="姓名(家人)" />
       <GrowSelect
@@ -26,15 +25,16 @@
         style="width: 100%"
       />
       <GrowInput v-model="row.phone" placeholder="电话" />
-      <GrowButton link type="danger" @click="remove(index)">删除</GrowButton>
+      <GrowButton link type="danger" :disabled="modelValue.length <= 1" @click="remove(index)">删除</GrowButton>
     </div>
     <GrowButton link type="primary" @click="add">+ 添加家庭成员</GrowButton>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { onMounted, watch } from 'vue'
 import { FAMILY_RELATION_OPTIONS, GENDER_OPTIONS, type PersonFamilyMember } from '../../../types/systemPerson'
-import { nextFamilyId } from '../use/helpers'
+import { emptyFamilyMember } from '../use/helpers'
 
 defineOptions({ name: 'FamilyEditor' })
 
@@ -46,16 +46,23 @@ const emit = defineEmits<{
   'update:modelValue': [value: PersonFamilyMember[]]
 }>()
 
+function ensureRow() {
+  if (!props.modelValue.length) {
+    emit('update:modelValue', [emptyFamilyMember()])
+  }
+}
+
 function add() {
-  emit('update:modelValue', [
-    ...props.modelValue,
-    { id: nextFamilyId(), name: '', relation: '', gender: '', birthday: '', phone: '' },
-  ])
+  emit('update:modelValue', [...props.modelValue, emptyFamilyMember()])
 }
 
 function remove(index: number) {
+  if (props.modelValue.length <= 1) return
   emit('update:modelValue', props.modelValue.filter((_, i) => i !== index))
 }
+
+onMounted(ensureRow)
+watch(() => props.modelValue.length, ensureRow)
 </script>
 
 <style scoped>
@@ -65,16 +72,17 @@ function remove(index: number) {
   gap: 8px;
 }
 
-.family-editor__empty {
-  color: var(--text-color-secondary);
-  font-size: 12px;
-}
-
 .family-editor__row {
   display: grid;
-  grid-template-columns: 1.2fr 1fr 0.8fr 1fr 1.1fr auto;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr auto;
   gap: 8px;
   align-items: center;
+}
+
+.family-editor__row :deep(.el-input),
+.family-editor__row :deep(.el-select),
+.family-editor__row :deep(.el-date-editor) {
+  width: 100%;
 }
 
 @media (max-width: 1100px) {

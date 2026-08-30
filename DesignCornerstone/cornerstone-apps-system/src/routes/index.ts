@@ -35,7 +35,6 @@ const SYSTEM_COMPONENTS: Record<string, GrowRouteComponent> = {
   AccountManage: () => import('../pages/account-manage/account-manage.vue'),
   PersonManage: () => import('../pages/person-manage/person-manage.vue'),
   PersonCreate: () => import('../pages/person-manage/person-form.vue'),
-  PersonEdit: () => import('../pages/person-manage/person-form.vue'),
   PersonDetail: () => import('../pages/person-manage/person-detail.vue'),
 }
 
@@ -58,7 +57,6 @@ export const SYSTEM_ROUTES: RouteRecordItem[] = flattenSystemRouteConfigs(
 
 const PERSON_FORM_PARENT_BY_NAME: Record<string, string> = {
   PersonCreate: 'PersonManage',
-  PersonEdit: 'PersonManage',
   PersonDetail: 'PersonManage',
 }
 

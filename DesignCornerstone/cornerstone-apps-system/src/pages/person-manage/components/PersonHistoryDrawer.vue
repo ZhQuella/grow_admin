@@ -55,10 +55,10 @@ const person = ref<SystemPersonListItem | null>(null)
 const rows = ref<PersonHistoryItem[]>([])
 
 function tagType(type: PersonEventType | string) {
-  if (type === 'resign') return 'danger'
-  if (type === 'transfer') return 'warning'
-  if (type === 'confirm') return 'success'
-  if (type === 'reinstate') return 'primary'
+  if (type === 'resign' || type === 'delete' || type === 'retire') return 'danger'
+  if (type === 'transfer' || type === 'disable' || type.startsWith('part_time')) return 'warning'
+  if (type === 'confirm' || type === 'enable') return 'success'
+  if (type === 'reinstate' || type === 'rehire') return 'primary'
   return 'info'
 }
 

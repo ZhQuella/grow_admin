@@ -9,6 +9,13 @@ export type FamilyMemberRecord = {
   phone: string
 }
 
+export type EmergencyContactRecord = {
+  id: string
+  name: string
+  relation: string
+  phone: string
+}
+
 export type MaterialFileRecord = {
   name: string
   url: string
@@ -16,7 +23,7 @@ export type MaterialFileRecord = {
 
 export type HistoryRecord = {
   id: string
-  type: 'onboard' | 'transfer' | 'confirm' | 'resign' | 'reinstate'
+  type: string
   title: string
   summary: string
   effectiveDate: string
@@ -43,7 +50,30 @@ export type PersonRecord = {
   jobCode: string
   jobTitle: string
   employeeType: 'full_time' | 'intern' | 'part_time' | 'contractor'
-  employeeStatus: 'probation' | 'formal' | 'resigned'
+  employeeStatus: 'pending' | 'probation' | 'formal' | 'disabled' | 'resigned' | 'retired' | 'rehired'
+  previousStatus?: PersonRecord['employeeStatus']
+  collaboratorIds?: string[]
+  assignments?: Array<{
+    id: string
+    deptId: string
+    deptName: string
+    postId: string
+    postName: string
+    jobCode?: string
+    jobTitle?: string
+    jobGrade?: string
+    type: 'primary' | 'part_time'
+    startDate: string
+    endDate: string
+    status: 'active' | 'ended'
+    occupyHeadcount: boolean
+    supervisorId?: string
+    collaboratorIds?: string[]
+  }>
+  idType?: string
+  probationStart?: string
+  probationEnd?: string
+  retireDate?: string
   probationMonths: string
   actualConfirmDate: string
   plannedConfirmDate: string
@@ -82,6 +112,7 @@ export type PersonRecord = {
   emergencyName: string
   emergencyRelation: string
   emergencyPhone: string
+  emergencyContacts: EmergencyContactRecord[]
   familyMembers: FamilyMemberRecord[]
   materials: Partial<Record<string, MaterialFileRecord | null>>
   history: HistoryRecord[]
@@ -171,6 +202,7 @@ function emptyPerson(base: {
     emergencyName: '',
     emergencyRelation: '',
     emergencyPhone: '',
+    emergencyContacts: [],
     familyMembers: [],
     materials: {},
     history: [
@@ -215,6 +247,10 @@ function getOrgGlobal(): OrgGlobal {
       zhang.emergencyName = '张母'
       zhang.emergencyRelation = '母亲'
       zhang.emergencyPhone = '13900001111'
+      zhang.emergencyContacts = [
+        { id: 'ec_u1_1', name: '张母', relation: '母亲', phone: '13900001111' },
+        { id: 'ec_u1_2', name: '张父', relation: '父亲', phone: '13900002222' },
+      ]
       zhang.familyMembers = [
         { id: 'fm_u1_1', name: '张母', relation: '母亲', gender: 'female', birthday: '1968-05-01', phone: '13900001111' },
       ]
@@ -316,6 +352,10 @@ export function nextHistoryId() {
 
 export function nextFamilyId() {
   return `fm_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`
+}
+
+export function nextEmergencyId() {
+  return `ec_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`
 }
 
 export function nextEmployeeNo() {

@@ -76,14 +76,14 @@
                       {{ employeeStatusLabel(row.employeeStatus) }}
                     </GrowTag>
                   </template>
-                  <template v-else-if="col.field === 'mobile'">
-                    {{ maskMobile(row.mobile) }}
+                  <template v-else-if="col.field === 'supervisorName'">
+                    {{ row.supervisorName || '-' }}
+                  </template>
+                  <template v-else-if="col.field === 'accountEnabled'">
+                    {{ row.hasAccount === false && !row.accountUsername ? '未绑定' : (row.accountEnabled ? '启用' : (row.accountEnabled === false ? '停用' : '-')) }}
                   </template>
                   <template v-else-if="col.field === 'entryDate'">
                     {{ formatDate(row.entryDate) }}
-                  </template>
-                  <template v-else-if="col.field === 'lastEventTitle'">
-                    <span>{{ row.lastEventTitle || '-' }}</span>
                   </template>
                   <template v-else-if="col.field === 'actions'">
                     <div class="person-manage__actions">
@@ -92,43 +92,53 @@
                           <GrowIconify icon="ant-design:profile-outlined" :size="16" />
                         </GrowButton>
                       </GrowTooltip>
-                      <GrowTooltip content="编辑" placement="top">
-                        <GrowButton link type="primary" @click="openEdit(row)">
-                          <GrowIconify icon="ant-design:edit-outlined" :size="16" />
-                        </GrowButton>
-                      </GrowTooltip>
                       <GrowTooltip content="历史" placement="top">
                         <GrowButton link type="primary" @click="openHistory(row)">
                           <GrowIconify icon="ant-design:history-outlined" :size="16" />
                         </GrowButton>
                       </GrowTooltip>
-                      <GrowTooltip v-if="row.employeeStatus !== 'resigned'" content="调岗" placement="top">
+                      <GrowTooltip v-if="canPersonAction(row.employeeStatus, 'transfer')" content="调岗" placement="top">
                         <GrowButton link type="primary" @click="openEvent('transfer', row)">
                           <GrowIconify icon="ant-design:swap-outlined" :size="16" />
                         </GrowButton>
                       </GrowTooltip>
-                      <GrowTooltip v-if="row.employeeStatus === 'probation'" content="转正" placement="top">
+                      <GrowTooltip v-if="canPersonAction(row.employeeStatus, 'confirm')" content="转正" placement="top">
                         <GrowButton link type="primary" @click="openEvent('confirm', row)">
                           <GrowIconify icon="ant-design:check-circle-outlined" :size="16" />
                         </GrowButton>
                       </GrowTooltip>
-                      <GrowTooltip v-if="row.employeeStatus !== 'resigned'" content="离职" placement="top">
+                      <GrowTooltip v-if="canPersonAction(row.employeeStatus, 'disable')" content="停用" placement="top">
+                        <GrowButton link type="warning" @click="openEvent('disable', row)">
+                          <GrowIconify icon="ant-design:stop-outlined" :size="16" />
+                        </GrowButton>
+                      </GrowTooltip>
+                      <GrowTooltip v-if="canPersonAction(row.employeeStatus, 'enable')" content="启用" placement="top">
+                        <GrowButton link type="primary" @click="openEvent('enable', row)">
+                          <GrowIconify icon="ant-design:play-circle-outlined" :size="16" />
+                        </GrowButton>
+                      </GrowTooltip>
+                      <GrowTooltip v-if="canPersonAction(row.employeeStatus, 'resign')" content="离职" placement="top">
                         <GrowButton link type="danger" @click="openEvent('resign', row)">
                           <GrowIconify icon="ant-design:logout-outlined" :size="16" />
                         </GrowButton>
                       </GrowTooltip>
-                      <GrowTooltip v-if="row.employeeStatus === 'resigned'" content="复职" placement="top">
+                      <GrowTooltip v-if="canPersonAction(row.employeeStatus, 'retire')" content="退休" placement="top">
+                        <GrowButton link type="warning" @click="openEvent('retire', row)">
+                          <GrowIconify icon="ant-design:coffee-outlined" :size="16" />
+                        </GrowButton>
+                      </GrowTooltip>
+                      <GrowTooltip v-if="canPersonAction(row.employeeStatus, 'reinstate')" content="复职" placement="top">
                         <GrowButton link type="primary" @click="openEvent('reinstate', row)">
                           <GrowIconify icon="ant-design:login-outlined" :size="16" />
                         </GrowButton>
                       </GrowTooltip>
-                      <GrowTooltip content="删除" placement="top">
-                        <GrowButton
-                          link
-                          type="danger"
-                          :disabled="row.employeeStatus !== 'resigned'"
-                          @click="onDelete(row)"
-                        >
+                      <GrowTooltip v-if="canPersonAction(row.employeeStatus, 'rehire')" content="返聘" placement="top">
+                        <GrowButton link type="primary" @click="openEvent('rehire', row)">
+                          <GrowIconify icon="ant-design:user-switch-outlined" :size="16" />
+                        </GrowButton>
+                      </GrowTooltip>
+                      <GrowTooltip v-if="canPersonAction(row.employeeStatus, 'delete')" content="删除" placement="top">
+                        <GrowButton link type="danger" @click="openEvent('delete', row)">
                           <GrowIconify icon="ant-design:delete-outlined" :size="16" />
                         </GrowButton>
                       </GrowTooltip>
@@ -158,26 +168,6 @@
       </div>
     </div>
 
-    <GrowDialog
-      v-model="deleteVisible"
-      title="删除确认"
-      width="420px"
-      append-to-body
-      destroy-on-close
-    >
-      <p class="person-manage__delete-hint">
-        确认删除人员「{{ deleteTarget?.name }}」？仅离职人员可删除，删除后不可恢复。
-      </p>
-      <template #footer>
-        <GrowSpace>
-          <GrowButton @click="deleteVisible = false">取消</GrowButton>
-          <GrowButton type="danger" :loading="deleteSubmitting" @click="confirmDelete">
-            删除
-          </GrowButton>
-        </GrowSpace>
-      </template>
-    </GrowDialog>
-
     <PersonHistoryDrawer ref="historyRef" />
     <PersonEventDialog ref="eventRef" @success="loadList" />
   </div>
@@ -188,29 +178,25 @@ import { computed, ref } from 'vue'
 import { GrowSearchBar } from '@grow-admin-rock/components/search-bar'
 import { GrowColumnBar } from '@grow-admin-rock/components/column-bar'
 import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
-import { useMsg } from '@grow-admin-rock/components'
-import { deleteSystemPerson } from '../../api/systemPerson'
 import {
+  canPersonAction,
   employeeStatusLabel,
   employeeTypeLabel,
+  type PersonEventMode,
   type SystemPersonListItem,
 } from '../../types/systemPerson'
 import type { SystemDeptTreeNode } from '../../types/systemRole'
 import PersonHistoryDrawer from './components/PersonHistoryDrawer.vue'
 import PersonEventDialog from './components/PersonEventDialog.vue'
 import { usePersonManage } from './use/usePersonManage'
-import { toMessage } from './use/helpers'
+import { statusTag } from './use/helpers'
 
 defineOptions({ name: 'PersonManagePage' })
 
-const message = useMsg()
 const historyRef = ref<{ open: (row: SystemPersonListItem) => void } | null>(null)
 const eventRef = ref<{
-  open: (mode: 'transfer' | 'confirm' | 'resign' | 'reinstate', row: SystemPersonListItem, tree: SystemDeptTreeNode[]) => void
+  open: (mode: PersonEventMode, row: SystemPersonListItem, tree: SystemDeptTreeNode[]) => void
 } | null>(null)
-const deleteVisible = ref(false)
-const deleteSubmitting = ref(false)
-const deleteTarget = ref<SystemPersonListItem | null>(null)
 
 const {
   tableData,
@@ -228,11 +214,9 @@ const {
   onDeptChange,
   openCreate,
   openDetail,
-  openEdit,
   deptTree,
   deptKeyword,
   formatDate,
-  maskMobile,
 } = usePersonManage()
 
 const filteredDeptTree = computed(() => filterTree(deptTree.value, deptKeyword.value.trim()))
@@ -253,12 +237,6 @@ function filterTree(nodes: SystemDeptTreeNode[], keyword: string): SystemDeptTre
   return walk(nodes)
 }
 
-function statusTag(status: string) {
-  if (status === 'formal') return 'success'
-  if (status === 'probation') return 'warning'
-  return 'info'
-}
-
 function onTreeClick(node: SystemDeptTreeNode) {
   onDeptChange(node.id)
 }
@@ -267,33 +245,8 @@ function openHistory(row: SystemPersonListItem) {
   historyRef.value?.open(row)
 }
 
-function openEvent(mode: 'transfer' | 'confirm' | 'resign' | 'reinstate', row: SystemPersonListItem) {
+function openEvent(mode: PersonEventMode, row: SystemPersonListItem) {
   eventRef.value?.open(mode, row, deptTree.value)
-}
-
-function onDelete(row: SystemPersonListItem) {
-  if (row.employeeStatus !== 'resigned') {
-    message.warning('在职人员不能删除，请先办理离职')
-    return
-  }
-  deleteTarget.value = row
-  deleteVisible.value = true
-}
-
-async function confirmDelete() {
-  const target = deleteTarget.value
-  if (!target) return
-  deleteSubmitting.value = true
-  try {
-    await deleteSystemPerson(target.userId)
-    message.success('删除成功')
-    deleteVisible.value = false
-    await loadList()
-  } catch (error) {
-    message.error(toMessage(error, '删除失败'))
-  } finally {
-    deleteSubmitting.value = false
-  }
 }
 </script>
 

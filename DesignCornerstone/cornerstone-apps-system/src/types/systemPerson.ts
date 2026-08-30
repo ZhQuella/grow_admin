@@ -1,11 +1,68 @@
 export const EMPLOYEE_TYPE_VALUES = ['full_time', 'intern', 'part_time', 'contractor'] as const
 export type EmployeeType = (typeof EMPLOYEE_TYPE_VALUES)[number]
 
-export const EMPLOYEE_STATUS_VALUES = ['probation', 'formal', 'resigned'] as const
+export const EMPLOYEE_STATUS_VALUES = [
+  'pending',
+  'probation',
+  'formal',
+  'disabled',
+  'resigned',
+  'retired',
+  'rehired',
+] as const
 export type EmployeeStatus = (typeof EMPLOYEE_STATUS_VALUES)[number]
 
-export const PERSON_EVENT_VALUES = ['onboard', 'transfer', 'confirm', 'resign', 'reinstate'] as const
+export const CREATE_STATUS_VALUES = ['pending', 'probation', 'formal'] as const
+export const ENABLE_STATUS_VALUES = ['probation', 'formal'] as const
+
+export const PERSON_EVENT_VALUES = [
+  'create',
+  'update',
+  'onboard',
+  'transfer',
+  'part_time_add',
+  'part_time_change',
+  'part_time_end',
+  'confirm',
+  'disable',
+  'enable',
+  'resign',
+  'retire',
+  'reinstate',
+  'rehire',
+  'delete',
+] as const
 export type PersonEventType = (typeof PERSON_EVENT_VALUES)[number]
+
+export const PERSON_EVENT_MODES = [
+  'transfer',
+  'confirm',
+  'disable',
+  'enable',
+  'resign',
+  'retire',
+  'reinstate',
+  'rehire',
+  'delete',
+] as const
+export type PersonEventMode = (typeof PERSON_EVENT_MODES)[number]
+
+export const ASSIGNMENT_TYPE_VALUES = ['primary', 'part_time'] as const
+export type AssignmentType = (typeof ASSIGNMENT_TYPE_VALUES)[number]
+
+export const ASSIGNMENT_STATUS_VALUES = ['active', 'ended'] as const
+export type AssignmentStatus = (typeof ASSIGNMENT_STATUS_VALUES)[number]
+
+export const TRANSFER_TYPE_VALUES = [
+  'primary',
+  'part_time_add',
+  'part_time_change',
+  'part_time_end',
+] as const
+export type TransferType = (typeof TRANSFER_TYPE_VALUES)[number]
+
+export const ID_TYPE_VALUES = ['id_card', 'passport', 'other'] as const
+export type PersonIdType = (typeof ID_TYPE_VALUES)[number]
 
 export const GENDER_VALUES = ['male', 'female'] as const
 export type PersonGender = (typeof GENDER_VALUES)[number]
@@ -40,17 +97,57 @@ export const EMPLOYEE_TYPE_OPTIONS: Array<{ label: string; value: EmployeeType }
 ]
 
 export const EMPLOYEE_STATUS_OPTIONS: Array<{ label: string; value: EmployeeStatus }> = [
+  { label: '待入职', value: 'pending' },
   { label: '试用', value: 'probation' },
   { label: '正式', value: 'formal' },
+  { label: '停用', value: 'disabled' },
   { label: '离职', value: 'resigned' },
+  { label: '退休', value: 'retired' },
+  { label: '返聘', value: 'rehired' },
+]
+
+export const CREATE_STATUS_OPTIONS = EMPLOYEE_STATUS_OPTIONS.filter((item) =>
+  (CREATE_STATUS_VALUES as readonly string[]).includes(item.value),
+)
+
+export const ENABLE_STATUS_OPTIONS = EMPLOYEE_STATUS_OPTIONS.filter((item) =>
+  (ENABLE_STATUS_VALUES as readonly string[]).includes(item.value),
+)
+
+export const ASSIGNMENT_TYPE_OPTIONS: Array<{ label: string; value: AssignmentType }> = [
+  { label: '主职', value: 'primary' },
+  { label: '兼职', value: 'part_time' },
+]
+
+export const TRANSFER_TYPE_OPTIONS: Array<{ label: string; value: TransferType }> = [
+  { label: '主岗位调岗', value: 'primary' },
+  { label: '兼职岗位新增', value: 'part_time_add' },
+  { label: '兼职岗位变更', value: 'part_time_change' },
+  { label: '兼职岗位结束', value: 'part_time_end' },
+]
+
+export const ID_TYPE_OPTIONS: Array<{ label: string; value: PersonIdType }> = [
+  { label: '身份证', value: 'id_card' },
+  { label: '护照', value: 'passport' },
+  { label: '其他', value: 'other' },
 ]
 
 export const PERSON_EVENT_OPTIONS: Array<{ label: string; value: PersonEventType }> = [
+  { label: '新增', value: 'create' },
+  { label: '编辑', value: 'update' },
   { label: '入职', value: 'onboard' },
   { label: '调岗', value: 'transfer' },
+  { label: '兼职新增', value: 'part_time_add' },
+  { label: '兼职变更', value: 'part_time_change' },
+  { label: '兼职结束', value: 'part_time_end' },
   { label: '转正', value: 'confirm' },
+  { label: '停用', value: 'disable' },
+  { label: '启用', value: 'enable' },
   { label: '离职', value: 'resign' },
+  { label: '退休', value: 'retire' },
   { label: '复职', value: 'reinstate' },
+  { label: '返聘', value: 'rehire' },
+  { label: '删除', value: 'delete' },
 ]
 
 export const GENDER_OPTIONS: Array<{ label: string; value: PersonGender }> = [
@@ -121,12 +218,54 @@ export function genderLabel(value?: string) {
   return GENDER_OPTIONS.find((item) => item.value === value)?.label || '-'
 }
 
+export function assignmentTypeLabel(value?: string) {
+  return ASSIGNMENT_TYPE_OPTIONS.find((item) => item.value === value)?.label || '-'
+}
+
+export function assignmentStatusLabel(value?: string) {
+  if (value === 'active') return '有效'
+  if (value === 'ended') return '已结束'
+  return '-'
+}
+
+export function idTypeLabel(value?: string) {
+  return ID_TYPE_OPTIONS.find((item) => item.value === value)?.label || '-'
+}
+
+export function occupyHeadcount(type?: AssignmentType | string) {
+  return type === 'primary'
+}
+
+const ACTION_STATUS_MAP: Record<PersonEventMode | 'edit', EmployeeStatus[]> = {
+  edit: ['pending', 'probation', 'formal', 'disabled', 'resigned', 'retired', 'rehired'],
+  transfer: ['pending', 'probation', 'formal', 'disabled', 'rehired'],
+  confirm: ['pending', 'probation'],
+  disable: ['pending', 'probation', 'formal', 'rehired'],
+  enable: ['disabled'],
+  resign: ['pending', 'probation', 'formal', 'disabled', 'rehired'],
+  retire: ['formal', 'rehired'],
+  reinstate: ['resigned'],
+  rehire: ['resigned', 'retired'],
+  delete: ['resigned'],
+}
+
+export function canPersonAction(status: string | undefined, action: PersonEventMode | 'edit') {
+  return ACTION_STATUS_MAP[action].includes((status || '') as EmployeeStatus)
+}
+
 export type PersonFamilyMember = {
   id: string
   name: string
   relation: string
   gender: string
   birthday: string
+  phone: string
+}
+
+export type PersonEmergencyContact = {
+  id: string
+  name: string
+  relation: string
   phone: string
 }
 
@@ -141,6 +280,50 @@ export type PersonRoleRef = {
   id: string
   name: string
   code: string
+}
+
+export type PersonAssignment = {
+  id: string
+  deptId: string
+  deptName: string
+  postId: string
+  postName: string
+  jobCode?: string
+  jobTitle?: string
+  jobGrade?: string
+  type: AssignmentType
+  startDate: string
+  endDate: string
+  status: AssignmentStatus
+  occupyHeadcount: boolean
+  reason?: string
+  supervisorId?: string
+  supervisorName?: string
+  collaboratorIds?: string[]
+  collaboratorNames?: string[]
+}
+
+export type PersonSuperiorRef = {
+  userId: string
+  name: string
+  relation: 'primary' | 'collaborator'
+}
+
+export type PersonAccountInfo = {
+  accountId: string
+  username: string
+  enabled: boolean
+  roles: PersonRoleRef[]
+  lastLoginAt: string
+}
+
+export type SystemPostOption = {
+  id: string
+  name: string
+  deptId: string
+  enabled: boolean
+  headcount?: number
+  occupied?: number
 }
 
 export type PersonHistoryItem = {
@@ -163,8 +346,15 @@ export type SystemPersonListItem = {
   deptId: string
   deptName: string
   post: string
+  postId?: string
   employeeType: EmployeeType
   employeeStatus: EmployeeStatus
+  previousStatus?: EmployeeStatus
+  supervisorName: string
+  accountId?: string
+  accountUsername?: string
+  accountEnabled?: boolean
+  hasAccount?: boolean
   entryDate: string
   resignDate: string
   lastEventTitle: string
@@ -176,15 +366,23 @@ export type SystemPersonDetail = SystemPersonListItem & {
   mainDeptId: string
   mainDeptName: string
   supervisorId: string
-  supervisorName: string
+  collaboratorIds: string[]
+  collaborators: PersonSuperiorRef[]
+  subordinates: PersonSuperiorRef[]
+  assignments: PersonAssignment[]
+  account?: PersonAccountInfo | null
+  idType: string
   extension: string
   officeLocation: string
   remark: string
   jobCode: string
   jobTitle: string
   probationMonths: string
+  probationStart: string
+  probationEnd: string
   actualConfirmDate: string
   plannedConfirmDate: string
+  retireDate: string
   jobGrade: string
   tenureText: string
   ageText: string
@@ -222,6 +420,7 @@ export type SystemPersonDetail = SystemPersonListItem & {
   emergencyName: string
   emergencyRelation: string
   emergencyPhone: string
+  emergencyContacts: PersonEmergencyContact[]
   familyMembers: PersonFamilyMember[]
   materials: PersonMaterials
   history: PersonHistoryItem[]
@@ -229,9 +428,14 @@ export type SystemPersonDetail = SystemPersonListItem & {
 
 export type SystemPersonQuery = {
   keyword?: string
+  name?: string
+  employeeNo?: string
+  mobile?: string
   deptId?: string
+  postId?: string
   employeeStatus?: EmployeeStatus | string
   employeeType?: EmployeeType | string
+  hasAccount?: string | boolean
   page?: number
   pageSize?: number
 }
@@ -247,6 +451,13 @@ export type SystemPersonSavePayload = Omit<
   | 'deptName'
   | 'mainDeptName'
   | 'supervisorName'
+  | 'collaborators'
+  | 'subordinates'
+  | 'account'
+  | 'accountId'
+  | 'accountUsername'
+  | 'accountEnabled'
+  | 'hasAccount'
   | 'roles'
   | 'tenureText'
   | 'ageText'
@@ -261,30 +472,53 @@ export type SystemPersonSavePayload = Omit<
 
 export type PersonTransferPayload = {
   userId: string
+  transferType: TransferType
+  assignmentId?: string
   deptId: string
-  post: string
-  jobTitle?: string
+  postId: string
+  post?: string
   effectiveDate: string
-  reason?: string
+  remark: string
 }
 
 export type PersonConfirmPayload = {
   userId: string
-  actualConfirmDate: string
-  remark?: string
+  targetStatus: Extract<EmployeeStatus, 'probation' | 'formal'>
+  probationStart?: string
+  probationEnd?: string
+  actualConfirmDate?: string
+  remark: string
 }
 
 export type PersonResignPayload = {
   userId: string
   resignDate: string
   reason?: string
+  remark: string
+}
+
+export type PersonStatusPayload = {
+  userId: string
+  effectiveDate: string
+  remark: string
+  employeeStatus?: Extract<EmployeeStatus, 'probation' | 'formal'>
 }
 
 export type PersonReinstatePayload = {
   userId: string
+  mode: 'reinstate' | 'rehire'
   deptId: string
-  post: string
+  postId: string
+  post?: string
+  assignmentType?: AssignmentType
+  supervisorId?: string
+  accountId?: string
   effectiveDate: string
-  employeeStatus?: EmployeeStatus
-  remark?: string
+  employeeStatus?: Extract<EmployeeStatus, 'probation' | 'formal' | 'rehired'>
+  remark: string
+}
+
+export type PersonDeletePayload = {
+  userId: string
+  remark: string
 }
