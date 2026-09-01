@@ -77,6 +77,8 @@ export type SystemRoleMember = {
   name: string
   post: string
   deptName: string
+  enabled: boolean
+  boundAt: string
 }
 
 export type SystemPerson = {
@@ -111,6 +113,7 @@ export type SystemRoleColumnRef = {
 export type SystemRoleDeptRef = {
   id: string
   name: string
+  invalid?: boolean
 }
 
 export type SystemRoleDataPermItem = {
@@ -123,6 +126,7 @@ export type SystemRoleDataPermItem = {
   filters: RowFilterCondition[]
   viewFilters: RowFilterCondition[]
   columnIds: string[]
+  editableColumnIds: string[]
 }
 
 export type SystemRoleDataPermView = SystemRoleDataPermItem & {
@@ -144,6 +148,14 @@ export type SystemRoleListItem = {
   functionCount: number
   dataPermCount: number
   updatedAt: string
+}
+
+export type SystemRoleOption = {
+  id: string
+  name: string
+  code: string
+  enabled: boolean
+  builtIn: boolean
 }
 
 export type SystemRoleDetail = SystemRoleListItem & {
@@ -178,8 +190,16 @@ export type SystemRoleCreatePayload = {
 
 export type SystemRoleUpdatePayload = {
   name: string
+  code: string
   sort: number
   remark?: string
+}
+
+export type SystemRoleDeleteImpact = {
+  memberCount: number
+  menuCount: number
+  functionCount: number
+  dataPermCount: number
 }
 
 export type SystemDeptTreeNode = {
@@ -191,6 +211,8 @@ export type SystemDeptTreeNode = {
 export type RolePermTreeNode = {
   key: string
   title: string
+  menuName?: string
+  directory: boolean
   disabled?: boolean
   children?: RolePermTreeNode[]
 }

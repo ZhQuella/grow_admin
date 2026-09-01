@@ -1,7 +1,14 @@
 import { ref } from 'vue'
 import { useDialog, useMsg } from '@grow-admin-rock/components'
-import { deleteSystemRole, setSystemRoleEnabled } from '../../../api/systemRole'
-import type { SystemRoleListItem } from '../../../types/systemRole'
+import {
+  deleteSystemRole,
+  fetchSystemRoleDeleteImpact,
+  setSystemRoleEnabled,
+} from '../../../api/systemRole'
+import type {
+  SystemRoleDeleteImpact,
+  SystemRoleListItem,
+} from '../../../types/systemRole'
 import { confirmWarning } from './confirmWarning'
 import { toMessage } from './helpers'
 
@@ -14,8 +21,10 @@ export function useRoleActions(options: UseRoleActionsOptions) {
   const dialog = useDialog()
 
   const deleteVisible = ref(false)
+  const deleteLoading = ref(false)
   const deleteSubmitting = ref(false)
   const deleteTarget = ref<SystemRoleListItem | null>(null)
+  const deleteImpact = ref<SystemRoleDeleteImpact | null>(null)
 
   async function onToggleEnabled(row: SystemRoleListItem, enabled: boolean) {
     if (row.builtIn) {
@@ -26,7 +35,7 @@ export function useRoleActions(options: UseRoleActionsOptions) {
     if (!enabled) {
       const ok = await confirmWarning(dialog, {
         title: '停用确认',
-        content: `确认停用角色「${row.name}」？停用后该角色将不可用。`,
+        content: `确认停用角色「${row.name}」？角色停用后，绑定账号将立即失去该角色下的权限。`,
         confirmText: '停用',
       })
       if (!ok) return
@@ -40,7 +49,7 @@ export function useRoleActions(options: UseRoleActionsOptions) {
     }
   }
 
-  function onDelete(row: SystemRoleListItem) {
+  async function onDelete(row: SystemRoleListItem) {
     if (row.builtIn) {
       message.warning('内置角色不能删除')
       return
@@ -50,7 +59,16 @@ export function useRoleActions(options: UseRoleActionsOptions) {
       return
     }
     deleteTarget.value = row
-    deleteVisible.value = true
+    deleteImpact.value = null
+    deleteLoading.value = true
+    try {
+      deleteImpact.value = await fetchSystemRoleDeleteImpact(row.id)
+      deleteVisible.value = true
+    } catch (error) {
+      message.error(toMessage(error, '加载影响范围失败'))
+    } finally {
+      deleteLoading.value = false
+    }
   }
 
   async function confirmDelete() {
@@ -72,8 +90,10 @@ export function useRoleActions(options: UseRoleActionsOptions) {
 
   return {
     deleteVisible,
+    deleteLoading,
     deleteSubmitting,
     deleteTarget,
+    deleteImpact,
     onToggleEnabled,
     onDelete,
     confirmDelete,

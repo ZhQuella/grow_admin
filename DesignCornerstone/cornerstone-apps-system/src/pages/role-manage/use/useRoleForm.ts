@@ -100,6 +100,7 @@ export function useRoleForm(options: UseRoleFormOptions) {
       } else if (formModel.id) {
         await updateSystemRole(formModel.id, {
           name: formModel.name.trim(),
+          code: formModel.code.trim(),
           sort: Number(formModel.sort ?? 0),
           remark: formModel.remark.trim(),
         })

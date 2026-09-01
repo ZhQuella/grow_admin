@@ -3,7 +3,12 @@ import { mockUrl } from '@grow-admin-rock/mock/constants'
 import { resultError, resultSuccess } from '@grow-admin-rock/mock/util'
 import {
   collectDeptIds,
+  createPostRecord,
+  ensurePersonAssignments,
+  findDept,
   findPerson,
+  findPosition,
+  findPost,
   getDeptName,
   nextEmployeeNo,
   nextEmergencyId,
@@ -11,10 +16,13 @@ import {
   nextHistoryId,
   nextPersonId,
   personStore,
+  positionStore,
+  postStore,
   type HistoryRecord,
   type PersonRecord,
 } from './orgStore'
 import { findAccount, findAccountByPersonId } from './accountStore'
+import { listRoleOptions } from './systemRole'
 
 const EMPLOYEE_TYPES = new Set(['full_time', 'intern', 'part_time', 'contractor'])
 
@@ -95,25 +103,7 @@ function reportsTo(person: PersonRecord, bossId: string) {
 }
 
 function ensureAssignments(person: PersonRecord) {
-  if (person.assignments?.length) return person.assignments
-  if (!person.deptId) return []
-  const ended = person.employeeStatus === 'resigned' || person.employeeStatus === 'retired'
-  const assignment = {
-    id: `as_${person.userId}`,
-    deptId: person.deptId,
-    deptName: getDeptName(person.deptId),
-    postId: `post_${person.deptId}_${person.post || 'default'}`,
-    postName: person.post,
-    type: 'primary' as const,
-    startDate: person.entryDate,
-    endDate: ended ? person.resignDate || person.retireDate || '' : '',
-    status: (ended ? 'ended' : 'active') as 'active' | 'ended',
-    occupyHeadcount: true,
-    supervisorId: person.supervisorId || '',
-    collaboratorIds: person.collaboratorIds || [],
-  }
-  person.assignments = [assignment]
-  return person.assignments
+  return ensurePersonAssignments(person)
 }
 
 function assignAccount(userId: string, accountId: string) {
@@ -130,12 +120,13 @@ function assignAccount(userId: string, accountId: string) {
 function personAccount(person: PersonRecord) {
   const account = findAccountByPersonId(person.userId)
   if (!account) return null
+  const roleMap = new Map(listRoleOptions().map((item) => [item.id, item]))
   return {
     accountId: account.accountId,
     username: account.username,
     enabled: account.enabled,
     lastLoginAt: account.lastLoginAt,
-    roles: account.roleIds.map((id) => ({ id, name: id, code: id })),
+    roles: account.roleIds.map((id) => roleMap.get(id) || { id, name: id, code: id }),
   }
 }
 
@@ -152,6 +143,9 @@ function toListItem(person: PersonRecord) {
     mobile: person.mobile,
     deptId: primary?.deptId || person.deptId,
     deptName: primary?.deptName || getDeptName(person.deptId),
+    deptState: primary?.status === 'active'
+      ? (findDept(primary.deptId)?.deleted ? 'deleted' : findDept(primary.deptId)?.status)
+      : undefined,
     post: primary?.postName || person.post,
     postId: primary?.postId,
     employeeType: person.employeeType,
@@ -188,13 +182,21 @@ function toDetail(person: PersonRecord) {
     subordinates: personStore
       .filter((item) => reportsTo(item, person.userId))
       .map((item) => ({ userId: item.userId, name: item.name, relation: 'primary' as const })),
-    assignments: clone(ensureAssignments(person)).map((row) => ({
-      ...row,
-      supervisorName: findPerson(row.supervisorId || '')?.name || '',
-      collaboratorNames: (row.collaboratorIds || [])
-        .map((id) => findPerson(id)?.name || '')
-        .filter(Boolean),
-    })),
+    assignments: clone(ensureAssignments(person)).map((row) => {
+      return {
+        ...row,
+        jobTitle: row.status === 'active' ? '' : row.jobTitle,
+        jobGrade: row.jobGrade || '',
+        jobCode: row.status === 'active' ? '' : row.jobCode,
+        deptState: row.status === 'active'
+          ? (findDept(row.deptId)?.deleted ? 'deleted' : findDept(row.deptId)?.status)
+          : undefined,
+        supervisorName: findPerson(row.supervisorId || '')?.name || '',
+        collaboratorNames: (row.collaboratorIds || [])
+          .map((id) => findPerson(id)?.name || '')
+          .filter(Boolean),
+      }
+    }),
     account: personAccount(person),
     idType: person.idType || 'id_card',
     extension: person.extension,
@@ -359,32 +361,47 @@ function applyPayload(person: PersonRecord, payload: Recordable<any>, isCreate: 
   }
   person.collaboratorIds = Array.isArray(payload.collaboratorIds) ? payload.collaboratorIds.map(String) : person.collaboratorIds || []
   person.assignments = assignments.length
-    ? assignments.map((item: Recordable<any>) => ({
-        id: pickText(item.id) || `as_${Date.now().toString(36)}`,
-        deptId: pickText(item.deptId),
-        deptName: getDeptName(pickText(item.deptId)),
-        postId: pickText(item.postId),
-        postName: pickText(item.postName) || pickText(item.post),
-        jobCode: pickText(item.jobCode),
-        jobTitle: pickText(item.jobTitle),
-        jobGrade: pickText(item.jobGrade),
-        type: item.type === 'part_time' ? 'part_time' : 'primary',
-        startDate: pickText(item.startDate),
-        endDate: pickText(item.endDate),
-        status: item.status === 'ended' ? 'ended' : 'active',
-        occupyHeadcount: item.type !== 'part_time',
-        supervisorId: pickText(item.supervisorId),
-        collaboratorIds: Array.isArray(item.collaboratorIds) ? item.collaboratorIds.map(String) : [],
-      }))
+    ? assignments.map((item: Recordable<any>) => {
+        const postId = pickText(item.postId)
+        const post = findPost(postId)
+        const ended = item.status === 'ended'
+        return {
+          id: pickText(item.id) || `as_${Date.now().toString(36)}`,
+          deptId: pickText(item.deptId),
+          deptName: getDeptName(pickText(item.deptId)),
+          postId,
+          postName: post?.name || pickText(item.postName) || pickText(item.post),
+          jobCode: ended ? pickText(item.jobCode) : '',
+          jobTitle: ended ? pickText(item.jobTitle) : '',
+          jobGradeId: pickText(item.jobGradeId) || positionStore.find((grade) => grade.name === pickText(item.jobGrade))?.id || '',
+          jobGrade: pickText(item.jobGrade),
+          type: item.type === 'part_time' ? 'part_time' : 'primary',
+          startDate: pickText(item.startDate),
+          endDate: pickText(item.endDate),
+          status: ended ? 'ended' : 'active',
+          occupyHeadcount: item.type !== 'part_time',
+          supervisorId: pickText(item.supervisorId),
+          collaboratorIds: Array.isArray(item.collaboratorIds) ? item.collaboratorIds.map(String) : [],
+        }
+      })
     : ensureAssignments(person)
+  for (const assignment of person.assignments) {
+    if (assignment.postId && !findPost(assignment.postId)) {
+      postStore.push(createPostRecord({
+        id: assignment.postId,
+        name: assignment.postName || '职员',
+        deptId: assignment.deptId,
+      }))
+    }
+  }
   const nextPrimary = person.assignments.find((item) => item.type === 'primary' && item.status === 'active')
   if (nextPrimary) {
     person.deptId = nextPrimary.deptId
     person.mainDeptId = nextPrimary.deptId
     person.post = nextPrimary.postName
-    person.jobCode = nextPrimary.jobCode || pickText(payload.jobCode)
-    person.jobTitle = nextPrimary.jobTitle || nextPrimary.postName || pickText(payload.jobTitle)
-    person.jobGrade = nextPrimary.jobGrade || pickText(payload.jobGrade)
+    person.jobCode = ''
+    person.jobTitle = ''
+    person.jobGrade = nextPrimary.jobGrade || ''
     person.supervisorId = nextPrimary.supervisorId || ''
     person.collaboratorIds = nextPrimary.collaboratorIds || []
   }
@@ -395,7 +412,6 @@ function applyPayload(person: PersonRecord, payload: Recordable<any>, isCreate: 
   person.actualConfirmDate = pickText(payload.actualConfirmDate)
   person.plannedConfirmDate = pickText(payload.plannedConfirmDate)
   person.retireDate = pickText(payload.retireDate)
-  person.jobGrade = pickText(payload.jobGrade)
   person.idName = pickText(payload.idName) || name
   person.idNumber = pickText(payload.idNumber)
   const parsed = person.idNumber ? parseIdCard(person.idNumber) : null
@@ -614,6 +630,13 @@ const mocks: MockMethod[] = [
       if (personStore[index].employeeStatus !== 'resigned') {
         return resultError('在职人员不能删除，请先办理离职')
       }
+      const account = findAccountByPersonId(userId)
+      if (account) {
+        account.personNameSnapshot = personStore[index].name
+        account.personDeptNameSnapshot = personStore[index].deptId
+        account.personStatusSnapshot = 'deleted'
+        account.enabled = false
+      }
       const [removed] = personStore.splice(index, 1)
       return resultSuccess({ userId: removed.userId }, { message: '删除成功' })
     },
@@ -644,14 +667,21 @@ const mocks: MockMethod[] = [
       const assignments = ensureAssignments(person)
       const deptId = pickText(payload.deptId)
       const postId = pickText(payload.postId)
-      const post = pickText(payload.post)
+      const targetPost = findPost(postId)
+      const post = targetPost?.name || pickText(payload.post)
+      const jobGradeId = pickText(payload.jobGradeId)
+      const grade = findPosition(jobGradeId)
       const effectiveDate = pickText(payload.effectiveDate) || today()
       const assignmentId = pickText(payload.assignmentId)
       if (transferType !== 'part_time_end' && (!deptId || !getDeptName(deptId))) return resultError('请选择有效部门')
+      if (transferType !== 'part_time_end' && (!targetPost || targetPost.deptId !== deptId || !targetPost.enabled)) {
+        return resultError('请选择有效岗位')
+      }
+      if (transferType !== 'part_time_end' && (!grade || !grade.enabled)) return resultError('请选择启用职级')
 
-      const jobTitle = pickText(payload.jobTitle) || post
-      const jobGrade = pickText(payload.jobGrade)
-      const jobCode = pickText(payload.jobCode)
+      const jobTitle = ''
+      const jobGrade = grade?.name || pickText(payload.jobGrade)
+      const jobCode = ''
       const supervisorId = pickText(payload.supervisorId)
       const collaboratorIds = Array.isArray(payload.collaboratorIds)
         ? payload.collaboratorIds.map(String).filter((id) => id && id !== supervisorId)
@@ -668,6 +698,7 @@ const mocks: MockMethod[] = [
         postId: postId || `post_${deptId}_${post || 'default'}`,
         postName: post,
         jobTitle,
+        jobGradeId,
         jobGrade,
         jobCode,
         type,
@@ -724,9 +755,9 @@ const mocks: MockMethod[] = [
           current.deptName = deptId ? getDeptName(deptId) : current.deptName
           current.postId = postId || current.postId
           current.postName = post || current.postName
-          current.jobTitle = jobTitle || current.jobTitle
-          current.jobGrade = jobGrade || current.jobGrade
-          current.jobCode = jobCode || current.jobCode
+          current.jobTitle = jobTitle
+          current.jobGrade = jobGrade
+          current.jobCode = jobCode
           current.supervisorId = supervisorId
           current.collaboratorIds = collaboratorIds
           person.deptId = current.deptId
@@ -880,39 +911,6 @@ const mocks: MockMethod[] = [
         effectiveDate,
       })
       return resultSuccess(toDetail(person), { message: '返聘成功' })
-    },
-  },
-  {
-    url: mockUrl('/system/posts'),
-    method: 'post',
-    timeout: 40,
-    response: ({ body }) => {
-      const deptId = pickText((body as Recordable<any>)?.deptId)
-      const titles = new Map<string, { id: string; name: string; deptId: string }>()
-      personStore.forEach((person) => {
-        ensureAssignments(person).forEach((item) => {
-          if (deptId && item.deptId !== deptId) return
-          const id = item.postId || `post_${item.deptId}_${item.postName || 'default'}`
-          titles.set(id, { id, name: item.postName || '职员', deptId: item.deptId })
-        })
-        if (!deptId || person.deptId === deptId) {
-          const id = `post_${person.deptId}_${person.post || 'default'}`
-          titles.set(id, { id, name: person.post || '职员', deptId: person.deptId })
-        }
-      })
-      if (deptId && !titles.size) {
-        titles.set(`post_${deptId}_default`, { id: `post_${deptId}_default`, name: '职员', deptId })
-      }
-      return resultSuccess(
-        [...titles.values()].map((item) => ({
-          ...item,
-          enabled: true,
-          headcount: 8,
-          occupied: personStore.filter((person) =>
-            ensureAssignments(person).some((row) => row.postId === item.id && row.status === 'active' && row.occupyHeadcount),
-          ).length,
-        })),
-      )
     },
   },
 ]

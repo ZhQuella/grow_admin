@@ -60,38 +60,15 @@
           </GrowFormItem>
         </GrowCol>
         <GrowCol :span="6">
-          <GrowFormItem label="职位">
-            <GrowInput
-              :model-value="row.jobTitle"
-              :disabled="readonly"
-              maxlength="32"
-              clearable
-              placeholder="请输入"
-              @update:model-value="(value) => patch(row, { jobTitle: String(value || '') })"
-            />
-          </GrowFormItem>
-        </GrowCol>
-        <GrowCol :span="6">
           <GrowFormItem label="职级">
-            <GrowInput
-              :model-value="row.jobGrade"
-              :disabled="readonly"
-              maxlength="16"
+            <GrowSelect
+              :model-value="gradeId(row)"
+              :options="gradeOptions"
+              filterable
               clearable
-              placeholder="如 P6"
-              @update:model-value="(value) => patch(row, { jobGrade: String(value || '') })"
-            />
-          </GrowFormItem>
-        </GrowCol>
-        <GrowCol :span="6">
-          <GrowFormItem label="岗位编码">
-            <GrowInput
-              :model-value="row.jobCode"
               :disabled="readonly"
-              maxlength="32"
-              clearable
-              placeholder="请输入"
-              @update:model-value="(value) => patch(row, { jobCode: String(value || '') })"
+              placeholder="请选择职级"
+              @update:model-value="(value) => onGradeChange(row, String(value || ''))"
             />
           </GrowFormItem>
         </GrowCol>
@@ -123,7 +100,7 @@
       <div class="assignment-editor__divider" />
       <GrowRow :gutter="16">
         <GrowCol :span="6">
-          <GrowFormItem label="主上级">
+          <GrowFormItem label="直属主管">
             <GrowSelect
               :model-value="row.supervisorId"
               :options="supervisorOptions"
@@ -165,9 +142,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, reactive, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useDialog } from '@grow-admin-rock/components'
 import { fetchSystemPosts } from '../../../api/systemPost'
+import { fetchSystemPositionOptions } from '../../../api/systemPosition'
 import {
   ASSIGNMENT_TYPE_OPTIONS,
   occupyHeadcount,
@@ -192,10 +170,26 @@ const emit = defineEmits<{
   'update:modelValue': [value: PersonAssignment[]]
 }>()
 
-const dialog = useDialog()
+const dialog = useDialog() as any
 const postMap = reactive<Record<string, SystemPostOption[]>>({})
+const positions = ref<Array<{ id: string; name: string; enabled: boolean }>>([])
 
 const rows = computed(() => props.modelValue)
+const gradeOptions = computed(() => {
+  const values = new Set(positions.value.map((item) => item.name))
+  const options = positions.value.map((item) => ({
+    label: item.name,
+    value: item.id,
+    disabled: !item.enabled,
+  }))
+  rows.value.forEach((row) => {
+    if (row.jobGrade && !values.has(row.jobGrade)) {
+      values.add(row.jobGrade)
+      options.push({ label: row.jobGrade, value: `legacy:${row.jobGrade}`, disabled: true })
+    }
+  })
+  return options
+})
 
 const overstaffHint = computed(() => {
   for (const row of rows.value) {
@@ -246,6 +240,8 @@ function onDeptChange(row: PersonAssignment, value: unknown) {
     deptName: findDeptTitle(props.deptTree, deptId),
     postId: '',
     postName: '',
+    jobTitle: '',
+    jobCode: '',
   })
   void loadPosts(deptId)
 }
@@ -255,7 +251,22 @@ function onPostChange(row: PersonAssignment, postId: string) {
   patch(row, {
     postId,
     postName: post?.name || '',
-    jobTitle: row.jobTitle || post?.name || '',
+    jobTitle: '',
+    jobCode: '',
+  })
+}
+
+function gradeId(row: PersonAssignment) {
+  return row.jobGradeId
+    || positions.value.find((item) => item.name === row.jobGrade)?.id
+    || (row.jobGrade ? `legacy:${row.jobGrade}` : '')
+}
+
+function onGradeChange(row: PersonAssignment, id: string) {
+  const grade = positions.value.find((item) => item.id === id)
+  patch(row, {
+    jobGradeId: grade?.id || '',
+    jobGrade: grade?.name || '',
   })
 }
 
@@ -349,7 +360,12 @@ function remove(index: number) {
   emitRows(rows.value.filter((_, i) => i !== index))
 }
 
-onMounted(ensureRow)
+onMounted(() => {
+  ensureRow()
+  void fetchSystemPositionOptions({ enabled: false }).then((items) => {
+    positions.value = items
+  })
+})
 watch(() => props.modelValue.length, ensureRow)
 watch(
   () => rows.value.map((item) => item.deptId).join(','),

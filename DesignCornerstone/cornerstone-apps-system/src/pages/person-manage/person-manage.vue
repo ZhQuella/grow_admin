@@ -76,6 +76,13 @@
                       {{ employeeStatusLabel(row.employeeStatus) }}
                     </GrowTag>
                   </template>
+                  <template v-else-if="col.field === 'deptName'">
+                    <span :class="{ 'person-manage__invalid-dept': row.deptState === 'deleted' }">
+                      {{ row.deptName || '-' }}
+                    </span>
+                    <GrowTag v-if="row.deptState === 'deleted'" type="danger" size="small">部门已删除</GrowTag>
+                    <GrowTag v-else-if="row.deptState === 'disabled'" type="info" size="small">部门已停用</GrowTag>
+                  </template>
                   <template v-else-if="col.field === 'supervisorName'">
                     {{ row.supervisorName || '-' }}
                   </template>
@@ -348,6 +355,11 @@ function openEvent(mode: PersonEventMode, row: SystemPersonListItem) {
   align-items: center;
   gap: 2px;
   flex-wrap: nowrap;
+}
+
+.person-manage__invalid-dept {
+  margin-right: 6px;
+  color: var(--el-text-color-secondary);
 }
 
 .person-manage__delete-hint {

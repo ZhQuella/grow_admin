@@ -297,6 +297,7 @@ export type PersonAssignment = {
   postName: string
   jobCode?: string
   jobTitle?: string
+  jobGradeId?: string
   jobGrade?: string
   type: AssignmentType
   startDate: string
@@ -304,6 +305,7 @@ export type PersonAssignment = {
   status: AssignmentStatus
   occupyHeadcount: boolean
   reason?: string
+  deptState?: 'enabled' | 'disabled' | 'deleted'
   supervisorId?: string
   supervisorName?: string
   collaboratorIds?: string[]
@@ -327,6 +329,7 @@ export type PersonAccountInfo = {
 export type SystemPostOption = {
   id: string
   name: string
+  code: string
   deptId: string
   enabled: boolean
   headcount?: number
@@ -352,6 +355,7 @@ export type SystemPersonListItem = {
   mobile: string
   deptId: string
   deptName: string
+  deptState?: 'enabled' | 'disabled' | 'deleted'
   post: string
   postId?: string
   employeeType: EmployeeType
@@ -486,6 +490,7 @@ export type PersonTransferPayload = {
   postId: string
   post?: string
   jobTitle?: string
+  jobGradeId?: string
   jobGrade?: string
   jobCode?: string
   supervisorId?: string

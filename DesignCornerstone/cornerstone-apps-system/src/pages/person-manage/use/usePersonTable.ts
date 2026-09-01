@@ -119,7 +119,7 @@ export function usePersonTable() {
     { title: '主岗位', field: 'post', visible: true, minWidth: 120 },
     { title: '员工类型', field: 'employeeType', visible: true, minWidth: 90 },
     { title: '人员状态', field: 'employeeStatus', visible: true, minWidth: 90 },
-    { title: '直属上级', field: 'supervisorName', visible: true, minWidth: 110 },
+    { title: '直属主管', field: 'supervisorName', visible: true, minWidth: 110 },
     { title: '账号状态', field: 'accountEnabled', visible: true, minWidth: 100 },
     { title: '入职日期', field: 'entryDate', visible: true, minWidth: 110 },
     { title: '操作', field: 'actions', visible: true, minWidth: 320, fixed: 'right' },

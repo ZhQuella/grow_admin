@@ -2,7 +2,7 @@ import { findPerson, personStore } from './orgStore'
 
 export type AccountHistoryRecord = {
   id: string
-  type: 'create' | 'update' | 'assign' | 'unassign' | 'enable' | 'disable' | 'reset_password' | 'login'
+  type: 'create' | 'update' | 'assign' | 'reassign' | 'unassign' | 'enable' | 'disable' | 'reset_password' | 'login' | 'delete'
   title: string
   summary: string
   operator: string
@@ -12,9 +12,15 @@ export type AccountHistoryRecord = {
 export type AccountRecord = {
   accountId: string
   username: string
+  nickname: string
+  mobile: string
+  email: string
   password: string
   enabled: boolean
   personId: string
+  personNameSnapshot: string
+  personDeptNameSnapshot: string
+  personStatusSnapshot: string
   roleIds: string[]
   remark: string
   lastLoginAt: string
@@ -61,9 +67,15 @@ function createAccountStore(): AccountRecord[] {
     {
       accountId: 'acc_admin',
       username: 'admin',
+      nickname: '系统管理员',
+      mobile: '',
+      email: 'admin@example.com',
       password: '1237894560',
       enabled: true,
       personId: '',
+      personNameSnapshot: '',
+      personDeptNameSnapshot: '',
+      personStatusSnapshot: '',
       roleIds: ['role_super'],
       remark: '系统管理员，可不绑定人员',
       lastLoginAt: created,
@@ -82,9 +94,15 @@ function createAccountStore(): AccountRecord[] {
     accounts.push({
       accountId: `acc_${item.personId}`,
       username: item.username,
+      nickname: person?.name || '',
+      mobile: person?.mobile || '',
+      email: person?.email || '',
       password: '123456',
-      enabled: person?.employeeStatus !== 'resigned',
+      enabled: person?.employeeStatus !== 'resigned' && person?.employeeStatus !== 'retired',
       personId: item.personId,
+      personNameSnapshot: person?.name || '',
+      personDeptNameSnapshot: person?.deptId || '',
+      personStatusSnapshot: person?.employeeStatus || '',
       roleIds: [...item.roleIds],
       remark: '',
       lastLoginAt: index % 2 === 0 ? at : '',
@@ -101,7 +119,7 @@ function createAccountStore(): AccountRecord[] {
   return accounts
 }
 
-const ACCOUNT_STORE_VERSION = 2
+const ACCOUNT_STORE_VERSION = 4
 
 export function getAccountStore() {
   const g = globalThis as typeof globalThis & {

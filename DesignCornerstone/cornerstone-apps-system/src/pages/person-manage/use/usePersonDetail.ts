@@ -354,7 +354,7 @@ export function usePersonDetail() {
     if ((formModel.assignments || []).some((item) =>
       item.supervisorId && (item.collaboratorIds || []).includes(item.supervisorId),
     )) {
-      message.warning('同一任职下协同上级不能与主上级重复')
+      message.warning('同一任职下协同上级不能与直属主管重复')
       return
     }
     saving.value = true
@@ -422,8 +422,6 @@ export function usePersonDetail() {
         if (row.type !== 'primary' || row.status === 'ended') return row
         return {
           ...row,
-          jobCode: row.jobCode || item?.jobCode || '',
-          jobTitle: row.jobTitle || item?.jobTitle || '',
           jobGrade: row.jobGrade || item?.jobGrade || '',
           supervisorId: row.supervisorId || item?.supervisorId || '',
           supervisorName: row.supervisorName || item?.supervisorName || '',

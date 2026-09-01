@@ -22,24 +22,45 @@
               <div v-if="!selectedAccounts.length" class="role-member__empty">
                 {{ readonly ? '暂未绑定账号' : '点击「选择账号」，确定后会添加到这里' }}
               </div>
-              <div v-else class="role-member__list">
+              <div v-else class="role-member__list" role="list">
                 <div
                   v-for="account in selectedAccounts"
                   :key="account.accountId"
                   class="role-member__item"
+                  role="listitem"
                 >
-                  <div class="role-member__item-main">
-                    <div class="role-member__item-title">{{ account.username }}</div>
-                    <div class="role-member__item-meta">
-                      {{ account.personName || '未绑定人员' }}
-                      {{ account.enabled ? '' : ' · 已停用' }}
+                  <div class="role-member__identity">
+                    <span class="role-member__icon">
+                      <GrowIconify icon="ant-design:user-outlined" :size="18" />
+                    </span>
+                    <div class="role-member__identity-main">
+                      <div class="role-member__name">{{ account.username }}</div>
+                      <div class="role-member__meta">
+                        <span>{{ account.personName || '未绑定人员' }}</span>
+                        <span class="role-member__separator">·</span>
+                        <span>{{ account.deptName || '暂无主部门' }}</span>
+                      </div>
                     </div>
                   </div>
-                  <GrowTooltip v-if="!readonly" content="移除" placement="top">
-                    <GrowButton class="role-member__remove" link type="danger" @click="onRemove(account.accountId)">
-                      <GrowIconify icon="ant-design:close-outlined" :size="16" />
-                    </GrowButton>
-                  </GrowTooltip>
+                  <div class="role-member__aside">
+                    <GrowTag :type="account.enabled ? 'success' : 'danger'" size="small">
+                      {{ account.enabled ? '启用' : '停用' }}
+                    </GrowTag>
+                    <div class="role-member__bound-at">
+                      <span>绑定时间</span>
+                      <strong>{{ account.boundAt ? formatTime(account.boundAt) : '保存后记录' }}</strong>
+                    </div>
+                    <GrowTooltip v-if="!readonly" content="解绑" placement="top">
+                      <GrowButton
+                        class="role-member__remove"
+                        link
+                        type="danger"
+                        @click="onRemove(account.accountId)"
+                      >
+                        <GrowIconify icon="ant-design:close-outlined" :size="16" />
+                      </GrowButton>
+                    </GrowTooltip>
+                  </div>
                 </div>
               </div>
             </div>
@@ -66,18 +87,34 @@
     v-if="!readonly"
     v-model="pickerVisible"
     title="选择账号"
-    width="640px"
+    width="780px"
     append-to-body
     destroy-on-close
     align-center
     :z-index="4200"
   >
     <div class="role-account-picker">
-      <GrowInput
-        v-model="pickerKeyword"
-        clearable
-        placeholder="搜索登录名或人员"
-      />
+      <div class="role-account-picker__filters">
+        <GrowInput
+          v-model="pickerAccountKeyword"
+          clearable
+          placeholder="搜索账号名称"
+        />
+        <GrowSelect
+          v-model="pickerPersonId"
+          :options="personOptions"
+          clearable
+          filterable
+          placeholder="筛选绑定人员"
+        />
+        <GrowSelect
+          v-model="pickerDeptName"
+          :options="deptOptions"
+          clearable
+          filterable
+          placeholder="筛选主部门"
+        />
+      </div>
       <div class="role-account-picker__table">
         <GrowScrollbar height="360px">
           <table>
@@ -86,12 +123,13 @@
                 <th class="role-account-picker__check" />
                 <th>登录名</th>
                 <th>绑定人员</th>
+                <th>主部门</th>
                 <th>状态</th>
               </tr>
             </thead>
             <tbody>
               <tr v-if="!filteredAccounts.length">
-                <td colspan="4" class="role-account-picker__empty">暂无账号</td>
+                <td colspan="5" class="role-account-picker__empty">暂无账号</td>
               </tr>
               <tr
                 v-for="account in filteredAccounts"
@@ -107,6 +145,7 @@
                 </td>
                 <td>{{ account.username }}</td>
                 <td>{{ account.personName || '未绑定人员' }}</td>
+                <td>{{ account.deptName || '-' }}</td>
                 <td>{{ account.enabled ? '启用' : '停用' }}</td>
               </tr>
             </tbody>
@@ -134,7 +173,7 @@ import { fetchSystemAccountBriefs } from '../../../api/systemAccount'
 import { getSystemRoleDetail, saveSystemRoleMembers } from '../../../api/systemRole'
 import type { SystemAccountBrief } from '../../../types/systemAccount'
 import type { SystemRoleListItem } from '../../../types/systemRole'
-import { toMessage } from '../use/helpers'
+import { formatTime, toMessage } from '../use/helpers'
 
 defineOptions({
   name: 'RoleMemberDrawer',
@@ -153,7 +192,10 @@ const role = ref<SystemRoleListItem | null>(null)
 const accounts = ref<SystemAccountBrief[]>([])
 const selectedIds = ref<string[]>([])
 const draftIds = ref<string[]>([])
-const pickerKeyword = ref('')
+const boundAtMap = ref(new Map<string, string>())
+const pickerAccountKeyword = ref('')
+const pickerPersonId = ref('')
+const pickerDeptName = ref('')
 
 const drawerTitle = computed(() => {
   const name = role.value?.name
@@ -166,22 +208,39 @@ const accountMap = computed(() => new Map(accounts.value.map((item) => [item.acc
 const selectedAccounts = computed(() =>
   selectedIds.value.map((id) => {
     const item = accountMap.value.get(id)
-    return item || {
-      accountId: id,
-      username: id,
-      personName: '',
-      enabled: true,
+    return {
+      ...(item || {
+        accountId: id,
+        username: id,
+        personId: '',
+        personName: '',
+        deptName: '',
+        enabled: true,
+      }),
+      boundAt: boundAtMap.value.get(id) || '',
     }
   }),
 )
 
+const personOptions = computed(() => {
+  const options = new Map<string, string>()
+  for (const account of accounts.value) {
+    if (account.personId && account.personName) options.set(account.personId, account.personName)
+  }
+  return [...options].map(([value, label]) => ({ label, value }))
+})
+
+const deptOptions = computed(() => [...new Set(
+  accounts.value.map((item) => item.deptName).filter(Boolean),
+)].map((value) => ({ label: value, value })))
+
 const filteredAccounts = computed(() => {
-  const keyword = pickerKeyword.value.trim().toLowerCase()
-  if (!keyword) return accounts.value
+  const keyword = pickerAccountKeyword.value.trim().toLowerCase()
   return accounts.value.filter((item) => {
-    const username = item.username.toLowerCase()
-    const personName = (item.personName || '').toLowerCase()
-    return username.includes(keyword) || personName.includes(keyword)
+    if (keyword && !item.username.toLowerCase().includes(keyword)) return false
+    if (pickerPersonId.value && item.personId !== pickerPersonId.value) return false
+    if (pickerDeptName.value && item.deptName !== pickerDeptName.value) return false
+    return true
   })
 })
 
@@ -190,8 +249,10 @@ watch(visible, (open) => {
 })
 
 function openPicker() {
-  draftIds.value = []
-  pickerKeyword.value = ''
+  draftIds.value = [...selectedIds.value]
+  pickerAccountKeyword.value = ''
+  pickerPersonId.value = ''
+  pickerDeptName.value = ''
   pickerVisible.value = true
 }
 
@@ -204,11 +265,7 @@ function onToggleDraft(accountId: string) {
 }
 
 function onPickConfirm() {
-  const merged = [...selectedIds.value]
-  for (const id of draftIds.value) {
-    if (id && !merged.includes(id)) merged.push(id)
-  }
-  selectedIds.value = merged
+  selectedIds.value = [...draftIds.value]
   pickerVisible.value = false
 }
 
@@ -221,6 +278,7 @@ async function open(row: SystemRoleListItem, options?: { readonly?: boolean }) {
   readonly.value = Boolean(options?.readonly)
   pickerVisible.value = false
   selectedIds.value = []
+  boundAtMap.value = new Map()
   visible.value = true
   try {
     const [detail, list] = await Promise.all([
@@ -229,6 +287,7 @@ async function open(row: SystemRoleListItem, options?: { readonly?: boolean }) {
     ])
     accounts.value = Array.isArray(list) ? list : []
     selectedIds.value = Array.isArray(detail?.userIds) ? [...detail.userIds] : []
+    boundAtMap.value = new Map((detail?.members || []).map((item) => [item.userId, item.boundAt]))
   } catch (error) {
     message.error(toMessage(error, '加载失败'))
   }
@@ -282,57 +341,129 @@ defineExpose({ open })
 }
 
 .role-member__list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  border: 1px solid var(--layout-border-color);
+  border-radius: 6px;
+  overflow: hidden;
 }
 
 .role-member__item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 8px;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 68px;
+  padding: 12px 14px;
+  background: var(--component-background-color);
+}
+
+.role-member__item + .role-member__item {
+  border-top: 1px solid var(--layout-border-color);
+}
+
+.role-member__item:hover {
   background: var(--layout-container-background-color);
 }
 
-.role-member__item-main {
-  flex: 1;
+.role-member__identity {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 10px;
+}
+
+.role-member__icon {
+  display: inline-flex;
+  flex: 0 0 34px;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  color: var(--primary-color);
+  background: var(--color-primary-a08, var(--layout-color));
+}
+
+.role-member__icon :deep(.grow-iconify),
+.role-member__remove :deep(.grow-iconify) {
+  display: flex !important;
+}
+
+.role-member__identity-main {
   min-width: 0;
 }
 
-.role-member__item-title {
+.role-member__name {
   overflow: hidden;
   color: var(--text-color);
   font-size: 14px;
-  line-height: 1.4;
+  font-weight: 500;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.role-member__item-meta {
-  margin-top: 4px;
+.role-member__meta {
+  display: flex;
+  min-width: 0;
+  margin-top: 5px;
   overflow: hidden;
   color: var(--text-color-secondary);
   font-size: 12px;
-  line-height: 1.5;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.role-member__remove {
-  box-sizing: border-box;
+.role-member__separator {
+  margin: 0 6px;
+}
+
+.role-member__aside {
+  display: flex;
   flex-shrink: 0;
+  align-items: center;
+  gap: 12px;
+}
+
+.role-member__bound-at {
+  display: flex;
+  flex-direction: column;
+  min-width: 118px;
+  color: var(--text-color-secondary);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.role-member__bound-at strong {
+  color: var(--text-color);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.role-member__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
   width: 28px;
   height: 28px;
   margin: 0;
   padding: 0;
+  line-height: 1;
 }
 
 .role-account-picker {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.role-account-picker__filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+}
+
+.role-account-picker__filters :deep(.el-select) {
+  width: 100%;
 }
 
 .role-account-picker__table {
@@ -389,6 +520,33 @@ defineExpose({ open })
   width: 100%;
   color: var(--text-color-secondary);
   font-size: 13px;
+}
+
+@media (max-width: 640px) {
+  .role-member__item {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .role-member__identity {
+    width: 100%;
+  }
+
+  .role-member__aside {
+    width: calc(100% - 44px);
+    margin-left: 44px;
+  }
+
+  .role-member__bound-at {
+    flex: 1;
+    flex-direction: row;
+    min-width: 0;
+    gap: 6px;
+  }
+
+  .role-member__remove {
+    margin-left: auto;
+  }
 }
 </style>
 

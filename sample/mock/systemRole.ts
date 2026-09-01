@@ -3,6 +3,7 @@ import { mockUrl } from '@grow-admin-rock/mock/constants'
 import { resultError, resultSuccess } from '@grow-admin-rock/mock/util'
 import {
   buildDeptTree,
+  findDept,
   getDeptName,
   personStore,
   toBriefPerson,
@@ -41,6 +42,7 @@ type DataPermRecord = {
   filters: FilterRecord[]
   viewFilters: FilterRecord[]
   columnIds: string[]
+  editableColumnIds: string[]
 }
 
 type RoleRecord = {
@@ -54,6 +56,7 @@ type RoleRecord = {
   menuNames: string[]
   functionIds: string[]
   userIds: string[]
+  memberBoundAt: Record<string, string>
   dataPerms: DataPermRecord[]
   updatedAt: string
 }
@@ -89,11 +92,12 @@ function emptyDataPerm(menuName: string, extra: Partial<DataPermRecord> = {}): D
     filters: [],
     viewFilters: [],
     columnIds: [],
+    editableColumnIds: [],
     ...extra,
   }
 }
 
-function toAccountMember(accountId: string) {
+function toAccountMember(accountId: string, boundAt: string) {
   const account = findAccount(accountId)
   const person = account?.personId
     ? personStore.find((item) => item.userId === account.personId)
@@ -105,6 +109,8 @@ function toAccountMember(accountId: string) {
     name: person?.name || '',
     post: person?.post || '-',
     deptName: person ? getDeptName(person.deptId) : '未绑定人员',
+    enabled: account?.enabled !== false,
+    boundAt,
   }
 }
 
@@ -118,9 +124,10 @@ function createRoleStore(): RoleRecord[] {
     enabled: true,
     remark: '内置角色，不能停用',
     builtIn: true,
-    menuNames: ['MenuManage', 'RoleManage', 'PersonManage', 'AccountManage'],
-    functionIds: ['mf_query', 'mf_export', 'pf_query', 'pf_create', 'pf_transfer', 'pf_resign', 'af_query', 'af_create', 'af_reset'],
+    menuNames: ['MenuManage', 'RoleManage', 'PersonManage', 'AccountManage', 'DeptManage', 'PostManage', 'PositionManage'],
+    functionIds: ['mf_query', 'mf_export', 'pf_query', 'pf_create', 'pf_transfer', 'pf_resign', 'af_query', 'af_create', 'af_reset', 'df_query', 'df_create', 'df_edit', 'df_stop', 'df_migrate', 'df_merge', 'df_delete', 'post_query', 'post_create', 'post_edit', 'post_status', 'pos_query', 'pos_create', 'pos_edit', 'pos_status'],
     userIds: ['acc_admin', 'acc_u2', 'acc_u9'],
+    memberBoundAt: {},
     dataPerms: [
       emptyDataPerm('MenuManage', {
         editScope: 'all',
@@ -138,6 +145,18 @@ function createRoleStore(): RoleRecord[] {
         editScope: 'all',
         columnIds: ['ac_username', 'ac_person', 'ac_dept', 'ac_enabled', 'ac_login'],
       }),
+      emptyDataPerm('DeptManage', {
+        editScope: 'all',
+        columnIds: ['dc_name', 'dc_code', 'dc_parent', 'dc_manager', 'dc_sort', 'dc_status'],
+      }),
+      emptyDataPerm('PostManage', {
+        editScope: 'all',
+        columnIds: ['postc_name', 'postc_code', 'postc_dept', 'postc_enabled'],
+      }),
+      emptyDataPerm('PositionManage', {
+        editScope: 'all',
+        columnIds: ['posc_name', 'posc_code', 'posc_level', 'posc_enabled'],
+      }),
     ],
     updatedAt: now(),
   },
@@ -151,6 +170,7 @@ function createRoleStore(): RoleRecord[] {
     menuNames: ['MenuManage'],
     functionIds: ['mf_query'],
     userIds: ['acc_u1', 'acc_u3', 'acc_u15'],
+    memberBoundAt: {},
     dataPerms: [
       emptyDataPerm('MenuManage', {
         editScope: 'dept_and_sub',
@@ -169,13 +189,14 @@ function createRoleStore(): RoleRecord[] {
     menuNames: [],
     functionIds: [],
     userIds: ['acc_u6'],
+    memberBoundAt: {},
     dataPerms: [],
     updatedAt: now(),
   },
   ]
 }
 
-const ROLE_STORE_VERSION = 2
+const ROLE_STORE_VERSION = 6
 
 function getRoleStore() {
   const g = globalThis as typeof globalThis & {
@@ -186,6 +207,8 @@ function getRoleStore() {
     g.__GROW_ROLE_STORE__ = createRoleStore()
     g.__GROW_ROLE_STORE_VERSION__ = ROLE_STORE_VERSION
     for (const role of g.__GROW_ROLE_STORE__) {
+      const initialBoundAt = role.updatedAt
+      for (const accountId of role.userIds) role.memberBoundAt[accountId] = initialBoundAt
       replaceAccountRolesForRole(role.id, role.userIds)
     }
   }
@@ -229,13 +252,14 @@ function toDetail(role: RoleRecord) {
       menuTitle: '',
     })),
     userIds: [...role.userIds],
-    members: role.userIds.map((userId) => toAccountMember(userId)),
+    members: role.userIds.map((userId) => toAccountMember(userId, role.memberBoundAt[userId] || role.updatedAt)),
     dataPerms: role.dataPerms.map((item) => ({
       ...item,
       menuTitle: item.menuName,
       depts: item.deptIds.map((id) => ({
         id,
         name: getDeptName(id) || id,
+        invalid: Boolean(findDept(id)?.deleted),
       })),
       columns: item.columnIds.map((id) => ({ id, title: id, code: id })),
     })),
@@ -259,6 +283,7 @@ export function listRoleOptions() {
     name: item.name,
     code: item.code,
     enabled: item.enabled,
+    builtIn: Boolean(item.builtIn),
   }))
 }
 
@@ -267,9 +292,15 @@ export function applyAccountRoleIds(accountId: string, roleIds: string[]) {
   for (const role of roleStore) {
     const has = role.userIds.includes(accountId)
     const should = set.has(role.id)
-    if (should && !has) role.userIds.push(accountId)
-    if (has && !should) role.userIds = role.userIds.filter((id) => id !== accountId)
-    if (has !== should) role.updatedAt = new Date().toISOString()
+    if (should && !has) {
+      role.userIds.push(accountId)
+      role.memberBoundAt[accountId] = now()
+    }
+    if (has && !should) {
+      role.userIds = role.userIds.filter((id) => id !== accountId)
+      delete role.memberBoundAt[accountId]
+    }
+    if (has !== should) role.updatedAt = now()
   }
   const account = findAccount(accountId)
   if (account) account.roleIds = [...set]
@@ -353,6 +384,7 @@ export function removeRoleColumnReferences(columnIds: string[]) {
   for (const role of roleStore) {
     for (const item of role.dataPerms) {
       item.columnIds = item.columnIds.filter((id) => !ids.has(id))
+      item.editableColumnIds = item.editableColumnIds.filter((id) => !ids.has(id))
       item.selfRelated.columnIds = item.selfRelated.columnIds.filter((id) => !ids.has(id))
       item.viewSelfRelated.columnIds = item.viewSelfRelated.columnIds.filter((id) => !ids.has(id))
       item.filters = item.filters.filter((filter) => !ids.has(filter.columnId))
@@ -455,6 +487,13 @@ function pickDataPerms(payload: Recordable<any>, grantedMenus: string[]) {
       return `菜单「${menuName}」请添加其它记录的筛选条件`
     }
 
+    const columnIds = pickIds(raw?.columnIds)
+    const visibleIds = new Set(columnIds)
+    const editableColumnIds = pickIds(raw?.editableColumnIds)
+    if (editableColumnIds.some((id) => !visibleIds.has(id))) {
+      return `菜单「${menuName}」存在可编辑但不可见的字段`
+    }
+
     next.push({
       menuName,
       editScope,
@@ -464,7 +503,8 @@ function pickDataPerms(payload: Recordable<any>, grantedMenus: string[]) {
       viewSelfRelated,
       filters,
       viewFilters,
-      columnIds: pickIds(raw?.columnIds),
+      columnIds,
+      editableColumnIds,
     })
   }
 
@@ -521,6 +561,7 @@ const mocks: MockMethod[] = [
         menuNames: [],
         functionIds: [],
         userIds: [],
+        memberBoundAt: {},
         dataPerms: [],
         updatedAt: now(),
       }
@@ -537,14 +578,33 @@ const mocks: MockMethod[] = [
       const role = findRole(String(payload.id || '').trim())
       if (!role) return resultError('角色不存在')
 
-      const fields = pickBaseFields(payload, false)
+      const fields = pickBaseFields(payload, true)
       if (typeof fields === 'string') return resultError(fields)
+      if (roleStore.some((item) => item.id !== role.id && item.code === fields.code)) {
+        return resultError('编码已存在')
+      }
 
       role.name = fields.name
+      role.code = fields.code
       role.sort = fields.sort
       role.remark = fields.remark
       role.updatedAt = now()
       return resultSuccess(toListItem(role), { message: '保存成功' })
+    },
+  },
+  {
+    url: mockUrl('/system/role/delete-impact'),
+    method: 'post',
+    timeout: 60,
+    response: ({ body }) => {
+      const role = findRole(String((body as Recordable<any>)?.id || '').trim())
+      if (!role) return resultError('角色不存在')
+      return resultSuccess({
+        memberCount: role.userIds.length,
+        menuCount: role.menuNames.length,
+        functionCount: role.functionIds.length,
+        dataPermCount: role.dataPerms.length,
+      })
     },
   },
   {
@@ -558,6 +618,7 @@ const mocks: MockMethod[] = [
       const role = roleStore[index]
       if (role.builtIn) return resultError('内置角色不能删除')
       if (role.enabled) return resultError('启用中的角色不能删除，请先停用')
+      replaceAccountRolesForRole(role.id, [])
       roleStore.splice(index, 1)
       return resultSuccess({ id }, { message: '删除成功' })
     },
@@ -594,12 +655,18 @@ const mocks: MockMethod[] = [
       const payload = (body || {}) as Recordable<any>
       const role = findRole(String(payload.id || '').trim())
       if (!role) return resultError('角色不存在')
+      if (role.builtIn) return resultError('内置超级管理员角色的账号绑定不可修改')
       const accountIds = new Set(accountStore.map((item) => item.accountId))
       const userIds = pickIds(payload.userIds)
       if (userIds.some((id) => !accountIds.has(id))) return resultError('存在无效账号')
+      const savedAt = now()
+      role.memberBoundAt = Object.fromEntries(userIds.map((accountId) => [
+        accountId,
+        role.memberBoundAt[accountId] || savedAt,
+      ]))
       role.userIds = userIds
       replaceAccountRolesForRole(role.id, userIds)
-      role.updatedAt = now()
+      role.updatedAt = savedAt
       return resultSuccess(toDetail(role), { message: '保存成功' })
     },
   },

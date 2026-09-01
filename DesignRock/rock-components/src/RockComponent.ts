@@ -105,6 +105,7 @@ export enum RockComponent {
   Skeleton = 'Skeleton',
   Tooltip = 'Tooltip',
   Result = 'Result',
+  Alert = 'Alert',
   GradientText = 'GradientText',
   Spinner = 'Spinner',
   Col = 'Col',

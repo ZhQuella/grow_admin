@@ -9,4 +9,7 @@ export const SYSTEM_ROUTE_AUTHORITY: Record<string, string[]> = {
   PersonManage: ['super'],
   PersonCreate: ['super'],
   PersonDetail: ['super'],
+  DeptManage: ['super'],
+  PostManage: ['super'],
+  PositionManage: ['super'],
 }

@@ -121,6 +121,7 @@ declare module 'vue' {
     GrowSkeleton: import('vue').Component;
     GrowTooltip: import('vue').Component;
     GrowResult: import('vue').Component;
+    GrowAlert: import('vue').Component;
     GrowGradientText: import('vue').Component;
     GrowSpinner: import('vue').Component;
     GrowCol: import('vue').Component;

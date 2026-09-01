@@ -59,7 +59,7 @@ export const EL_TO_GROW_TAG: Record<string, { tag: string; unsupported?: boolean
   'el-step': { tag: 'GrowStep' },
   'el-tree': { tag: 'GrowTree' },
   'el-tree-v2': { tag: 'GrowTreeV2', unsupported: true },
-  'el-alert': { tag: 'GrowAlert', unsupported: true },
+  'el-alert': { tag: 'GrowAlert' },
 }
 
 export function resolveGrowTag(elTagName: string): { tag: string; unsupported: boolean } {
@@ -70,7 +70,6 @@ export function resolveGrowTag(elTagName: string): { tag: string; unsupported: b
   if (elTagName.startsWith('Grow') || ['img', 'p', 'span', 'div', 'BasicTitle'].includes(elTagName)) {
     const unsupportedPlaceholders = new Set([
       'GrowTreeV2',
-      'GrowAlert',
     ])
     return { tag: elTagName, unsupported: unsupportedPlaceholders.has(elTagName) }
   }

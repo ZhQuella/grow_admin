@@ -239,6 +239,21 @@ function seedFunctions() {
     { id: 'af_query', menuName: 'AccountManage', title: '查询', code: 'query', group: '基础操作', description: '', sort: 10, enabled: true },
     { id: 'af_create', menuName: 'AccountManage', title: '新增', code: 'create', group: '基础操作', description: '', sort: 20, enabled: true },
     { id: 'af_reset', menuName: 'AccountManage', title: '重置密码', code: 'reset', group: '安全操作', description: '', sort: 30, enabled: true },
+    { id: 'df_query', menuName: 'DeptManage', title: '查询', code: 'query', group: '基础操作', description: '', sort: 10, enabled: true },
+    { id: 'df_create', menuName: 'DeptManage', title: '新增', code: 'create', group: '基础操作', description: '', sort: 20, enabled: true },
+    { id: 'df_edit', menuName: 'DeptManage', title: '编辑', code: 'edit', group: '基础操作', description: '', sort: 30, enabled: true },
+    { id: 'df_stop', menuName: 'DeptManage', title: '停用/启用', code: 'status', group: '组织调整', description: '', sort: 40, enabled: true },
+    { id: 'df_migrate', menuName: 'DeptManage', title: '迁移', code: 'migrate', group: '组织调整', description: '', sort: 50, enabled: true },
+    { id: 'df_merge', menuName: 'DeptManage', title: '合并', code: 'merge', group: '组织调整', description: '', sort: 60, enabled: true },
+    { id: 'df_delete', menuName: 'DeptManage', title: '删除', code: 'delete', group: '高风险操作', description: '', sort: 70, enabled: true },
+    { id: 'post_query', menuName: 'PostManage', title: '查询', code: 'query', group: '基础操作', description: '', sort: 10, enabled: true },
+    { id: 'post_create', menuName: 'PostManage', title: '新增', code: 'create', group: '基础操作', description: '', sort: 20, enabled: true },
+    { id: 'post_edit', menuName: 'PostManage', title: '编辑', code: 'edit', group: '基础操作', description: '', sort: 30, enabled: true },
+    { id: 'post_status', menuName: 'PostManage', title: '启用/停用', code: 'status', group: '基础操作', description: '', sort: 40, enabled: true },
+    { id: 'pos_query', menuName: 'PositionManage', title: '查询', code: 'query', group: '基础操作', description: '', sort: 10, enabled: true },
+    { id: 'pos_create', menuName: 'PositionManage', title: '新增', code: 'create', group: '基础操作', description: '', sort: 20, enabled: true },
+    { id: 'pos_edit', menuName: 'PositionManage', title: '编辑', code: 'edit', group: '基础操作', description: '', sort: 30, enabled: true },
+    { id: 'pos_status', menuName: 'PositionManage', title: '启用/停用', code: 'status', group: '基础操作', description: '', sort: 40, enabled: true },
   ]
   for (const item of seeds) {
     if (!functionStore.has(item.id)) {
@@ -467,6 +482,9 @@ function seedColumns() {
     { menuName: 'RoleManage', code: 'member_list', title: '绑定账号', description: '', sort: 20 },
     { menuName: 'PersonManage', code: 'person_list', title: '人员列表', description: '', sort: 10 },
     { menuName: 'AccountManage', code: 'account_list', title: '账号列表', description: '', sort: 10 },
+    { menuName: 'DeptManage', code: 'dept_detail', title: '部门详情', description: '', sort: 10 },
+    { menuName: 'PostManage', code: 'post_list', title: '岗位列表', description: '', sort: 10 },
+    { menuName: 'PositionManage', code: 'position_list', title: '职级列表', description: '', sort: 10 },
   ]
   const legacySeeds: Array<Omit<MenuColumn, 'columnPermission' | 'formFill' | 'queryFilter' | 'sort' | 'description'>> = [
     { id: 'mc_title', menuName: 'MenuManage', tableCode: 'menu_list', title: '标题', code: 'title', columnType: 'string', enabled: true },
@@ -494,6 +512,20 @@ function seedColumns() {
     { id: 'ac_dept', menuName: 'AccountManage', tableCode: 'account_list', title: '部门', code: 'deptName', columnType: 'dept', enabled: true },
     { id: 'ac_enabled', menuName: 'AccountManage', tableCode: 'account_list', title: '启用', code: 'enabled', columnType: 'boolean', enabled: true },
     { id: 'ac_login', menuName: 'AccountManage', tableCode: 'account_list', title: '最近登录', code: 'lastLoginAt', columnType: 'date', enabled: true },
+    { id: 'dc_name', menuName: 'DeptManage', tableCode: 'dept_detail', title: '部门名称', code: 'name', columnType: 'string', enabled: true },
+    { id: 'dc_code', menuName: 'DeptManage', tableCode: 'dept_detail', title: '部门编码', code: 'code', columnType: 'string', enabled: true },
+    { id: 'dc_parent', menuName: 'DeptManage', tableCode: 'dept_detail', title: '上级部门', code: 'parentId', columnType: 'dept', enabled: true },
+    { id: 'dc_manager', menuName: 'DeptManage', tableCode: 'dept_detail', title: '部门负责人', code: 'managerId', columnType: 'person', enabled: true },
+    { id: 'dc_sort', menuName: 'DeptManage', tableCode: 'dept_detail', title: '排序号', code: 'sort', columnType: 'number', enabled: true },
+    { id: 'dc_status', menuName: 'DeptManage', tableCode: 'dept_detail', title: '状态', code: 'status', columnType: 'select', enabled: true },
+    { id: 'postc_name', menuName: 'PostManage', tableCode: 'post_list', title: '岗位名称', code: 'name', columnType: 'string', enabled: true },
+    { id: 'postc_code', menuName: 'PostManage', tableCode: 'post_list', title: '岗位编码', code: 'code', columnType: 'string', enabled: true },
+    { id: 'postc_dept', menuName: 'PostManage', tableCode: 'post_list', title: '所属部门', code: 'deptName', columnType: 'dept', enabled: true },
+    { id: 'postc_enabled', menuName: 'PostManage', tableCode: 'post_list', title: '状态', code: 'enabled', columnType: 'boolean', enabled: true },
+    { id: 'posc_name', menuName: 'PositionManage', tableCode: 'position_list', title: '名称', code: 'name', columnType: 'string', enabled: true },
+    { id: 'posc_code', menuName: 'PositionManage', tableCode: 'position_list', title: '编码', code: 'code', columnType: 'string', enabled: true },
+    { id: 'posc_level', menuName: 'PositionManage', tableCode: 'position_list', title: '层级', code: 'level', columnType: 'number', enabled: true },
+    { id: 'posc_enabled', menuName: 'PositionManage', tableCode: 'position_list', title: '状态', code: 'enabled', columnType: 'boolean', enabled: true },
   ]
   for (const item of tables) {
     tableStore.set(tableKey(item.menuName, item.code), item)

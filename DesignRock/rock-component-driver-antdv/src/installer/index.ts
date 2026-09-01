@@ -3,6 +3,7 @@ import { isUndefined } from 'lodash-es';
 import { FallbackLoadingBarProvider, RockComponent } from '@grow-admin-rock/components';
 import { type ComponentEntry, withInstall } from '@grow-admin-rock/component-driver';
 import {
+  Alert,
   Avatar,
   Badge,
   Breadcrumb,
@@ -173,6 +174,7 @@ const allComponents: Partial<Record<RockComponent, any>> = {
   [RockComponent.RadioButtonGroup]: RadioButtonGroup,
   [RockComponent.RadioGroup]: Radio.Group,
   [RockComponent.Result]: Result,
+  [RockComponent.Alert]: Alert,
   [RockComponent.Row]: Row,
   [RockComponent.Scrollbar]: Scrollbar,
   [RockComponent.Select]: Select,

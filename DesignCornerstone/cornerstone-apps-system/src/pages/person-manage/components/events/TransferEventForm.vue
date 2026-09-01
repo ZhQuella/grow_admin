@@ -31,7 +31,7 @@
           </div>
           <div class="transfer-current__name">{{ row.deptName || '-' }} / {{ row.postName || '-' }}</div>
           <div class="transfer-current__sub">
-            {{ [row.jobTitle, row.jobGrade].filter(Boolean).join(' · ') || '未填写职位' }}
+            {{ row.jobGrade || '未绑定职级' }}
           </div>
         </div>
         <button
@@ -78,18 +78,15 @@
           </GrowFormItem>
         </GrowCol>
         <GrowCol v-show="!isEnd" :span="12">
-          <GrowFormItem label="职位">
-            <GrowInput v-model="form.jobTitle" maxlength="32" clearable placeholder="请输入" />
-          </GrowFormItem>
-        </GrowCol>
-        <GrowCol v-show="!isEnd" :span="12">
-          <GrowFormItem label="职级">
-            <GrowInput v-model="form.jobGrade" maxlength="16" clearable placeholder="如 P6" />
-          </GrowFormItem>
-        </GrowCol>
-        <GrowCol v-show="!isEnd" :span="12">
-          <GrowFormItem label="岗位编码">
-            <GrowInput v-model="form.jobCode" maxlength="32" clearable placeholder="请输入" />
+          <GrowFormItem label="职级" prop="jobGradeId">
+            <GrowSelect
+              :model-value="form.jobGradeId"
+              :options="gradeOptions"
+              filterable
+              clearable
+              placeholder="请选择职级"
+              @update:model-value="onGradeChange"
+            />
           </GrowFormItem>
         </GrowCol>
         <GrowCol :span="12">
@@ -98,7 +95,7 @@
           </GrowFormItem>
         </GrowCol>
         <GrowCol v-show="!isEnd" :span="12">
-          <GrowFormItem label="主上级">
+          <GrowFormItem label="直属主管">
             <GrowSelect
               v-model="form.supervisorId"
               :options="supervisorOptions"
@@ -142,6 +139,7 @@ import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { driverRef } from '@grow-admin-rock/components'
 import { transferSystemPerson } from '../../../../api/systemPerson'
 import { fetchSystemPosts } from '../../../../api/systemPost'
+import { fetchSystemPositionOptions } from '../../../../api/systemPosition'
 import { fetchSystemPersons } from '../../../../api/systemRole'
 import {
   TRANSFER_ACTION_LABELS,
@@ -173,15 +171,15 @@ const formRef = ref()
 const posts = ref<SystemPostOption[]>([])
 const postLoadSeq = ref(0)
 const supervisorOptions = ref<Array<{ label: string; value: string }>>([])
+const positions = ref<Array<{ id: string; name: string; enabled: boolean }>>([])
 const form = reactive({
   transferType: (props.intent?.transferType || 'primary') as TransferType,
   assignmentId: props.intent?.assignmentId || '',
   assignmentType: 'primary' as AssignmentType,
   deptId: '',
   postId: '',
-  jobTitle: '',
+  jobGradeId: '',
   jobGrade: '',
-  jobCode: '',
   supervisorId: '',
   collaboratorIds: [] as string[],
   effectiveDate: todayText(),
@@ -203,6 +201,17 @@ const collaboratorOptions = computed(() =>
   supervisorOptions.value.filter((item) => item.value !== form.supervisorId),
 )
 const postOptions = computed(() => toPostSelectOptions(posts.value))
+const gradeOptions = computed(() => {
+  const options = positions.value.map((item) => ({
+    label: item.name,
+    value: item.id,
+    disabled: !item.enabled,
+  }))
+  if (form.jobGrade && !positions.value.some((item) => item.name === form.jobGrade)) {
+    options.push({ label: form.jobGrade, value: `legacy:${form.jobGrade}`, disabled: true })
+  }
+  return options
+})
 const isEnd = computed(() => form.transferType === 'part_time_end')
 const actionTitle = computed(() => {
   if (form.assignmentType === 'primary' && form.transferType === 'part_time_change') return '设置为主岗'
@@ -239,6 +248,7 @@ const requiredPost = [{ required: true, message: '请选择岗位', trigger: 'ch
 const rules = computed(() => ({
   deptId: isEnd.value ? [] : requiredDept,
   postId: isEnd.value ? [] : requiredPost,
+  jobGradeId: isEnd.value ? [] : [{ required: true, message: '请选择职级', trigger: 'change' }],
   effectiveDate: [{
     required: true,
     message: isEnd.value ? '请选择结束日期' : '请选择生效日期',
@@ -247,7 +257,7 @@ const rules = computed(() => ({
   collaboratorIds: [{
     validator: (_rule: unknown, value: string[], callback: (error?: Error) => void) => {
       if (form.supervisorId && (value || []).includes(form.supervisorId)) {
-        callback(new Error('同一任职下协同上级不能与主上级重复'))
+        callback(new Error('同一任职下协同上级不能与直属主管重复'))
         return
       }
       callback()
@@ -283,9 +293,8 @@ function setAsPrimary(row: PersonAssignment) {
 }
 
 function applyExtras(row?: PersonAssignment) {
-  form.jobTitle = row?.jobTitle || ''
+  form.jobGradeId = row?.jobGradeId || positions.value.find((item) => item.name === row?.jobGrade)?.id || ''
   form.jobGrade = row?.jobGrade || ''
-  form.jobCode = row?.jobCode || ''
   form.supervisorId = row?.supervisorId || ''
   form.collaboratorIds = [...(row?.collaboratorIds || [])].filter((id) => id && id !== form.supervisorId)
 }
@@ -293,6 +302,8 @@ function applyExtras(row?: PersonAssignment) {
 function clearDestination() {
   form.deptId = ''
   form.postId = ''
+  form.jobGradeId = ''
+  form.jobGrade = ''
   posts.value = []
 }
 
@@ -361,13 +372,12 @@ function onDeptChange(value: unknown) {
   void loadPosts(form.deptId)
 }
 
-watch(
-  () => form.postId,
-  (postId) => {
-    const post = posts.value.find((item) => item.id === postId)
-    if (post && !form.jobTitle) form.jobTitle = post.name
-  },
-)
+function onGradeChange(value: unknown) {
+  const id = String(value || '')
+  const grade = positions.value.find((item) => item.id === id)
+  form.jobGradeId = grade?.id || ''
+  form.jobGrade = grade?.name || ''
+}
 
 watch(
   () => form.supervisorId,
@@ -403,9 +413,8 @@ async function submit() {
     deptId: form.deptId,
     postId: form.postId,
     post: post?.name,
-    jobTitle: form.jobTitle,
+    jobGradeId: form.jobGradeId,
     jobGrade: form.jobGrade,
-    jobCode: form.jobCode,
     supervisorId: form.supervisorId || undefined,
     collaboratorIds: form.collaboratorIds,
     effectiveDate: form.effectiveDate,
@@ -420,6 +429,12 @@ onMounted(() => {
   setAction(type, row)
   if (props.intent?.assignmentType) form.assignmentType = props.intent.assignmentType
   void loadSupervisors()
+  void fetchSystemPositionOptions({ enabled: false }).then((items) => {
+    positions.value = items
+    if (!form.jobGradeId && form.jobGrade) {
+      form.jobGradeId = items.find((item) => item.name === form.jobGrade)?.id || ''
+    }
+  })
 })
 
 defineExpose({ submit })

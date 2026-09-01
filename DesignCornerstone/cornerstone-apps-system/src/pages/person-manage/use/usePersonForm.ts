@@ -119,8 +119,8 @@ export function usePersonForm() {
       message.warning('必须且只能设置一条主职')
       return
     }
-    if (active.some((item) => !item.deptId || !item.postId)) {
-      message.warning('请完善任职关系的部门和岗位')
+    if (active.some((item) => !item.deptId || !item.postId || !item.jobGrade)) {
+      message.warning('请完善任职关系的部门、岗位和职级')
       return
     }
     if (active.some((item) => item.type === 'part_time' && !item.startDate)) {
@@ -139,7 +139,7 @@ export function usePersonForm() {
     if (assignments.some((item) =>
       item.supervisorId && (item.collaboratorIds || []).includes(item.supervisorId),
     )) {
-      message.warning('同一任职下协同上级不能与主上级重复')
+      message.warning('同一任职下协同上级不能与直属主管重复')
       return
     }
     saving.value = true

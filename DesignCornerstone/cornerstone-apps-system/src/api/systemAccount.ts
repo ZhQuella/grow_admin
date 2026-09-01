@@ -5,7 +5,9 @@ import type {
   SystemAccountAssignPayload,
   SystemAccountBrief,
   SystemAccountCreatePayload,
+  SystemAccountDeleteImpact,
   SystemAccountDetail,
+  SystemAccountPersonOption,
   SystemAccountPageResult,
   SystemAccountQuery,
   SystemAccountResetPayload,
@@ -24,6 +26,12 @@ export function fetchSystemAccountPage(params: SystemAccountQuery) {
 export function fetchSystemAccountBriefs() {
   return useRequest().post<SystemAccountBrief[]>({
     url: '/system/accounts',
+  })
+}
+
+export function fetchSystemAccountPersonOptions() {
+  return useRequest().post<SystemAccountPersonOption[]>({
+    url: '/system/accounts/person-options',
   })
 }
 
@@ -62,10 +70,31 @@ export function assignSystemAccount(data: SystemAccountAssignPayload) {
   })
 }
 
+export function unassignSystemAccount(accountId: string) {
+  return useRequest().put<SystemAccountDetail>({
+    url: '/system/account/unassign',
+    data: { accountId },
+  })
+}
+
 export function resetSystemAccountPassword(data: SystemAccountResetPayload) {
   return useRequest().put<{ accountId: string }>({
     url: '/system/account/reset-password',
     data,
+  })
+}
+
+export function fetchSystemAccountDeleteImpact(accountId: string) {
+  return useRequest().post<SystemAccountDeleteImpact>({
+    url: '/system/account/delete-impact',
+    data: { accountId },
+  })
+}
+
+export function deleteSystemAccount(accountId: string) {
+  return useRequest().post<{ accountId: string }>({
+    url: '/system/account/delete',
+    data: { accountId },
   })
 }
 

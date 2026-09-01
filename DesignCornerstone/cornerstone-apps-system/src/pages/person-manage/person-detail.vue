@@ -55,6 +55,7 @@
               v-for="row in assignmentRows"
               :key="row.id"
               class="person-detail__card"
+              :class="{ 'person-detail__card--invalid': row.status === 'active' && row.deptState === 'deleted' }"
             >
                 <div class="person-detail__card-head">
                   <GrowTag :type="row.type === 'primary' ? 'primary' : 'info'" size="small">
@@ -62,6 +63,12 @@
                   </GrowTag>
                   <GrowTag :type="row.status === 'active' ? 'success' : 'info'" size="small">
                     {{ assignmentStatusLabel(row.status) }}
+                  </GrowTag>
+                  <GrowTag v-if="row.status === 'active' && row.deptState === 'deleted'" type="danger" size="small">
+                    部门已删除
+                  </GrowTag>
+                  <GrowTag v-else-if="row.status === 'active' && row.deptState === 'disabled'" type="info" size="small">
+                    部门已停用
                   </GrowTag>
                   <span class="person-detail__card-meta">{{ row.occupyHeadcount ? '占用编制' : '不占编制' }}</span>
                 </div>
@@ -80,20 +87,8 @@
                   </GrowCol>
                   <GrowCol :span="6">
                     <div class="person-detail__item">
-                      <div class="person-detail__label">职位</div>
-                      <div class="person-detail__value">{{ row.jobTitle || '-' }}</div>
-                    </div>
-                  </GrowCol>
-                  <GrowCol :span="6">
-                    <div class="person-detail__item">
                       <div class="person-detail__label">职级</div>
                       <div class="person-detail__value">{{ row.jobGrade || '-' }}</div>
-                    </div>
-                  </GrowCol>
-                  <GrowCol :span="6">
-                    <div class="person-detail__item">
-                      <div class="person-detail__label">岗位编码</div>
-                      <div class="person-detail__value">{{ row.jobCode || '-' }}</div>
                     </div>
                   </GrowCol>
                   <GrowCol :span="6">
@@ -113,7 +108,7 @@
                 <GrowRow :gutter="16">
                   <GrowCol :span="6">
                     <div class="person-detail__item">
-                      <div class="person-detail__label">主上级</div>
+                      <div class="person-detail__label">直属主管</div>
                       <div class="person-detail__value">{{ row.supervisorName || '-' }}</div>
                     </div>
                   </GrowCol>
@@ -567,6 +562,12 @@ function historyTag(type: PersonEventType | string) {
   border: 1px solid var(--layout-border-color);
   border-radius: 8px;
   background: var(--layout-container-background-color);
+}
+
+.person-detail__card--invalid {
+  border-color: var(--el-border-color-lighter);
+  background: var(--el-fill-color-light);
+  color: var(--el-text-color-secondary);
 }
 
 .person-detail__card-head {

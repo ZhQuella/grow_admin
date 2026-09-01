@@ -32,6 +32,64 @@ export type HistoryRecord = {
   extra?: Record<string, string>
 }
 
+export type DeptRecord = {
+  id: string
+  name: string
+  parentId: string | null
+  code: string
+  status: 'enabled' | 'disabled'
+  sort: number
+  description: string
+  deleted: boolean
+  managerType: '' | 'person' | 'post'
+  managerId: string
+  managerPostId: string
+  managerHistory: Array<{
+    id: string
+    personId: string
+    personName: string
+    postId?: string
+    postName?: string
+    startedAt: string
+    endedAt: string
+    reason: string
+  }>
+  createdAt: string
+  updatedAt: string
+}
+
+export type PositionRecord = {
+  id: string
+  name: string
+  code: string
+  level: number
+  sort: number
+  description: string
+  enabled: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export type PostRecord = {
+  id: string
+  name: string
+  code: string
+  deptId: string
+  postType: '' | 'formal' | 'contractor' | 'intern' | 'management'
+  formalHeadcount: number
+  contractorHeadcount: number
+  partTimeHeadcount: number
+  internHeadcount: number
+  duty: string
+  requirement: string
+  sort: number
+  remark: string
+  enabled: boolean
+  enabledBeforeCascade: boolean
+  createdAt: string
+  updatedAt: string
+}
+
 export type PersonRecord = {
   userId: string
   name: string
@@ -61,12 +119,14 @@ export type PersonRecord = {
     postName: string
     jobCode?: string
     jobTitle?: string
+    jobGradeId?: string
     jobGrade?: string
     type: 'primary' | 'part_time'
     startDate: string
     endDate: string
     status: 'active' | 'ended'
     occupyHeadcount: boolean
+    reason?: string
     supervisorId?: string
     collaboratorIds?: string[]
   }>
@@ -167,7 +227,7 @@ function emptyPerson(base: {
     probationMonths: status === 'probation' ? '3' : '3',
     actualConfirmDate: status === 'formal' ? '2022-09-01' : '',
     plannedConfirmDate: status === 'probation' ? '2024-06-01' : '2022-09-01',
-    jobGrade: base.index % 3 === 0 ? 'P6' : 'P5',
+    jobGrade: base.index % 3 === 0 ? '高级专员' : '专员',
     roleIds: [],
     idName: base.name,
     idNumber: '',
@@ -225,15 +285,86 @@ function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T
 }
 
-export const deptList = MOCK_DEPTS.map((item) => ({ ...item }))
+const deptCode: Record<string, string> = {
+  'd-root': 'ROOT',
+  'd-dl': 'RND-DL',
+  'd-dl-fe': 'RND-DL-FE',
+  'd-dl-be': 'RND-DL-BE',
+  'd-qa': 'QA',
+  'd-bj': 'RND-BJ',
+  'd-bj-app': 'RND-BJ-APP',
+  'd-frontier': 'FRONTIER',
+}
+
+export const deptList: DeptRecord[] = MOCK_DEPTS.map((item, index) => ({
+  ...item,
+  code: deptCode[item.id] || item.id.toUpperCase(),
+  status: 'enabled',
+  sort: index * 10,
+  description: item.id === 'd-root' ? '虚拟组织根节点' : `${item.name}组织单元`,
+  deleted: false,
+  managerType: '',
+  managerId: '',
+  managerPostId: '',
+  managerHistory: [],
+  createdAt: `2024-01-${String(index + 1).padStart(2, '0')}T09:00:00.000Z`,
+  updatedAt: `2024-01-${String(index + 1).padStart(2, '0')}T09:00:00.000Z`,
+}))
 
 type OrgGlobal = {
   personStore: PersonRecord[]
+  postStore: PostRecord[]
+  positionStore: PositionRecord[]
+}
+
+const ORG_STORE_VERSION = 8
+
+const SEED_POSITIONS: PositionRecord[] = [
+  { id: 'pos_manager', name: '经理', code: 'MANAGER', level: 5, sort: 10, description: '部门经理层级', enabled: true, createdAt: '2024-01-01T09:00:00.000Z', updatedAt: '2024-01-01T09:00:00.000Z' },
+  { id: 'pos_supervisor', name: '主管', code: 'SUPERVISOR', level: 4, sort: 20, description: '团队主管层级', enabled: true, createdAt: '2024-01-01T09:00:00.000Z', updatedAt: '2024-01-01T09:00:00.000Z' },
+  { id: 'pos_engineer', name: '工程师', code: 'ENGINEER', level: 3, sort: 25, description: '专业技术职级', enabled: true, createdAt: '2024-01-01T09:00:00.000Z', updatedAt: '2024-01-01T09:00:00.000Z' },
+  { id: 'pos_senior', name: '高级专员', code: 'SENIOR_SPECIALIST', level: 3, sort: 30, description: '高级专员职级', enabled: true, createdAt: '2024-01-01T09:00:00.000Z', updatedAt: '2024-01-01T09:00:00.000Z' },
+  { id: 'pos_specialist', name: '专员', code: 'SPECIALIST', level: 2, sort: 40, description: '专员职级', enabled: true, createdAt: '2024-01-01T09:00:00.000Z', updatedAt: '2024-01-01T09:00:00.000Z' },
+  { id: 'pos_assistant', name: '助理', code: 'ASSISTANT', level: 1, sort: 50, description: '助理职级', enabled: true, createdAt: '2024-01-01T09:00:00.000Z', updatedAt: '2024-01-01T09:00:00.000Z' },
+]
+
+function nowIso() {
+  return new Date().toISOString()
+}
+
+export function createPostRecord(input: Pick<PostRecord, 'id' | 'name' | 'deptId'> & Partial<PostRecord>): PostRecord {
+  const stamp = nowIso()
+  return {
+    id: input.id,
+    name: input.name,
+    code: input.code || `P_${input.deptId}_${input.name}`.replace(/\s+/g, ''),
+    deptId: input.deptId,
+    postType: input.postType ?? 'formal',
+    formalHeadcount: input.formalHeadcount ?? 8,
+    contractorHeadcount: input.contractorHeadcount ?? 0,
+    partTimeHeadcount: input.partTimeHeadcount ?? 0,
+    internHeadcount: input.internHeadcount ?? 0,
+    duty: input.duty || '',
+    requirement: input.requirement || '',
+    sort: input.sort ?? 10,
+    remark: input.remark || '',
+    enabled: input.enabled ?? true,
+    enabledBeforeCascade: input.enabledBeforeCascade ?? true,
+    createdAt: input.createdAt || stamp,
+    updatedAt: input.updatedAt || stamp,
+  }
 }
 
 function getOrgGlobal(): OrgGlobal {
-  const g = globalThis as typeof globalThis & { __GROW_ORG_STORE__?: OrgGlobal }
-  if (!g.__GROW_ORG_STORE__) {
+  const g = globalThis as typeof globalThis & {
+    __GROW_ORG_STORE__?: OrgGlobal
+    __GROW_ORG_STORE_VERSION__?: number
+  }
+  if (
+    !g.__GROW_ORG_STORE__
+    || g.__GROW_ORG_STORE_VERSION__ !== ORG_STORE_VERSION
+    || !g.__GROW_ORG_STORE__.positionStore
+  ) {
     const personStore = MOCK_PERSONS.map((item, index) => emptyPerson({ ...item, index }))
     const zhang = personStore.find((item) => item.userId === 'u1')
     if (zhang) {
@@ -255,7 +386,7 @@ function getOrgGlobal(): OrgGlobal {
         { id: 'fm_u1_1', name: '张母', relation: '母亲', gender: 'female', birthday: '1968-05-01', phone: '13900001111' },
       ]
       zhang.jobTitle = '前端开发工程师'
-      zhang.jobGrade = 'P6'
+      zhang.jobGrade = '工程师'
       zhang.jobCode = 'P-FE-01'
       zhang.collaboratorIds = ['u2']
       zhang.assignments = [
@@ -267,7 +398,8 @@ function getOrgGlobal(): OrgGlobal {
           postName: '开发工程师',
           jobCode: 'P-FE-01',
           jobTitle: '前端开发工程师',
-          jobGrade: 'P6',
+          jobGradeId: 'pos_engineer',
+          jobGrade: '工程师',
           type: 'primary',
           startDate: zhang.entryDate,
           endDate: '',
@@ -284,7 +416,8 @@ function getOrgGlobal(): OrgGlobal {
           postName: '开发工程师',
           jobCode: 'P-BE-PT',
           jobTitle: '后端协作开发',
-          jobGrade: 'P5',
+          jobGradeId: 'pos_engineer',
+          jobGrade: '工程师',
           type: 'part_time',
           startDate: '2024-09-01',
           endDate: '',
@@ -301,7 +434,8 @@ function getOrgGlobal(): OrgGlobal {
           postName: '开发工程师',
           jobCode: 'P-FR-PT',
           jobTitle: '前端顾问',
-          jobGrade: 'P5',
+          jobGradeId: 'pos_senior',
+          jobGrade: '高级专员',
           type: 'part_time',
           startDate: '2025-01-15',
           endDate: '',
@@ -370,12 +504,48 @@ function getOrgGlobal(): OrgGlobal {
         createdAt: iso('2025-12-31'),
       })
     }
-    g.__GROW_ORG_STORE__ = { personStore }
+    const postMap = new Map<string, PostRecord>()
+    for (const person of personStore) {
+      const assignments = ensurePersonAssignments(person)
+      for (const assignment of assignments) {
+        if (!postMap.has(assignment.postId)) {
+          postMap.set(assignment.postId, createPostRecord({
+            id: assignment.postId,
+            name: assignment.postName || '职员',
+            deptId: assignment.deptId,
+          }))
+        }
+        if (person.employeeType === 'intern') {
+          const post = postMap.get(assignment.postId)
+          if (post && post.internHeadcount < 2) post.internHeadcount = 2
+        }
+      }
+    }
+    g.__GROW_ORG_STORE__ = {
+      personStore,
+      postStore: [...postMap.values()],
+      positionStore: clone(SEED_POSITIONS),
+    }
+    g.__GROW_ORG_STORE_VERSION__ = ORG_STORE_VERSION
   }
   return g.__GROW_ORG_STORE__
 }
 
 export const personStore = getOrgGlobal().personStore
+export const postStore = getOrgGlobal().postStore
+export const positionStore = getOrgGlobal().positionStore
+
+const beijing = deptList.find((item) => item.id === 'd-bj')
+if (beijing && !beijing.managerId) {
+  beijing.managerType = 'person'
+  beijing.managerId = 'u9'
+}
+const frontier = deptList.find((item) => item.id === 'd-frontier')
+if (frontier && !frontier.managerId) {
+  frontier.managerType = 'post'
+  frontier.managerId = 'u11'
+  frontier.managerPostId = 'post_d-frontier_运维工程师'
+}
 
 export function getDeptName(id: string) {
   return deptList.find((item) => item.id === id)?.name || ''
@@ -383,7 +553,7 @@ export function getDeptName(id: string) {
 
 export function buildDeptTree() {
   const byParent = new Map<string | null, typeof deptList>()
-  for (const dept of deptList) {
+  for (const dept of deptList.filter((item) => !item.deleted && item.status === 'enabled')) {
     const list = byParent.get(dept.parentId) || []
     list.push(dept)
     byParent.set(dept.parentId, list)
@@ -413,6 +583,58 @@ export function collectDeptIds(rootId: string) {
   }
   walk(rootId)
   return ids
+}
+
+export function ensurePersonAssignments(person: PersonRecord) {
+  if (person.assignments?.length) return person.assignments
+  if (!person.deptId) return []
+  const ended = person.employeeStatus === 'resigned' || person.employeeStatus === 'retired'
+  person.assignments = [{
+    id: `as_${person.userId}`,
+    deptId: person.deptId,
+    deptName: getDeptName(person.deptId),
+    postId: `post_${person.deptId}_${person.post || 'default'}`,
+    postName: person.post,
+    jobGradeId: SEED_POSITIONS.find((item) => item.name === person.jobGrade)?.id,
+    jobGrade: person.jobGrade,
+    type: 'primary',
+    startDate: person.entryDate,
+    endDate: ended ? person.resignDate || person.retireDate || '' : '',
+    status: ended ? 'ended' : 'active',
+    occupyHeadcount: true,
+    supervisorId: person.supervisorId || '',
+    collaboratorIds: person.collaboratorIds || [],
+  }]
+  return person.assignments
+}
+
+export function findDept(id: string) {
+  return deptList.find((item) => item.id === id)
+}
+
+export function findPost(id: string) {
+  return postStore.find((item) => item.id === id)
+}
+
+export function findPosition(id: string) {
+  return positionStore.find((item) => item.id === id)
+}
+
+export function isDeptSelectable(id: string) {
+  const dept = findDept(id)
+  return Boolean(dept && !dept.deleted && dept.status === 'enabled')
+}
+
+export function nextDeptId() {
+  return `dept_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`
+}
+
+export function nextPostId() {
+  return `post_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`
+}
+
+export function nextPositionId() {
+  return `pos_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`
 }
 
 export function findPerson(userId: string) {
