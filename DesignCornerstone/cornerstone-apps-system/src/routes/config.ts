@@ -78,6 +78,11 @@ export const SYSTEM_ROUTE_STRUCTURES: SystemRouteStructure[] = [
         ],
       },
       {
+        path: 'org-chart',
+        name: 'OrgChart',
+        componentKey: 'OrgChart',
+      },
+      {
         path: 'dept-manage',
         name: 'DeptManage',
         componentKey: 'DeptManage',
@@ -169,6 +174,7 @@ export const SYSTEM_COMPONENT_KEYS = new Set([
   'DeptManage',
   'PostManage',
   'PositionManage',
+  'OrgChart',
 ])
 
 export const SYSTEM_COMPONENT_PAGE_NAMES: Record<string, string> = {
@@ -181,6 +187,7 @@ export const SYSTEM_COMPONENT_PAGE_NAMES: Record<string, string> = {
   DeptManage: 'DeptManagePage',
   PostManage: 'PostManagePage',
   PositionManage: 'PositionManagePage',
+  OrgChart: 'OrgChartPage',
 }
 
 export function resolveSystemPageComponentName(componentKey: string): string {

@@ -317,7 +317,7 @@ type OrgGlobal = {
   positionStore: PositionRecord[]
 }
 
-const ORG_STORE_VERSION = 8
+const ORG_STORE_VERSION = 9
 
 const SEED_POSITIONS: PositionRecord[] = [
   { id: 'pos_manager', name: '经理', code: 'MANAGER', level: 5, sort: 10, description: '部门经理层级', enabled: true, createdAt: '2024-01-01T09:00:00.000Z', updatedAt: '2024-01-01T09:00:00.000Z' },
@@ -477,6 +477,10 @@ function getOrgGlobal(): OrgGlobal {
       })
       zhang.updatedAt = iso('2025-01-15')
     }
+    const wang = personStore.find((item) => item.userId === 'u3')
+    if (wang) wang.collaboratorIds = ['u2']
+    const sun = personStore.find((item) => item.userId === 'u6')
+    if (sun && !sun.supervisorId) sun.supervisorId = 'u2'
     const li = personStore.find((item) => item.userId === 'u2')
     if (li) {
       li.email = 'lisi@grow.local'

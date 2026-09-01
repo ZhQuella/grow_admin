@@ -8,7 +8,7 @@
     "./route-config": "./src/routes/route-config.ts"
   },
   "license": "MIT",
-  "description": "GrowAdmin-系统管理（菜单管理、角色管理、账号管理、人员管理、部门管理、岗位管理、职位管理）",
+  "description": "GrowAdmin-系统管理（菜单管理、角色管理、账号管理、人员管理、组织架构图、部门管理、岗位管理、职级管理）",
   "scripts": {
     "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
   },

@@ -93,6 +93,15 @@ export const SYSTEM_MENU_LIST: SystemMenuApiItem[] = [
         isKeepAlive: true,
         sort: 37,
       },
+      {
+        name: 'OrgChart',
+        title: '组织架构图',
+        icon: 'ant-design:cluster-outlined',
+        menuType: MenuTypeEnum.MENU,
+        isVisible: true,
+        isKeepAlive: true,
+        sort: 38,
+      },
     ],
   },
 ]
