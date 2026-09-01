@@ -107,7 +107,15 @@ function getStore(): MenuNode[] {
     syncMissingChildren(menuStore, source)
   }
   menuStore.forEach(ensureMenuComponentKey)
+  sortMenuNodes(menuStore)
   return menuStore
+}
+
+function sortMenuNodes(nodes: MenuNode[]) {
+  nodes.sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0) || a.title.localeCompare(b.title, 'zh-CN'))
+  nodes.forEach((node) => {
+    if (node.children?.length) sortMenuNodes(node.children)
+  })
 }
 
 type MenuLocation = {
@@ -254,6 +262,7 @@ function seedFunctions() {
     { id: 'pos_create', menuName: 'PositionManage', title: '新增', code: 'create', group: '基础操作', description: '', sort: 20, enabled: true },
     { id: 'pos_edit', menuName: 'PositionManage', title: '编辑', code: 'edit', group: '基础操作', description: '', sort: 30, enabled: true },
     { id: 'pos_status', menuName: 'PositionManage', title: '启用/停用', code: 'status', group: '基础操作', description: '', sort: 40, enabled: true },
+    { id: 'org_query', menuName: 'OrgChart', title: '查询', code: 'query', group: '基础操作', description: '', sort: 10, enabled: true },
   ]
   for (const item of seeds) {
     if (!functionStore.has(item.id)) {

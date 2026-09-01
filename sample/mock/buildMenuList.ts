@@ -29,14 +29,29 @@ import { SANDBOX_MENU_LIST } from './sandboxMenuList'
 import { DESIGNER_MENU_LIST } from './designerMenuList'
 import { SYSTEM_MENU_LIST } from './systemMenuList'
 
+type SortableMenu = {
+  sort?: number
+  title?: string
+  children?: SortableMenu[]
+}
+
+function sortMenuTree<T extends SortableMenu>(nodes: T[]): T[] {
+  return [...nodes]
+    .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0) || String(a.title || '').localeCompare(String(b.title || ''), 'zh-CN'))
+    .map((node) => ({
+      ...node,
+      children: node.children?.length ? sortMenuTree(node.children) : node.children,
+    }))
+}
+
 /** 侧边栏 /menu/list 的静态合并结果，菜单管理页会再拷一份独立数据 */
 export function buildBackMenuList() {
-  return [
+  return sortMenuTree([
     ...mergeMenuWithStructure(MENU_LIST, WORKSPACE_ROUTE_STRUCTURES),
     ...mergeSandboxMenuWithStructure(SANDBOX_MENU_LIST, SANDBOX_ROUTE_STRUCTURES),
     ...mergeDesignerMenuWithStructure(DESIGNER_MENU_LIST, DESIGNER_ROUTE_STRUCTURES),
     ...mergeExternalMenuWithStructure(EXTERNAL_MENU_LIST, EXTERNAL_ROUTE_STRUCTURES),
     ...mergeFeatMenuWithStructure(FEAT_MENU_LIST, FEAT_ROUTE_STRUCTURES),
     ...mergeSystemMenuWithStructure(SYSTEM_MENU_LIST, SYSTEM_ROUTE_STRUCTURES),
-  ]
+  ])
 }

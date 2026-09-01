@@ -8,11 +8,18 @@ import { addEventResize, removeResizeListener } from '@grow-admin-rock/utils'
 import echarts from '../echarts'
 import { useBreakpoint } from '../event/use-breakpoint'
 
+type UseEchartsOptions = {
+  renderer?: 'canvas' | 'svg'
+}
+
 function wait(ms: number) {
   return new Promise<void>(resolve => setTimeout(resolve, ms))
 }
 
-export function useEcharts(elRef: Ref<HTMLDivElement | null>) {
+export function useEcharts(
+  elRef: Ref<HTMLDivElement | null>,
+  options?: UseEchartsOptions,
+) {
   const { resolvedTheme } = useTheme()
   let chartInstance: echarts.ECharts | null = null
   const cacheOptions = ref({}) as Ref<EChartsOption>
@@ -37,7 +44,9 @@ export function useEcharts(elRef: Ref<HTMLDivElement | null>) {
     if (!el) {
       return
     }
-    chartInstance = echarts.init(el, theme)
+    chartInstance = echarts.init(el, theme, {
+      renderer: options?.renderer || 'svg',
+    })
     addEventResize(el, resize)
     const { widthRef } = useBreakpoint()
     if (unref(widthRef) <= ScreenValueEnum.MD || el.offsetHeight === 0) {
@@ -56,8 +65,8 @@ export function useEcharts(elRef: Ref<HTMLDivElement | null>) {
     } as EChartsOption
   })
 
-  const setOptions = async (options: EChartsOption, clear = true) => {
-    cacheOptions.value = options
+  const setOptions = async (nextOptions: EChartsOption, clear = true) => {
+    cacheOptions.value = nextOptions
     if (unref(elRef)?.offsetHeight === 0) {
       await wait(30)
       await setOptions(unref(getOptions))

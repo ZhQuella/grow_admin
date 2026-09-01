@@ -39,6 +39,7 @@ const SYSTEM_COMPONENTS: Record<string, GrowRouteComponent> = {
   DeptManage: () => import('../pages/dept-manage/dept-manage.vue'),
   PostManage: () => import('../pages/post-manage/post-manage.vue'),
   PositionManage: () => import('../pages/position-manage/position-manage.vue'),
+  OrgChart: () => import('../pages/org-chart/org-chart.vue'),
 }
 
 function resolveSystemComponent(config: SystemRouteConfig): GrowRouteComponent {

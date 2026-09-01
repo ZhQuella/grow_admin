@@ -12,4 +12,5 @@ export const SYSTEM_ROUTE_AUTHORITY: Record<string, string[]> = {
   DeptManage: ['super'],
   PostManage: ['super'],
   PositionManage: ['super'],
+  OrgChart: ['super'],
 }
