@@ -107,7 +107,15 @@ function getStore(): MenuNode[] {
     syncMissingChildren(menuStore, source)
   }
   menuStore.forEach(ensureMenuComponentKey)
+  sortMenuNodes(menuStore)
   return menuStore
+}
+
+function sortMenuNodes(nodes: MenuNode[]) {
+  nodes.sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0) || a.title.localeCompare(b.title, 'zh-CN'))
+  nodes.forEach((node) => {
+    if (node.children?.length) sortMenuNodes(node.children)
+  })
 }
 
 type MenuLocation = {

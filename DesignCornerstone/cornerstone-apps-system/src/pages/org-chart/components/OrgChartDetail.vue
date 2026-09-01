@@ -6,9 +6,11 @@
         <GrowIconify icon="carbon:close" :size="15" />
       </GrowButton>
     </div>
-    <div class="org-panel__body">
-      <p v-if="loading" class="org-panel__hint">正在加载完整信息…</p>
-      <template v-if="post">
+    <GrowWatchBox class="org-panel__watch" v-slot="{ height }">
+      <GrowScrollbar v-if="height > 0" :height="`${height}px`">
+        <div class="org-panel__body">
+          <p v-if="loading" class="org-panel__hint">正在加载完整信息…</p>
+      <div v-if="post">
         <header class="org-panel__hero">
           <div>
             <strong>{{ postDetail?.name || post.name }}</strong>
@@ -89,8 +91,8 @@
             </div>
           </div>
         </section>
-      </template>
-      <template v-else-if="person">
+      </div>
+      <div v-else-if="person">
         <header class="org-panel__hero">
           <div>
             <strong>{{ personDetail?.name || person.name }}</strong>
@@ -142,16 +144,14 @@
               <span v-else>未设置</span>
             </dd></div>
             <div class="is-span"><dt>协同上级</dt><dd>
-              <template v-if="collaborators.length">
-                <GrowButton
-                  v-for="item in collaborators"
-                  :key="item.userId"
-                  link
-                  type="primary"
-                  @click="emit('node', `person:${item.userId}`)"
-                >{{ item.name }}</GrowButton>
-              </template>
-              <span v-else>-</span>
+              <span v-if="!collaborators.length">-</span>
+              <GrowButton
+                v-for="item in collaborators"
+                :key="item.userId"
+                link
+                type="primary"
+                @click="emit('node', `person:${item.userId}`)"
+              >{{ item.name }}</GrowButton>
             </dd></div>
           </dl>
         </section>
@@ -182,7 +182,7 @@
             <div class="org-panel__card-title">{{ item.postName }}</div>
             <div class="org-panel__card-meta">
               {{ item.deptName }} · {{ item.primary ? '主岗位' : assignmentTypeLabel(item.assignmentType) }}
-              <template v-if="item.jobGrade"> · {{ item.jobGrade }}</template>
+              <span v-if="item.jobGrade"> · {{ item.jobGrade }}</span>
             </div>
           </button>
         </section>
@@ -205,8 +205,8 @@
             <div v-if="item.summary" class="org-panel__card-meta">{{ item.summary }}</div>
           </div>
         </section>
-      </template>
-      <template v-else-if="dept">
+      </div>
+      <div v-else-if="dept">
         <header class="org-panel__hero">
           <div>
             <strong>{{ deptDetail?.name || dept.name }}</strong>
@@ -302,13 +302,16 @@
             </div>
           </div>
         </section>
-      </template>
-    </div>
+      </div>
+        </div>
+      </GrowScrollbar>
+    </GrowWatchBox>
   </aside>
 </template>
 
 <script lang="ts" setup>
 import { computed } from 'vue'
+import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
 import {
   assignmentTypeLabel,
   employeeStatusLabel,
@@ -433,11 +436,14 @@ const roleText = computed(() => {
   color: var(--text-color-secondary);
 }
 
-.org-panel__body {
+.org-panel__watch {
   flex: 1;
+  height: 0;
   min-height: 0;
+}
+
+.org-panel__body {
   padding: 4px 16px 20px;
-  overflow: auto;
 }
 
 .org-panel__hero {

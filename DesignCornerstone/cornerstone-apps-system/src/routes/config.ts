@@ -78,11 +78,6 @@ export const SYSTEM_ROUTE_STRUCTURES: SystemRouteStructure[] = [
         ],
       },
       {
-        path: 'org-chart',
-        name: 'OrgChart',
-        componentKey: 'OrgChart',
-      },
-      {
         path: 'dept-manage',
         name: 'DeptManage',
         componentKey: 'DeptManage',
@@ -96,6 +91,11 @@ export const SYSTEM_ROUTE_STRUCTURES: SystemRouteStructure[] = [
         path: 'position-manage',
         name: 'PositionManage',
         componentKey: 'PositionManage',
+      },
+      {
+        path: 'org-chart',
+        name: 'OrgChart',
+        componentKey: 'OrgChart',
       },
     ],
   },
