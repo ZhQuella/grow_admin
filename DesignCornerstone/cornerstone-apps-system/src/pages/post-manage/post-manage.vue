@@ -26,9 +26,22 @@
             :span-method="spanMethod"
             :row-class-name="rowClassName"
           >
-            <GrowTableColumn v-if="isColumnVisible('deptName')" prop="deptName" label="部门" min-width="180" show-overflow-tooltip>
+            <GrowTableColumn v-if="isColumnVisible('deptName')" prop="deptName" label="部门" min-width="200" show-overflow-tooltip>
               <template #default="{ row }">
                 <span class="post-manage__dept" :style="{ paddingLeft: `${row.deptLevel * 16}px` }">
+                  <button
+                    v-if="row.hasChildren"
+                    type="button"
+                    class="post-manage__fold"
+                    :title="row.expanded ? '折叠' : '展开'"
+                    @click.stop="toggleDeptExpand(row.deptId)"
+                  >
+                    <GrowIconify
+                      :icon="row.expanded ? 'ant-design:caret-down-outlined' : 'ant-design:caret-right-outlined'"
+                      :size="12"
+                    />
+                  </button>
+                  <span v-else class="post-manage__fold-placeholder" />
                   <GrowIconify icon="ant-design:folder-open-outlined" :size="16" />
                   {{ row.deptName }}
                 </span>
@@ -244,6 +257,7 @@ const {
   onSearch,
   onColumnsConfirm,
   onToggleEnabled,
+  toggleDeptExpand,
   spanMethod,
   rowClassName,
 } = usePostManage()
@@ -298,8 +312,30 @@ const {
 .post-manage__dept {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   font-weight: 600;
+}
+
+.post-manage__fold,
+.post-manage__fold-placeholder {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-color-secondary);
+}
+
+.post-manage__fold {
+  cursor: pointer;
+}
+
+.post-manage__fold:hover {
+  color: var(--el-color-primary);
 }
 
 .post-manage__empty {

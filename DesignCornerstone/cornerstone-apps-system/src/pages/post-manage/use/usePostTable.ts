@@ -16,6 +16,8 @@ export type PostTableRow = {
   parentDeptName: string
   deptEnabled: boolean
   deptLevel: number
+  hasChildren: boolean
+  expanded: boolean
   directPostCount: number
   post: SystemPostListItem | null
   span: number
@@ -93,11 +95,14 @@ function buildPostRows(
   roots: SystemDeptNode[],
   posts: SystemPostListItem[],
   skipEmpty: boolean,
+  collapsedIds: Set<string>,
   level = 0,
 ): PostTableRow[] {
   const rows: PostTableRow[] = []
   roots.forEach((dept) => {
     const list = postsOfDept(posts, dept.id)
+    const hasChildren = Boolean(dept.children?.length)
+    const expanded = !collapsedIds.has(dept.id)
     if (list.length || !skipEmpty) {
       const group = list.length ? list : [null]
       group.forEach((post, index) => {
@@ -109,6 +114,8 @@ function buildPostRows(
           parentDeptName: dept.parentName || '-',
           deptEnabled: dept.status === 'enabled',
           deptLevel: level,
+          hasChildren,
+          expanded,
           directPostCount: dept.directPostCount,
           post,
           span: group.length,
@@ -116,8 +123,8 @@ function buildPostRows(
         })
       })
     }
-    if (dept.children?.length) {
-      rows.push(...buildPostRows(dept.children, posts, skipEmpty, level + 1))
+    if (hasChildren && expanded) {
+      rows.push(...buildPostRows(dept.children || [], posts, skipEmpty, collapsedIds, level + 1))
     }
   })
   return rows
@@ -130,6 +137,7 @@ export function usePostTable() {
   const postList = ref<SystemPostListItem[]>([])
   const deptTree = ref<SystemDeptNode[]>([])
   const query = ref<Recordable<any>>({})
+  const collapsedDeptIds = ref<Set<string>>(new Set())
   const deptOptions = reactive<Array<{ label: string; value: string }>>([])
 
   const searchList: SearchBarField[] = [
@@ -234,8 +242,15 @@ export function usePostTable() {
     const deptId = String(query.value.deptId || '')
     const selected = deptId ? findDeptNode(deptTree.value, deptId) : undefined
     const roots = deptId ? (selected ? [selected] : []) : deptTree.value
-    return buildPostRows(roots, postList.value, hasPostFilter(query.value))
+    return buildPostRows(roots, postList.value, hasPostFilter(query.value), collapsedDeptIds.value)
   })
+
+  function toggleDeptExpand(deptId: string) {
+    const next = new Set(collapsedDeptIds.value)
+    if (next.has(deptId)) next.delete(deptId)
+    else next.add(deptId)
+    collapsedDeptIds.value = next
+  }
 
   async function loadDeptTree() {
     try {
@@ -297,6 +312,7 @@ export function usePostTable() {
     loadList,
     onSearch,
     onColumnsConfirm,
+    toggleDeptExpand,
     spanMethod,
     rowClassName,
   }
