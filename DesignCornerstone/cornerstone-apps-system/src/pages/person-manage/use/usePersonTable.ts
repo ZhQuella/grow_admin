@@ -42,16 +42,40 @@ export function usePersonTable() {
 
   const searchList: SearchBarField[] = [
     {
-      labelText: '关键字',
-      placeholder: '姓名 / 工号 / 手机 / 邮箱',
+      labelText: '姓名',
+      placeholder: '请输入姓名',
       elType: 'GrowInput',
       isDefault: true,
-      model: 'keyword',
+      model: 'name',
       noDelete: true,
       clearable: true,
     },
     {
-      labelText: '员工状态',
+      labelText: '工号',
+      placeholder: '请输入工号',
+      elType: 'GrowInput',
+      isDefault: true,
+      model: 'employeeNo',
+      clearable: true,
+    },
+    {
+      labelText: '手机号',
+      placeholder: '请输入手机号',
+      elType: 'GrowInput',
+      isDefault: true,
+      model: 'mobile',
+      clearable: true,
+    },
+    {
+      labelText: '所属岗位',
+      placeholder: '岗位名称',
+      elType: 'GrowInput',
+      isDefault: true,
+      model: 'post',
+      clearable: true,
+    },
+    {
+      labelText: '人员状态',
       elType: 'GrowSelect',
       isDefault: true,
       model: 'employeeStatus',
@@ -72,19 +96,33 @@ export function usePersonTable() {
       clearable: true,
       options: EMPLOYEE_TYPE_OPTIONS.map(({ label, value }) => ({ label, value })),
     },
+    {
+      labelText: '是否绑定账号',
+      elType: 'GrowSelect',
+      isDefault: true,
+      model: 'hasAccount',
+      label: 'label',
+      value: 'value',
+      placeholder: '请选择',
+      clearable: true,
+      options: [
+        { label: '已绑定', value: true },
+        { label: '未绑定', value: false },
+      ],
+    },
   ]
 
   const tableColumns = ref<ManageTableColumn[]>([
     { title: '姓名', field: 'name', visible: true, minWidth: 120 },
     { title: '工号', field: 'employeeNo', visible: true, minWidth: 100 },
-    { title: '部门', field: 'deptName', visible: true, minWidth: 140 },
-    { title: '岗位', field: 'post', visible: true, minWidth: 120 },
+    { title: '主部门', field: 'deptName', visible: true, minWidth: 140 },
+    { title: '主岗位', field: 'post', visible: true, minWidth: 120 },
     { title: '员工类型', field: 'employeeType', visible: true, minWidth: 90 },
-    { title: '员工状态', field: 'employeeStatus', visible: true, minWidth: 90 },
-    { title: '手机号', field: 'mobile', visible: true, minWidth: 130 },
-    { title: '入职时间', field: 'entryDate', visible: true, minWidth: 110 },
-    { title: '最近变动', field: 'lastEventTitle', visible: true, minWidth: 120 },
-    { title: '操作', field: 'actions', visible: true, minWidth: 280, fixed: 'right' },
+    { title: '人员状态', field: 'employeeStatus', visible: true, minWidth: 90 },
+    { title: '直属主管', field: 'supervisorName', visible: true, minWidth: 110 },
+    { title: '账号状态', field: 'accountEnabled', visible: true, minWidth: 100 },
+    { title: '入职日期', field: 'entryDate', visible: true, minWidth: 110 },
+    { title: '操作', field: 'actions', visible: true, minWidth: 320, fixed: 'right' },
   ])
 
   const leafColumns = computed(() => collectLeafColumns(tableColumns.value))

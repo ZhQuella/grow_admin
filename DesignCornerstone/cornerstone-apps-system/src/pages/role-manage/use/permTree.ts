@@ -1,40 +1,21 @@
 import { MenuTypeEnum } from '@grow-admin-rock/constants'
 import type { SystemMenuNode } from '../../../types/systemMenu'
-import type { SystemMenuFunction } from '../../../types/systemMenuFunction'
 import type { RolePermTreeNode } from '../../../types/systemRole'
-import { parseCheckedPermKeys } from './helpers'
 
 export function buildRolePermTree(
   menus: SystemMenuNode[],
-  functions: SystemMenuFunction[],
 ): RolePermTreeNode[] {
-  const byMenu = new Map<string, SystemMenuFunction[]>()
-  for (const item of functions) {
-    const list = byMenu.get(item.menuName) || []
-    list.push(item)
-    byMenu.set(item.menuName, list)
-  }
-
-  const walk = (nodes: SystemMenuNode[]): RolePermTreeNode[] =>
+  const walk = (nodes: SystemMenuNode[], ancestorDisabled = false): RolePermTreeNode[] =>
     nodes.map((node) => {
-      const children: RolePermTreeNode[] = []
-      if (node.children?.length) {
-        children.push(...walk(node.children))
-      }
-      if (node.menuType === MenuTypeEnum.MENU) {
-        const fns = [...(byMenu.get(node.name) || [])].sort(
-          (a, b) => a.sort - b.sort || a.title.localeCompare(b.title, 'zh-CN'),
-        )
-        children.push(...fns.map((fn) => ({
-          key: `fn:${fn.id}`,
-          title: fn.enabled === false
-            ? `${fn.title}（${fn.code} · 已停用）`
-            : `${fn.title}（${fn.code}）`,
-        })))
-      }
+      const disabled = ancestorDisabled || node.enabled === false
+      const children = node.children?.length ? walk(node.children, disabled) : []
+      const directory = node.menuType === MenuTypeEnum.DIRECTORY
       return {
-        key: node.menuType === MenuTypeEnum.DIRECTORY ? `dir:${node.name}` : `menu:${node.name}`,
-        title: node.title,
+        key: directory ? `dir:${node.name}` : `menu:${node.name}`,
+        title: disabled ? `${node.title}（已停用）` : node.title,
+        ...(!directory ? { menuName: node.name } : {}),
+        directory,
+        disabled,
         ...(children.length ? { children } : {}),
       }
     })
@@ -174,24 +155,76 @@ export function flattenGrantedMenuTree(nodes: GrantedMenuTreeNode[]): GrantedMen
   return result
 }
 
-export function collectPermFromKeys(tree: RolePermTreeNode[], keys: string[]) {
-  const { menuNames, functionIds } = parseCheckedPermKeys(keys)
-  const menuSet = new Set(menuNames)
-  const fnSet = new Set(functionIds)
-
-  const walk = (nodes: RolePermTreeNode[], parentMenu?: string) => {
-    for (const node of nodes) {
-      const nextParent = node.key.startsWith('menu:') ? node.key.slice(5) : parentMenu
-      if (node.key.startsWith('fn:') && fnSet.has(node.key.slice(3)) && nextParent) {
-        menuSet.add(nextParent)
-      }
-      if (node.children?.length) walk(node.children, nextParent)
+export function flattenRoleMenuTree(nodes: RolePermTreeNode[]) {
+  const result: RolePermTreeNode[] = []
+  const walk = (list: RolePermTreeNode[]) => {
+    for (const node of list) {
+      if (node.menuName) result.push(node)
+      if (node.children?.length) walk(node.children)
     }
   }
-  walk(tree)
+  walk(nodes)
+  return result
+}
 
-  return {
-    menuNames: [...menuSet],
-    functionIds: [...fnSet],
+export function flattenRolePermTree(nodes: RolePermTreeNode[]) {
+  const result: RolePermTreeNode[] = []
+  const walk = (list: RolePermTreeNode[]) => {
+    for (const node of list) {
+      result.push(node)
+      if (node.children?.length) walk(node.children)
+    }
   }
+  walk(nodes)
+  return result
+}
+
+export function syncRoleDirectoryKeys(
+  nodes: RolePermTreeNode[],
+  sourceKeys: string[],
+) {
+  const keys = new Set(sourceKeys)
+
+  const walk = (node: RolePermTreeNode): string[] => {
+    const menuKeys = node.directory || node.disabled ? [] : [node.key]
+    for (const child of node.children || []) menuKeys.push(...walk(child))
+
+    if (node.directory) {
+      if (menuKeys.length && menuKeys.every((key) => keys.has(key))) keys.add(node.key)
+      else keys.delete(node.key)
+    }
+    return menuKeys
+  }
+
+  nodes.forEach(walk)
+  return [...keys]
+}
+
+export function toggleRolePermNode(
+  nodes: RolePermTreeNode[],
+  sourceKeys: string[],
+  nodeKey: string,
+  checked: boolean,
+) {
+  const keys = new Set(sourceKeys)
+  const node = flattenRolePermTree(nodes).find((item) => item.key === nodeKey)
+  if (!node || node.disabled) return syncRoleDirectoryKeys(nodes, [...keys])
+
+  if (checked) keys.add(node.key)
+  else keys.delete(node.key)
+
+  if (node.directory) {
+    const applyChildren = (children: RolePermTreeNode[]) => {
+      for (const child of children) {
+        if (!child.disabled) {
+          if (checked) keys.add(child.key)
+          else keys.delete(child.key)
+        }
+        if (child.children?.length) applyChildren(child.children)
+      }
+    }
+    applyChildren(node.children || [])
+  }
+
+  return syncRoleDirectoryKeys(nodes, [...keys])
 }

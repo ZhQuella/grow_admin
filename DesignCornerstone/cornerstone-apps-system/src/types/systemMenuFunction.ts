@@ -6,6 +6,8 @@ export type SystemMenuFunction = {
   menuName: string
   title: string
   code: string
+  group: string
+  description: string
   sort: number
   enabled: boolean
 }
@@ -16,7 +18,13 @@ export type SystemMenuFunctionSavePayload = {
     id?: string
     title: string
     code: string
+    group: string
+    description: string
     sort: number
     enabled: boolean
   }>
+}
+
+export type SystemMenuFunctionDeleteImpact = {
+  roleGrantCount: number
 }

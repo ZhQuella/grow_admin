@@ -106,11 +106,11 @@ const emit = defineEmits<{
 }>()
 
 const fieldOptions = computed(() => {
-  const enabled = props.columns.filter((item) => item.enabled !== false)
-  const multiTable = new Set(enabled.map((item) => item.tableCode)).size > 1
-  return enabled.map((item) => ({
+  const multiTable = new Set(props.columns.map((item) => item.tableCode)).size > 1
+  return props.columns.map((item) => ({
     value: item.id,
     label: multiTable && item.tableTitle ? `${item.tableTitle} / ${item.title}` : item.title,
+    disabled: item.enabled === false || item.queryFilter === false,
   }))
 })
 

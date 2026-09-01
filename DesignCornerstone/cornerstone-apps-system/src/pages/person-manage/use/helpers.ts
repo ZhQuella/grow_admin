@@ -1,3 +1,5 @@
+import { driverRef } from '@grow-admin-rock/components'
+
 export function toMessage(error: unknown, fallback: string) {
   return error instanceof Error ? error.message : fallback
 }
@@ -39,6 +41,22 @@ export function maskAccount(value?: string) {
 export function displayText(value?: string | number | null) {
   const text = String(value ?? '').trim()
   return text || '-'
+}
+
+export function pickSelectId(value: unknown): string {
+  if (value == null || value === '') return ''
+  if (Array.isArray(value)) return pickSelectId(value[0])
+  if (typeof value === 'object') {
+    const rec = value as Record<string, unknown>
+    return String(rec.id ?? rec.value ?? '')
+  }
+  return String(value)
+}
+
+export function toPostSelectOptions(posts: Array<{ id: string; name: string; enabled?: boolean }>) {
+  return posts
+    .filter((item) => item.enabled !== false)
+    .map((item) => ({ label: item.name, value: item.id }))
 }
 
 export function optionLabel<T extends string>(
@@ -123,4 +141,101 @@ export function findDeptTitle(
 
 export function nextFamilyId() {
   return `fm_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`
+}
+
+export function emptyFamilyMember() {
+  return { id: nextFamilyId(), name: '', relation: '', gender: '', birthday: '', phone: '' }
+}
+
+export function hasFamilyContent(row: { name?: string; relation?: string; gender?: string; birthday?: string; phone?: string }) {
+  return !!(row.name || row.relation || row.gender || row.birthday || row.phone)
+}
+
+export function nextEmergencyId() {
+  return `ec_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`
+}
+
+export function emptyEmergencyContact() {
+  return { id: nextEmergencyId(), name: '', relation: '', phone: '' }
+}
+
+export function hasEmergencyContent(row: { name?: string; relation?: string; phone?: string }) {
+  return !!(row.name || row.relation || row.phone)
+}
+
+export function normalizeEmergencyContacts(source: {
+  emergencyContacts?: Array<{ id?: string; name?: string; relation?: string; phone?: string }>
+  emergencyName?: string
+  emergencyRelation?: string
+  emergencyPhone?: string
+}) {
+  if (Array.isArray(source.emergencyContacts) && source.emergencyContacts.length) {
+    return source.emergencyContacts.map((item) => ({
+      id: item.id || nextEmergencyId(),
+      name: item.name || '',
+      relation: item.relation || '',
+      phone: item.phone || '',
+    }))
+  }
+  if (source.emergencyName || source.emergencyRelation || source.emergencyPhone) {
+    return [{
+      id: nextEmergencyId(),
+      name: source.emergencyName || '',
+      relation: source.emergencyRelation || '',
+      phone: source.emergencyPhone || '',
+    }]
+  }
+  return []
+}
+
+export function nextAssignmentId() {
+  return `as_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`
+}
+
+export function emptyAssignment(type: 'primary' | 'part_time' = 'primary') {
+  return {
+    id: nextAssignmentId(),
+    deptId: '',
+    deptName: '',
+    postId: '',
+    postName: '',
+    jobCode: '',
+    jobTitle: '',
+    jobGrade: '',
+    type,
+    startDate: todayText(),
+    endDate: '',
+    status: 'active' as const,
+    occupyHeadcount: type === 'primary',
+    supervisorId: '',
+    collaboratorIds: [],
+  }
+}
+
+export function hasAssignmentContent(row: {
+  deptId?: string
+  postId?: string
+  jobCode?: string
+  jobTitle?: string
+  jobGrade?: string
+}) {
+  return !!(row.deptId || row.postId || row.jobCode || row.jobTitle || row.jobGrade)
+}
+
+export function statusTag(status?: string) {
+  if (status === 'formal' || status === 'rehired') return 'success'
+  if (status === 'probation' || status === 'pending') return 'warning'
+  if (status === 'resigned' || status === 'retired' || status === 'disabled') return 'info'
+  return 'info'
+}
+
+export async function validateGrowForm(formRef: { value: unknown }) {
+  const form = driverRef(formRef as any) as { validate?: () => Promise<unknown> } | undefined
+  if (!form?.validate) {
+    throw new Error('表单未就绪')
+  }
+  const result = await form.validate()
+  if (result === false) {
+    throw new Error('校验未通过')
+  }
 }

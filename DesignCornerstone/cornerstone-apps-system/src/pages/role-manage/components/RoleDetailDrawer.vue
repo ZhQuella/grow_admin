@@ -5,122 +5,140 @@
     size="560px"
     append-to-body
     destroy-on-close
+    class="role-drawer"
   >
-    <p v-if="loading" class="role-detail__hint">加载中…</p>
-    <div v-else-if="detail" class="role-detail">
-      <section class="role-detail__section">
-        <h4 class="role-detail__title">基本信息</h4>
-        <dl class="role-detail__dl">
-          <div><dt>名称</dt><dd>{{ detail.name }}</dd></div>
-          <div><dt>编码</dt><dd>{{ detail.code }}</dd></div>
-          <div><dt>排序</dt><dd>{{ detail.sort }}</dd></div>
-          <div>
-            <dt>状态</dt>
-            <dd>
-              <GrowTag :type="detail.enabled ? 'success' : 'danger'" size="small">
-                {{ detail.enabled ? '启用' : '停用' }}
-              </GrowTag>
-              <GrowTag v-if="detail.builtIn" type="info" size="small">内置</GrowTag>
-            </dd>
-          </div>
-          <div><dt>备注</dt><dd>{{ detail.remark || '-' }}</dd></div>
-          <div><dt>更新时间</dt><dd>{{ formatTime(detail.updatedAt) }}</dd></div>
-        </dl>
-      </section>
+    <GrowWatchBox class="role-drawer__watch">
+      <template #default="{ height }">
+        <GrowScrollbar v-if="height > 0" :height="`${height}px`">
+          <p v-if="loading" class="role-detail__hint role-detail__hint--loading">加载中…</p>
+          <div v-else-if="detail" class="role-detail">
+            <section class="role-detail__section">
+              <h4 class="role-detail__title">基本信息</h4>
+              <dl class="role-detail__dl">
+                <div><dt>名称</dt><dd>{{ detail.name }}</dd></div>
+                <div><dt>编码</dt><dd>{{ detail.code }}</dd></div>
+                <div><dt>排序</dt><dd>{{ detail.sort }}</dd></div>
+                <div>
+                  <dt>状态</dt>
+                  <dd>
+                    <GrowTag :type="detail.enabled ? 'success' : 'danger'" size="small">
+                      {{ detail.enabled ? '启用' : '停用' }}
+                    </GrowTag>
+                    <GrowTag v-if="detail.builtIn" type="info" size="small">内置</GrowTag>
+                  </dd>
+                </div>
+                <div><dt>角色描述</dt><dd>{{ detail.remark || '-' }}</dd></div>
+                <div><dt>更新时间</dt><dd>{{ formatTime(detail.updatedAt) }}</dd></div>
+              </dl>
+            </section>
 
-      <section class="role-detail__section">
-        <h4 class="role-detail__title">数据权限</h4>
-        <div v-if="!detail.dataPerms.length" class="role-detail__hint">未配置数据权限</div>
-        <div v-else class="role-detail__menus">
-          <div v-for="perm in detail.dataPerms" :key="perm.menuName" class="role-detail__menu">
-            <div class="role-detail__menu-title">{{ perm.menuTitle }}</div>
-            <p class="role-detail__text">
-              可编辑删除：{{ editScopeLabel(perm.editScope) }}
-            </p>
-            <p v-if="selfSummary(perm)" class="role-detail__hint">{{ selfSummary(perm) }}</p>
-            <div v-if="perm.editScope === 'custom'" class="role-detail__tags">
-              <GrowTag v-for="dept in perm.depts" :key="dept.id" size="small">
-                {{ dept.name }}
-              </GrowTag>
-            </div>
-            <div v-if="perm.editScope === 'specified'" class="role-detail__hint">
-              <p
-                v-for="row in perm.filters"
-                :key="row.id"
-                class="role-detail__text"
-              >
-                {{ filterConditionText(row, perm.columns) }}
-              </p>
-            </div>
-            <p v-if="perm.editScope !== 'all'" class="role-detail__text">
-              其它记录：{{ viewOtherLabel(perm.viewOther) }}
-            </p>
-            <p v-if="perm.editScope !== 'all' && viewSelfSummary(perm)" class="role-detail__hint">
-              {{ viewSelfSummary(perm) }}
-            </p>
-            <div v-if="perm.editScope !== 'all' && perm.viewOther === 'specified'" class="role-detail__hint">
-              <p
-                v-for="row in perm.viewFilters"
-                :key="row.id"
-                class="role-detail__text"
-              >
-                {{ filterConditionText(row, perm.columns) }}
-              </p>
-            </div>
-            <div v-if="!perm.columns.length" class="role-detail__hint">未勾选可见列</div>
-            <div v-else class="role-detail__tables">
-              <div
-                v-for="group in groupColumns(perm.columns)"
-                :key="group.code"
-                class="role-detail__table"
-              >
-                <div class="role-detail__table-title">{{ group.title }}</div>
-                <div class="role-detail__tags">
-                  <GrowTag v-for="col in group.columns" :key="col.id" size="small">
-                    {{ col.title }}
-                  </GrowTag>
+            <section class="role-detail__section">
+              <h4 class="role-detail__title">数据权限</h4>
+              <div v-if="!detail.dataPerms.length" class="role-detail__hint">未配置数据权限</div>
+              <div v-else class="role-detail__menus">
+                <div v-for="perm in detail.dataPerms" :key="perm.menuName" class="role-detail__menu">
+                  <div class="role-detail__menu-title">{{ perm.menuTitle }}</div>
+                  <p class="role-detail__text">
+                    可编辑删除：{{ editScopeLabel(perm.editScope) }}
+                  </p>
+                  <p v-if="selfSummary(perm)" class="role-detail__hint">{{ selfSummary(perm) }}</p>
+                  <div v-if="perm.editScope === 'custom'" class="role-detail__tags">
+                    <GrowTag v-for="dept in perm.depts" :key="dept.id" :type="dept.invalid ? 'danger' : 'info'" size="small">
+                      {{ dept.name }}{{ dept.invalid ? '（部门已删除）' : '' }}
+                    </GrowTag>
+                  </div>
+                  <div v-if="perm.editScope === 'specified'" class="role-detail__hint">
+                    <p v-for="row in perm.filters" :key="row.id" class="role-detail__text">
+                      {{ filterConditionText(row, perm.columns) }}
+                    </p>
+                  </div>
+                  <p v-if="perm.editScope !== 'all'" class="role-detail__text">
+                    其它记录：{{ viewOtherLabel(perm.viewOther) }}
+                  </p>
+                  <p v-if="perm.editScope !== 'all' && viewSelfSummary(perm)" class="role-detail__hint">
+                    {{ viewSelfSummary(perm) }}
+                  </p>
+                  <div
+                    v-if="perm.editScope !== 'all' && perm.viewOther === 'specified'"
+                    class="role-detail__hint"
+                  >
+                    <p v-for="row in perm.viewFilters" :key="row.id" class="role-detail__text">
+                      {{ filterConditionText(row, perm.columns) }}
+                    </p>
+                  </div>
+                  <div v-if="!perm.columns.length" class="role-detail__hint">未勾选可见列</div>
+                  <div v-else class="role-detail__tables">
+                    <div
+                      v-for="group in groupColumns(perm.columns)"
+                      :key="group.code"
+                      class="role-detail__table"
+                    >
+                      <div class="role-detail__table-title">{{ group.title }}</div>
+                      <div class="role-detail__table-label">可见字段</div>
+                      <div class="role-detail__tags">
+                        <GrowTag v-for="col in group.columns" :key="col.id" size="small">
+                          {{ col.title }}
+                        </GrowTag>
+                      </div>
+                      <div class="role-detail__table-label">可编辑字段</div>
+                      <div v-if="editableColumns(perm, group.code).length" class="role-detail__tags">
+                        <GrowTag
+                          v-for="col in editableColumns(perm, group.code)"
+                          :key="col.id"
+                          size="small"
+                          type="success"
+                        >
+                          {{ col.title }}
+                        </GrowTag>
+                      </div>
+                      <div v-else class="role-detail__hint">未授权可编辑字段</div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            </section>
 
-      <section class="role-detail__section">
-        <h4 class="role-detail__title">菜单和功能</h4>
-        <div v-if="!menuGroups.length" class="role-detail__hint">未配置菜单权限</div>
-        <div v-else class="role-detail__menus">
-          <div v-for="group in menuGroups" :key="group.name" class="role-detail__menu">
-            <div class="role-detail__menu-title">{{ group.title }}</div>
-            <div v-if="group.functions.length" class="role-detail__tags">
-              <GrowTag v-for="fn in group.functions" :key="fn.id" size="small">
-                {{ fn.title }}
-              </GrowTag>
-            </div>
-            <div v-else class="role-detail__hint">未勾选功能</div>
-          </div>
-        </div>
-      </section>
+            <section class="role-detail__section">
+              <h4 class="role-detail__title">菜单和功能</h4>
+              <div v-if="!menuGroups.length" class="role-detail__hint">未配置菜单权限</div>
+              <div v-else class="role-detail__menus">
+                <div v-for="group in menuGroups" :key="group.name" class="role-detail__menu">
+                  <div class="role-detail__menu-title">{{ group.title }}</div>
+                  <div v-if="group.functions.length" class="role-detail__tags">
+                    <GrowTag v-for="fn in group.functions" :key="fn.id" size="small">
+                      {{ fn.title }}
+                    </GrowTag>
+                  </div>
+                  <div v-else class="role-detail__hint">未勾选功能</div>
+                </div>
+              </div>
+            </section>
 
-      <section class="role-detail__section">
-        <h4 class="role-detail__title">绑定账号（{{ detail.members.length }}）</h4>
-        <div v-if="!detail.members.length" class="role-detail__hint">暂未绑定账号</div>
-        <div v-else class="role-detail__people">
-          <div v-for="member in detail.members" :key="member.userId" class="role-detail__person">
-            <div class="role-detail__person-name">{{ member.username || member.name }}</div>
-            <div class="role-detail__person-meta">
-              {{ member.name ? `${member.name} · ${member.deptName}` : member.deptName }}
-            </div>
+            <section class="role-detail__section">
+              <h4 class="role-detail__title">绑定账号（{{ detail.members.length }}）</h4>
+              <div v-if="!detail.members.length" class="role-detail__hint">暂未绑定账号</div>
+              <div v-else class="role-detail__people">
+                <div v-for="member in detail.members" :key="member.userId" class="role-detail__person">
+                  <div class="role-detail__person-name">{{ member.username || member.name }}</div>
+                  <div class="role-detail__person-meta">
+                    {{ member.name ? `${member.name} · ${member.deptName}` : member.deptName }}
+                    · {{ member.enabled ? '启用' : '停用' }}
+                    · 绑定于 {{ formatTime(member.boundAt) }}
+                  </div>
+                </div>
+              </div>
+            </section>
           </div>
-        </div>
-      </section>
-    </div>
+        </GrowScrollbar>
+      </template>
+    </GrowWatchBox>
   </GrowDrawer>
 </template>
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 import { useMsg } from '@grow-admin-rock/components'
+import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
 import { fetchAllSystemMenuFunctions } from '../../../api/systemMenuFunction'
 import { fetchAllSystemMenuColumns } from '../../../api/systemMenuColumn'
 import { fetchSystemMenuTree } from '../../../api/systemMenu'
@@ -159,7 +177,8 @@ const menuGroups = computed(() => {
     title: current.menus.find((item) => item.name === name)?.title || name,
     functions: current.functionIds
       .map((id) => fnMap.get(id))
-      .filter((item): item is SystemMenuFunction => Boolean(item) && item.menuName === name),
+      .filter((item): item is SystemMenuFunction => Boolean(item))
+      .filter((item) => item.menuName === name),
   }))
 })
 
@@ -191,6 +210,11 @@ function columnRefTitle(columns: SystemRoleColumnRef[], id: string) {
   const col = columns.find((item) => item.id === id)
   if (!col) return id
   return col.tableTitle ? `${col.tableTitle} / ${col.title}` : col.title
+}
+
+function editableColumns(perm: SystemRoleDataPermView, tableCode: string) {
+  const ids = new Set(perm.editableColumnIds || [])
+  return perm.columns.filter((item) => item.tableCode === tableCode && ids.has(item.id))
 }
 
 function selfSummary(perm: SystemRoleDataPermView) {
@@ -268,6 +292,7 @@ defineExpose({ open })
   display: flex;
   flex-direction: column;
   gap: 20px;
+  padding: 16px;
 }
 
 .role-detail__section {
@@ -317,11 +342,21 @@ defineExpose({ open })
   font-size: 13px;
 }
 
+.role-detail__table-label {
+  margin: 8px 0 6px;
+  color: var(--text-color-secondary);
+  font-size: 12px;
+}
+
 .role-detail__hint {
   margin: 0;
   color: var(--text-color-secondary);
   font-size: 13px;
   line-height: 1.6;
+}
+
+.role-detail__hint--loading {
+  padding: 16px;
 }
 
 .role-detail__tags {

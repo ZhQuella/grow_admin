@@ -5,8 +5,10 @@ import type {
   SystemPerson,
   SystemRoleCreatePayload,
   SystemRoleDataPermItem,
+  SystemRoleDeleteImpact,
   SystemRoleDetail,
   SystemRoleListItem,
+  SystemRoleOption,
   SystemRolePageResult,
   SystemRoleQuery,
   SystemRoleUpdatePayload,
@@ -38,6 +40,13 @@ export function updateSystemRole(id: string, data: SystemRoleUpdatePayload) {
 export function deleteSystemRole(id: string) {
   return useRequest().post<{ id: string }>({
     url: '/system/role/delete',
+    data: { id },
+  })
+}
+
+export function fetchSystemRoleDeleteImpact(id: string) {
+  return useRequest().post<SystemRoleDeleteImpact>({
+    url: '/system/role/delete-impact',
     data: { id },
   })
 }
@@ -93,7 +102,7 @@ export function fetchSystemPersons() {
 }
 
 export function fetchSystemRoleOptions() {
-  return useRequest().post<Array<{ id: string; name: string; code: string }>>({
+  return useRequest().post<SystemRoleOption[]>({
     url: '/system/roles/options',
   })
 }

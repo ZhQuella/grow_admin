@@ -5,11 +5,13 @@ export const ACCOUNT_EVENT_VALUES = [
   'create',
   'update',
   'assign',
+  'reassign',
   'unassign',
   'enable',
   'disable',
   'reset_password',
   'login',
+  'delete',
 ] as const
 export type AccountEventType = (typeof ACCOUNT_EVENT_VALUES)[number]
 
@@ -20,11 +22,13 @@ export const ACCOUNT_EVENT_OPTIONS: Array<{ label: string; value: AccountEventTy
   { label: '开通账号', value: 'create' },
   { label: '修改账号', value: 'update' },
   { label: '分配人员', value: 'assign' },
+  { label: '换绑人员', value: 'reassign' },
   { label: '解绑人员', value: 'unassign' },
   { label: '启用', value: 'enable' },
   { label: '停用', value: 'disable' },
   { label: '重置密码', value: 'reset_password' },
   { label: '登录', value: 'login' },
+  { label: '删除账号', value: 'delete' },
 ]
 
 export function accountEventLabel(value?: string) {
@@ -35,6 +39,8 @@ export type AccountRoleRef = {
   id: string
   name: string
   code: string
+  enabled?: boolean
+  builtIn?: boolean
 }
 
 export type AccountHistoryItem = {
@@ -49,12 +55,18 @@ export type AccountHistoryItem = {
 export type SystemAccountListItem = {
   accountId: string
   username: string
+  nickname: string
+  mobile: string
+  email: string
   enabled: boolean
   personId: string
   personName: string
+  personStatus: string
   deptName: string
   roleIds: string[]
   roles: AccountRoleRef[]
+  roleCount: number
+  superAdmin: boolean
   lastLoginAt: string
   remark: string
   updatedAt: string
@@ -66,9 +78,11 @@ export type SystemAccountDetail = SystemAccountListItem & {
 }
 
 export type SystemAccountQuery = {
-  keyword?: string
+  username?: string
+  nickname?: string
+  personId?: string
   enabled?: string | boolean
-  unbound?: string | boolean
+  roleId?: string
   page?: number
   pageSize?: number
 }
@@ -80,13 +94,21 @@ export type SystemAccountPageResult = {
 
 export type SystemAccountCreatePayload = {
   username: string
+  nickname?: string
+  mobile?: string
+  email?: string
   password: string
+  personId?: string
+  disableAccount?: boolean
   roleIds?: string[]
   remark?: string
 }
 
 export type SystemAccountUpdatePayload = {
   username: string
+  nickname?: string
+  mobile?: string
+  email?: string
   roleIds?: string[]
   remark?: string
 }
@@ -94,6 +116,7 @@ export type SystemAccountUpdatePayload = {
 export type SystemAccountAssignPayload = {
   accountId: string
   personId: string
+  disableAccount?: boolean
 }
 
 export type SystemAccountResetPayload = {
@@ -104,6 +127,21 @@ export type SystemAccountResetPayload = {
 export type SystemAccountBrief = {
   accountId: string
   username: string
+  personId: string
   personName: string
+  deptName: string
   enabled: boolean
+}
+
+export type SystemAccountPersonOption = {
+  personId: string
+  name: string
+  deptName: string
+  employeeStatus: string
+  accountId: string
+}
+
+export type SystemAccountDeleteImpact = {
+  roleCount: number
+  historyCount: number
 }

@@ -9,10 +9,16 @@
       :placeholder="placeholder"
       :maxlength="maxlength"
       @update:model-value="onInput"
-    />
-    <GrowButton link type="primary" @click="visible = !visible">
-      {{ visible ? '隐藏' : '显示' }}
-    </GrowButton>
+    >
+      <template #suffix>
+        <GrowIconify
+          class="sensitive-input__eye"
+          :icon="visible ? 'ant-design:eye-invisible-outlined' : 'ant-design:eye-outlined'"
+          :size="16"
+          @click.stop="visible = !visible"
+        />
+      </template>
+    </GrowInput>
   </div>
 </template>
 
@@ -40,13 +46,20 @@ function onInput(value: string | number) {
 
 <style scoped>
 .sensitive-input {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  width: 100%;
 }
 
 .sensitive-input :deep(.el-input) {
-  flex: 1;
+  width: 100%;
+}
+
+.sensitive-input__eye {
+  cursor: pointer;
+  color: var(--text-color-secondary);
+}
+
+.sensitive-input__eye:hover {
+  color: var(--primary-color);
 }
 
 .sensitive-input--masked :deep(input) {

@@ -2,9 +2,11 @@ import { diKT } from '@grow-admin-rock/ioc'
 import { Lib as infrastructureLib } from '@grow-admin-rock/infrastructure'
 import type {
   PersonConfirmPayload,
+  PersonDeletePayload,
   PersonHistoryItem,
   PersonReinstatePayload,
   PersonResignPayload,
+  PersonStatusPayload,
   PersonTransferPayload,
   SystemPersonDetail,
   SystemPersonPageResult,
@@ -42,10 +44,10 @@ export function updateSystemPerson(userId: string, data: SystemPersonSavePayload
   })
 }
 
-export function deleteSystemPerson(userId: string) {
+export function deleteSystemPerson(data: PersonDeletePayload) {
   return useRequest().post<{ userId: string }>({
     url: '/system/person/delete',
-    data: { userId },
+    data,
   })
 }
 
@@ -77,9 +79,23 @@ export function resignSystemPerson(data: PersonResignPayload) {
   })
 }
 
+export function retireSystemPerson(data: PersonStatusPayload) {
+  return useRequest().post<SystemPersonDetail>({
+    url: '/system/person/retire',
+    data,
+  })
+}
+
 export function reinstateSystemPerson(data: PersonReinstatePayload) {
   return useRequest().post<SystemPersonDetail>({
     url: '/system/person/reinstate',
+    data,
+  })
+}
+
+export function rehireSystemPerson(data: PersonReinstatePayload) {
+  return useRequest().post<SystemPersonDetail>({
+    url: '/system/person/rehire',
     data,
   })
 }

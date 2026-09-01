@@ -89,6 +89,7 @@ export function filterMenuTree(
   const keyword = String(query.keyword || '').trim()
   const menuType = query.menuType
   const visible = query.isVisible
+  const enabled = query.enabled
 
   const result = nodes.reduce<SystemMenuNode[]>((list, node) => {
     const children = node.children?.length
@@ -99,8 +100,11 @@ export function filterMenuTree(
     const visibleMatched = visible === '' || visible == null
       ? true
       : String(node.isVisible) === String(visible)
+    const enabledMatched = enabled === '' || enabled == null
+      ? true
+      : String(node.enabled) === String(enabled)
     const keywordMatched = matchesKeyword(node, keyword)
-    const selfMatched = typeMatched && visibleMatched && keywordMatched
+    const selfMatched = typeMatched && visibleMatched && enabledMatched && keywordMatched
 
     if (selfMatched || children?.length) {
       list.push({

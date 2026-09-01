@@ -6,12 +6,16 @@
     append-to-body
     destroy-on-close
   >
-    <p v-if="loading" class="account-detail__hint">加载中…</p>
-    <div v-else-if="detail" class="account-detail">
+    <GrowWatchBox class="account-detail__watch">
+      <template #default="{ height }">
+        <GrowScrollbar v-if="height > 0" :height="`${height}px`">
+          <p v-if="loading" class="account-detail__hint">加载中…</p>
+          <div v-else-if="detail" class="account-detail">
       <section class="account-detail__section">
         <h4 class="account-detail__title">基本信息</h4>
         <dl class="account-detail__dl">
-          <div><dt>登录名</dt><dd>{{ detail.username }}</dd></div>
+          <div><dt>账号名称</dt><dd>{{ detail.username }}</dd></div>
+          <div><dt>昵称</dt><dd>{{ detail.nickname || '-' }}</dd></div>
           <div>
             <dt>状态</dt>
             <dd>
@@ -21,7 +25,10 @@
             </dd>
           </div>
           <div><dt>绑定人员</dt><dd>{{ detail.personName || '未绑定' }}</dd></div>
+          <div><dt>人员状态</dt><dd>{{ detail.personStatus ? accountPersonStatusLabel(detail.personStatus) : '-' }}</dd></div>
           <div><dt>部门</dt><dd>{{ detail.deptName || '-' }}</dd></div>
+          <div><dt>手机号</dt><dd>{{ detail.mobile || '-' }}</dd></div>
+          <div><dt>邮箱</dt><dd>{{ detail.email || '-' }}</dd></div>
           <div><dt>最近登录</dt><dd>{{ formatTime(detail.lastLoginAt) }}</dd></div>
           <div><dt>更新时间</dt><dd>{{ formatTime(detail.updatedAt) }}</dd></div>
           <div class="account-detail__span"><dt>备注</dt><dd>{{ detail.remark || '-' }}</dd></div>
@@ -37,7 +44,10 @@
           </GrowTag>
         </div>
       </section>
-    </div>
+          </div>
+        </GrowScrollbar>
+      </template>
+    </GrowWatchBox>
     <template #footer>
       <GrowButton @click="visible = false">关闭</GrowButton>
     </template>
@@ -47,9 +57,10 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { useMsg } from '@grow-admin-rock/components'
+import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
 import { getSystemAccountDetail } from '../../../api/systemAccount'
 import type { SystemAccountDetail, SystemAccountListItem } from '../../../types/systemAccount'
-import { formatTime, toMessage } from '../use/helpers'
+import { accountPersonStatusLabel, formatTime, toMessage } from '../use/helpers'
 
 defineOptions({ name: 'AccountDetailDrawer' })
 
@@ -79,6 +90,12 @@ defineExpose({ open })
   display: flex;
   flex-direction: column;
   gap: 20px;
+  padding: 16px;
+}
+
+.account-detail__watch {
+  height: 100%;
+  min-height: 240px;
 }
 
 .account-detail__section {

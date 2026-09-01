@@ -18,16 +18,8 @@ export function usePersonActions() {
     )
   }
 
-  function openEdit(row: SystemPersonListItem) {
-    go(
-      { name: 'PersonEdit', params: { id: row.userId } },
-      { tabMode: 'stack', parentName: 'PersonManage' },
-    )
-  }
-
   return {
     openCreate,
     openDetail,
-    openEdit,
   }
 }

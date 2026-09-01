@@ -26,6 +26,8 @@ export function columnTypeLabel(value: ColumnType | string | undefined) {
 export type SystemMenuTable = {
   code: string
   title: string
+  description: string
+  sort: number
 }
 
 export type SystemMenuColumn = {
@@ -37,6 +39,11 @@ export type SystemMenuColumn = {
   code: string
   columnType: ColumnType
   enabled: boolean
+  columnPermission: boolean
+  formFill: boolean
+  queryFilter: boolean
+  sort: number
+  description: string
 }
 
 export type SystemMenuColumnBundle = {
@@ -54,5 +61,20 @@ export type SystemMenuColumnSavePayload = {
     code: string
     columnType: ColumnType
     enabled: boolean
+    columnPermission: boolean
+    formFill: boolean
+    queryFilter: boolean
+    sort: number
+    description: string
   }>
+}
+
+export type SystemMenuReferenceImpact = {
+  columnPermissionCount: number
+  formConfigCount: number
+  queryConditionCount: number
+}
+
+export type SystemMenuTableDeleteImpact = SystemMenuReferenceImpact & {
+  fieldCount: number
 }

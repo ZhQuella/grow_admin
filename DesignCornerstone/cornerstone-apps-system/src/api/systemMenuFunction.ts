@@ -2,6 +2,7 @@ import { diKT } from '@grow-admin-rock/ioc'
 import { Lib as infrastructureLib } from '@grow-admin-rock/infrastructure'
 import type {
   SystemMenuFunction,
+  SystemMenuFunctionDeleteImpact,
   SystemMenuFunctionSavePayload,
 } from '../types/systemMenuFunction'
 
@@ -24,5 +25,12 @@ export function saveSystemMenuFunctions(data: SystemMenuFunctionSavePayload) {
 export function fetchAllSystemMenuFunctions() {
   return useRequest().post<SystemMenuFunction[]>({
     url: '/system/menu-functions/all',
+  })
+}
+
+export function fetchSystemMenuFunctionDeleteImpact(id: string) {
+  return useRequest().post<SystemMenuFunctionDeleteImpact>({
+    url: '/system/menu/function/delete-impact',
+    data: { id },
   })
 }

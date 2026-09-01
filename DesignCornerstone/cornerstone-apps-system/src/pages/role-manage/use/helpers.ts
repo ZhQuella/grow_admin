@@ -54,23 +54,6 @@ export function toMessage(error: unknown, fallback: string) {
   return error instanceof Error ? error.message : fallback
 }
 
-export function parseCheckedPermKeys(keys: string[]) {
-  const menuNames: string[] = []
-  const functionIds: string[] = []
-  for (const key of keys) {
-    if (key.startsWith('menu:')) menuNames.push(key.slice(5))
-    if (key.startsWith('fn:')) functionIds.push(key.slice(3))
-  }
-  return { menuNames, functionIds }
-}
-
-export function toCheckedPermKeys(menuNames: string[], functionIds: string[]) {
-  return [
-    ...menuNames.map((name) => `menu:${name}`),
-    ...functionIds.map((id) => `fn:${id}`),
-  ]
-}
-
 export function isEditScope(value: string): value is EditScope {
   return (EDIT_SCOPE_VALUES as readonly string[]).includes(value)
 }

@@ -8,6 +8,8 @@ export type SystemMenuNode = {
   componentKey?: string
   icon?: string
   menuType: MenuTypeEnum
+  enabled: boolean
+  description?: string
   isVisible: boolean
   isKeepAlive?: boolean
   affix?: boolean
@@ -23,4 +25,20 @@ export type SystemMenuCreatePayload = Omit<SystemMenuNode, 'children'> & {
   parentName?: string
 }
 
-export type SystemMenuUpdatePayload = Omit<SystemMenuCreatePayload, 'name'>
+export type SystemMenuUpdatePayload = SystemMenuCreatePayload
+
+export type SystemMenuDeleteImpact = {
+  childCount: number
+  roleMenuGrantCount: number
+  functionCount: number
+  functionGrantCount: number
+  tableCount: number
+  columnPermissionCount: number
+}
+
+export type SystemMenuCodeImpact = {
+  roleMenuGrantCount: number
+  functionCount: number
+  tableCount: number
+  dataPermissionCount: number
+}

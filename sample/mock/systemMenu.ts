@@ -3,6 +3,17 @@ import { mockUrl } from '@grow-admin-rock/mock/constants'
 import { resultError, resultSuccess } from '@grow-admin-rock/mock/util'
 import { MenuTypeEnum } from '@grow-admin-rock/constants'
 import { buildBackMenuList } from './buildMenuList'
+import {
+  countRoleColumnPermissions,
+  countRoleDataPermissions,
+  countRoleFunctionGrants,
+  countRoleMenuGrants,
+  countRoleQueryReferences,
+  removeRoleColumnReferences,
+  removeRoleFunctionReferences,
+  removeRoleMenuReferences,
+  renameRoleMenuReferences,
+} from './systemRole'
 
 type MenuNode = {
   name: string
@@ -11,6 +22,8 @@ type MenuNode = {
   componentKey?: string
   icon?: string
   menuType: string
+  enabled: boolean
+  description?: string
   isVisible: boolean
   isKeepAlive?: boolean
   affix?: boolean
@@ -29,6 +42,7 @@ function clone<T>(value: T): T {
 }
 
 function ensureMenuComponentKey(node: MenuNode): MenuNode {
+  if (node.enabled == null) node.enabled = true
   if (node.menuType === MenuTypeEnum.MENU && !node.componentKey) {
     node.componentKey = node.name
   }
@@ -96,33 +110,26 @@ function getStore(): MenuNode[] {
   return menuStore
 }
 
-function walk(
-  nodes: MenuNode[],
-  visitor: (node: MenuNode, parent: MenuNode | null, index: number, siblings: MenuNode[]) => boolean,
-  parent: MenuNode | null = null,
-): boolean {
-  for (let index = 0; index < nodes.length; index += 1) {
-    const node = nodes[index]
-    if (visitor(node, parent, index, nodes)) {
-      return true
-    }
-    if (node.children?.length && walk(node.children, visitor, node)) {
-      return true
-    }
-  }
-  return false
+type MenuLocation = {
+  node: MenuNode
+  parent: MenuNode | null
+  index: number
+  siblings: MenuNode[]
 }
 
-function findNode(name: string) {
-  let found: { node: MenuNode, parent: MenuNode | null, index: number, siblings: MenuNode[] } | null = null
-  walk(getStore(), (node, parent, index, siblings) => {
-    if (node.name === name) {
-      found = { node, parent, index, siblings }
-      return true
+function findNode(name: string): MenuLocation | null {
+  const search = (nodes: MenuNode[], parent: MenuNode | null): MenuLocation | null => {
+    for (let index = 0; index < nodes.length; index += 1) {
+      const node = nodes[index]
+      if (node.name === name) return { node, parent, index, siblings: nodes }
+      if (node.children?.length) {
+        const found = search(node.children, node)
+        if (found) return found
+      }
     }
-    return false
-  })
-  return found
+    return null
+  }
+  return search(getStore(), null)
 }
 
 function nameExists(name: string) {
@@ -141,6 +148,8 @@ type MenuFunction = {
   menuName: string
   title: string
   code: string
+  group: string
+  description: string
   sort: number
   enabled: boolean
 }
@@ -162,6 +171,8 @@ function pickFunctionItem(payload: Recordable<any>, usedCodes: Set<string>) {
   const code = String(payload.code || '').trim()
   const sort = Number(payload.sort ?? 0)
   const enabled = payload.enabled !== false
+  const group = String(payload.group || '').trim()
+  const description = String(payload.description || '').trim()
 
   if (!title) return '请填写名称'
   if (!code) return '请填写标识'
@@ -172,7 +183,7 @@ function pickFunctionItem(payload: Recordable<any>, usedCodes: Set<string>) {
     return '标识在当前菜单下已存在'
   }
 
-  return { title, code, sort, enabled }
+  return { title, code, group, description, sort, enabled }
 }
 
 function replaceFunctions(menuName: string, items: Recordable<any>[]) {
@@ -187,6 +198,9 @@ function replaceFunctions(menuName: string, items: Recordable<any>[]) {
     next.push({ id, menuName, ...fields })
   }
 
+  const previousIds = listFunctionsByMenu(menuName).map((item) => item.id)
+  const nextIds = new Set(next.map((item) => item.id))
+  removeRoleFunctionReferences(previousIds.filter((id) => !nextIds.has(id)))
   removeFunctionsByMenuNames([menuName])
   next.forEach((item) => functionStore.set(item.id, item))
   return listFunctionsByMenu(menuName)
@@ -201,6 +215,13 @@ function removeFunctionsByMenuNames(menuNames: string[]) {
   }
 }
 
+function functionIdsByMenuNames(menuNames: string[]) {
+  const names = new Set(menuNames)
+  return [...functionStore.values()]
+    .filter((item) => names.has(item.menuName))
+    .map((item) => item.id)
+}
+
 function listAllFunctions() {
   return [...functionStore.values()].sort(
     (a, b) => a.menuName.localeCompare(b.menuName) || a.sort - b.sort || a.title.localeCompare(b.title, 'zh-CN'),
@@ -209,15 +230,30 @@ function listAllFunctions() {
 
 function seedFunctions() {
   const seeds: MenuFunction[] = [
-    { id: 'mf_query', menuName: 'MenuManage', title: '查询', code: 'query', sort: 10, enabled: true },
-    { id: 'mf_export', menuName: 'MenuManage', title: '导出', code: 'export', sort: 20, enabled: true },
-    { id: 'pf_query', menuName: 'PersonManage', title: '查询', code: 'query', sort: 10, enabled: true },
-    { id: 'pf_create', menuName: 'PersonManage', title: '新增', code: 'create', sort: 20, enabled: true },
-    { id: 'pf_transfer', menuName: 'PersonManage', title: '调岗', code: 'transfer', sort: 30, enabled: true },
-    { id: 'pf_resign', menuName: 'PersonManage', title: '离职', code: 'resign', sort: 40, enabled: true },
-    { id: 'af_query', menuName: 'AccountManage', title: '查询', code: 'query', sort: 10, enabled: true },
-    { id: 'af_create', menuName: 'AccountManage', title: '新增', code: 'create', sort: 20, enabled: true },
-    { id: 'af_reset', menuName: 'AccountManage', title: '重置密码', code: 'reset', sort: 30, enabled: true },
+    { id: 'mf_query', menuName: 'MenuManage', title: '查询', code: 'query', group: '基础操作', description: '', sort: 10, enabled: true },
+    { id: 'mf_export', menuName: 'MenuManage', title: '导出', code: 'export', group: '数据操作', description: '', sort: 20, enabled: true },
+    { id: 'pf_query', menuName: 'PersonManage', title: '查询', code: 'query', group: '基础操作', description: '', sort: 10, enabled: true },
+    { id: 'pf_create', menuName: 'PersonManage', title: '新增', code: 'create', group: '基础操作', description: '', sort: 20, enabled: true },
+    { id: 'pf_transfer', menuName: 'PersonManage', title: '调岗', code: 'transfer', group: '人员生命周期', description: '', sort: 30, enabled: true },
+    { id: 'pf_resign', menuName: 'PersonManage', title: '离职', code: 'resign', group: '人员生命周期', description: '', sort: 40, enabled: true },
+    { id: 'af_query', menuName: 'AccountManage', title: '查询', code: 'query', group: '基础操作', description: '', sort: 10, enabled: true },
+    { id: 'af_create', menuName: 'AccountManage', title: '新增', code: 'create', group: '基础操作', description: '', sort: 20, enabled: true },
+    { id: 'af_reset', menuName: 'AccountManage', title: '重置密码', code: 'reset', group: '安全操作', description: '', sort: 30, enabled: true },
+    { id: 'df_query', menuName: 'DeptManage', title: '查询', code: 'query', group: '基础操作', description: '', sort: 10, enabled: true },
+    { id: 'df_create', menuName: 'DeptManage', title: '新增', code: 'create', group: '基础操作', description: '', sort: 20, enabled: true },
+    { id: 'df_edit', menuName: 'DeptManage', title: '编辑', code: 'edit', group: '基础操作', description: '', sort: 30, enabled: true },
+    { id: 'df_stop', menuName: 'DeptManage', title: '停用/启用', code: 'status', group: '组织调整', description: '', sort: 40, enabled: true },
+    { id: 'df_migrate', menuName: 'DeptManage', title: '迁移', code: 'migrate', group: '组织调整', description: '', sort: 50, enabled: true },
+    { id: 'df_merge', menuName: 'DeptManage', title: '合并', code: 'merge', group: '组织调整', description: '', sort: 60, enabled: true },
+    { id: 'df_delete', menuName: 'DeptManage', title: '删除', code: 'delete', group: '高风险操作', description: '', sort: 70, enabled: true },
+    { id: 'post_query', menuName: 'PostManage', title: '查询', code: 'query', group: '基础操作', description: '', sort: 10, enabled: true },
+    { id: 'post_create', menuName: 'PostManage', title: '新增', code: 'create', group: '基础操作', description: '', sort: 20, enabled: true },
+    { id: 'post_edit', menuName: 'PostManage', title: '编辑', code: 'edit', group: '基础操作', description: '', sort: 30, enabled: true },
+    { id: 'post_status', menuName: 'PostManage', title: '启用/停用', code: 'status', group: '基础操作', description: '', sort: 40, enabled: true },
+    { id: 'pos_query', menuName: 'PositionManage', title: '查询', code: 'query', group: '基础操作', description: '', sort: 10, enabled: true },
+    { id: 'pos_create', menuName: 'PositionManage', title: '新增', code: 'create', group: '基础操作', description: '', sort: 20, enabled: true },
+    { id: 'pos_edit', menuName: 'PositionManage', title: '编辑', code: 'edit', group: '基础操作', description: '', sort: 30, enabled: true },
+    { id: 'pos_status', menuName: 'PositionManage', title: '启用/停用', code: 'status', group: '基础操作', description: '', sort: 40, enabled: true },
   ]
   for (const item of seeds) {
     if (!functionStore.has(item.id)) {
@@ -232,6 +268,8 @@ type MenuTable = {
   menuName: string
   code: string
   title: string
+  description: string
+  sort: number
 }
 
 type MenuColumn = {
@@ -242,6 +280,11 @@ type MenuColumn = {
   code: string
   columnType: string
   enabled: boolean
+  columnPermission: boolean
+  formFill: boolean
+  queryFilter: boolean
+  sort: number
+  description: string
 }
 
 const tableStore = new Map<string, MenuTable>()
@@ -264,12 +307,15 @@ function withTableMeta(item: MenuColumn) {
 }
 
 function listTablesByMenu(menuName: string) {
-  return [...tableStore.values()].filter((item) => item.menuName === menuName)
+  return [...tableStore.values()]
+    .filter((item) => item.menuName === menuName)
+    .sort((a, b) => a.sort - b.sort || a.title.localeCompare(b.title, 'zh-CN'))
 }
 
 function listColumnsByMenu(menuName: string) {
   return [...columnStore.values()]
     .filter((item) => item.menuName === menuName)
+    .sort((a, b) => a.sort - b.sort || a.title.localeCompare(b.title, 'zh-CN'))
     .map(withTableMeta)
 }
 
@@ -286,6 +332,8 @@ function pickTableItem(
 ): MenuTable | string {
   const title = String(payload.title || '').trim()
   const code = String(payload.code || '').trim()
+  const description = String(payload.description || '').trim()
+  const sort = Number(payload.sort ?? 0)
 
   if (!title) return '请填写表名称'
   if (!code) return '请填写表标识'
@@ -294,7 +342,7 @@ function pickTableItem(
   }
   if (usedCodes.has(code)) return '表标识在当前菜单下已存在'
   usedCodes.add(code)
-  return { menuName: '', code, title }
+  return { menuName: '', code, title, description, sort }
 }
 
 function pickColumnItem(
@@ -305,6 +353,11 @@ function pickColumnItem(
   const title = String(payload.title || '').trim()
   const code = String(payload.code || '').trim()
   const enabled = payload.enabled !== false
+  const columnPermission = payload.columnPermission !== false
+  const formFill = payload.formFill !== false
+  const queryFilter = payload.queryFilter !== false
+  const sort = Number(payload.sort ?? 0)
+  const description = String(payload.description || '').trim()
   const columnType = COLUMN_TYPES.has(String(payload.columnType || '').trim())
     ? String(payload.columnType).trim()
     : 'string'
@@ -320,7 +373,18 @@ function pickColumnItem(
   }
   usedCodes.add(key)
 
-  return { title, code, columnType, enabled, tableCode }
+  return {
+    title,
+    code,
+    columnType,
+    enabled,
+    columnPermission,
+    formFill,
+    queryFilter,
+    sort,
+    description,
+    tableCode,
+  }
 }
 
 function replaceColumnBundle(menuName: string, payload: Recordable<any>) {
@@ -348,6 +412,9 @@ function replaceColumnBundle(menuName: string, payload: Recordable<any>) {
     columns.push({ id, menuName, ...fields })
   }
 
+  const previousIds = listColumnsByMenu(menuName).map((item) => item.id)
+  const nextIds = new Set(columns.map((item) => item.id))
+  removeRoleColumnReferences(previousIds.filter((id) => !nextIds.has(id)))
   removeColumnsByMenuNames([menuName])
   tables.forEach((item) => tableStore.set(tableKey(item.menuName, item.code), item))
   columns.forEach((item) => columnStore.set(item.id, item))
@@ -364,12 +431,45 @@ function removeColumnsByMenuNames(menuNames: string[]) {
   }
 }
 
+function columnsByMenuNames(menuNames: string[]) {
+  const names = new Set(menuNames)
+  return [...columnStore.values()].filter((item) => names.has(item.menuName))
+}
+
+function renameMenuResources(from: string, to: string) {
+  if (from === to) return
+
+  for (const item of functionStore.values()) {
+    if (item.menuName === from) item.menuName = to
+  }
+  for (const item of columnStore.values()) {
+    if (item.menuName === from) item.menuName = to
+  }
+
+  const tables = [...tableStore.values()]
+  tableStore.clear()
+  for (const item of tables) {
+    if (item.menuName === from) item.menuName = to
+    tableStore.set(tableKey(item.menuName, item.code), item)
+  }
+  renameRoleMenuReferences(from, to)
+}
+
+function columnReferenceImpact(columnIds: string[]) {
+  return {
+    columnPermissionCount: countRoleColumnPermissions(columnIds),
+    formConfigCount: 0,
+    queryConditionCount: countRoleQueryReferences(columnIds),
+  }
+}
+
 function listAllColumns() {
   return [...columnStore.values()]
     .map(withTableMeta)
     .sort((a, b) => (
       a.menuName.localeCompare(b.menuName)
       || a.tableCode.localeCompare(b.tableCode)
+      || a.sort - b.sort
       || a.title.localeCompare(b.title, 'zh-CN')
       || a.code.localeCompare(b.code)
     ))
@@ -377,13 +477,16 @@ function listAllColumns() {
 
 function seedColumns() {
   const tables: MenuTable[] = [
-    { menuName: 'MenuManage', code: 'menu_list', title: '菜单列表' },
-    { menuName: 'RoleManage', code: 'role_list', title: '角色列表' },
-    { menuName: 'RoleManage', code: 'member_list', title: '绑定账号' },
-    { menuName: 'PersonManage', code: 'person_list', title: '人员列表' },
-    { menuName: 'AccountManage', code: 'account_list', title: '账号列表' },
+    { menuName: 'MenuManage', code: 'menu_list', title: '菜单列表', description: '', sort: 10 },
+    { menuName: 'RoleManage', code: 'role_list', title: '角色列表', description: '', sort: 10 },
+    { menuName: 'RoleManage', code: 'member_list', title: '绑定账号', description: '', sort: 20 },
+    { menuName: 'PersonManage', code: 'person_list', title: '人员列表', description: '', sort: 10 },
+    { menuName: 'AccountManage', code: 'account_list', title: '账号列表', description: '', sort: 10 },
+    { menuName: 'DeptManage', code: 'dept_detail', title: '部门详情', description: '', sort: 10 },
+    { menuName: 'PostManage', code: 'post_list', title: '岗位列表', description: '', sort: 10 },
+    { menuName: 'PositionManage', code: 'position_list', title: '职级列表', description: '', sort: 10 },
   ]
-  const seeds: MenuColumn[] = [
+  const legacySeeds: Array<Omit<MenuColumn, 'columnPermission' | 'formFill' | 'queryFilter' | 'sort' | 'description'>> = [
     { id: 'mc_title', menuName: 'MenuManage', tableCode: 'menu_list', title: '标题', code: 'title', columnType: 'string', enabled: true },
     { id: 'mc_name', menuName: 'MenuManage', tableCode: 'menu_list', title: '标识', code: 'name', columnType: 'string', enabled: true },
     { id: 'mc_path', menuName: 'MenuManage', tableCode: 'menu_list', title: '路径', code: 'path', columnType: 'string', enabled: true },
@@ -409,12 +512,35 @@ function seedColumns() {
     { id: 'ac_dept', menuName: 'AccountManage', tableCode: 'account_list', title: '部门', code: 'deptName', columnType: 'dept', enabled: true },
     { id: 'ac_enabled', menuName: 'AccountManage', tableCode: 'account_list', title: '启用', code: 'enabled', columnType: 'boolean', enabled: true },
     { id: 'ac_login', menuName: 'AccountManage', tableCode: 'account_list', title: '最近登录', code: 'lastLoginAt', columnType: 'date', enabled: true },
+    { id: 'dc_name', menuName: 'DeptManage', tableCode: 'dept_detail', title: '部门名称', code: 'name', columnType: 'string', enabled: true },
+    { id: 'dc_code', menuName: 'DeptManage', tableCode: 'dept_detail', title: '部门编码', code: 'code', columnType: 'string', enabled: true },
+    { id: 'dc_parent', menuName: 'DeptManage', tableCode: 'dept_detail', title: '上级部门', code: 'parentId', columnType: 'dept', enabled: true },
+    { id: 'dc_manager', menuName: 'DeptManage', tableCode: 'dept_detail', title: '部门负责人', code: 'managerId', columnType: 'person', enabled: true },
+    { id: 'dc_sort', menuName: 'DeptManage', tableCode: 'dept_detail', title: '排序号', code: 'sort', columnType: 'number', enabled: true },
+    { id: 'dc_status', menuName: 'DeptManage', tableCode: 'dept_detail', title: '状态', code: 'status', columnType: 'select', enabled: true },
+    { id: 'postc_name', menuName: 'PostManage', tableCode: 'post_list', title: '岗位名称', code: 'name', columnType: 'string', enabled: true },
+    { id: 'postc_code', menuName: 'PostManage', tableCode: 'post_list', title: '岗位编码', code: 'code', columnType: 'string', enabled: true },
+    { id: 'postc_dept', menuName: 'PostManage', tableCode: 'post_list', title: '所属部门', code: 'deptName', columnType: 'dept', enabled: true },
+    { id: 'postc_enabled', menuName: 'PostManage', tableCode: 'post_list', title: '状态', code: 'enabled', columnType: 'boolean', enabled: true },
+    { id: 'posc_name', menuName: 'PositionManage', tableCode: 'position_list', title: '名称', code: 'name', columnType: 'string', enabled: true },
+    { id: 'posc_code', menuName: 'PositionManage', tableCode: 'position_list', title: '编码', code: 'code', columnType: 'string', enabled: true },
+    { id: 'posc_level', menuName: 'PositionManage', tableCode: 'position_list', title: '层级', code: 'level', columnType: 'number', enabled: true },
+    { id: 'posc_enabled', menuName: 'PositionManage', tableCode: 'position_list', title: '状态', code: 'enabled', columnType: 'boolean', enabled: true },
   ]
   for (const item of tables) {
     tableStore.set(tableKey(item.menuName, item.code), item)
   }
-  for (const item of seeds) {
-    if (!columnStore.has(item.id)) columnStore.set(item.id, item)
+  for (const [index, item] of legacySeeds.entries()) {
+    if (!columnStore.has(item.id)) {
+      columnStore.set(item.id, {
+        ...item,
+        columnPermission: true,
+        formFill: true,
+        queryFilter: true,
+        sort: (index + 1) * 10,
+        description: '',
+      })
+    }
   }
 }
 
@@ -422,6 +548,7 @@ seedColumns()
 
 function normalizeNode(node: MenuNode): MenuNode {
   const next: MenuNode = { ...node }
+  if (next.enabled == null) next.enabled = true
   if (next.menuType === MenuTypeEnum.MENU && !next.componentKey) {
     next.componentKey = next.name
   }
@@ -444,7 +571,7 @@ function pickNodeFields(payload: Recordable<any>, name: string): MenuNode | stri
   if (menuType !== MenuTypeEnum.DIRECTORY && menuType !== MenuTypeEnum.MENU) {
     return '请选择类型'
   }
-  if (menuType === MenuTypeEnum.MENU && !componentKey) {
+  if (menuType === MenuTypeEnum.MENU && !payload.isExternalPage && !componentKey) {
     return '菜单类型请填写组件标识'
   }
 
@@ -453,6 +580,8 @@ function pickNodeFields(payload: Recordable<any>, name: string): MenuNode | stri
     title,
     path,
     menuType,
+    enabled: payload.enabled !== false,
+    description: String(payload.description || '').trim(),
     isVisible: payload.isVisible !== false,
     isKeepAlive: Boolean(payload.isKeepAlive),
     affix: Boolean(payload.affix),
@@ -508,9 +637,12 @@ const mocks: MockMethod[] = [
     timeout: 100,
     response: ({ body }) => {
       const payload = (body || {}) as Recordable<any>
+      const originalName = String(payload.originalName || payload.name || '').trim()
       const name = String(payload.name || '').trim()
-      const found = findNode(name)
+      if (!name) return resultError('请填写标识')
+      const found = findNode(originalName)
       if (!found) return resultError('菜单不存在')
+      if (name !== originalName && nameExists(name)) return resultError('标识已存在')
 
       const nodeOrError = pickNodeFields(payload, name)
       if (typeof nodeOrError === 'string') return resultError(nodeOrError)
@@ -524,8 +656,15 @@ const mocks: MockMethod[] = [
         ))
       }
 
-      if (parentName === name || isDescendant(found.node, parentName)) {
+      if (parentName === originalName || parentName === name || isDescendant(found.node, parentName)) {
         return resultError('不能挂载到自身或子级')
+      }
+
+      const nextParent = parentName && parentName !== currentParentName
+        ? findNode(parentName)
+        : null
+      if (parentName && parentName !== currentParentName && !nextParent) {
+        return resultError('挂载位置不存在')
       }
 
       const children = found.node.children
@@ -536,6 +675,7 @@ const mocks: MockMethod[] = [
 
       if (parentName === currentParentName) {
         found.siblings[found.index] = next
+        renameMenuResources(originalName, name)
         return resultSuccess(normalizeNode(next), { message: '保存成功' })
       }
 
@@ -543,12 +683,63 @@ const mocks: MockMethod[] = [
       if (!parentName) {
         getStore().push(next)
       } else {
-        const parent = findNode(parentName)
-        if (!parent) return resultError('挂载位置不存在')
-        if (!parent.node.children) parent.node.children = []
-        parent.node.children.push(next)
+        if (!nextParent!.node.children) nextParent!.node.children = []
+        nextParent!.node.children.push(next)
       }
+      renameMenuResources(originalName, name)
       return resultSuccess(normalizeNode(next), { message: '保存成功' })
+    },
+  },
+  {
+    url: mockUrl('/system/menu/enabled'),
+    method: 'put',
+    timeout: 80,
+    response: ({ body }) => {
+      const payload = (body || {}) as Recordable<any>
+      const name = String(payload.name || '').trim()
+      const found = findNode(name)
+      if (!found) return resultError('菜单不存在')
+      found.node.enabled = payload.enabled !== false
+      return resultSuccess(normalizeNode(found.node), { message: '状态更新成功' })
+    },
+  },
+  {
+    url: mockUrl('/system/menu/delete-impact'),
+    method: 'post',
+    timeout: 80,
+    response: ({ body }) => {
+      const name = String((body as Recordable<any>)?.name || '').trim()
+      const found = findNode(name)
+      if (!found) return resultError('菜单不存在')
+      const menuNames = collectMenuNames(found.node)
+      const functionIds = functionIdsByMenuNames(menuNames)
+      const columns = columnsByMenuNames(menuNames)
+      const tableCount = [...tableStore.values()]
+        .filter((item) => menuNames.includes(item.menuName)).length
+      return resultSuccess({
+        childCount: menuNames.length - 1,
+        roleMenuGrantCount: countRoleMenuGrants(menuNames),
+        functionCount: functionIds.length,
+        functionGrantCount: countRoleFunctionGrants(functionIds),
+        tableCount,
+        columnPermissionCount: countRoleColumnPermissions(columns.map((item) => item.id)),
+      })
+    },
+  },
+  {
+    url: mockUrl('/system/menu/code-impact'),
+    method: 'post',
+    timeout: 80,
+    response: ({ body }) => {
+      const name = String((body as Recordable<any>)?.name || '').trim()
+      const found = findNode(name)
+      if (!found) return resultError('菜单不存在')
+      return resultSuccess({
+        roleMenuGrantCount: countRoleMenuGrants([name]),
+        functionCount: listFunctionsByMenu(name).length,
+        tableCount: listTablesByMenu(name).length,
+        dataPermissionCount: countRoleDataPermissions([name]),
+      })
     },
   },
   {
@@ -560,6 +751,8 @@ const mocks: MockMethod[] = [
       const found = findNode(name)
       if (!found) return resultError('菜单不存在')
       const menuNames = collectMenuNames(found.node)
+      const functionIds = functionIdsByMenuNames(menuNames)
+      removeRoleMenuReferences(menuNames, functionIds)
       found.siblings.splice(found.index, 1)
       removeFunctionsByMenuNames(menuNames)
       removeColumnsByMenuNames(menuNames)
@@ -598,6 +791,16 @@ const mocks: MockMethod[] = [
     response: () => resultSuccess(listAllFunctions()),
   },
   {
+    url: mockUrl('/system/menu/function/delete-impact'),
+    method: 'post',
+    timeout: 80,
+    response: ({ body }) => {
+      const id = String((body as Recordable<any>)?.id || '').trim()
+      if (!functionStore.has(id)) return resultError('功能不存在')
+      return resultSuccess({ roleGrantCount: countRoleFunctionGrants([id]) })
+    },
+  },
+  {
     url: mockUrl('/system/menu/columns'),
     method: 'post',
     timeout: 80,
@@ -626,6 +829,31 @@ const mocks: MockMethod[] = [
     method: 'post',
     timeout: 80,
     response: () => resultSuccess(listAllColumns()),
+  },
+  {
+    url: mockUrl('/system/menu/column-impact'),
+    method: 'post',
+    timeout: 80,
+    response: ({ body }) => {
+      const id = String((body as Recordable<any>)?.id || '').trim()
+      if (!columnStore.has(id)) return resultError('字段不存在')
+      return resultSuccess(columnReferenceImpact([id]))
+    },
+  },
+  {
+    url: mockUrl('/system/menu/table-delete-impact'),
+    method: 'post',
+    timeout: 80,
+    response: ({ body }) => {
+      const payload = (body || {}) as Recordable<any>
+      const menuName = String(payload.menuName || '').trim()
+      const tableCode = String(payload.tableCode || '').trim()
+      if (!tableStore.has(tableKey(menuName, tableCode))) return resultError('数据表不存在')
+      const ids = [...columnStore.values()]
+        .filter((item) => item.menuName === menuName && item.tableCode === tableCode)
+        .map((item) => item.id)
+      return resultSuccess({ fieldCount: ids.length, ...columnReferenceImpact(ids) })
+    },
   },
 ]
 

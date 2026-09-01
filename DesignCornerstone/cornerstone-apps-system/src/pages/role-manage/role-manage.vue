@@ -72,35 +72,37 @@
                 <template v-else-if="col.field === 'actions'">
                   <div class="role-manage__actions">
                     <GrowTooltip content="编辑" placement="top">
-                      <GrowButton link type="primary" @click="openEdit(row)">
+                      <GrowButton class="role-manage__icon-btn" link type="primary" @click="openEdit(row)">
                         <GrowIconify icon="ant-design:edit-outlined" :size="16" />
                       </GrowButton>
                     </GrowTooltip>
-                    <GrowTooltip content="绑定账号" placement="top">
-                      <GrowButton link type="primary" @click="openMembers(row)">
-                        <GrowIconify icon="ant-design:user-add-outlined" :size="16" />
+                    <GrowTooltip :content="row.builtIn ? '查看超级管理员账号' : '绑定账号'" placement="top">
+                      <GrowButton class="role-manage__icon-btn" link type="primary" @click="openMembers(row)">
+                        <GrowIconify :icon="row.builtIn ? 'ant-design:team-outlined' : 'ant-design:user-add-outlined'" :size="16" />
                       </GrowButton>
                     </GrowTooltip>
                     <GrowTooltip content="数据权限" placement="top">
-                      <GrowButton link type="primary" @click="openDataPerm(row)">
+                      <GrowButton class="role-manage__icon-btn" link type="primary" @click="openDataPerm(row)">
                         <GrowIconify icon="ant-design:safety-outlined" :size="16" />
                       </GrowButton>
                     </GrowTooltip>
                     <GrowTooltip content="菜单和功能" placement="top">
-                      <GrowButton link type="primary" @click="openMenuPerm(row)">
+                      <GrowButton class="role-manage__icon-btn" link type="primary" @click="openMenuPerm(row)">
                         <GrowIconify icon="ant-design:apartment-outlined" :size="16" />
                       </GrowButton>
                     </GrowTooltip>
                     <GrowTooltip content="详情" placement="top">
-                      <GrowButton link type="primary" @click="openDetail(row)">
+                      <GrowButton class="role-manage__icon-btn" link type="primary" @click="openDetail(row)">
                         <GrowIconify icon="ant-design:profile-outlined" :size="16" />
                       </GrowButton>
                     </GrowTooltip>
                     <GrowTooltip content="删除" placement="top">
                       <GrowButton
+                        class="role-manage__icon-btn"
                         link
                         type="danger"
                         :disabled="row.enabled || row.builtIn"
+                        :loading="deleteLoading && deleteTarget?.id === row.id"
                         @click="onDelete(row)"
                       >
                         <GrowIconify icon="ant-design:delete-outlined" :size="16" />
@@ -153,8 +155,7 @@
             v-model="formModel.code"
             maxlength="64"
             clearable
-            :disabled="formMode === 'edit'"
-            placeholder="创建后不可修改"
+            placeholder="角色唯一编码"
           />
         </GrowFormItem>
         <GrowFormItem label="排序" prop="sort">
@@ -165,7 +166,7 @@
             controls-position="right"
           />
         </GrowFormItem>
-        <GrowFormItem label="备注" prop="remark">
+        <GrowFormItem label="角色描述" prop="remark">
           <GrowInput
             v-model="formModel.remark"
             type="textarea"
@@ -195,6 +196,12 @@
       <p class="role-manage__delete-hint">
         确认删除角色「{{ deleteTarget?.name }}」？删除后不可恢复。
       </p>
+      <dl v-if="deleteImpact" class="role-manage__delete-impact">
+        <div><dt>绑定账号</dt><dd>{{ deleteImpact.memberCount }} 个</dd></div>
+        <div><dt>菜单权限</dt><dd>{{ deleteImpact.menuCount }} 项</dd></div>
+        <div><dt>功能权限</dt><dd>{{ deleteImpact.functionCount }} 项</dd></div>
+        <div><dt>数据权限</dt><dd>{{ deleteImpact.dataPermCount }} 项</dd></div>
+      </dl>
       <template #footer>
         <GrowSpace>
           <GrowButton @click="deleteVisible = false">取消</GrowButton>
@@ -236,7 +243,7 @@ const menuPermDrawerRef = ref<{ open: (row: SystemRoleListItem) => void } | null
 const detailDrawerRef = ref<{ open: (row: SystemRoleListItem) => void } | null>(null)
 
 function openMembers(row: SystemRoleListItem) {
-  memberDrawerRef.value?.open(row)
+  memberDrawerRef.value?.open(row, { readonly: Boolean(row.builtIn) })
 }
 
 function openMemberList(row: SystemRoleListItem) {
@@ -277,8 +284,10 @@ const {
   openEdit,
   submitForm,
   deleteVisible,
+  deleteLoading,
   deleteSubmitting,
   deleteTarget,
+  deleteImpact,
   onToggleEnabled,
   onDelete,
   confirmDelete,
@@ -357,6 +366,22 @@ const {
   flex-wrap: nowrap;
 }
 
+.role-manage__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+}
+
+.role-manage__icon-btn :deep(.grow-iconify) {
+  display: flex !important;
+}
+
 .role-manage__switch {
   display: inline-flex;
   align-items: center;
@@ -366,6 +391,30 @@ const {
   margin: 0;
   color: var(--text-color-secondary);
   line-height: 1.6;
+}
+
+.role-manage__delete-impact {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border: 1px solid var(--layout-border-color);
+  border-radius: 6px;
+  background: var(--layout-color);
+}
+
+.role-manage__delete-impact div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  line-height: 28px;
+}
+
+.role-manage__delete-impact dt,
+.role-manage__delete-impact dd {
+  margin: 0;
+}
+
+.role-manage__delete-impact dt {
+  color: var(--text-color-secondary);
 }
 
 .role-manage__form :deep(.el-input-number),

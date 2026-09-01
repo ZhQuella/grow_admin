@@ -10,7 +10,7 @@
     <GrowWatchBox class="role-drawer__watch">
       <template #default="{ height }">
         <div v-if="height > 0 && !menus.length" class="role-data-perm__empty" :style="{ height: `${height}px` }">
-          请先在「菜单和功能」中勾选菜单，再为每个菜单配置行权限和可见列。
+          请先在「菜单和功能」中勾选菜单，再为每个菜单配置行权限和字段权限。
         </div>
         <div
           v-else-if="height > 0"
@@ -88,7 +88,7 @@
                         <RowSelfRelatedEditor
                           v-if="activeDraft.editScope === item.value && item.value === 'self'"
                           :model-value="activeDraft.selfRelated"
-                          :columns="activeColumns"
+                          :columns="columnsForReferences(activeDraft.selfRelated.columnIds)"
                           @update:model-value="(value) => { activeDraft.selfRelated = value }"
                         />
                         <div
@@ -110,18 +110,24 @@
                           <p v-if="!activeDraft.deptIds.length" class="role-data-perm__warn">
                             自定义部门至少勾选一个部门
                           </p>
-                          <div v-if="filteredDeptTree.length" class="role-data-perm__tree">
-                            <GrowTree
-                              :key="`${activeMenuName}-${treeKey}`"
-                              :data="filteredDeptTree"
-                              node-key="id"
-                              show-checkbox
-                              default-expand-all
-                              :default-checked-keys="activeDraft.deptIds"
-                              :props="{ label: 'title', children: 'children' }"
-                              @check="onCheck"
-                            />
-                          </div>
+                          <GrowScrollbar
+                            v-if="filteredDeptTree.length"
+                            max-height="280px"
+                            class="role-data-perm__tree-scroll"
+                          >
+                            <div class="role-data-perm__tree">
+                              <GrowTree
+                                :key="`${activeMenuName}-${treeKey}`"
+                                :data="filteredDeptTree"
+                                node-key="id"
+                                show-checkbox
+                                default-expand-all
+                                :default-checked-keys="activeDraft.deptIds"
+                                :props="{ label: 'title', children: 'children' }"
+                                @check="onCheck"
+                              />
+                            </div>
+                          </GrowScrollbar>
                           <p v-else class="role-data-perm__hint">未找到匹配部门</p>
                           <div v-if="selectedDeptNames.length" class="role-data-perm__tags">
                             <GrowTag
@@ -136,7 +142,7 @@
                         <RowFilterEditor
                           v-if="activeDraft.editScope === item.value && item.value === 'specified'"
                           :model-value="activeDraft.filters"
-                          :columns="enabledColumns"
+                          :columns="columnsForFilters(activeDraft.filters)"
                           :dept-tree="deptTree"
                           @update:model-value="(value) => { activeDraft.filters = value }"
                         />
@@ -151,7 +157,9 @@
                         content="不在上方可编辑删除范围内的记录，按此规则决定能否查看"
                         placement="top"
                       >
-                        <GrowIconify icon="ant-design:question-circle-outlined" :size="14" />
+                        <span class="role-data-perm__help-icon">
+                          <GrowIconify icon="ant-design:question-circle-outlined" :size="14" />
+                        </span>
                       </GrowTooltip>
                     </div>
                     <div class="role-data-perm__radios">
@@ -172,13 +180,13 @@
                         <RowSelfRelatedEditor
                           v-if="activeDraft.viewOther === item.value && item.value === 'self'"
                           :model-value="activeDraft.viewSelfRelated"
-                          :columns="activeColumns"
+                          :columns="columnsForReferences(activeDraft.viewSelfRelated.columnIds)"
                           @update:model-value="(value) => { activeDraft.viewSelfRelated = value }"
                         />
                         <RowFilterEditor
                           v-if="activeDraft.viewOther === item.value && item.value === 'specified'"
                           :model-value="activeDraft.viewFilters"
-                          :columns="enabledColumns"
+                          :columns="columnsForFilters(activeDraft.viewFilters)"
                           :dept-tree="deptTree"
                           @update:model-value="(value) => { activeDraft.viewFilters = value }"
                         />
@@ -191,10 +199,10 @@
                   <div class="role-data-perm__card-head">
                     <div>
                       <h4 class="role-data-perm__title">列权限</h4>
-                      <span class="role-data-perm__card-extra">按表勾选可见列，同一菜单下的多张表分别配置</span>
+                      <span class="role-data-perm__card-extra">按表配置字段可见与可编辑权限</span>
                     </div>
                     <div v-if="enabledColumns.length" class="role-data-perm__custom-actions">
-                      <span>已选 {{ checkedColumnCount }}/{{ enabledColumns.length }}</span>
+                      <span>可见 {{ checkedColumnCount }}/{{ enabledColumns.length }} · 可编辑 {{ editableColumnCount }}/{{ enabledColumns.length }}</span>
                       <GrowButton link type="primary" @click="selectAllColumns">全部全选</GrowButton>
                       <GrowButton link @click="clearColumns">全部清空</GrowButton>
                     </div>
@@ -214,34 +222,49 @@
                           <div class="role-data-perm__table-code">{{ group.code }}</div>
                         </div>
                         <div class="role-data-perm__custom-actions">
-                          <span>已选 {{ tableCheckedCount(group) }}/{{ tableEnabledCount(group) }}</span>
+                          <span>可见 {{ tableCheckedCount(group) }}/{{ tableEnabledCount(group) }} · 可编辑 {{ tableEditableCount(group) }}/{{ tableEnabledCount(group) }}</span>
                           <GrowButton link type="primary" @click="selectTableColumns(group.code)">全选</GrowButton>
                           <GrowButton link @click="clearTableColumns(group.code)">清空</GrowButton>
                         </div>
                       </div>
                       <div class="role-data-perm__columns">
-                        <label
+                        <div
                           v-for="col in group.columns"
                           :key="col.id"
                           class="role-data-perm__column"
                           :class="{
                             'is-checked': activeDraft.columnIds.includes(col.id),
-                            'is-disabled': !col.enabled,
+                            'is-disabled': !isColumnPermissionAvailable(col),
                           }"
                         >
-                          <GrowCheckbox
-                            :model-value="activeDraft.columnIds.includes(col.id)"
-                            :disabled="!col.enabled"
-                            @update:model-value="(value) => onToggleColumn(col.id, Boolean(value))"
-                          />
                           <span class="role-data-perm__column-text">
                             <span class="role-data-perm__column-title">
                               {{ col.title }}
                               <GrowTag v-if="!col.enabled" type="info" size="small">停用</GrowTag>
                             </span>
-                            <span class="role-data-perm__column-code">{{ col.code }}</span>
+                            <span class="role-data-perm__column-code">
+                              {{ col.code }} · {{ columnTypeLabel(col.columnType) }}
+                            </span>
                           </span>
-                        </label>
+                          <span class="role-data-perm__column-permissions">
+                            <label>
+                              <GrowCheckbox
+                                :model-value="activeDraft.columnIds.includes(col.id)"
+                                :disabled="!isColumnPermissionAvailable(col) || activeDraft.editableColumnIds.includes(col.id)"
+                                @update:model-value="(value) => onToggleColumnVisible(col.id, Boolean(value))"
+                              />
+                              <span>可见</span>
+                            </label>
+                            <label>
+                              <GrowCheckbox
+                                :model-value="activeDraft.editableColumnIds.includes(col.id)"
+                                :disabled="!isColumnPermissionAvailable(col)"
+                                @update:model-value="(value) => onToggleColumnEditable(col.id, Boolean(value))"
+                              />
+                              <span>可编辑</span>
+                            </label>
+                          </span>
+                        </div>
                       </div>
                     </section>
                   </div>
@@ -276,7 +299,7 @@ import {
   getSystemRoleDetail,
   saveSystemRoleDataPerm,
 } from '../../../api/systemRole'
-import type { SystemMenuColumn } from '../../../types/systemMenuColumn'
+import { columnTypeLabel, type SystemMenuColumn } from '../../../types/systemMenuColumn'
 import {
   EDIT_SCOPE_OPTIONS,
   VIEW_OTHER_OPTIONS,
@@ -314,6 +337,7 @@ type Draft = {
   filters: SystemRoleDataPermItem['filters']
   viewFilters: SystemRoleDataPermItem['viewFilters']
   columnIds: string[]
+  editableColumnIds: string[]
 }
 
 defineOptions({
@@ -348,18 +372,45 @@ watch(activeMenuKey, (key) => {
   menuTreeCurrentKey.value = key
 }, { immediate: true })
 
-const activeColumns = computed(() =>
+const menuColumns = computed(() =>
   columns.value
     .filter((item) => item.menuName === activeMenuName.value)
     .sort((a, b) => a.title.localeCompare(b.title, 'zh-CN') || a.code.localeCompare(b.code)),
 )
 
-const enabledColumns = computed(() => activeColumns.value.filter((item) => item.enabled !== false))
+const grantedColumnIds = computed(() => {
+  const draft = activeDraft.value
+  if (!draft) return new Set<string>()
+  return new Set(draft.columnIds)
+})
+
+const permissionColumns = computed(() => menuColumns.value.filter((item) => (
+  item.columnPermission !== false
+  && (item.enabled !== false || grantedColumnIds.value.has(item.id))
+)))
+const enabledColumns = computed(() => permissionColumns.value.filter(isColumnPermissionAvailable))
+const queryColumns = computed(() => menuColumns.value.filter(
+  (item) => item.enabled !== false && item.queryFilter !== false,
+))
+
+function isColumnPermissionAvailable(item: SystemMenuColumn) {
+  return item.enabled !== false && item.columnPermission !== false
+}
+
+function columnsForReferences(columnIds: string[]) {
+  const selected = new Set(columnIds)
+  const available = new Set(queryColumns.value.map((item) => item.id))
+  return menuColumns.value.filter((item) => available.has(item.id) || selected.has(item.id))
+}
+
+function columnsForFilters(filters: SystemRoleDataPermItem['filters']) {
+  return columnsForReferences(filters.map((item) => item.columnId))
+}
 
 const columnGroups = computed(() => {
   const groups: Array<{ code: string; title: string; columns: SystemMenuColumn[] }> = []
   const index = new Map<string, (typeof groups)[number]>()
-  for (const col of activeColumns.value) {
+  for (const col of permissionColumns.value) {
     const code = col.tableCode || 'default'
     const current = index.get(code)
     if (current) {
@@ -381,6 +432,13 @@ const checkedColumnCount = computed(() => {
   const draft = activeDraft.value
   if (!draft) return 0
   const ids = new Set(draft.columnIds)
+  return enabledColumns.value.filter((item) => ids.has(item.id)).length
+})
+
+const editableColumnCount = computed(() => {
+  const draft = activeDraft.value
+  if (!draft) return 0
+  const ids = new Set(draft.editableColumnIds)
   return enabledColumns.value.filter((item) => ids.has(item.id)).length
 })
 
@@ -434,14 +492,21 @@ function collectDeptIds(nodes: SystemDeptTreeNode[]): string[] {
 }
 
 function tableEnabledCount(group: { columns: SystemMenuColumn[] }) {
-  return group.columns.filter((item) => item.enabled !== false).length
+  return group.columns.filter(isColumnPermissionAvailable).length
 }
 
 function tableCheckedCount(group: { columns: SystemMenuColumn[] }) {
   const draft = activeDraft.value
   if (!draft) return 0
   const ids = new Set(draft.columnIds)
-  return group.columns.filter((item) => item.enabled !== false && ids.has(item.id)).length
+  return group.columns.filter((item) => isColumnPermissionAvailable(item) && ids.has(item.id)).length
+}
+
+function tableEditableCount(group: { columns: SystemMenuColumn[] }) {
+  const draft = activeDraft.value
+  if (!draft) return 0
+  const ids = new Set(draft.editableColumnIds)
+  return group.columns.filter((item) => isColumnPermissionAvailable(item) && ids.has(item.id)).length
 }
 
 function isDirectoryNode(data: GrantedMenuTreeNode | undefined) {
@@ -502,44 +567,74 @@ function onCheck(arg1: unknown, arg2?: unknown) {
   current.deptIds = pickCheckedKeys(arg1, arg2)
 }
 
-function onToggleColumn(id: string, checked: boolean) {
+function onToggleColumnVisible(id: string, checked: boolean) {
   const current = activeDraft.value
   if (!current) return
-  const set = new Set(current.columnIds)
-  if (checked) set.add(id)
-  else set.delete(id)
-  current.columnIds = [...set]
+  const visible = new Set(current.columnIds)
+  if (checked) visible.add(id)
+  else {
+    visible.delete(id)
+    current.editableColumnIds = current.editableColumnIds.filter((item) => item !== id)
+  }
+  current.columnIds = [...visible]
+}
+
+function onToggleColumnEditable(id: string, checked: boolean) {
+  const current = activeDraft.value
+  if (!current) return
+  const visible = new Set(current.columnIds)
+  const editable = new Set(current.editableColumnIds)
+  if (checked) {
+    visible.add(id)
+    editable.add(id)
+  } else {
+    editable.delete(id)
+  }
+  current.columnIds = [...visible]
+  current.editableColumnIds = [...editable]
 }
 
 function selectAllColumns() {
   const current = activeDraft.value
   if (!current) return
-  current.columnIds = enabledColumns.value.map((item) => item.id)
+  const ids = enabledColumns.value.map((item) => item.id)
+  current.columnIds = [...new Set([...current.columnIds, ...ids])]
+  current.editableColumnIds = [...new Set([...current.editableColumnIds, ...ids])]
 }
 
 function clearColumns() {
   const current = activeDraft.value
   if (!current) return
-  current.columnIds = []
+  const drop = new Set(enabledColumns.value.map((item) => item.id))
+  current.columnIds = current.columnIds.filter((id) => !drop.has(id))
+  current.editableColumnIds = current.editableColumnIds.filter((id) => !drop.has(id))
 }
 
 function selectTableColumns(tableCode: string) {
   const current = activeDraft.value
   if (!current) return
   const ids = new Set(current.columnIds)
-  for (const col of activeColumns.value) {
-    if (col.tableCode === tableCode && col.enabled !== false) ids.add(col.id)
+  const editableIds = new Set(current.editableColumnIds)
+  for (const col of permissionColumns.value) {
+    if (col.tableCode === tableCode && isColumnPermissionAvailable(col)) {
+      ids.add(col.id)
+      editableIds.add(col.id)
+    }
   }
   current.columnIds = [...ids]
+  current.editableColumnIds = [...editableIds]
 }
 
 function clearTableColumns(tableCode: string) {
   const current = activeDraft.value
   if (!current) return
   const drop = new Set(
-    activeColumns.value.filter((item) => item.tableCode === tableCode).map((item) => item.id),
+    permissionColumns.value
+      .filter((item) => item.tableCode === tableCode && isColumnPermissionAvailable(item))
+      .map((item) => item.id),
   )
   current.columnIds = current.columnIds.filter((id) => !drop.has(id))
+  current.editableColumnIds = current.editableColumnIds.filter((id) => !drop.has(id))
 }
 
 function selectAllDepts() {
@@ -564,7 +659,7 @@ function cloneSelfRelated(config?: SelfRelatedConfig): SelfRelatedConfig {
   }
 }
 
-function emptyDraft(menuName: string): Draft {
+function emptyDraft(): Draft {
   return {
     editScope: 'self',
     viewOther: 'none',
@@ -573,14 +668,18 @@ function emptyDraft(menuName: string): Draft {
     viewSelfRelated: emptySelfRelated(),
     filters: [],
     viewFilters: [],
-    columnIds: columns.value
-      .filter((item) => item.menuName === menuName && item.enabled !== false)
-      .map((item) => item.id),
+    columnIds: [],
+    editableColumnIds: [],
   }
 }
 
 function toSavedDraft(saved: SystemRoleDataPermItem, fallback: Draft): Draft {
   const editScope = isEditScope(saved.editScope) ? saved.editScope : fallback.editScope
+  const columnIds = (saved.columnIds || []).filter((id) => {
+    const column = columns.value.find((item) => item.id === id)
+    return column?.columnPermission !== false
+  })
+  const visibleIds = new Set(columnIds)
   return {
     editScope,
     viewOther: editScope === 'all'
@@ -601,7 +700,11 @@ function toSavedDraft(saved: SystemRoleDataPermItem, fallback: Draft): Draft {
           value: Array.isArray(item.value) ? [...item.value] : [],
         }))
       : [],
-    columnIds: [...(saved.columnIds || [])],
+    columnIds,
+    editableColumnIds: (saved.editableColumnIds || []).filter((id) => {
+      const column = columns.value.find((item) => item.id === id)
+      return visibleIds.has(id) && column?.columnPermission !== false
+    }),
   }
 }
 
@@ -666,7 +769,7 @@ async function open(row: SystemRoleListItem) {
     const next: Record<string, Draft> = {}
     for (const item of menus.value) {
       const saved = existing.get(item.name)
-      next[item.name] = saved ? toSavedDraft(saved, emptyDraft(item.name)) : emptyDraft(item.name)
+      next[item.name] = saved ? toSavedDraft(saved, emptyDraft()) : emptyDraft()
     }
     drafts.value = next
     activeMenuName.value = menus.value[0]?.name || ''
@@ -703,6 +806,7 @@ async function submit() {
         ? draft.viewFilters
         : [],
       columnIds: draft.columnIds,
+      editableColumnIds: draft.editableColumnIds,
     })
   }
   saving.value = true
@@ -890,6 +994,19 @@ defineExpose({ open })
   margin: 0;
 }
 
+.role-data-perm__help-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  line-height: 1;
+}
+
+.role-data-perm__help-icon :deep(.grow-iconify) {
+  display: flex !important;
+}
+
 .role-data-perm__radios {
   display: flex;
   flex-direction: column;
@@ -953,13 +1070,14 @@ defineExpose({ open })
   font-size: 12px;
 }
 
-.role-data-perm__tree {
-  max-height: 280px;
-  overflow: auto;
-  padding: 8px;
+.role-data-perm__tree-scroll {
   border: 1px solid var(--layout-border-color);
   border-radius: 8px;
   background: var(--layout-color);
+}
+
+.role-data-perm__tree {
+  padding: 8px;
 }
 
 .role-data-perm__tags {
@@ -1035,6 +1153,24 @@ defineExpose({ open })
   flex-direction: column;
   gap: 4px;
   min-width: 0;
+  flex: 1;
+}
+
+.role-data-perm__column-permissions,
+.role-data-perm__column-permissions label {
+  display: inline-flex;
+  align-items: center;
+}
+
+.role-data-perm__column-permissions {
+  flex: 0 0 auto;
+  gap: 12px;
+}
+
+.role-data-perm__column-permissions label {
+  gap: 5px;
+  font-size: 12px;
+  cursor: pointer;
 }
 
 .role-data-perm__column-title {

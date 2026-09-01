@@ -1,8 +1,9 @@
-import { computed, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import type { SearchBarField } from '@grow-admin-rock/components/search-bar'
 import type { ColumnBarItem } from '@grow-admin-rock/components/column-bar'
 import { useMsg } from '@grow-admin-rock/components'
-import { fetchSystemAccountPage } from '../../../api/systemAccount'
+import { fetchSystemAccountPage, fetchSystemAccountPersonOptions } from '../../../api/systemAccount'
+import { fetchSystemRoleOptions } from '../../../api/systemRole'
 import type { SystemAccountListItem } from '../../../types/systemAccount'
 import { toMessage } from './helpers'
 
@@ -35,18 +36,38 @@ export function useAccountTable() {
   const pageSize = ref(10)
   const query = ref<Recordable<any>>({})
 
-  const searchList: SearchBarField[] = [
+  const searchList = reactive<SearchBarField[]>([
     {
-      labelText: '关键字',
-      placeholder: '登录名 / 人员 / 部门',
+      labelText: '账号名称',
+      placeholder: '请输入账号名称',
       elType: 'GrowInput',
       isDefault: true,
-      model: 'keyword',
+      model: 'username',
       noDelete: true,
       clearable: true,
     },
     {
-      labelText: '启用状态',
+      labelText: '昵称',
+      placeholder: '请输入昵称',
+      elType: 'GrowInput',
+      isDefault: true,
+      model: 'nickname',
+      clearable: true,
+    },
+    {
+      labelText: '绑定人员',
+      elType: 'GrowSelect',
+      isDefault: true,
+      model: 'personId',
+      label: 'label',
+      value: 'value',
+      placeholder: '请选择',
+      clearable: true,
+      filterable: true,
+      options: [],
+    },
+    {
+      labelText: '状态',
       elType: 'GrowSelect',
       isDefault: true,
       model: 'enabled',
@@ -60,30 +81,31 @@ export function useAccountTable() {
       ],
     },
     {
-      labelText: '绑定人员',
+      labelText: '角色',
       elType: 'GrowSelect',
       isDefault: true,
-      model: 'unbound',
+      model: 'roleId',
       label: 'label',
       value: 'value',
       placeholder: '请选择',
       clearable: true,
-      options: [
-        { label: '未绑定', value: 'true' },
-        { label: '已绑定', value: 'false' },
-      ],
+      filterable: true,
+      options: [],
     },
-  ]
+  ])
 
   const tableColumns = ref<ManageTableColumn[]>([
-    { title: '登录名', field: 'username', visible: true, minWidth: 140 },
+    { title: '账号名称', field: 'username', visible: true, minWidth: 140 },
+    { title: '昵称', field: 'nickname', visible: true, minWidth: 120 },
     { title: '绑定人员', field: 'personName', visible: true, minWidth: 120 },
-    { title: '部门', field: 'deptName', visible: true, minWidth: 140 },
-    { title: '角色', field: 'roles', visible: true, minWidth: 160 },
-    { title: '启用', field: 'enabled', visible: true, minWidth: 90 },
-    { title: '最近登录', field: 'lastLoginAt', visible: true, minWidth: 160 },
+    { title: '人员主部门', field: 'deptName', visible: true, minWidth: 140 },
+    { title: '状态', field: 'enabled', visible: true, minWidth: 90 },
+    { title: '角色数量', field: 'roleCount', visible: true, minWidth: 100 },
+    { title: '最后登录时间', field: 'lastLoginAt', visible: true, minWidth: 160 },
+    { title: '手机号', field: 'mobile', visible: false, minWidth: 130 },
+    { title: '邮箱', field: 'email', visible: false, minWidth: 170 },
     { title: '备注', field: 'remark', visible: false, minWidth: 160 },
-    { title: '操作', field: 'actions', visible: true, minWidth: 220, fixed: 'right' },
+    { title: '操作', field: 'actions', visible: true, minWidth: 250, fixed: 'right' },
   ])
 
   const leafColumns = computed(() => collectLeafColumns(tableColumns.value))
@@ -119,6 +141,31 @@ export function useAccountTable() {
     page.value = 1
     void loadList()
   }
+
+  async function loadFilterOptions() {
+    try {
+      const [people, roles] = await Promise.all([
+        fetchSystemAccountPersonOptions(),
+        fetchSystemRoleOptions(),
+      ])
+      const personField = searchList.find((item) => item.model === 'personId')
+      const roleField = searchList.find((item) => item.model === 'roleId')
+      if (personField) personField.options = (people || []).map((item) => ({
+        label: item.name,
+        value: item.personId,
+      }))
+      if (roleField) roleField.options = (roles || []).map((item) => ({
+        label: item.name,
+        value: item.id,
+      }))
+    } catch (error) {
+      message.error(toMessage(error, '筛选项加载失败'))
+    }
+  }
+
+  onMounted(() => {
+    void loadFilterOptions()
+  })
 
   return {
     loading,

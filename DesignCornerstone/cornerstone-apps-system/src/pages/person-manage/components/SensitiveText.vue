@@ -1,9 +1,13 @@
 <template>
   <span class="sensitive-text">
     <span>{{ visible ? displayText(value) : (masked || '-') }}</span>
-    <GrowButton v-if="value" link type="primary" @click="visible = !visible">
-      {{ visible ? '隐藏' : '显示' }}
-    </GrowButton>
+    <GrowIconify
+      v-if="value"
+      class="sensitive-text__eye"
+      :icon="visible ? 'ant-design:eye-invisible-outlined' : 'ant-design:eye-outlined'"
+      :size="16"
+      @click="visible = !visible"
+    />
   </span>
 </template>
 
@@ -26,5 +30,15 @@ const visible = ref(false)
   display: inline-flex;
   align-items: center;
   gap: 6px;
+}
+
+.sensitive-text__eye {
+  cursor: pointer;
+  color: var(--text-color-secondary);
+  flex-shrink: 0;
+}
+
+.sensitive-text__eye:hover {
+  color: var(--primary-color);
 }
 </style>

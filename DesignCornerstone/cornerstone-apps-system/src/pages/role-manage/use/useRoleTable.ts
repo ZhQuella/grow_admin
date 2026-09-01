@@ -82,7 +82,7 @@ export function useRoleTable() {
     { title: '排序', field: 'sort', visible: true, minWidth: 80 },
     { title: '启用', field: 'enabled', visible: true, minWidth: 90 },
     { title: '更新时间', field: 'updatedAt', visible: true, minWidth: 160 },
-    { title: '备注', field: 'remark', visible: false, minWidth: 160 },
+    { title: '角色描述', field: 'remark', visible: false, minWidth: 160 },
     { title: '操作', field: 'actions', visible: true, minWidth: 232, fixed: 'right' },
   ])
 
