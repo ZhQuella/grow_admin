@@ -65,6 +65,20 @@ function getAllChild(item: SplitPaneItem) {
 .rock-split-pane :deep(.splitpanes__pane) {
   display: flex;
   flex-direction: column;
+  background-color: var(--layout-container-background-color);
+}
+
+.rock-split-pane :deep(.splitpanes.default-theme .splitpanes__pane) {
+  background-color: var(--layout-container-background-color);
+}
+
+.rock-split-pane :deep(.splitpanes.default-theme .splitpanes__splitter) {
+  background-color: var(--layout-border-color);
+}
+
+.rock-split-pane :deep(.splitpanes.default-theme .splitpanes__splitter:before),
+.rock-split-pane :deep(.splitpanes.default-theme .splitpanes__splitter:after) {
+  background-color: var(--text-color-secondary);
 }
 
 .rock-split-pane :deep(.splitpanes__pane > *) {

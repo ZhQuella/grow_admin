@@ -309,14 +309,27 @@ export const useTabStore = defineStore({
 
     getTabDisplayTitle(tab: TabItem, currentFullPath: string): string {
       const normalizedPath = normalizePath(currentFullPath)
-      const subPage = tab.subPages?.find((item) => item.fullPath === normalizedPath)
-      if (subPage) {
-        return subPage.title
+      const viewingSubPage = tab.subPages?.find((item) => item.fullPath === normalizedPath)
+      if (viewingSubPage?.title) {
+        return viewingSubPage.title
       }
-      const pendingSubPageTitle = this.pendingSubPageTitles[normalizedPath]
-      if (pendingSubPageTitle) {
-        return pendingSubPageTitle
+      const pendingCurrentTitle = this.pendingSubPageTitles[normalizedPath]
+      if (pendingCurrentTitle) {
+        return pendingCurrentTitle
       }
+
+      const lastSubPagePath = tab.lastSubPagePath
+      if (lastSubPagePath) {
+        const lastSubPage = tab.subPages?.find((item) => item.fullPath === lastSubPagePath)
+        if (lastSubPage?.title) {
+          return lastSubPage.title
+        }
+        const pendingLastTitle = this.pendingSubPageTitles[lastSubPagePath]
+        if (pendingLastTitle) {
+          return pendingLastTitle
+        }
+      }
+
       return tab.title
     },
 
@@ -547,7 +560,7 @@ export const useTabStore = defineStore({
         if (pendingTitle) {
           existingSubPage.title = pendingTitle
           delete this.pendingSubPageTitles[subPageFullPath]
-        } else if (params.subPage.title) {
+        } else if (!existingSubPage.title && params.subPage.title) {
           existingSubPage.title = params.subPage.title
         }
         if (existingSubPage.isKeepAlive !== false) {

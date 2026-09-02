@@ -53,6 +53,14 @@ const title = ref('在线页面')
 <style scoped>
 .online-page {
   padding: 16px;
+  color: var(--text-color);
+}
+.online-page h3 {
+  margin: 0 0 8px;
+}
+.online-page p {
+  margin: 0;
+  color: var(--text-color-secondary);
 }
 </style>
 `

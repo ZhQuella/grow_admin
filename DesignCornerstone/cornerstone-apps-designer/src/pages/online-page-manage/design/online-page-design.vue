@@ -74,7 +74,7 @@
                 :class="
                   previewExpanded
                     ? 'fixed inset-0 z-[1000] bg-[var(--layout-container-background-color)]'
-                    : 'h-full rounded border border-solid border-border bg-white'
+                    : 'h-full rounded border border-solid border-border bg-component'
                 "
                 :expose="sandboxExpose"
                 :dependencies="dependencies"
@@ -157,6 +157,8 @@ const {
   height: 100%;
   min-height: 0;
   overflow: hidden;
+  color: var(--text-color);
+  background: var(--layout-container-background-color);
 }
 
 .online-page-design__bar {
