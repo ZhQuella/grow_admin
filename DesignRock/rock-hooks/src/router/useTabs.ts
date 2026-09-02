@@ -69,6 +69,12 @@ export function useTabs() {
   const navigate = createRouteNavigate()
   const { go } = navigate
 
+  /**
+   * 组件实例创建时的地址。keep-alive 子页在切走后 useRoute() 会变成当前页，
+   * setTab 必须写回这个实例自己的 tab，不能改正在看的其它页。
+   */
+  const boundFullPath = normalizePath(unref(route).fullPath)
+
   function getCurrentFullPath() {
     return normalizePath(unref(route).fullPath)
   }
@@ -129,7 +135,7 @@ export function useTabs() {
   }
 
   function setTab(title: string) {
-    tabStore.setTabTitle(getCurrentFullPath(), title)
+    tabStore.setTabTitle(boundFullPath, title)
   }
 
   return {
