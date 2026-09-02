@@ -1,5 +1,5 @@
 <template>
-  <div class="grow-code-editor flex h-full min-h-0 flex-col overflow-hidden">
+  <div class="grow-code-editor flex h-full min-h-0 flex-col overflow-hidden bg-component">
     <div
       v-if="languageSwitchable"
       class="flex shrink-0 items-center justify-end gap-2 border-b border-solid border-border px-2 py-1.5"
@@ -75,15 +75,18 @@ let handle: MonacoEditorHandle | null = null
 let editor: MonacoEditor.IStandaloneCodeEditor | null = null
 let applyingExternal = false
 
+const htmlDark = ref(
+  typeof document !== 'undefined' && document.documentElement.classList.contains('dark'),
+)
+
 const monacoTheme = computed<MonacoTheme>(() => {
   const theme = props.options.theme ?? 'auto'
   if (theme === 'dark') return 'vs-dark'
   if (theme === 'light') return 'vs'
-  if (typeof document !== 'undefined' && document.documentElement.classList.contains('dark')) {
-    return 'vs-dark'
-  }
-  return 'vs'
+  return htmlDark.value ? 'vs-dark' : 'vs'
 })
+
+let darkClassObserver: MutationObserver | null = null
 
 function changeLanguage(next: CodeEditorLanguage) {
   const from = currentLanguage.value
@@ -128,6 +131,13 @@ defineExpose({
 })
 
 onMounted(async () => {
+  const root = document.documentElement
+  htmlDark.value = root.classList.contains('dark')
+  darkClassObserver = new MutationObserver(() => {
+    htmlDark.value = root.classList.contains('dark')
+  })
+  darkClassObserver.observe(root, { attributes: true, attributeFilter: ['class'] })
+
   await nextTick()
   if (!editorEl.value) return
   handle = createMonacoEditor(editorEl.value, {
@@ -145,6 +155,8 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
+  darkClassObserver?.disconnect()
+  darkClassObserver = null
   handle?.dispose()
   handle = null
   editor = null

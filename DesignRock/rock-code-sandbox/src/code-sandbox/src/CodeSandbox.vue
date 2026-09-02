@@ -1,5 +1,5 @@
 <template>
-  <div class="grow-code-sandbox flex h-full min-h-0 flex-col overflow-hidden">
+  <div class="grow-code-sandbox flex h-full min-h-0 flex-col overflow-hidden bg-component text-text">
     <GrowWatchBox class="min-h-0 flex-1 overflow-hidden">
       <template #default="{ height }">
         <GrowScrollbar v-if="height > 0" :height="`${height}px`">

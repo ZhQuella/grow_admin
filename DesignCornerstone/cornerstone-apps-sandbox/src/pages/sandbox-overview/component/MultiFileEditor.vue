@@ -1,7 +1,7 @@
 <template>
-  <div class="multi-file-editor flex h-full min-h-0 flex-col overflow-hidden">
+  <div class="multi-file-editor flex h-full min-h-0 flex-col overflow-hidden bg-component text-text">
     <div
-      class="multi-file-editor__bar flex shrink-0 items-center gap-2 border-b border-solid border-border px-2"
+      class="multi-file-editor__bar flex shrink-0 items-center gap-2 border-b border-solid border-border bg-component px-2"
     >
       <GrowTabs
         v-model="activeFile"

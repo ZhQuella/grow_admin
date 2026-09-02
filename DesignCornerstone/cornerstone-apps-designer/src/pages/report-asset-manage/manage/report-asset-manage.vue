@@ -349,6 +349,7 @@ const {
   height: 100%;
   min-height: 0;
   padding: 10px;
+  color: var(--text-color);
 }
 
 .report-asset-manage__toolbar {
@@ -356,7 +357,7 @@ const {
   align-items: center;
   padding: 10px 12px;
   border-radius: 8px;
-  background: var(--layout-color);
+  background: var(--component-background-color);
 }
 
 .report-asset-manage__toolbar-options {
@@ -372,7 +373,7 @@ const {
   margin-top: 10px;
   overflow: hidden;
   border-radius: 8px;
-  background: var(--component-color, #fff);
+  background: var(--component-background-color);
 }
 
 .report-asset-manage__watch {
@@ -384,7 +385,7 @@ const {
   display: flex;
   justify-content: flex-end;
   padding: 12px;
-  background: var(--component-color, #fff);
+  background: var(--component-background-color);
 }
 
 .report-asset-manage__hint {
@@ -423,7 +424,7 @@ const {
 .report-asset-manage__version-card {
   padding: 12px;
   border-radius: 8px;
-  background: var(--layout-color, #f5f7fa);
+  background: var(--layout-color);
 }
 
 .report-asset-manage__version-card.is-current {
