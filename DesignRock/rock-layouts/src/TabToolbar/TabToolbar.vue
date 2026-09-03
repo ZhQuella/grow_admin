@@ -3,6 +3,7 @@
     <GrowButton
       circle
       text
+      class="!ml-[0px]"
       :disabled="!currentTab"
       title="刷新"
       aria-label="刷新"
@@ -14,6 +15,7 @@
     <GrowButton
       circle
       text
+      class="!ml-[0px]"
       :title="isFullScreen ? '退出全屏' : '内容全屏'"
       :aria-label="isFullScreen ? '退出全屏' : '内容全屏'"
       @click="toggleWebFullScreen"
@@ -35,6 +37,7 @@
       <GrowButton
         circle
         text
+        class="!ml-[0px]"
         :disabled="!currentTab"
         title="标签操作"
         aria-label="标签操作"
