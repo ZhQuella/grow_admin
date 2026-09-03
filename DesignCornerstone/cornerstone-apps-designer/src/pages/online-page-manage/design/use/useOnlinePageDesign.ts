@@ -25,6 +25,8 @@ export function useOnlinePageDesign() {
   const route = useRoute()
   const { setTab, closeCurrent } = useTabs()
   const message = useMsg()
+  /** keep-alive 下多个设计页共享当前 route，只加载本实例打开时的 id */
+  const boundId = String(route.params.id || '')
 
   const loading = ref(false)
   const saving = ref(false)
@@ -72,7 +74,7 @@ export function useOnlinePageDesign() {
     schemaReady.value = false
     try {
       const detail = await getOnlinePageDetail(id)
-      if (route.name !== ROUTE_NAME || String(route.params.id || '') !== id) {
+      if (id !== boundId) {
         return
       }
       const draft = detail.draft || createEmptyOnlinePageDraft()
@@ -85,7 +87,7 @@ export function useOnlinePageDesign() {
       schemaReady.value = true
       setTab(`设计-${detail.name}`)
     } catch (error) {
-      if (route.name !== ROUTE_NAME || String(route.params.id || '') !== id) {
+      if (id !== boundId) {
         return
       }
       asset.value = null
@@ -94,7 +96,7 @@ export function useOnlinePageDesign() {
       schemaReady.value = false
       message.error(error instanceof Error ? error.message : '加载失败')
     } finally {
-      if (route.name === ROUTE_NAME && String(route.params.id || '') === id) {
+      if (id === boundId) {
         loading.value = false
       }
     }
@@ -124,8 +126,8 @@ export function useOnlinePageDesign() {
   watch(
     () => ({ name: route.name, id: String(route.params.id || '') }),
     ({ name, id }) => {
-      if (name !== ROUTE_NAME) return
-      void loadAsset(id)
+      if (name !== ROUTE_NAME || id !== boundId) return
+      void loadAsset(boundId)
     },
     { immediate: true },
   )
