@@ -3,25 +3,36 @@
     <GrowWatchBox class="absolute inset-0 overflow-hidden">
       <template #default="{ height }">
         <GrowScrollbar v-if="height > 0" :height="`${height}px`">
-          <div :style="{
+          <div class="page-view-stage" :style="{
                   height: `${height}px`
                 }">
             <router-view v-slot="{ Component, route: viewRoute }">
-            <keep-alive :include="cacheIncludeList">
-              <component
-                :is="resolveViewComponent(Component, viewRoute)"
-                v-if="Component"
-                v-show="!isIframeRoute(viewRoute)"
-                :key="getComponentKey(viewRoute)"
-              />
-            </keep-alive>
+            <transition
+              :name="pageTransitionName"
+              :css="Boolean(pageTransitionName)"
+            >
+              <keep-alive :include="cacheIncludeList">
+                <component
+                  :is="resolveViewComponent(Component, viewRoute)"
+                  v-if="Component"
+                  :key="getComponentKey(viewRoute)"
+                />
+              </keep-alive>
+            </transition>
           </router-view>
-          <RenderIframe
-            v-if="canEmbedIFramePage"
-            v-show="isCurrentRouteIframe"
-            class="h-full w-full"
-            :style="{ height: `${height}px` }"
-          />
+          <transition
+            :name="pageTransitionName"
+            :css="Boolean(pageTransitionName)"
+          >
+            <div
+              v-if="canEmbedIFramePage"
+              v-show="isCurrentRouteIframe"
+              class="page-view-iframe"
+              :style="{ height: `${height}px` }"
+            >
+              <RenderIframe class="h-full w-full" />
+            </div>
+          </transition>
           </div>
         </GrowScrollbar>
       </template>
@@ -39,6 +50,7 @@ import type { Component, VNode } from 'vue'
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
 import { useTabRouteSync } from '../tabs/use/useTabRouteSync'
 import { wrapKeepAliveComponent } from './wrapKeepAliveComponent'
+import './page-transition.css'
 
 useTabRouteSync()
 
@@ -46,7 +58,11 @@ const route = useRoute()
 const tabStore = useTabStore()
 const appConfig = useAppConfig()
 const { cacheIncludeList, pageReloadKeys } = storeToRefs(tabStore)
-const { canEmbedIFramePage } = storeToRefs(appConfig)
+const { canEmbedIFramePage, transition } = storeToRefs(appConfig)
+
+const pageTransitionName = computed(() =>
+  transition.value.enable ? transition.value.basicTransition : undefined,
+)
 
 const isCurrentRouteIframe = computed(() => isIframeRoute(route))
 
@@ -83,3 +99,16 @@ function isIframeRoute(route: RouteLocationNormalizedLoaded) {
   return route.meta?.openMode === PageOpenModeEnum.IFRAME && Boolean(route.meta?.link)
 }
 </script>
+
+<style scoped>
+.page-view-stage {
+  position: relative;
+  overflow: hidden;
+}
+
+.page-view-iframe {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+</style>

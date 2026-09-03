@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from '@grow-admin-rock/locale'
 import SettingPanel from './SettingPanel.vue'
 
@@ -20,6 +20,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const settingPanelRef = ref<InstanceType<typeof SettingPanel>>()
 
 const model = computed({
   get: () => props.modelValue,
@@ -27,10 +28,40 @@ const model = computed({
 })
 
 const drawerTitle = computed(() => props.title ?? t('layout.setting.title'))
+
+function handleReset() {
+  settingPanelRef.value?.resetConfig()
+}
 </script>
 
 <template>
-  <GrowDrawer v-model="model" :title="drawerTitle" :size="size" append-to-body>
-    <SettingPanel @close="model = false" />
+  <GrowDrawer
+    v-model="model"
+    class="setting-drawer"
+    :title="drawerTitle"
+    :size="size"
+    append-to-body
+  >
+    <GrowWatchBox class="h-full overflow-hidden">
+      <template #default="{ height }">
+        <GrowScrollbar v-if="height > 0" :height="`${height}px`">
+          <SettingPanel ref="settingPanelRef" />
+        </GrowScrollbar>
+      </template>
+    </GrowWatchBox>
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <GrowButton @click="handleReset">{{ t('layout.setting.reset') }}</GrowButton>
+        <GrowButton type="primary" @click="model = false">{{ t('layout.setting.close') }}</GrowButton>
+      </div>
+    </template>
   </GrowDrawer>
 </template>
+
+<style>
+.setting-drawer .el-drawer__body,
+.setting-drawer .n-drawer-body,
+.setting-drawer .ant-drawer-body {
+  overflow: hidden;
+}
+</style>

@@ -310,26 +310,11 @@ export const useTabStore = defineStore({
     getTabDisplayTitle(tab: TabItem, currentFullPath: string): string {
       const normalizedPath = normalizePath(currentFullPath)
       const viewingSubPage = tab.subPages?.find((item) => item.fullPath === normalizedPath)
-      if (viewingSubPage?.title) {
+      if (viewingSubPage) {
         return viewingSubPage.title
+          || this.pendingSubPageTitles[normalizedPath]
+          || tab.title
       }
-      const pendingCurrentTitle = this.pendingSubPageTitles[normalizedPath]
-      if (pendingCurrentTitle) {
-        return pendingCurrentTitle
-      }
-
-      const lastSubPagePath = tab.lastSubPagePath
-      if (lastSubPagePath) {
-        const lastSubPage = tab.subPages?.find((item) => item.fullPath === lastSubPagePath)
-        if (lastSubPage?.title) {
-          return lastSubPage.title
-        }
-        const pendingLastTitle = this.pendingSubPageTitles[lastSubPagePath]
-        if (pendingLastTitle) {
-          return pendingLastTitle
-        }
-      }
-
       return tab.title
     },
 
