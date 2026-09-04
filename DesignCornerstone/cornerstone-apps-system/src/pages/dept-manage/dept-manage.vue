@@ -36,7 +36,7 @@
               :width="col.width"
               :min-width="col.minWidth || (col.width ? undefined : 120)"
               :fixed="col.fixed"
-              :show-overflow-tooltip="col.field !== 'actions'"
+              :show-overflow-tooltip="col.field !== 'actions' && col.field !== 'directPostCount' && col.field !== 'directPersonCount'"
             >
               <template #default="{ row }">
                 <template v-if="col.field === 'name'">
@@ -44,6 +44,16 @@
                 </template>
                 <template v-else-if="col.field === 'managerName'">
                   {{ managerLabel(row) }}
+                </template>
+                <template v-else-if="col.field === 'directPostCount'">
+                  <GrowButton link type="primary" @click="openDetail(row, 'posts')">
+                    {{ row.directPostCount ?? 0 }}
+                  </GrowButton>
+                </template>
+                <template v-else-if="col.field === 'directPersonCount'">
+                  <GrowButton link type="primary" @click="openDetail(row, 'people')">
+                    {{ row.directPersonCount ?? 0 }}
+                  </GrowButton>
                 </template>
                 <template v-else-if="col.field === 'status'">
                   <GrowTag :type="row.status === 'enabled' ? 'success' : 'info'" size="small">
@@ -144,7 +154,7 @@
       <GrowWatchBox class="dept-manage__detail-watch">
         <template #default="{ height }">
           <GrowScrollbar v-if="detail && height > 0" :height="`${height}px`">
-            <DeptDetailPanel :department="detail" />
+            <DeptDetailPanel :key="`${detail.id}:${detailTab}`" :department="detail" :initial-tab="detailTab" />
           </GrowScrollbar>
         </template>
       </GrowWatchBox>
@@ -200,6 +210,7 @@ defineOptions({ name: 'DeptManagePage' })
 
 type ActionMode = 'enable' | 'delete'
 type FormMode = 'create' | 'edit'
+type RelatedTab = 'people' | 'posts' | 'children'
 type SearchBarField = {
   labelText: string
   elType: string
@@ -239,6 +250,7 @@ const formKey = ref(0)
 const formParent = ref<SystemDeptNode | null>(null)
 const formPanelRef = ref<{ submit?: () => Promise<SystemDeptDetail> } | null>(null)
 const detailVisible = ref(false)
+const detailTab = ref<RelatedTab>('people')
 const actionVisible = ref(false)
 const actionMode = ref<ActionMode>('enable')
 const actionKey = ref(0)
@@ -372,8 +384,9 @@ async function openEdit(row: SystemDeptNode) {
   formVisible.value = true
 }
 
-async function openDetail(row: SystemDeptNode) {
+async function openDetail(row: SystemDeptNode, tab: RelatedTab = 'people') {
   if (!(await loadDetail(row))) return
+  detailTab.value = tab
   detailVisible.value = true
 }
 
@@ -511,8 +524,12 @@ loadTree()
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  box-sizing: border-box;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  line-height: 1;
 }
 
 .dept-manage__icon-btn :deep(.grow-iconify) {

@@ -102,11 +102,14 @@ import type { SystemDeptDetail, SystemDeptRelated } from '../../../types/systemD
 
 defineOptions({ name: 'DeptDetailPanel' })
 
-const props = defineProps<{ department: SystemDeptDetail }>()
+const props = defineProps<{
+  department: SystemDeptDetail
+  initialTab?: 'people' | 'posts' | 'children'
+}>()
 const relatedLoading = ref(true)
 const relatedError = ref('')
 const related = ref<SystemDeptRelated | null>(null)
-const relatedTab = ref('people')
+const relatedTab = ref(props.initialTab || 'people')
 
 const managerSourceText = computed(() => {
   if (props.department.managerType === 'post') return '按岗位指定'
@@ -127,10 +130,14 @@ async function loadRelated(id: string) {
   }
 }
 
-watch(() => props.department.id, (id) => {
-  relatedTab.value = 'people'
-  loadRelated(id)
-}, { immediate: true })
+watch(
+  () => [props.department.id, props.initialTab] as const,
+  ([id, tab]) => {
+    relatedTab.value = tab || 'people'
+    loadRelated(id)
+  },
+  { immediate: true },
+)
 
 function formatTime(value: string) {
   if (!value) return '-'
