@@ -22,14 +22,18 @@
                 node-key="key"
                 show-checkbox
                 check-strictly
-                default-expand-all
                 highlight-current
                 :expand-on-click-node="false"
+                :check-on-click-node="false"
+                :check-on-click-leaf="false"
                 :current-node-key="activeMenuKey"
                 :default-checked-keys="checkedKeys"
+                :default-expanded-keys="expandedKeys"
                 :props="{ label: 'title', children: 'children', disabled: 'disabled' }"
                 @check="onCheck"
                 @node-click="onNodeClick"
+                @node-expand="onNodeExpand"
+                @node-collapse="onNodeCollapse"
               >
                 <template #default="{ data }">
                   <span class="role-menu-perm__tree-node">
@@ -37,7 +41,10 @@
                       :icon="data.directory ? 'ant-design:folder-outlined' : 'ant-design:appstore-outlined'"
                       :size="15"
                     />
-                    <span>{{ data.title }}</span>
+                    <span class="role-menu-perm__tree-title">{{ data.title }}</span>
+                    <span v-if="functionCountText(data)" class="role-menu-perm__tree-count">
+                      {{ functionCountText(data) }}
+                    </span>
                   </span>
                 </template>
               </GrowTree>
@@ -50,12 +57,23 @@
                 <div>
                   <div class="role-menu-perm__section-title">{{ activeMenu.title }}</div>
                   <div class="role-menu-perm__sub">
-                    {{ activeMenuGranted ? '已授权菜单，可配置功能' : '请先勾选该菜单' }}
+                    {{ activeMenuGranted ? '已授权菜单，可配置功能' : '勾选功能将自动授权该菜单' }}
                   </div>
                 </div>
-                <GrowTag :type="activeMenuGranted ? 'success' : 'info'" size="small">
-                  {{ activeMenuGranted ? '已授权' : '未授权' }}
-                </GrowTag>
+                <div class="role-menu-perm__main-actions">
+                  <GrowButton
+                    v-if="activeFunctions.length"
+                    link
+                    type="primary"
+                    :disabled="!toggleableFunctions.length"
+                    @click="onToggleAllFunctions(!allFunctionsChecked)"
+                  >
+                    {{ allFunctionsChecked ? '取消全选' : '全部勾选' }}
+                  </GrowButton>
+                  <GrowTag :type="activeMenuGranted ? 'success' : 'info'" size="small">
+                    {{ activeMenuGranted ? '已授权' : '未授权' }}
+                  </GrowTag>
+                </div>
               </div>
               <div v-if="!activeFunctions.length" class="role-menu-perm__empty">
                 该菜单暂无功能权限
@@ -143,6 +161,20 @@ const checkedFunctionIds = ref<string[]>([])
 const historicalDisabledMenus = ref<string[]>([])
 const activeMenuName = ref('')
 const treeKey = ref(0)
+const expandedKeys = ref<string[]>([])
+
+function collectExpandableKeys(nodes: RolePermTreeNode[]): string[] {
+  const keys: string[] = []
+  const walk = (list: RolePermTreeNode[]) => {
+    for (const node of list) {
+      if (!node.children?.length) continue
+      keys.push(node.key)
+      walk(node.children)
+    }
+  }
+  walk(nodes)
+  return keys
+}
 
 const menuNodes = computed(() => flattenRoleMenuTree(treeData.value))
 const permNodeMap = computed(() => new Map(
@@ -164,13 +196,55 @@ const effectiveMenuNames = computed(() => {
 
 const activeMenuGranted = computed(() => effectiveMenuNames.value.includes(activeMenuName.value))
 const functionMap = computed(() => new Map(functions.value.map((item) => [item.id, item])))
+const functionCountByMenu = computed(() => {
+  const selected = new Set(checkedFunctionIds.value)
+  const map = new Map<string, { selected: number, total: number }>()
+  for (const item of functions.value) {
+    const current = map.get(item.menuName) || { selected: 0, total: 0 }
+    current.total += 1
+    if (selected.has(item.id)) current.selected += 1
+    map.set(item.menuName, current)
+  }
+  return map
+})
+
+function functionCountText(data: RolePermTreeNode) {
+  if (!data.menuName) return ''
+  const count = functionCountByMenu.value.get(data.menuName)
+  if (!count?.total) return ''
+  return `${count.selected}/${count.total}`
+}
+const toggleableFunctions = computed(() =>
+  activeFunctions.value.filter((item) => !isFunctionDisabled(item)),
+)
+const allFunctionsChecked = computed(() => {
+  const list = toggleableFunctions.value
+  return list.length > 0 && list.every((item) => checkedFunctionIds.value.includes(item.id))
+})
 
 function isFunctionDisabled(item: SystemMenuFunction) {
-  return !activeMenuGranted.value || Boolean(activeMenu.value?.disabled) || item.enabled === false
+  return Boolean(activeMenu.value?.disabled) || item.enabled === false
+}
+
+function grantActiveMenu() {
+  const menu = activeMenu.value
+  if (!menu || menu.disabled || checkedKeys.value.includes(menu.key)) return
+  checkedKeys.value = toggleRolePermNode(treeData.value, checkedKeys.value, menu.key, true)
+  treeKey.value += 1
 }
 
 function onNodeClick(data: RolePermTreeNode) {
   if (data.menuName) activeMenuName.value = data.menuName
+}
+
+function onNodeExpand(data: RolePermTreeNode) {
+  if (!expandedKeys.value.includes(data.key)) {
+    expandedKeys.value = [...expandedKeys.value, data.key]
+  }
+}
+
+function onNodeCollapse(data: RolePermTreeNode) {
+  expandedKeys.value = expandedKeys.value.filter((key) => key !== data.key)
 }
 
 function onCheck(arg1: unknown, arg2?: unknown) {
@@ -198,8 +272,21 @@ function onToggleFunction(id: string, checked: boolean) {
   const item = functionMap.value.get(id)
   if (!item || isFunctionDisabled(item)) return
   const ids = new Set(checkedFunctionIds.value)
-  if (checked) ids.add(id)
+  if (checked) {
+    ids.add(id)
+    grantActiveMenu()
+  }
   else ids.delete(id)
+  checkedFunctionIds.value = [...ids]
+}
+
+function onToggleAllFunctions(checked: boolean) {
+  const ids = new Set(checkedFunctionIds.value)
+  for (const item of toggleableFunctions.value) {
+    if (checked) ids.add(item.id)
+    else ids.delete(item.id)
+  }
+  if (checked) grantActiveMenu()
   checkedFunctionIds.value = [...ids]
 }
 
@@ -211,6 +298,7 @@ async function open(row: SystemRoleListItem) {
   checkedFunctionIds.value = []
   historicalDisabledMenus.value = []
   activeMenuName.value = ''
+  expandedKeys.value = []
   visible.value = true
   try {
     const [detail, menus, rawFunctions] = await Promise.all([
@@ -219,6 +307,7 @@ async function open(row: SystemRoleListItem) {
       fetchAllSystemMenuFunctions(),
     ])
     treeData.value = buildRolePermTree(Array.isArray(menus) ? menus : [])
+    expandedKeys.value = collectExpandableKeys(treeData.value)
     functions.value = Array.isArray(rawFunctions) ? rawFunctions : []
     const grantedMenus = Array.isArray(detail?.menuNames) ? detail.menuNames : []
     const nodeMap = new Map(flattenRoleMenuTree(treeData.value).map((item) => [item.menuName, item]))
@@ -305,6 +394,13 @@ defineExpose({ open })
   margin-bottom: 14px;
 }
 
+.role-menu-perm__main-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 8px;
+}
+
 .role-menu-perm__sub,
 .role-menu-perm__function-code,
 .role-menu-perm__function-description {
@@ -339,10 +435,17 @@ defineExpose({ open })
   flex: 0 0 auto;
 }
 
-.role-menu-perm__tree-node > span {
+.role-menu-perm__tree-title {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.role-menu-perm__tree-count {
+  flex: 0 0 auto;
+  color: var(--text-color-secondary);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
 }
 
 .role-menu-perm__functions {
