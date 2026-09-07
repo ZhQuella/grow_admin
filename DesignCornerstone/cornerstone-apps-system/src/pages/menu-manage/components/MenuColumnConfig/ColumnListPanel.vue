@@ -1,87 +1,141 @@
 <template>
-  <div>
+  <div class="column-list-panel">
     <div class="column-list-panel__toolbar">
-      <GrowButton type="primary" @click="state.openCreateTable">新增表</GrowButton>
+      <GrowButton type="primary" @click="state.addTable">新增表</GrowButton>
     </div>
-    <div v-if="!state.groupedTables.length" class="column-list-panel__empty">
-      一个菜单可对应多张表。请先新增表，再为每张表配置列。
-    </div>
-    <GrowScrollbar v-else height="420px">
-      <GrowCollapse
-        class="column-list-panel__collapse"
-        :model-value="expandedNames"
-        :expanded-names="expandedNames"
-        @update:model-value="onExpandChange"
-        @update:expanded-names="onExpandChange"
+    <GrowScrollbar height="420px">
+      <div v-if="!state.groupedTables.length" class="column-list-panel__empty">
+        <GrowEmpty description="暂无表定义，点击上方新增" :image-size="80" />
+      </div>
+      <GrowForm
+        v-else
+        ref="formRef"
+        class="column-list-panel__form"
+        :model="state.formModel"
+        label-position="top"
       >
-        <GrowCollapseItem
-          v-for="table in state.groupedTables"
-          :key="table.code"
-          :name="table.code"
-        >
-          <template #title>
-            <ColumnTableHeader :table="table" :state="rawState" />
-          </template>
-          <template #header>
-            <ColumnTableHeader :table="table" :state="rawState" />
-          </template>
-          <div v-if="!table.items.length" class="column-list-panel__empty column-list-panel__empty--compact">
-            该表暂无列，点击加号添加
-          </div>
-          <div v-else class="column-list-panel__list">
-            <div
-              v-for="row in table.items"
-              :key="row.id"
-              class="column-list-panel__item"
-              :class="{ 'is-disabled': !row.enabled }"
-            >
-              <div class="column-list-panel__item-main">
-                <div class="column-list-panel__item-title">{{ row.title }}</div>
-                <div class="column-list-panel__item-meta">
-                  {{ row.code }} · {{ columnTypeLabel(row.columnType) }} · 排序 {{ row.sort }}
-                </div>
-                <div class="column-list-panel__flags">
-                  <GrowTag v-if="row.columnPermission" size="small">列权限</GrowTag>
-                  <GrowTag v-if="row.formFill" type="success" size="small">表单填写</GrowTag>
-                  <GrowTag v-if="row.queryFilter" type="warning" size="small">查询条件</GrowTag>
-                </div>
-                <div v-if="row.description" class="column-list-panel__item-description">
-                  {{ row.description }}
-                </div>
+        <div class="column-list-panel__tables">
+          <div v-for="(table, tableIndex) in state.tables" :key="table.uid" class="column-list-panel__table">
+            <div class="column-list-panel__table-head">
+              <div class="column-list-panel__fields column-list-panel__fields--table">
+                <GrowFormItem
+                  label="表名称"
+                  required
+                  :prop="`tables.${tableIndex}.title`"
+                  :rules="state.titleRules"
+                >
+                  <GrowInput v-model="table.title" maxlength="64" clearable placeholder="如 角色列表" />
+                </GrowFormItem>
+                <GrowFormItem
+                  label="表标识"
+                  required
+                  :prop="`tables.${tableIndex}.code`"
+                  :rules="state.tableCodeRules(table.uid)"
+                >
+                  <GrowInput v-model="table.code" maxlength="64" clearable placeholder="如 role_list" />
+                </GrowFormItem>
+                <GrowFormItem label="说明">
+                  <GrowInput v-model="table.description" maxlength="200" clearable placeholder="选填" />
+                </GrowFormItem>
               </div>
               <div class="column-list-panel__actions">
-                <GrowTooltip :content="row.enabled ? '停用' : '启用'" placement="top">
-                  <span class="column-list-panel__switch">
-                    <GrowSwitch
-                      :model-value="row.enabled"
-                      size="small"
-                      @update:model-value="(value) => state.onToggleEnabled(row, Boolean(value))"
-                    />
-                  </span>
-                </GrowTooltip>
-                <GrowTooltip content="编辑" placement="top">
-                  <GrowButton class="column-list-panel__icon-btn" link type="primary" @click="state.openEdit(row)">
-                    <GrowIconify icon="ant-design:edit-outlined" :size="16" />
+                <GrowTooltip content="新增列" placement="top">
+                  <GrowButton class="column-list-panel__icon-btn" link type="primary" @click="state.addColumn(table)">
+                    <GrowIconify icon="ant-design:plus-outlined" :size="16" />
                   </GrowButton>
                 </GrowTooltip>
-                <GrowTooltip content="删除" placement="top">
-                  <GrowButton class="column-list-panel__icon-btn" link type="danger" @click="state.onDelete(row)">
+                <GrowTooltip content="删除表" placement="top">
+                  <GrowButton class="column-list-panel__icon-btn" link type="danger" @click="state.onDeleteTable(table)">
                     <GrowIconify icon="ant-design:delete-outlined" :size="16" />
                   </GrowButton>
                 </GrowTooltip>
               </div>
             </div>
+
+            <div v-if="!columnsOf(table.uid).length" class="column-list-panel__column-empty">
+              暂无列，点击右侧加号添加
+            </div>
+            <div v-else class="column-list-panel__list">
+              <div
+                v-for="row in columnsOf(table.uid)"
+                :key="row.id"
+                class="column-list-panel__item"
+                :class="{ 'is-disabled': !row.enabled }"
+              >
+                <div class="column-list-panel__fields column-list-panel__fields--column">
+                  <GrowFormItem
+                    label="名称"
+                    required
+                    :prop="`items.${state.itemIndex(row.id)}.title`"
+                    :rules="state.titleRules"
+                  >
+                    <GrowInput v-model="row.title" maxlength="64" clearable placeholder="如 标题" />
+                  </GrowFormItem>
+                  <GrowFormItem
+                    label="标识"
+                    required
+                    :prop="`items.${state.itemIndex(row.id)}.code`"
+                    :rules="state.columnCodeRules(row.id, table.uid)"
+                  >
+                    <GrowInput v-model="row.code" maxlength="64" clearable placeholder="如 title" />
+                  </GrowFormItem>
+                  <GrowFormItem
+                    label="类型"
+                    required
+                    :prop="`items.${state.itemIndex(row.id)}.columnType`"
+                    :rules="state.columnTypeRules"
+                  >
+                    <GrowSelect
+                      v-model="row.columnType"
+                      :options="COLUMN_TYPE_OPTIONS"
+                      label="label"
+                      value="value"
+                      placeholder="请选择"
+                    />
+                  </GrowFormItem>
+                  <GrowFormItem label="说明">
+                    <GrowInput v-model="row.description" maxlength="200" clearable placeholder="选填" />
+                  </GrowFormItem>
+                </div>
+                <div class="column-list-panel__item-side">
+                  <label class="column-list-panel__switch">
+                    <span>启用</span>
+                    <GrowSwitch
+                      :model-value="row.enabled"
+                      size="small"
+                      @update:model-value="(value) => state.onToggleEnabled(row, Boolean(value))"
+                    />
+                  </label>
+                  <label class="column-list-panel__switch">
+                    <span>列权限</span>
+                    <GrowSwitch v-model="row.columnPermission" size="small" />
+                  </label>
+                  <label class="column-list-panel__switch">
+                    <span>表单填写</span>
+                    <GrowSwitch v-model="row.formFill" size="small" />
+                  </label>
+                  <label class="column-list-panel__switch">
+                    <span>查询条件</span>
+                    <GrowSwitch v-model="row.queryFilter" size="small" />
+                  </label>
+                  <GrowTooltip content="删除" placement="top">
+                    <GrowButton class="column-list-panel__icon-btn" link type="danger" @click="state.onDelete(row)">
+                      <GrowIconify icon="ant-design:delete-outlined" :size="16" />
+                    </GrowButton>
+                  </GrowTooltip>
+                </div>
+              </div>
+            </div>
           </div>
-        </GrowCollapseItem>
-      </GrowCollapse>
+        </div>
+      </GrowForm>
     </GrowScrollbar>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { proxyRefs, ref, watch } from 'vue'
-import { columnTypeLabel } from '../../../../types/systemMenuColumn'
-import ColumnTableHeader from './ColumnTableHeader.vue'
+import { proxyRefs } from 'vue'
+import { COLUMN_TYPE_OPTIONS } from '../../../../types/systemMenuColumn'
 import type { useMenuColumns } from './useMenuColumns'
 
 defineOptions({ name: 'ColumnListPanel' })
@@ -90,25 +144,11 @@ const props = defineProps<{
   state: ReturnType<typeof useMenuColumns>
 }>()
 
-const rawState = props.state
+const formRef = props.state.formRef
 const state = proxyRefs(props.state)
-const expandedNames = ref<string[]>([])
 
-watch(
-  () => state.groupedTables.map((item) => item.code).join('\0'),
-  (next, prev) => {
-    const codes = next ? next.split('\0') : []
-    const codeSet = new Set(codes)
-    const kept = expandedNames.value.filter((code) => codeSet.has(code))
-    const prevSet = new Set((prev || '').split('\0').filter(Boolean))
-    const added = codes.filter((code) => !prevSet.has(code))
-    expandedNames.value = [...new Set([...kept, ...added])]
-  },
-  { immediate: true },
-)
-
-function onExpandChange(value: string | string[]) {
-  expandedNames.value = Array.isArray(value) ? value.map(String) : (value ? [String(value)] : [])
+function columnsOf(tableUid: string) {
+  return state.list.filter((item) => item.tableUid === tableUid)
 }
 </script>
 
@@ -120,104 +160,121 @@ function onExpandChange(value: string | string[]) {
 }
 
 .column-list-panel__empty {
-  padding: 48px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 420px;
+}
+
+.column-list-panel__form {
+  width: 100%;
+}
+
+.column-list-panel__tables {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.column-list-panel__table {
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--layout-color);
+}
+
+.column-list-panel__table-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.column-list-panel__fields {
+  display: grid;
+  flex: 1;
+  gap: 10px 12px;
+  min-width: 0;
+}
+
+.column-list-panel__fields--table {
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.4fr) minmax(0, 0.8fr);
+}
+
+.column-list-panel__fields--column {
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.3fr) minmax(140px, 0.9fr) minmax(0, 0.8fr);
+}
+
+.column-list-panel__form :deep(.el-form-item) {
+  margin-bottom: 0;
+}
+
+.column-list-panel__form :deep(.el-form-item__label) {
+  height: auto;
+  margin-bottom: 4px;
+  padding: 0;
+  color: var(--text-color-secondary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.column-list-panel__form :deep(.el-form-item__error) {
+  position: static;
+  padding-top: 2px;
+}
+
+.column-list-panel__form :deep(.el-select) {
+  width: 100%;
+}
+
+.column-list-panel__item.is-disabled :deep(.el-form-item__label) {
+  color: var(--text-color-secondary);
+}
+
+.column-list-panel__column-empty {
+  padding: 16px 0 4px;
   color: var(--text-color-secondary);
   font-size: 13px;
-  text-align: center;
   line-height: 1.6;
-}
-
-.column-list-panel__empty--compact {
-  padding: 16px 8px;
-}
-
-.column-list-panel__collapse :deep(.el-collapse),
-.column-list-panel__collapse :deep(.el-collapse-item__wrap),
-.column-list-panel__collapse :deep(.el-collapse-item__header) {
-  --el-collapse-border-color: var(--layout-border-color, var(--border-color));
-  border-color: var(--layout-border-color, var(--border-color));
-  background-color: transparent;
-}
-
-.column-list-panel__collapse :deep(.el-collapse-item__header) {
-  height: auto;
-  min-height: 40px;
-  padding: 8px 12px;
-  line-height: 1.4;
-}
-
-.column-list-panel__collapse :deep(.el-collapse-item__title) {
-  flex: 1 1 auto;
-  overflow: hidden;
-}
-
-.column-list-panel__collapse :deep(.el-collapse-item__content) {
-  padding-bottom: 12px;
 }
 
 .column-list-panel__list {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-top: 12px;
 }
 
 .column-list-panel__item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
   padding: 12px;
   border-radius: 8px;
-  background: var(--layout-color);
+  background: var(--layout-container-background-color);
 }
 
-.column-list-panel__item.is-disabled .column-list-panel__item-title {
-  color: var(--text-color-secondary);
-}
-
-.column-list-panel__item-main {
-  flex: 1;
-  min-width: 0;
-}
-
-.column-list-panel__item-title {
-  overflow: hidden;
-  color: var(--text-color);
-  font-size: 14px;
-  line-height: 1.4;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.column-list-panel__item-meta,
-.column-list-panel__item-description {
-  margin-top: 4px;
-  overflow: hidden;
-  color: var(--text-color-secondary);
-  font-size: 12px;
-  line-height: 1.5;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.column-list-panel__flags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin-top: 5px;
-}
-
+.column-list-panel__item-side,
 .column-list-panel__actions {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   flex-shrink: 0;
   gap: 8px;
 }
 
+.column-list-panel__actions {
+  align-items: center;
+  padding-top: 22px;
+}
+
 .column-list-panel__switch {
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 28px;
+  justify-content: flex-end;
+  gap: 6px;
+  min-width: 48px;
+  color: var(--text-color-secondary);
+  font-size: 12px;
+  line-height: 18px;
 }
 
 .column-list-panel__icon-btn {
