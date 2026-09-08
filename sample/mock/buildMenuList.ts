@@ -22,12 +22,17 @@ import {
   mergeSystemMenuWithStructure,
   SYSTEM_ROUTE_STRUCTURES,
 } from '@grow-admin-cornerstone/apps-system/route-config'
+import {
+  mergeTenantMenuWithStructure,
+  TENANT_ROUTE_STRUCTURES,
+} from '@grow-admin-cornerstone/apps-tenant/route-config'
 import { MENU_LIST } from './menuList'
 import { EXTERNAL_MENU_LIST } from './externalMenuList'
 import { FEAT_MENU_LIST } from './featMenuList'
 import { SANDBOX_MENU_LIST } from './sandboxMenuList'
 import { DESIGNER_MENU_LIST } from './designerMenuList'
 import { SYSTEM_MENU_LIST } from './systemMenuList'
+import { TENANT_MENU_LIST } from './tenantMenuList'
 
 type SortableMenu = {
   sort?: number
@@ -44,7 +49,7 @@ function sortMenuTree<T extends SortableMenu>(nodes: T[]): T[] {
     }))
 }
 
-/** 侧边栏 /menu/list 的静态合并结果，菜单管理页会再拷一份独立数据 */
+/** 侧边栏 /menu/list 静态合并；菜单管理页会再拷一份独立数据。 */
 export function buildBackMenuList() {
   return sortMenuTree([
     ...mergeMenuWithStructure(MENU_LIST, WORKSPACE_ROUTE_STRUCTURES),
@@ -53,5 +58,6 @@ export function buildBackMenuList() {
     ...mergeExternalMenuWithStructure(EXTERNAL_MENU_LIST, EXTERNAL_ROUTE_STRUCTURES),
     ...mergeFeatMenuWithStructure(FEAT_MENU_LIST, FEAT_ROUTE_STRUCTURES),
     ...mergeSystemMenuWithStructure(SYSTEM_MENU_LIST, SYSTEM_ROUTE_STRUCTURES),
+    ...mergeTenantMenuWithStructure(TENANT_MENU_LIST, TENANT_ROUTE_STRUCTURES),
   ])
 }

@@ -43,6 +43,14 @@ import {
   toSystemRouteConfigsFromMenu,
   type SystemRouteConfig,
 } from '@grow-admin-cornerstone/apps-system'
+import {
+  TENANT_ROUTE_AUTHORITY,
+  isTenantRouteConfig,
+  resolveTenantPageComponentName,
+  resolveTenantRoute,
+  toTenantRouteConfigsFromMenu,
+  type TenantRouteConfig,
+} from '@grow-admin-cornerstone/apps-tenant'
 import { resolveByKeyOrThrow } from '@grow-admin-rock/ioc'
 import {
   resolveTabCacheName,
@@ -62,7 +70,7 @@ const HOME_ROUTE_NAME = 'Home'
 const HOME_PATH = '/home'
 const HOME_INDEX_REDIRECT_NAME = 'HomeIndexRedirect'
 
-type DynamicRouteConfig = WorkspaceRouteConfig | FeatRouteConfig | SandboxRouteConfig | DesignerRouteConfig | SystemRouteConfig
+type DynamicRouteConfig = WorkspaceRouteConfig | FeatRouteConfig | SandboxRouteConfig | DesignerRouteConfig | SystemRouteConfig | TenantRouteConfig
 
 function routeTable() {
   return resolveByKeyOrThrow(routeLib.types.RouteTable)
@@ -139,6 +147,9 @@ function resolveMetaComponentName(config: DynamicRouteConfig, routeName: string)
     if (isSystemRouteConfig(config)) {
       return resolveSystemPageComponentName(config.componentKey)
     }
+    if (isTenantRouteConfig(config)) {
+      return resolveTenantPageComponentName(config.componentKey)
+    }
   }
   return routeName
 }
@@ -162,6 +173,9 @@ function resolveDynamicRoute(config: DynamicRouteConfig, fullPath: string) {
   }
   if (isSystemRouteConfig(config)) {
     return resolveSystemRoute(config, fullPath)
+  }
+  if (isTenantRouteConfig(config)) {
+    return resolveTenantRoute(config, fullPath)
   }
   return resolveWorkspaceRoute(config as WorkspaceRouteConfig, fullPath)
 }
@@ -275,6 +289,7 @@ function buildFrontConfigs(roleValues: string[]): DynamicRouteConfig[] {
     ...toSandboxRouteConfigsFromMenu(),
     ...toDesignerRouteConfigsFromMenu(),
     ...filterConfigsByRoles(toSystemRouteConfigsFromMenu(), roleValues, SYSTEM_ROUTE_AUTHORITY),
+    ...filterConfigsByRoles(toTenantRouteConfigsFromMenu(), roleValues, TENANT_ROUTE_AUTHORITY),
   ]
 }
 
