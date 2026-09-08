@@ -228,9 +228,6 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { GrowSearchBar } from '@grow-admin-rock/components/search-bar'
-import { GrowColumnBar } from '@grow-admin-rock/components/column-bar'
-import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
 import type { SystemPostListItem } from '../../types/systemPost'
 import PostFormDrawer from './components/PostFormDrawer.vue'
 import PostDetailDrawer from './components/PostDetailDrawer.vue'
