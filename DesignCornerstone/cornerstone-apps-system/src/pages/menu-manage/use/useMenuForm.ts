@@ -39,6 +39,7 @@ type FormModel = {
 type UseMenuFormOptions = {
   sourceTree: { value: SystemMenuNode[] }
   onSuccess: () => void | Promise<void>
+  allowHierarchy: boolean
 }
 
 const LOWCODE_PAGE_OPTIONS = [
@@ -125,6 +126,7 @@ export function useMenuForm(options: UseMenuFormOptions) {
   const isAppMenu = computed(() => isMenu.value && formModel.menuKind === 'app')
   const isAutomationMenu = computed(() => isMenu.value && formModel.menuKind === 'automation')
   const isExternalMenu = computed(() => isMenu.value && formModel.menuKind === 'external')
+  const showMenuType = computed(() => options.allowHierarchy)
   const showPath = computed(() => !isExternalMenu.value)
   const showComponentKey = computed(() => isAppMenu.value || isAutomationMenu.value)
 
@@ -297,7 +299,7 @@ export function useMenuForm(options: UseMenuFormOptions) {
     formMode.value = 'create'
     originalName.value = ''
     applyForm({
-      ...emptyForm(menuType),
+      ...emptyForm(options.allowHierarchy ? menuType : MenuTypeEnum.MENU),
       parentName,
     })
     formVisible.value = true
@@ -315,7 +317,7 @@ export function useMenuForm(options: UseMenuFormOptions) {
     const customComponentKey = menuKind === 'automation'
       || (menuKind === 'app' && Boolean(storedKey && storedKey !== row.name))
     applyForm({
-      parentName: findParentName(options.sourceTree.value, row.name),
+      parentName: row.parentName ?? findParentName(options.sourceTree.value, row.name),
       name: row.name,
       title: row.title,
       path: row.path,
@@ -461,6 +463,7 @@ export function useMenuForm(options: UseMenuFormOptions) {
   }
 
   return {
+    allowHierarchy: options.allowHierarchy,
     formVisible,
     formMode,
     formSubmitting,
@@ -471,6 +474,7 @@ export function useMenuForm(options: UseMenuFormOptions) {
     isAppMenu,
     isAutomationMenu,
     isExternalMenu,
+    showMenuType,
     showPath,
     showComponentKey,
     onCustomComponentKeyChange,

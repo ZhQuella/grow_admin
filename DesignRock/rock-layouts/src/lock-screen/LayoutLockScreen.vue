@@ -3,7 +3,7 @@
     <Transition name="layout-lock-slide">
       <div
         v-if="isLock"
-        class="layout-lock-screen fixed inset-0 z-[900] flex items-center justify-center"
+        class="layout-lock-screen fixed inset-0 flex items-center justify-center"
       >
         <div class="layout-lock-screen__clock pointer-events-none absolute bottom-10 left-10 select-none">
           <div class="text-[24px] font-semibold leading-none tracking-wide text-text">
@@ -199,6 +199,7 @@ async function handleUnlock() {
 
 <style scoped>
 .layout-lock-screen {
+  z-index: 2147483647;
   background-color: var(--lock-screen-overlay-color);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);

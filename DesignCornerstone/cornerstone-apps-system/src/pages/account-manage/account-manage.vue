@@ -408,7 +408,7 @@ async function copyResetPassword() {
 
 .account-manage__actions {
   flex-wrap: nowrap;
-  gap: 2px;
+  gap: 10px;
 }
 
 .account-manage__icon-btn,
@@ -422,6 +422,12 @@ async function copyResetPassword() {
   margin: 0;
   padding: 0;
   line-height: 1;
+}
+
+.account-manage__icon-btn {
+  width: auto;
+  height: auto;
+  padding: 2px;
 }
 
 .account-manage__square-btn {

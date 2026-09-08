@@ -173,9 +173,6 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { GrowSearchBar } from '@grow-admin-rock/components/search-bar'
-import { GrowColumnBar } from '@grow-admin-rock/components/column-bar'
-import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
 import {
   canPersonAction,
   employeeStatusLabel,
@@ -353,7 +350,7 @@ function openEvent(mode: PersonEventMode, row: SystemPersonListItem) {
 .person-manage__actions {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 10px;
   flex-wrap: nowrap;
 }
 

@@ -37,7 +37,6 @@
 
 <script lang="ts" setup>
 import { onMounted, ref, watch } from 'vue'
-import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
 import { useEcharts } from '@grow-admin-rock/hooks'
 import OrgChartDetail from './components/OrgChartDetail.vue'
 import { useOrgChart } from './use/useOrgChart'

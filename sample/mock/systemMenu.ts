@@ -16,6 +16,7 @@ import {
 } from './systemRole'
 
 type MenuNode = {
+  parentName?: string
   name: string
   title: string
   path: string
@@ -263,6 +264,13 @@ function seedFunctions() {
     { id: 'pos_edit', menuName: 'PositionManage', title: '编辑', code: 'edit', group: '基础操作', description: '', sort: 30, enabled: true },
     { id: 'pos_status', menuName: 'PositionManage', title: '启用/停用', code: 'status', group: '基础操作', description: '', sort: 40, enabled: true },
     { id: 'org_query', menuName: 'OrgChart', title: '查询', code: 'query', group: '基础操作', description: '', sort: 10, enabled: true },
+    { id: 'tf_query', menuName: 'TenantManage', title: '查询', code: 'query', group: '基础操作', description: '', sort: 10, enabled: true },
+    { id: 'tf_create', menuName: 'TenantManage', title: '新增', code: 'create', group: '基础操作', description: '', sort: 20, enabled: true },
+    { id: 'tf_edit', menuName: 'TenantManage', title: '编辑', code: 'edit', group: '基础操作', description: '', sort: 30, enabled: true },
+    { id: 'tf_grant', menuName: 'TenantManage', title: '授权', code: 'grant', group: '治理操作', description: '', sort: 40, enabled: true },
+    { id: 'tf_lifecycle', menuName: 'TenantManage', title: '试用/开通/停用', code: 'lifecycle', group: '治理操作', description: '', sort: 50, enabled: true },
+    { id: 'tf_clear', menuName: 'TenantManage', title: '清空数据', code: 'clear', group: '高风险操作', description: '', sort: 60, enabled: true },
+    { id: 'tf_delete', menuName: 'TenantManage', title: '删除', code: 'delete', group: '高风险操作', description: '', sort: 70, enabled: true },
   ]
   for (const item of seeds) {
     if (!functionStore.has(item.id)) {
@@ -494,6 +502,7 @@ function seedColumns() {
     { menuName: 'DeptManage', code: 'dept_detail', title: '部门详情', description: '', sort: 10 },
     { menuName: 'PostManage', code: 'post_list', title: '岗位列表', description: '', sort: 10 },
     { menuName: 'PositionManage', code: 'position_list', title: '职级列表', description: '', sort: 10 },
+    { menuName: 'TenantManage', code: 'tenant_list', title: '租户列表', description: '', sort: 10 },
   ]
   const legacySeeds: Array<Omit<MenuColumn, 'columnPermission' | 'formFill' | 'queryFilter' | 'sort' | 'description'>> = [
     { id: 'mc_title', menuName: 'MenuManage', tableCode: 'menu_list', title: '标题', code: 'title', columnType: 'string', enabled: true },
@@ -535,6 +544,10 @@ function seedColumns() {
     { id: 'posc_code', menuName: 'PositionManage', tableCode: 'position_list', title: '编码', code: 'code', columnType: 'string', enabled: true },
     { id: 'posc_level', menuName: 'PositionManage', tableCode: 'position_list', title: '层级', code: 'level', columnType: 'number', enabled: true },
     { id: 'posc_enabled', menuName: 'PositionManage', tableCode: 'position_list', title: '状态', code: 'enabled', columnType: 'boolean', enabled: true },
+    { id: 'tc_code', menuName: 'TenantManage', tableCode: 'tenant_list', title: '租户编码', code: 'tenantCode', columnType: 'string', enabled: true },
+    { id: 'tc_name', menuName: 'TenantManage', tableCode: 'tenant_list', title: '租户名称', code: 'tenantName', columnType: 'string', enabled: true },
+    { id: 'tc_status', menuName: 'TenantManage', tableCode: 'tenant_list', title: '状态', code: 'status', columnType: 'select', enabled: true },
+    { id: 'tc_expired', menuName: 'TenantManage', tableCode: 'tenant_list', title: '到期时间', code: 'expiredAt', columnType: 'date', enabled: true },
   ]
   for (const item of tables) {
     tableStore.set(tableKey(item.menuName, item.code), item)
@@ -567,6 +580,15 @@ function normalizeNode(node: MenuNode): MenuNode {
     delete next.children
   }
   return next
+}
+
+function flattenLeafNodes(nodes: MenuNode[], parentName?: string): MenuNode[] {
+  return nodes.flatMap((node) => {
+    if (node.children?.length) {
+      return flattenLeafNodes(node.children, node.name)
+    }
+    return [{ ...normalizeNode(node), parentName }]
+  })
 }
 
 function pickNodeFields(payload: Recordable<any>, name: string): MenuNode | string {
@@ -608,6 +630,12 @@ function pickNodeFields(payload: Recordable<any>, name: string): MenuNode | stri
 }
 
 const mocks: MockMethod[] = [
+  {
+    url: mockUrl('/platform/application-functions/list'),
+    method: 'post',
+    timeout: 80,
+    response: () => resultSuccess(flattenLeafNodes(clone(getStore()))),
+  },
   {
     url: mockUrl('/system/menus/tree'),
     method: 'post',

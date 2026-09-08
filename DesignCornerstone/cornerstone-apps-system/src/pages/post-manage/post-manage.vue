@@ -149,7 +149,7 @@
                   <span v-else>-</span>
                 </template>
               </GrowTableColumn>
-              <GrowTableColumn v-if="isColumnVisible('postActions')" prop="postActions" label="操作" width="128" align="center">
+              <GrowTableColumn v-if="isColumnVisible('postActions')" prop="postActions" label="操作" width="130" align="center">
                 <template #default="{ row }">
                   <div v-if="row.post" class="post-manage__actions">
                     <GrowTooltip
@@ -195,7 +195,7 @@
                 </GrowTag>
               </template>
             </GrowTableColumn>
-            <GrowTableColumn v-if="isColumnVisible('deptActions')" prop="deptActions" label="操作" width="80" align="center" fixed="right">
+            <GrowTableColumn v-if="isColumnVisible('deptActions')" prop="deptActions" label="操作" width="60" align="center" fixed="right">
               <template #default="{ row }">
                 <GrowTooltip
                   :content="row.deptEnabled ? '新增岗位' : '停用部门不能新增岗位'"
@@ -228,9 +228,6 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { GrowSearchBar } from '@grow-admin-rock/components/search-bar'
-import { GrowColumnBar } from '@grow-admin-rock/components/column-bar'
-import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
 import type { SystemPostListItem } from '../../types/systemPost'
 import PostFormDrawer from './components/PostFormDrawer.vue'
 import PostDetailDrawer from './components/PostDetailDrawer.vue'
@@ -346,7 +343,7 @@ const {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 10px;
   flex-wrap: nowrap;
 }
 
@@ -355,10 +352,10 @@ const {
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  width: 28px;
-  height: 28px;
+  width: auto;
+  height: auto;
   margin: 0;
-  padding: 0;
+  padding: 2px;
   line-height: 1;
 }
 

@@ -6,11 +6,17 @@ import { useMenuColumns } from '../components/MenuColumnConfig/useMenuColumns'
 import { useMenuFunctions } from '../components/MenuFunctionConfig/useMenuFunctions'
 import { menuTypeLabel, menuTypeTagType } from './helpers'
 
-export function useMenuManage() {
-  const table = useMenuTable()
+type UseMenuManageOptions = {
+  allowHierarchy?: boolean
+}
+
+export function useMenuManage(options: UseMenuManageOptions = {}) {
+  const allowHierarchy = options.allowHierarchy !== false
+  const table = useMenuTable({ allowHierarchy })
   const form = useMenuForm({
     sourceTree: table.sourceTree,
     onSuccess: table.loadList,
+    allowHierarchy,
   })
   const actions = useMenuActions({ onSuccess: table.loadList })
   const functionConfig = useMenuFunctions()

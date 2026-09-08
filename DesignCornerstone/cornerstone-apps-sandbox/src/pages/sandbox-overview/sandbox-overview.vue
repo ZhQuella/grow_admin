@@ -242,7 +242,7 @@ function genId() {
 }
 .sandbox-demo__actions {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
   flex-wrap: wrap;
 }

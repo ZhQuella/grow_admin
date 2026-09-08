@@ -16,6 +16,12 @@ export function fetchSystemMenuTree() {
   })
 }
 
+export function fetchApplicationFunctionList() {
+  return useRequest().post<SystemMenuNode[]>({
+    url: '/platform/application-functions/list',
+  })
+}
+
 export function createSystemMenu(data: SystemMenuCreatePayload) {
   return useRequest().post<SystemMenuNode>({
     url: '/system/menus',

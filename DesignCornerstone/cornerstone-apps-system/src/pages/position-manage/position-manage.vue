@@ -284,7 +284,7 @@ const {
 .position-manage__actions {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 10px;
   flex-wrap: nowrap;
 }
 
@@ -293,10 +293,10 @@ const {
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  width: 28px;
-  height: 28px;
+  width: auto;
+  height: auto;
   margin: 0;
-  padding: 0;
+  padding: 2px;
   line-height: 1;
 }
 

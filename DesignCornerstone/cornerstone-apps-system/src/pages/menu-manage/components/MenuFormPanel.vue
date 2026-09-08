@@ -7,7 +7,7 @@
     label-width="88px"
   >
     <GrowRow :gutter="16">
-      <GrowCol :span="24">
+      <GrowCol v-if="state.allowHierarchy" :span="24">
         <GrowFormItem label="挂载位置" prop="parentName">
           <GrowTreeSelect
             v-model="state.formModel.parentName"
@@ -21,12 +21,12 @@
           />
         </GrowFormItem>
       </GrowCol>
-      <GrowCol :span="12">
+      <GrowCol v-if="state.showMenuType" :span="12">
         <GrowFormItem label="类型" prop="menuType">
           <GrowRadioGroup v-model="state.formModel.menuType" :options="state.menuTypeOptions" />
         </GrowFormItem>
       </GrowCol>
-      <GrowCol :span="12">
+      <GrowCol v-if="state.showMenuType" :span="12">
         <GrowFormItem label="排序" prop="sort">
           <GrowInputNumber v-model="state.formModel.sort" :min="0" :max="9999" controls-position="right" />
         </GrowFormItem>
