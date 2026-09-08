@@ -498,7 +498,7 @@ const {
 .data-prep-asset-manage__actions {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 10px;
   flex-wrap: nowrap;
 }
 </style>

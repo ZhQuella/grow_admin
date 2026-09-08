@@ -76,7 +76,7 @@ export function usePositionTable() {
     { title: '排序号', field: 'sort', visible: true, minWidth: 80 },
     { title: '状态', field: 'enabled', visible: true, minWidth: 90 },
     { title: '任职人数', field: 'assignmentCount', visible: true, minWidth: 90 },
-    { title: '操作', field: 'actions', visible: true, minWidth: 120, fixed: 'right' },
+    { title: '操作', field: 'actions', visible: true, minWidth: 80, fixed: 'right' },
   ])
 
   const leafColumns = computed(() => collectLeafColumns(tableColumns.value))

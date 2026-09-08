@@ -262,6 +262,7 @@ function columnsOf(tableUid: string) {
 
 .column-list-panel__actions {
   align-items: center;
+  gap: 10px;
   padding-top: 22px;
 }
 

@@ -105,7 +105,7 @@ export function useTenantAccountTable() {
     { title: '手机号', field: 'mobile', visible: false, minWidth: 130 },
     { title: '邮箱', field: 'email', visible: false, minWidth: 170 },
     { title: '备注', field: 'remark', visible: false, minWidth: 160 },
-    { title: '操作', field: 'actions', visible: true, minWidth: 140, fixed: 'right' },
+    { title: '操作', field: 'actions', visible: true, minWidth: 110, fixed: 'right' },
   ])
 
   const leafColumns = computed(() => collectLeafColumns(tableColumns.value))

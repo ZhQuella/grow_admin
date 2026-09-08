@@ -31,6 +31,7 @@ export {
 
 const TENANT_COMPONENTS: Record<string, GrowRouteComponent> = {
   TenantManage: () => import('../pages/tenant-manage/tenant-manage.vue'),
+  ApplicationFunction: () => import('../pages/application-function/application-function.vue'),
   TenantMenu: () => import('../pages/tenant-menu/tenant-menu.vue'),
   TenantAdminRole: () => import('../pages/tenant-admin-role/tenant-admin-role.vue'),
   TenantAccount: () => import('../pages/tenant-account/tenant-account.vue'),

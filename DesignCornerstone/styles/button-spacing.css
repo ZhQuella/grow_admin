@@ -1,0 +1,39 @@
+:where(.el-button, .ant-btn, .n-button) + :where(.el-button, .ant-btn, .n-button) {
+  margin-inline-start: 10px !important;
+}
+
+:where(.el-button-group, .ant-btn-group, .n-button-group)
+  > :where(.el-button, .ant-btn, .n-button)
+  + :where(.el-button, .ant-btn, .n-button) {
+  margin-inline-start: 0 !important;
+}
+
+:where(.el-space, .ant-space, .n-space):has(button) {
+  column-gap: 10px !important;
+}
+
+:where(
+    [class*='__buttons'],
+    [class*='__toolbar-left'],
+    [class*='__toolbar-options']
+  ):has(button) {
+  column-gap: 10px !important;
+}
+
+:where([class*='actions']) {
+  column-gap: 0 !important;
+}
+
+:where([class*='actions']) > * + * {
+  margin-inline-start: 10px !important;
+}
+
+:where(
+    [class*='__buttons'],
+    [class*='__toolbar-left'],
+    [class*='__toolbar-options']
+  )
+  > :where(.el-button, .ant-btn, .n-button)
+  + :where(.el-button, .ant-btn, .n-button) {
+  margin-inline-start: 0 !important;
+}

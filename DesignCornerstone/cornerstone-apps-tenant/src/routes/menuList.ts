@@ -20,6 +20,15 @@ export const TENANT_MENU_LIST: TenantMenuApiItem[] = [
         sort: 10,
       },
       {
+        name: 'ApplicationFunction',
+        title: '应用功能',
+        icon: 'ant-design:appstore-add-outlined',
+        menuType: MenuTypeEnum.MENU,
+        isVisible: true,
+        isKeepAlive: true,
+        sort: 12,
+      },
+      {
         name: 'TenantMenu',
         title: '租户菜单',
         icon: 'ant-design:menu-outlined',

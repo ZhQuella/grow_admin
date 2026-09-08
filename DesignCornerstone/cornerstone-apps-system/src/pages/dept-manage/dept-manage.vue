@@ -296,7 +296,7 @@ const tableColumns = ref<DeptTableColumn[]>([
   { title: '排序', field: 'sort', visible: true, minWidth: 70 },
   { title: '状态', field: 'status', visible: true, minWidth: 80 },
   { title: '更新时间', field: 'updatedAt', visible: false, minWidth: 170 },
-  { title: '操作', field: 'actions', visible: true, minWidth: 220, fixed: 'right' },
+  { title: '操作', field: 'actions', visible: true, minWidth: 200, fixed: 'right' },
 ])
 
 function collectLeafColumns(list: DeptTableColumn[]): DeptTableColumn[] {
@@ -516,7 +516,7 @@ loadTree()
 .dept-manage__actions {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 10px;
   flex-wrap: nowrap;
 }
 
@@ -525,10 +525,10 @@ loadTree()
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  width: 28px;
-  height: 28px;
+  width: auto;
+  height: auto;
   margin: 0;
-  padding: 0;
+  padding: 2px;
   line-height: 1;
 }
 

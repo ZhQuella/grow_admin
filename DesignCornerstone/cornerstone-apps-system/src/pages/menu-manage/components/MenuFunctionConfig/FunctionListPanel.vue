@@ -146,7 +146,7 @@ const state = proxyRefs(props.state)
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  gap: 8px;
+  gap: 10px;
   padding-top: 22px;
 }
 

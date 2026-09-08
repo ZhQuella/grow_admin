@@ -218,12 +218,12 @@ export function usePostTable() {
         { title: '外包', field: 'contractorHeadcount', visible: true, width: 88 },
         { title: '超编', field: 'overstaffed', visible: true, width: 88 },
         { title: '岗位状态', field: 'postEnabled', visible: true, width: 96 },
-        { title: '操作', field: 'postActions', visible: true, width: 128 },
+        { title: '操作', field: 'postActions', visible: true, width: 110 },
       ],
     },
     { title: '直属岗位数', field: 'directPostCount', visible: true, width: 110 },
     { title: '部门状态', field: 'deptStatus', visible: true, width: 96 },
-    { title: '操作', field: 'deptActions', visible: true, width: 80, fixed: 'right' },
+    { title: '操作', field: 'deptActions', visible: true, width: 60, fixed: 'right' },
   ])
 
   const leafColumns = computed(() => collectLeafColumns(tableColumns.value))

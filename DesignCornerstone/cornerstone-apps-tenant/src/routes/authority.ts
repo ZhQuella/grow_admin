@@ -4,6 +4,7 @@
 export const TENANT_ROUTE_AUTHORITY: Record<string, string[]> = {
   TenantCatalog: ['super'],
   TenantManage: ['super'],
+  ApplicationFunction: ['super'],
   TenantMenu: ['super'],
   TenantAdminRole: ['super'],
   TenantAccount: ['super'],

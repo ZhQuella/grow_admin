@@ -591,7 +591,7 @@ function hasAction(row: SystemTenantListItem, action: TenantActionKey) {
 
 .tenant-manage__actions {
   flex-wrap: nowrap;
-  gap: 2px;
+  gap: 10px;
 }
 
 .tenant-manage__icon-btn {
@@ -599,10 +599,10 @@ function hasAction(row: SystemTenantListItem, action: TenantActionKey) {
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  width: 28px;
-  height: 28px;
+  width: auto;
+  height: auto;
   margin: 0;
-  padding: 0;
+  padding: 2px;
   line-height: 1;
 }
 

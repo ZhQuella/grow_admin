@@ -398,7 +398,7 @@ defineExpose({ open })
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  gap: 8px;
+  gap: 10px;
 }
 
 .role-menu-perm__sub,

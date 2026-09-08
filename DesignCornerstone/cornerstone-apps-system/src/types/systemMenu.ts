@@ -2,6 +2,7 @@ import { MenuTypeEnum, PageOpenModeEnum } from '@grow-admin-rock/constants'
 
 /** 与 GET /menu/list 合并后的节点字段对齐 */
 export type SystemMenuNode = {
+  parentName?: string
   name: string
   title: string
   path: string

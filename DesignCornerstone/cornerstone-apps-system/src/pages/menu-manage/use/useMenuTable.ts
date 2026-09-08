@@ -3,7 +3,10 @@ import type { SearchBarField } from '@grow-admin-rock/components/search-bar'
 import type { ColumnBarItem } from '@grow-admin-rock/components/column-bar'
 import { useMsg } from '@grow-admin-rock/components'
 import { MenuTypeEnum } from '@grow-admin-rock/constants'
-import { fetchSystemMenuTree } from '../../../api/systemMenu'
+import {
+  fetchApplicationFunctionList,
+  fetchSystemMenuTree,
+} from '../../../api/systemMenu'
 import type { SystemMenuNode } from '../../../types/systemMenu'
 import { filterMenuTree, sortMenuTree } from './helpers'
 
@@ -26,7 +29,11 @@ function collectLeafColumns(list: ManageTableColumn[]): ManageTableColumn[] {
   return result
 }
 
-export function useMenuTable() {
+type UseMenuTableOptions = {
+  allowHierarchy: boolean
+}
+
+export function useMenuTable(options: UseMenuTableOptions) {
   const message = useMsg()
 
   const loading = ref(false)
@@ -103,7 +110,7 @@ export function useMenuTable() {
     { title: '外链', field: 'isExternalPage', visible: false, minWidth: 80 },
     { title: '打开方式', field: 'openMode', visible: false, minWidth: 100 },
     { title: '链接', field: 'link', visible: false, minWidth: 160 },
-    { title: '操作', field: 'actions', visible: true, minWidth: 200, fixed: 'right' },
+    { title: '操作', field: 'actions', visible: true, minWidth: 170, fixed: 'right' },
   ])
 
   const leafColumns = computed(() => collectLeafColumns(tableColumns.value))
@@ -113,7 +120,9 @@ export function useMenuTable() {
   async function loadList() {
     loading.value = true
     try {
-      const data = await fetchSystemMenuTree()
+      const data = await (options.allowHierarchy
+        ? fetchSystemMenuTree()
+        : fetchApplicationFunctionList())
       sourceTree.value = sortMenuTree(Array.isArray(data) ? data : [])
       tableKey.value += 1
     } catch (error) {

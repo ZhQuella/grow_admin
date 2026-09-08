@@ -1,7 +1,6 @@
 <template>
   <div class="tenant-menu">
     <aside class="tenant-menu__aside">
-      <div class="tenant-menu__aside-head">租户</div>
       <GrowInput v-model="tenantKeyword" clearable placeholder="搜索编码 / 名称" />
       <div class="tenant-menu__list">
         <GrowScrollbar height="100%">
@@ -28,16 +27,24 @@
 
     <div class="tenant-menu__main">
       <GrowRow justify="space-between" class="tenant-menu__toolbar">
-        <GrowCol :span="14">
+        <GrowCol :span="16">
           <div class="tenant-menu__toolbar-left">
-            <span v-if="selectedTenant">
-              {{ selectedTenant.tenantName }}（{{ selectedTenant.tenantCode }}）
-            </span>
-            <span v-else>请选择租户</span>
-            <span class="tenant-menu__hint">只读，不可增删改</span>
+            <GrowButton :disabled="!selectedTenant" @click="openCreateDirectory">新增目录</GrowButton>
+            <GrowButton type="primary" :disabled="!selectedTenant" @click="openAddFunction">
+              添加应用功能
+            </GrowButton>
+            <GrowButton
+              type="success"
+              :disabled="!selectedTenant || !dirty"
+              :loading="saveLoading"
+              @click="saveAssembly"
+            >
+              保存配置
+            </GrowButton>
+            <span v-if="dirty" class="tenant-menu__hint">有未保存修改</span>
           </div>
         </GrowCol>
-        <GrowCol :span="10">
+        <GrowCol :span="8">
           <div class="tenant-menu__toolbar-options">
             <GrowSearchBar :search="searchList" @search="onSearch" />
             <GrowColumnBar :columns="tableColumns" @confirm="onColumnsConfirm" />
@@ -67,7 +74,7 @@
                 :width="col.width"
                 :min-width="col.minWidth || (col.width ? undefined : 120)"
                 :fixed="col.fixed"
-                :show-overflow-tooltip="true"
+                :show-overflow-tooltip="col.field !== 'actions'"
               >
                 <template #default="{ row }">
                   <template v-if="col.field === 'title'">
@@ -117,6 +124,20 @@
                   <template v-else-if="col.field === 'openMode'">
                     {{ openModeLabel(row.openMode) }}
                   </template>
+                  <template v-else-if="col.field === 'actions'">
+                    <div class="tenant-menu__actions">
+                      <GrowTooltip content="编辑" placement="top">
+                        <GrowButton link type="primary" @click="openEditItem(row)">
+                          <GrowIconify icon="ant-design:edit-outlined" :size="16" />
+                        </GrowButton>
+                      </GrowTooltip>
+                      <GrowTooltip content="移除" placement="top">
+                        <GrowButton link type="danger" @click="deleteItem(row)">
+                          <GrowIconify icon="ant-design:delete-outlined" :size="16" />
+                        </GrowButton>
+                      </GrowTooltip>
+                    </div>
+                  </template>
                   <template v-else>
                     {{ row[col.field] ?? '-' }}
                   </template>
@@ -127,14 +148,50 @@
         </GrowWatchBox>
       </div>
     </div>
+
+    <GrowDialog v-model="formVisible" :title="formTitle" width="520px" append-to-body destroy-on-close>
+      <GrowForm class="tenant-menu__form" :model="formModel" label-width="88px">
+        <GrowFormItem v-if="formKind === 'function'" label="应用功能" required>
+          <GrowSelect
+            v-model="formModel.functionName"
+            :options="functionOptions"
+            :disabled="formMode === 'edit'"
+            filterable
+            placeholder="请选择已授权功能"
+            @change="onFunctionChange"
+          />
+        </GrowFormItem>
+        <GrowFormItem label="显示名称" required>
+          <GrowInput v-model="formModel.title" maxlength="64" clearable />
+        </GrowFormItem>
+        <GrowFormItem label="挂载位置">
+          <GrowTreeSelect
+            v-model="formModel.parentName"
+            :data="parentTreeData"
+            :props="{ label: 'title', value: 'name', children: 'children' }"
+            check-strictly
+            clearable
+            filterable
+            default-expand-all
+            placeholder="不选则为根级"
+          />
+        </GrowFormItem>
+        <GrowFormItem label="排序">
+          <GrowInputNumber v-model="formModel.sort" :min="0" :max="9999" controls-position="right" />
+        </GrowFormItem>
+      </GrowForm>
+      <template #footer>
+        <GrowSpace>
+          <GrowButton @click="formVisible = false">取消</GrowButton>
+          <GrowButton type="primary" @click="submitAssemblyItem">确定</GrowButton>
+        </GrowSpace>
+      </template>
+    </GrowDialog>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { MenuTypeEnum } from '@grow-admin-rock/constants'
-import { GrowSearchBar } from '@grow-admin-rock/components/search-bar'
-import { GrowColumnBar } from '@grow-admin-rock/components/column-bar'
-import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
 import type { TenantMenuNode } from '../../types/systemTenantMenu'
 import { useTenantMenu } from './use/useTenantMenu'
 import {
@@ -159,12 +216,28 @@ const {
   filteredTenants,
   selectedTenantId,
   selectedTenant,
+  saveLoading,
+  dirty,
   tableData,
   tableKey,
   searchList,
   tableColumns,
   leafColumns,
+  formVisible,
+  formMode,
+  formKind,
+  formModel,
+  formTitle,
+  functionOptions,
+  parentTreeData,
   selectTenant,
+  openCreateDirectory,
+  openAddFunction,
+  openEditItem,
+  onFunctionChange,
+  submitAssemblyItem,
+  deleteItem,
+  saveAssembly,
   onSearch,
   onColumnsConfirm,
 } = useTenantMenu()
@@ -298,6 +371,18 @@ const {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+}
+
+.tenant-menu__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tenant-menu__form :deep(.el-input-number),
+.tenant-menu__form :deep(.el-select),
+.tenant-menu__form :deep(.el-tree-select) {
+  width: 100%;
 }
 
 .tenant-menu :deep(.tenant-menu__row--disabled) {

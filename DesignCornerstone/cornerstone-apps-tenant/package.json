@@ -8,11 +8,12 @@
     "./route-config": "./src/routes/route-config.ts"
   },
   "license": "MIT",
-  "description": "GrowAdmin-租户管理（租户、租户菜单、租户角色、租户账号）",
+  "description": "GrowAdmin-租户管理（租户、应用功能、租户菜单、租户角色、租户账号）",
   "scripts": {
     "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
   },
   "dependencies": {
+    "@grow-admin-cornerstone/apps-system": "workspace:*",
     "@grow-admin-rock/components": "workspace:*",
     "@grow-admin-rock/constants": "workspace:*",
     "@grow-admin-rock/infrastructure": "workspace:*",

@@ -412,6 +412,9 @@ importers:
 
   DesignCornerstone/cornerstone-apps-tenant:
     dependencies:
+      '@grow-admin-cornerstone/apps-system':
+        specifier: workspace:*
+        version: link:../cornerstone-apps-system
       '@grow-admin-rock/components':
         specifier: workspace:*
         version: link:../../DesignRock/rock-components

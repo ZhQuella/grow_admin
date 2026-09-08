@@ -122,7 +122,7 @@ export function usePersonTable() {
     { title: '直属主管', field: 'supervisorName', visible: true, minWidth: 110 },
     { title: '账号状态', field: 'accountEnabled', visible: true, minWidth: 100 },
     { title: '入职日期', field: 'entryDate', visible: true, minWidth: 110 },
-    { title: '操作', field: 'actions', visible: true, minWidth: 320, fixed: 'right' },
+    { title: '操作', field: 'actions', visible: true, minWidth: 170, fixed: 'right' },
   ])
 
   const leafColumns = computed(() => collectLeafColumns(tableColumns.value))

@@ -51,6 +51,11 @@ export const TENANT_ROUTE_STRUCTURES: TenantRouteStructure[] = [
         componentKey: 'TenantManage',
       },
       {
+        path: 'application-function',
+        name: 'ApplicationFunction',
+        componentKey: 'ApplicationFunction',
+      },
+      {
         path: 'tenant-menu',
         name: 'TenantMenu',
         componentKey: 'TenantMenu',
@@ -134,6 +139,7 @@ export function toTenantRouteConfigs(
 
 export const TENANT_COMPONENT_KEYS = new Set([
   'TenantManage',
+  'ApplicationFunction',
   'TenantMenu',
   'TenantAdminRole',
   'TenantAccount',
@@ -141,6 +147,7 @@ export const TENANT_COMPONENT_KEYS = new Set([
 
 export const TENANT_COMPONENT_PAGE_NAMES: Record<string, string> = {
   TenantManage: 'TenantManagePage',
+  ApplicationFunction: 'ApplicationFunctionPage',
   TenantMenu: 'TenantMenuPage',
   TenantAdminRole: 'TenantAdminRolePage',
   TenantAccount: 'TenantAccountPage',

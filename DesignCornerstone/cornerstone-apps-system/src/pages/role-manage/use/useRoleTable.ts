@@ -83,7 +83,7 @@ export function useRoleTable() {
     { title: '启用', field: 'enabled', visible: true, minWidth: 90 },
     { title: '更新时间', field: 'updatedAt', visible: true, minWidth: 160 },
     { title: '角色描述', field: 'remark', visible: false, minWidth: 160 },
-    { title: '操作', field: 'actions', visible: true, minWidth: 232, fixed: 'right' },
+    { title: '操作', field: 'actions', visible: true, minWidth: 200, fixed: 'right' },
   ])
 
   const leafColumns = computed(() => collectLeafColumns(tableColumns.value))

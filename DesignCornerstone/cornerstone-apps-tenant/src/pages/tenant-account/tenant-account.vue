@@ -301,7 +301,7 @@ const assignHint = computed(() => {
 
 .tenant-account__actions {
   flex-wrap: nowrap;
-  gap: 2px;
+  gap: 10px;
 }
 
 .tenant-account__icon-btn {
@@ -309,10 +309,10 @@ const assignHint = computed(() => {
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  width: 28px;
-  height: 28px;
+  width: auto;
+  height: auto;
   margin: 0;
-  padding: 0;
+  padding: 2px;
   line-height: 1;
 }
 

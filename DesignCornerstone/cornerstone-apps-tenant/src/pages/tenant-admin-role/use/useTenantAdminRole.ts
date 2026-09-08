@@ -169,7 +169,7 @@ export function useTenantAdminRole() {
     { title: '成员数', field: 'memberCount', visible: true, minWidth: 90 },
     { title: '授权菜单', field: 'menuCount', visible: true, minWidth: 90 },
     { title: '最近授权', field: 'grantedAt', visible: true, minWidth: 170 },
-    { title: '操作', field: 'actions', visible: true, minWidth: 90, fixed: 'right' },
+    { title: '操作', field: 'actions', visible: true, minWidth: 60, fixed: 'right' },
   ])
 
   const leafColumns = computed(() => collectLeafColumns(tableColumns.value))

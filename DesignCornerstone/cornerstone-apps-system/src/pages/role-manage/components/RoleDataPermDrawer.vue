@@ -1065,7 +1065,7 @@ defineExpose({ open })
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px 8px;
+  gap: 4px 10px;
   color: var(--text-color-secondary);
   font-size: 12px;
 }

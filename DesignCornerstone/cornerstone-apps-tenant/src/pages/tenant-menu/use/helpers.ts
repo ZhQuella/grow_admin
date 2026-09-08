@@ -75,3 +75,94 @@ export function filterMenuTree(nodes: TenantMenuNode[], query: Recordable<any>):
     return list
   }, [])
 }
+
+export function cloneMenuTree(nodes: TenantMenuNode[]): TenantMenuNode[] {
+  return nodes.map((node) => ({
+    ...node,
+    children: node.children ? cloneMenuTree(node.children) : undefined,
+  }))
+}
+
+export function sortMenuTree(nodes: TenantMenuNode[]): TenantMenuNode[] {
+  return [...nodes]
+    .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0) || a.title.localeCompare(b.title, 'zh-CN'))
+    .map((node) => ({
+      ...node,
+      children: node.children?.length ? sortMenuTree(node.children) : node.children,
+    }))
+}
+
+export function findMenuNode(nodes: TenantMenuNode[], name: string): TenantMenuNode | undefined {
+  for (const node of nodes) {
+    if (node.name === name) return node
+    const found = node.children?.length ? findMenuNode(node.children, name) : undefined
+    if (found) return found
+  }
+  return undefined
+}
+
+export function findMenuParentName(nodes: TenantMenuNode[], name: string): string {
+  for (const node of nodes) {
+    if (node.children?.some((child) => child.name === name)) return node.name
+    const found = node.children?.length ? findMenuParentName(node.children, name) : ''
+    if (found) return found
+  }
+  return ''
+}
+
+export function collectMenuNames(node: TenantMenuNode): string[] {
+  return [node.name, ...(node.children?.flatMap(collectMenuNames) || [])]
+}
+
+export function countMenuDescendants(node: TenantMenuNode): number {
+  return node.children?.reduce((sum, child) => sum + 1 + countMenuDescendants(child), 0) || 0
+}
+
+export function detachMenuNode(nodes: TenantMenuNode[], name: string): TenantMenuNode | undefined {
+  for (let index = 0; index < nodes.length; index += 1) {
+    if (nodes[index].name === name) return nodes.splice(index, 1)[0]
+    const found = nodes[index].children?.length
+      ? detachMenuNode(nodes[index].children!, name)
+      : undefined
+    if (found) return found
+  }
+  return undefined
+}
+
+export function insertMenuNode(
+  nodes: TenantMenuNode[],
+  node: TenantMenuNode,
+  parentName: string,
+): boolean {
+  if (!parentName) {
+    nodes.push(node)
+    return true
+  }
+  const parent = findMenuNode(nodes, parentName)
+  if (!parent || parent.menuType !== MenuTypeEnum.DIRECTORY) return false
+  parent.children = parent.children || []
+  parent.children.push(node)
+  return true
+}
+
+export type TenantMenuParentOption = {
+  name: string
+  title: string
+  children?: TenantMenuParentOption[]
+}
+
+export function toDirectoryOptions(
+  nodes: TenantMenuNode[],
+  excludedNames = new Set<string>(),
+): TenantMenuParentOption[] {
+  return nodes.reduce<TenantMenuParentOption[]>((list, node) => {
+    if (node.menuType !== MenuTypeEnum.DIRECTORY || excludedNames.has(node.name)) return list
+    const children = toDirectoryOptions(node.children || [], excludedNames)
+    list.push({
+      name: node.name,
+      title: node.title,
+      children: children.length ? children : undefined,
+    })
+    return list
+  }, [])
+}

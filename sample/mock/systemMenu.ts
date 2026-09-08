@@ -16,6 +16,7 @@ import {
 } from './systemRole'
 
 type MenuNode = {
+  parentName?: string
   name: string
   title: string
   path: string
@@ -581,6 +582,15 @@ function normalizeNode(node: MenuNode): MenuNode {
   return next
 }
 
+function flattenLeafNodes(nodes: MenuNode[], parentName?: string): MenuNode[] {
+  return nodes.flatMap((node) => {
+    if (node.children?.length) {
+      return flattenLeafNodes(node.children, node.name)
+    }
+    return [{ ...normalizeNode(node), parentName }]
+  })
+}
+
 function pickNodeFields(payload: Recordable<any>, name: string): MenuNode | string {
   const title = String(payload.title || '').trim()
   const path = String(payload.path || '').trim()
@@ -620,6 +630,12 @@ function pickNodeFields(payload: Recordable<any>, name: string): MenuNode | stri
 }
 
 const mocks: MockMethod[] = [
+  {
+    url: mockUrl('/platform/application-functions/list'),
+    method: 'post',
+    timeout: 80,
+    response: () => resultSuccess(flattenLeafNodes(clone(getStore()))),
+  },
   {
     url: mockUrl('/system/menus/tree'),
     method: 'post',

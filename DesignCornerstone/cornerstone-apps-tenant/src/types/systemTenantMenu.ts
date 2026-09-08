@@ -36,3 +36,12 @@ export type TenantMenuTreeResult = {
   tenantName: string
   tree: TenantMenuNode[]
 }
+
+export type TenantMenuAssemblyResult = TenantMenuTreeResult & {
+  availableFunctions: TenantMenuNode[]
+}
+
+export type TenantMenuAssemblyPayload = {
+  tenantId: string
+  tree: TenantMenuNode[]
+}

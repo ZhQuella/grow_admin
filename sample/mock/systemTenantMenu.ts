@@ -32,6 +32,8 @@ type MenuNode = {
   children?: MenuNode[]
 }
 
+const assemblyStore = new Map<string, MenuNode[]>()
+
 const ICON_MAP: Record<string, string> = {
   SystemCatalog: 'ant-design:setting-outlined',
   MenuManage: 'ant-design:menu-outlined',
@@ -240,6 +242,98 @@ function attachSelfMenus(tree: MenuNode[], tenantId: string) {
   return tree
 }
 
+function clone<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T
+}
+
+function buildDefaultTree(tenant: ReturnType<typeof findTenant>) {
+  if (!tenant) return []
+  const aliases = ALIAS_MAP[tenant.id] || {}
+  const platformTree = (GRANT_TREE as GrantNode[]).map((node) => toMenuNode(node, aliases))
+  const keepAll = tenant.builtIn
+  const granted = new Set(tenant.menuIds)
+  let tree = filterGranted(platformTree, granted, keepAll)
+  if (keepAll) {
+    tree = [...tree, toMenuNode(PLATFORM_CATALOG, aliases)]
+  }
+  return attachSelfMenus(tree, tenant.id)
+}
+
+function collectAvailableFunctions(nodes: MenuNode[]): MenuNode[] {
+  return nodes.flatMap((node) => {
+    if (node.children?.length) return collectAvailableFunctions(node.children)
+    if (node.menuType !== MenuTypeEnum.MENU || node.enabled === false) return []
+    const item = clone(node)
+    delete item.children
+    return [item]
+  })
+}
+
+function sanitizeAssembly(nodes: MenuNode[], availableMap: Map<string, MenuNode>): MenuNode[] {
+  return nodes.reduce<MenuNode[]>((list, node) => {
+    if (node.menuType === MenuTypeEnum.DIRECTORY) {
+      list.push({
+        ...clone(node),
+        children: sanitizeAssembly(node.children || [], availableMap),
+      })
+      return list
+    }
+    const available = availableMap.get(node.name)
+    if (!available) return list
+    list.push({
+      ...clone(available),
+      title: node.title,
+      originTitle: node.title === available.title
+        ? available.originTitle
+        : (available.originTitle || available.title),
+      sort: Number(node.sort ?? available.sort ?? 0),
+    })
+    return list
+  }, [])
+}
+
+function getAssembly(tenant: NonNullable<ReturnType<typeof findTenant>>) {
+  const defaultTree = buildDefaultTree(tenant)
+  const availableFunctions = collectAvailableFunctions(defaultTree)
+  const availableMap = new Map(availableFunctions.map((item) => [item.name, item]))
+  const stored = assemblyStore.get(tenant.id)
+  const tree = sanitizeAssembly(stored || defaultTree, availableMap)
+  if (stored) assemblyStore.set(tenant.id, clone(tree))
+  return { tree, availableFunctions }
+}
+
+function validateAssembly(nodes: MenuNode[], availableNames: Set<string>) {
+  const names = new Set<string>()
+  const visit = (items: MenuNode[]): string => {
+    for (const node of items) {
+      if (!text(node.name)) return '菜单标识不能为空'
+      if (!text(node.title)) return '菜单名称不能为空'
+      if (names.has(node.name)) return `菜单「${node.title}」重复添加`
+      names.add(node.name)
+      if (node.menuType === MenuTypeEnum.DIRECTORY) {
+        const error = visit(node.children || [])
+        if (error) return error
+      } else {
+        if (!availableNames.has(node.name)) return `应用功能「${node.title}」未授权或已停用`
+        if (node.children?.length) return '应用功能下不能挂载子菜单'
+      }
+    }
+    return ''
+  }
+  return visit(nodes)
+}
+
+function toAssemblyResult(tenant: NonNullable<ReturnType<typeof findTenant>>) {
+  const { tree, availableFunctions } = getAssembly(tenant)
+  return {
+    tenantId: tenant.id,
+    tenantCode: tenant.tenantCode,
+    tenantName: tenant.tenantName,
+    tree,
+    availableFunctions,
+  }
+}
+
 export default [
   {
     url: mockUrl('/platform/tenant-menus/tree'),
@@ -250,21 +344,41 @@ export default [
       const tenant = findTenant(tenantId)
       if (!tenant) return resultError('租户不存在')
       if (tenant.status === 'deleted') return resultError('已删除租户不展示菜单')
-      const aliases = ALIAS_MAP[tenantId] || {}
-      const platformTree = (GRANT_TREE as GrantNode[]).map((node) => toMenuNode(node, aliases))
-      const keepAll = tenant.builtIn
-      const granted = new Set(tenant.menuIds)
-      let tree = filterGranted(platformTree, granted, keepAll)
-      if (keepAll) {
-        tree = [...tree, toMenuNode(PLATFORM_CATALOG, aliases)]
-      }
-      tree = attachSelfMenus(tree, tenantId)
+      const { tree } = getAssembly(tenant)
       return resultSuccess({
         tenantId: tenant.id,
         tenantCode: tenant.tenantCode,
         tenantName: tenant.tenantName,
         tree,
       })
+    },
+  },
+  {
+    url: mockUrl('/platform/tenant-menus/assembly/detail'),
+    method: 'post',
+    timeout: 60,
+    response: ({ body }) => {
+      const tenant = findTenant(text((body as Recordable<any>)?.tenantId))
+      if (!tenant) return resultError('租户不存在')
+      if (tenant.status === 'deleted') return resultError('已删除租户不可配置菜单')
+      return resultSuccess(toAssemblyResult(tenant))
+    },
+  },
+  {
+    url: mockUrl('/platform/tenant-menus/assembly'),
+    method: 'put',
+    timeout: 100,
+    response: ({ body }) => {
+      const payload = (body || {}) as Recordable<any>
+      const tenant = findTenant(text(payload.tenantId))
+      if (!tenant) return resultError('租户不存在')
+      if (tenant.status === 'deleted') return resultError('已删除租户不可配置菜单')
+      const tree = Array.isArray(payload.tree) ? payload.tree as MenuNode[] : []
+      const availableNames = new Set(getAssembly(tenant).availableFunctions.map((item) => item.name))
+      const error = validateAssembly(tree, availableNames)
+      if (error) return resultError(error)
+      assemblyStore.set(tenant.id, clone(tree))
+      return resultSuccess(toAssemblyResult(tenant), { message: '菜单配置已保存' })
     },
   },
 ] as MockMethod[]
