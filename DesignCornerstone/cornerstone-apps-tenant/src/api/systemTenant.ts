@@ -2,6 +2,7 @@ import { diKT } from '@grow-admin-rock/ioc'
 import { Lib as infrastructureLib } from '@grow-admin-rock/infrastructure'
 import type {
   SystemTenantClearImpact,
+  SystemTenantApplicationFunction,
   SystemTenantCodePayload,
   SystemTenantDeletePayload,
   SystemTenantDetail,
@@ -105,6 +106,12 @@ export function fetchSystemTenantGrantDetail(tenantId: string) {
   return useRequest().post<SystemTenantGrantDetail>({
     url: '/platform/tenant/grant/detail',
     data: { tenantId },
+  })
+}
+
+export function fetchSystemTenantApplicationFunctions() {
+  return useRequest().post<SystemTenantApplicationFunction[]>({
+    url: '/platform/application-functions/list',
   })
 }
 
