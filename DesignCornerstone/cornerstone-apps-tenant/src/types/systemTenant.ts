@@ -135,6 +135,11 @@ export type SystemTenantClearImpact = {
   processCount: number
 }
 
+export type SystemTenantApplicationFunction = {
+  name: string
+  title: string
+}
+
 export type SystemTenantGrantMenu = {
   id: string
   title: string

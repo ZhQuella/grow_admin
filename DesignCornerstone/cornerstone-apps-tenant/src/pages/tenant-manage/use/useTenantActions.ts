@@ -5,6 +5,7 @@ import {
   clearSystemTenantData,
   deleteSystemTenant,
   disableSystemTenant,
+  fetchSystemTenantApplicationFunctions,
   fetchSystemTenantClearImpact,
   fetchSystemTenantGrantDetail,
   saveSystemTenantGrant,
@@ -17,7 +18,7 @@ import type {
   SystemTenantGrantMenu,
   SystemTenantListItem,
 } from '../../../types/systemTenant'
-import { todayDate, toMessage, validateGrowForm, pickCheckedKeys } from './helpers'
+import { todayDate, toMessage, validateGrowForm } from './helpers'
 
 type UseTenantActionsOptions = {
   onSuccess: () => void | Promise<void>
@@ -140,14 +141,35 @@ export function useTenantActions(options: UseTenantActionsOptions) {
   const grantSubmitting = ref(false)
   const grantTarget = ref<SystemTenantListItem | null>(null)
   const grantDetail = ref<SystemTenantGrantDetail | null>(null)
+  const grantApplications = ref<SystemTenantGrantMenu[]>([])
   const grantMenuIds = ref<string[]>([])
   const grantFunctionIds = ref<string[]>([])
   const grantActiveMenuId = ref('')
+  const grantFunctionsWithMenu = ref(true)
 
   const grantActiveMenu = computed(() => {
-    if (!grantDetail.value || !grantActiveMenuId.value) return null
-    return flattenGrantMenus(grantDetail.value.tree).find((item) => item.id === grantActiveMenuId.value) || null
+    if (!grantActiveMenuId.value) return null
+    return grantApplications.value.find((item) => item.id === grantActiveMenuId.value) || null
   })
+  const grantActiveFunctions = computed(() => grantActiveMenu.value?.functions || [])
+  const grantAllActiveFunctionsChecked = computed(() => {
+    return grantActiveFunctions.value.length > 0
+      && grantActiveFunctions.value.every((item) => grantFunctionIds.value.includes(item.id))
+  })
+  const grantSomeActiveFunctionsChecked = computed(() => {
+    return !grantAllActiveFunctionsChecked.value
+      && grantActiveFunctions.value.some((item) => grantFunctionIds.value.includes(item.id))
+  })
+
+  function functionIdsForMenus(menuIds: string[]) {
+    const ids = new Set<string>()
+    menuIds.forEach((menuId) => {
+      const menu = grantApplications.value.find((item) => item.id === menuId)
+      if (!menu) return
+      menu.functions.forEach((fn) => ids.add(fn.id))
+    })
+    return [...ids]
+  }
 
   function openPeriod(row: SystemTenantListItem, mode: 'trial' | 'activate') {
     periodMode.value = mode
@@ -330,17 +352,34 @@ export function useTenantActions(options: UseTenantActionsOptions) {
   async function openGrant(row: SystemTenantListItem) {
     grantTarget.value = row
     grantDetail.value = null
+    grantApplications.value = []
     grantMenuIds.value = []
     grantFunctionIds.value = []
     grantActiveMenuId.value = ''
+    grantFunctionsWithMenu.value = true
     grantVisible.value = true
     grantLoading.value = true
     try {
-      const detail = await fetchSystemTenantGrantDetail(row.id)
+      const [detail, applicationFunctions] = await Promise.all([
+        fetchSystemTenantGrantDetail(row.id),
+        fetchSystemTenantApplicationFunctions(),
+      ])
+      const detailMenus = flattenGrantMenus(detail.tree)
+      const applications = (Array.isArray(applicationFunctions) ? applicationFunctions : []).map((item) => {
+        const grantMenu = detailMenus.find((menu) => menu.id === item.name)
+        return {
+          id: item.name,
+          title: item.title,
+          directory: false,
+          functions: grantMenu?.functions || [],
+        }
+      })
+      const applicationIds = new Set(applications.map((item) => item.id))
       grantDetail.value = detail
-      grantMenuIds.value = [...detail.menuIds]
+      grantApplications.value = applications
+      grantMenuIds.value = detail.menuIds.filter((id) => applicationIds.has(id))
       grantFunctionIds.value = [...detail.functionIds]
-      grantActiveMenuId.value = flattenGrantMenus(detail.tree).find((item) => !item.directory)?.id || ''
+      grantActiveMenuId.value = applications[0]?.id || ''
     } catch (error) {
       message.error(toMessage(error, '加载授权失败'))
       grantVisible.value = false
@@ -349,11 +388,24 @@ export function useTenantActions(options: UseTenantActionsOptions) {
     }
   }
 
-  function onGrantMenuCheck(arg1: unknown, arg2?: unknown) {
-    grantMenuIds.value = pickCheckedKeys(arg1, arg2)
+  function toggleGrantApplication(menuId: string, checked: boolean) {
+    grantActiveMenuId.value = menuId
+    const nextMenuIds = new Set(grantMenuIds.value)
+    if (checked) nextMenuIds.add(menuId)
+    else nextMenuIds.delete(menuId)
+    grantMenuIds.value = [...nextMenuIds]
+
+    const nextFunctionIds = new Set(grantFunctionIds.value)
+    const functionIds = functionIdsForMenus([menuId])
+    if (checked && grantFunctionsWithMenu.value) {
+      functionIds.forEach((id) => nextFunctionIds.add(id))
+    } else if (!checked) {
+      functionIds.forEach((id) => nextFunctionIds.delete(id))
+    }
+    grantFunctionIds.value = [...nextFunctionIds]
   }
 
-  function onGrantNodeClick(data: SystemTenantGrantMenu) {
+  function onGrantApplicationClick(data: SystemTenantGrantMenu) {
     grantActiveMenuId.value = data.id
   }
 
@@ -361,6 +413,23 @@ export function useTenantActions(options: UseTenantActionsOptions) {
     const set = new Set(grantFunctionIds.value)
     if (checked) set.add(functionId)
     else set.delete(functionId)
+    grantFunctionIds.value = [...set]
+  }
+
+  function toggleGrantFunctionsWithMenu(checked: boolean) {
+    grantFunctionsWithMenu.value = checked
+    if (!checked) return
+    const set = new Set(grantFunctionIds.value)
+    functionIdsForMenus(grantMenuIds.value).forEach((id) => set.add(id))
+    grantFunctionIds.value = [...set]
+  }
+
+  function toggleAllGrantActiveFunctions(checked: boolean) {
+    const set = new Set(grantFunctionIds.value)
+    grantActiveFunctions.value.forEach((item) => {
+      if (checked) set.add(item.id)
+      else set.delete(item.id)
+    })
     grantFunctionIds.value = [...set]
   }
 
@@ -434,14 +503,21 @@ export function useTenantActions(options: UseTenantActionsOptions) {
     grantSubmitting,
     grantTarget,
     grantDetail,
+    grantApplications,
     grantMenuIds,
     grantFunctionIds,
     grantActiveMenuId,
     grantActiveMenu,
+    grantActiveFunctions,
+    grantFunctionsWithMenu,
+    grantAllActiveFunctionsChecked,
+    grantSomeActiveFunctionsChecked,
     openGrant,
-    onGrantMenuCheck,
-    onGrantNodeClick,
+    toggleGrantApplication,
+    onGrantApplicationClick,
     toggleGrantFunction,
+    toggleGrantFunctionsWithMenu,
+    toggleAllGrantActiveFunctions,
     submitGrant,
   }
 }

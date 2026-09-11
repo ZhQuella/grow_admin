@@ -39,7 +39,7 @@
               :loading="saveLoading"
               @click="saveAssembly"
             >
-              保存配置
+              发布授权
             </GrowButton>
             <span v-if="dirty" class="tenant-menu__hint">有未保存修改</span>
           </div>

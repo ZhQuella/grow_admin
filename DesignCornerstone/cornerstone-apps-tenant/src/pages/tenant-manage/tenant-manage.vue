@@ -372,31 +372,51 @@
         · 最近授权：{{ formatTime(grantDetail?.grantedAt) }}
         {{ grantDetail?.grantedBy ? ` · ${grantDetail.grantedBy}` : '' }}
       </p>
-      <div v-if="grantLoading" class="tenant-manage__loading">加载授权树…</div>
+      <div class="tenant-manage__grant-options">
+        <span>勾选菜单时同时授权所有功能</span>
+        <GrowSwitch
+          :model-value="grantFunctionsWithMenu"
+          @update:model-value="(value) => toggleGrantFunctionsWithMenu(Boolean(value))"
+        />
+      </div>
+      <div v-if="grantLoading" class="tenant-manage__loading">加载应用功能…</div>
       <div v-else class="tenant-manage__grant">
-        <aside class="tenant-manage__grant-tree">
+        <aside class="tenant-manage__grant-list">
+          <div class="tenant-manage__grant-panel-title">应用功能</div>
           <GrowScrollbar height="360px">
-            <GrowTree
-              :key="grantDetail?.tenantId"
-              :data="grantDetail?.tree || []"
-              node-key="id"
-              show-checkbox
-              check-strictly
-              highlight-current
-              :expand-on-click-node="false"
-              :default-checked-keys="grantMenuIds"
-              :default-expand-all="true"
-              :props="{ label: 'title', children: 'children' }"
-              @check="onGrantMenuCheck"
-              @node-click="onGrantNodeClick"
-            />
+            <div
+              v-for="item in grantApplications"
+              :key="item.id"
+              class="tenant-manage__grant-application"
+              :class="{ 'is-active': grantActiveMenu?.id === item.id }"
+              @click="onGrantApplicationClick(item)"
+            >
+              <GrowCheckbox
+                :model-value="grantMenuIds.includes(item.id)"
+                @click.stop
+                @update:model-value="(value) => toggleGrantApplication(item.id, Boolean(value))"
+              />
+              <span>{{ item.title }}</span>
+            </div>
+            <div v-if="!grantApplications.length" class="tenant-manage__empty">暂无应用功能</div>
           </GrowScrollbar>
         </aside>
         <main class="tenant-manage__grant-main">
-          <template v-if="grantActiveMenu && !grantActiveMenu.directory">
+          <div class="tenant-manage__grant-header">
+            <span class="tenant-manage__grant-panel-title">功能管理</span>
+            <GrowCheckbox
+              :model-value="grantAllActiveFunctionsChecked"
+              :indeterminate="grantSomeActiveFunctionsChecked"
+              :disabled="!grantActiveFunctions.length"
+              @update:model-value="(value) => toggleAllGrantActiveFunctions(Boolean(value))"
+            >
+              全选
+            </GrowCheckbox>
+          </div>
+          <template v-if="grantActiveMenu">
             <div class="tenant-manage__grant-title">{{ grantActiveMenu.title }}</div>
             <label
-              v-for="item in grantActiveMenu.functions"
+              v-for="item in grantActiveFunctions"
               :key="item.id"
               class="tenant-manage__function"
             >
@@ -407,9 +427,9 @@
               <span>{{ item.title }}</span>
               <span class="tenant-manage__function-code">{{ item.code }}</span>
             </label>
-            <div v-if="!grantActiveMenu.functions.length" class="tenant-manage__empty">该菜单暂无功能权限</div>
+            <div v-if="!grantActiveFunctions.length" class="tenant-manage__empty">该应用功能暂无功能权限</div>
           </template>
-          <div v-else class="tenant-manage__empty">请选择菜单查看功能权限</div>
+          <div v-else class="tenant-manage__empty">请选择应用功能查看功能权限</div>
         </main>
       </div>
       <template #footer>
@@ -507,13 +527,20 @@ const {
   grantLoading,
   grantSubmitting,
   grantDetail,
+  grantApplications,
   grantMenuIds,
   grantFunctionIds,
   grantActiveMenu,
+  grantActiveFunctions,
+  grantFunctionsWithMenu,
+  grantAllActiveFunctionsChecked,
+  grantSomeActiveFunctionsChecked,
   openGrant,
-  onGrantMenuCheck,
-  onGrantNodeClick,
+  toggleGrantApplication,
+  onGrantApplicationClick,
   toggleGrantFunction,
+  toggleGrantFunctionsWithMenu,
+  toggleAllGrantActiveFunctions,
   submitGrant,
   availableTenantActions,
   formatServicePeriod,
@@ -660,7 +687,18 @@ function hasAction(row: SystemTenantListItem, action: TenantActionKey) {
   overflow: hidden;
 }
 
-.tenant-manage__grant-tree {
+.tenant-manage__grant-options,
+.tenant-manage__grant-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tenant-manage__grant-options {
+  margin-bottom: 12px;
+}
+
+.tenant-manage__grant-list {
   border-right: 1px solid var(--layout-border-color);
   padding: 8px;
 }
@@ -669,9 +707,36 @@ function hasAction(row: SystemTenantListItem, action: TenantActionKey) {
   padding: 12px 16px;
 }
 
-.tenant-manage__grant-title {
-  margin-bottom: 12px;
+.tenant-manage__grant-panel-title {
   font-weight: 600;
+}
+
+.tenant-manage__grant-list .tenant-manage__grant-panel-title {
+  padding: 4px 4px 12px;
+}
+
+.tenant-manage__grant-application {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 0 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.tenant-manage__grant-application:hover,
+.tenant-manage__grant-application.is-active {
+  background: var(--color-primary-a08, var(--layout-color));
+}
+
+.tenant-manage__grant-header {
+  margin-bottom: 12px;
+}
+
+.tenant-manage__grant-title {
+  margin-bottom: 8px;
+  color: var(--text-color-secondary);
 }
 
 .tenant-manage__function {
