@@ -2,14 +2,21 @@
   <div class="relative h-full min-h-0 w-full overflow-hidden">
     <GrowWatchBox class="absolute inset-0 overflow-hidden">
       <template #default="{ height }">
-        <GrowScrollbar v-if="height > 0" :height="`${height}px`">
-          <div class="page-view-stage" :style="{
+        <GrowScrollbar
+          v-if="height > 0"
+          ref="contentScrollbarRef"
+          :height="`${height}px`"
+          @scroll="refreshContentScrollbar"
+        >
+          <div ref="pageViewStageRef" class="page-view-stage" :style="{
                   height: `${height}px`
                 }">
             <router-view v-slot="{ Component, route: viewRoute }">
             <transition
               :name="pageTransitionName"
               :css="Boolean(pageTransitionName)"
+              @after-enter="refreshContentScrollbar"
+              @after-leave="refreshContentScrollbar"
             >
               <keep-alive :include="cacheIncludeList">
                 <component
@@ -23,6 +30,8 @@
           <transition
             :name="pageTransitionName"
             :css="Boolean(pageTransitionName)"
+            @after-enter="refreshContentScrollbar"
+            @after-leave="refreshContentScrollbar"
           >
             <div
               v-if="canEmbedIFramePage"
@@ -41,7 +50,8 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { driverRef } from '@grow-admin-rock/components'
 import { PageOpenModeEnum } from '@grow-admin-rock/constants'
 import { useRoute } from '@grow-admin-rock/middleware-router'
 import { RenderIframe } from '../embed-page'
@@ -57,6 +67,10 @@ useTabRouteSync()
 const route = useRoute()
 const tabStore = useTabStore()
 const appConfig = useAppConfig()
+const contentScrollbarRef = ref()
+const pageViewStageRef = ref<HTMLElement | null>(null)
+let contentResizeObserver: ResizeObserver | undefined
+let contentMutationObserver: MutationObserver | undefined
 const { cacheIncludeList, pageReloadKeys } = storeToRefs(tabStore)
 const { canEmbedIFramePage, transition } = storeToRefs(appConfig)
 
@@ -65,6 +79,40 @@ const pageTransitionName = computed(() =>
 )
 
 const isCurrentRouteIframe = computed(() => isIframeRoute(route))
+
+function refreshContentScrollbar() {
+  void nextTick(() => {
+    const scrollbar = driverRef(contentScrollbarRef as any) as { update?: () => void } | undefined
+    scrollbar?.update?.()
+  })
+}
+
+function observePageContent() {
+  contentResizeObserver?.disconnect()
+  for (const element of pageViewStageRef.value?.children ?? []) {
+    contentResizeObserver?.observe(element)
+  }
+}
+
+watch(pageViewStageRef, (stage) => {
+  contentResizeObserver?.disconnect()
+  contentMutationObserver?.disconnect()
+  if (!stage) return
+
+  contentResizeObserver = new ResizeObserver(() => refreshContentScrollbar())
+  contentMutationObserver = new MutationObserver(() => {
+    observePageContent()
+    refreshContentScrollbar()
+  })
+  contentMutationObserver.observe(stage, { childList: true })
+  observePageContent()
+  refreshContentScrollbar()
+}, { flush: 'post' })
+
+onBeforeUnmount(() => {
+  contentResizeObserver?.disconnect()
+  contentMutationObserver?.disconnect()
+})
 
 function resolveRouteCacheBaseName(route: RouteLocationNormalizedLoaded) {
   return String(route.name)
@@ -103,7 +151,6 @@ function isIframeRoute(route: RouteLocationNormalizedLoaded) {
 <style scoped>
 .page-view-stage {
   position: relative;
-  overflow: hidden;
 }
 
 .page-view-iframe {
