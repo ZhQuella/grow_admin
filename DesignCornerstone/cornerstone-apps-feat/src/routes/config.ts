@@ -115,14 +115,12 @@ export type FeatRouteLeaf = FeatRouteConfig & {
 }
 
 function buildChildParentPath(
-  config: FeatRouteStructure,
+  config: FeatRouteConfig,
   parentPath: string,
-  isRootLevel: boolean,
 ): string {
-  if (isRootLevel) {
-    return ''
-  }
-  return parentPath ? `${parentPath}/${config.path}` : config.path
+  return config.menuType === MenuTypeEnum.DIRECTORY
+    ? parentPath
+    : resolveFeatRouteFullPath(config, parentPath)
 }
 
 export function resolveFeatRouteFullPath(
@@ -135,7 +133,6 @@ export function resolveFeatRouteFullPath(
 export function flattenFeatRouteConfigs(
   configs: FeatRouteConfig[],
   parentPath = '',
-  isRootLevel = true,
 ): FeatRouteLeaf[] {
   return configs.flatMap((config) => {
     const selfRoute = config.menuType === MenuTypeEnum.MENU
@@ -146,8 +143,8 @@ export function flattenFeatRouteConfigs(
       : []
 
     if (config.children?.length) {
-      const nextParentPath = buildChildParentPath(config, parentPath, isRootLevel)
-      const childRoutes = flattenFeatRouteConfigs(config.children as FeatRouteConfig[], nextParentPath, false)
+      const nextParentPath = buildChildParentPath(config, parentPath)
+      const childRoutes = flattenFeatRouteConfigs(config.children as FeatRouteConfig[], nextParentPath)
       return [...selfRoute, ...childRoutes]
     }
 

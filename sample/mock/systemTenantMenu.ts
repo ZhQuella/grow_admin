@@ -283,6 +283,12 @@ function sanitizeAssembly(nodes: MenuNode[], availableMap: Map<string, MenuNode>
       originTitle: node.title === available.title
         ? available.originTitle
         : (available.originTitle || available.title),
+      icon: text(node.icon) || undefined,
+      enabled: node.enabled !== false,
+      isVisible: node.isVisible !== false,
+      isKeepAlive: Boolean(node.isKeepAlive),
+      affix: Boolean(node.affix),
+      defaultShow: Boolean(node.defaultShow),
       sort: Number(node.sort ?? available.sort ?? 0),
     })
     return list

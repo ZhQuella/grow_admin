@@ -1,8 +1,10 @@
 import type { MockMethod } from '@grow-admin-rock/mock/types'
 import { mockUrl } from '@grow-admin-rock/mock/constants'
-import { resultError, resultSuccess } from '@grow-admin-rock/mock/util'
+import { getRequestToken, resultError, resultSuccess } from '@grow-admin-rock/mock/util'
 import { MenuTypeEnum } from '@grow-admin-rock/constants'
 import { buildBackMenuList } from './buildMenuList'
+import { findAuthUserByToken } from './auth'
+import { findTenant } from './systemTenant'
 import {
   countRoleColumnPermissions,
   countRoleDataPermissions,
@@ -592,10 +594,10 @@ function pickNodeFields(payload: Recordable<any>, name: string): MenuNode | stri
   const menuType = String(payload.menuType || '').trim()
 
   if (!title) return '请填写标题'
-  if (!path) return '请填写路径'
   if (menuType !== MenuTypeEnum.DIRECTORY && menuType !== MenuTypeEnum.MENU) {
     return '请选择类型'
   }
+  if (menuType === MenuTypeEnum.MENU && !path) return '请填写路径'
   const node: MenuNode = {
     name,
     title,
@@ -626,6 +628,18 @@ const mocks: MockMethod[] = [
     method: 'post',
     timeout: 80,
     response: () => resultSuccess(flattenLeafNodes(clone(getStore()))),
+  },
+  {
+    url: mockUrl('/system/tenant-authorized-applications/list'),
+    method: 'post',
+    timeout: 80,
+    response: (req) => {
+      const tenantId = findAuthUserByToken(getRequestToken(req))?.tenantId || '1'
+      const grantedNames = new Set(findTenant(tenantId)?.menuIds || [])
+      const applications = flattenLeafNodes(clone(getStore()))
+        .filter((item) => grantedNames.has(item.name) && item.enabled !== false)
+      return resultSuccess(applications)
+    },
   },
   {
     url: mockUrl('/system/menus/tree'),

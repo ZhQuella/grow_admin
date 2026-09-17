@@ -9,6 +9,7 @@ import { getDeptName, type PersonRecord } from './orgStore';
 
 type AuthUser = {
   userId: string;
+  tenantId: string;
   username: string;
   realname: string;
   avatar: string;
@@ -23,6 +24,7 @@ function toAuthUser(account: AccountRecord, person?: PersonRecord): AuthUser {
   const hasSuper = account.roleIds.includes('role_super');
   return {
     userId: account.accountId,
+    tenantId: '1',
     username: account.username,
     realname: person?.name || (account.username === 'admin' ? 'Grow Admin' : account.username),
     avatar: '',
@@ -52,6 +54,7 @@ export function createFakeUserList() {
   return [
     {
       userId: '1',
+      tenantId: '1',
       username: 'admin',
       realname: 'Grow Admin',
       avatar: '',

@@ -74,14 +74,12 @@ export type TenantRouteLeaf = TenantRouteConfig & {
 }
 
 function buildChildParentPath(
-  config: TenantRouteStructure,
+  config: TenantRouteConfig,
   parentPath: string,
-  isRootLevel: boolean,
 ): string {
-  if (isRootLevel) {
-    return ''
-  }
-  return parentPath ? `${parentPath}/${config.path}` : config.path
+  return config.menuType === MenuTypeEnum.DIRECTORY
+    ? parentPath
+    : resolveTenantRouteFullPath(config, parentPath)
 }
 
 export function resolveTenantRouteFullPath(
@@ -94,7 +92,6 @@ export function resolveTenantRouteFullPath(
 export function flattenTenantRouteConfigs(
   configs: TenantRouteConfig[],
   parentPath = '',
-  isRootLevel = true,
 ): TenantRouteLeaf[] {
   return configs.flatMap((config) => {
     const selfRoute = config.menuType === MenuTypeEnum.MENU
@@ -105,8 +102,8 @@ export function flattenTenantRouteConfigs(
       : []
 
     if (config.children?.length) {
-      const nextParentPath = buildChildParentPath(config, parentPath, isRootLevel)
-      const childRoutes = flattenTenantRouteConfigs(config.children as TenantRouteConfig[], nextParentPath, false)
+      const nextParentPath = buildChildParentPath(config, parentPath)
+      const childRoutes = flattenTenantRouteConfigs(config.children as TenantRouteConfig[], nextParentPath)
       return [...selfRoute, ...childRoutes]
     }
 

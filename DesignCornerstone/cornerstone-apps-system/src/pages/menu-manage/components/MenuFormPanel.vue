@@ -40,8 +40,23 @@
           />
         </GrowFormItem>
       </GrowCol>
+      <GrowCol v-if="state.showApplication" :span="12">
+        <GrowFormItem label="应用功能" prop="applicationName" required>
+          <GrowSelect
+            v-model="state.formModel.applicationName"
+            :options="state.applicationOptions"
+            :loading="state.tenantApplicationsLoading"
+            :placeholder="state.applicationPlaceholder"
+            filterable
+            @change="state.onApplicationChange"
+          />
+        </GrowFormItem>
+      </GrowCol>
       <GrowCol :span="12">
-        <GrowFormItem :label="state.allowHierarchy ? '标题' : '菜单名称'" prop="title">
+        <GrowFormItem
+          :label="state.allowHierarchy && state.formModel.menuType === MenuTypeEnum.DIRECTORY ? '标题' : '菜单名称'"
+          prop="title"
+        >
           <GrowInput v-model="state.formModel.title" maxlength="64" clearable placeholder="侧边栏显示名称" />
         </GrowFormItem>
       </GrowCol>
@@ -124,7 +139,11 @@
         </GrowCol>
       </template>
       <GrowCol :span="12">
-        <GrowFormItem label="图标" prop="icon" class="menu-form-panel__icon-item">
+        <GrowFormItem
+          :label="state.showApplication ? '菜单图标' : '图标'"
+          prop="icon"
+          class="menu-form-panel__icon-item"
+        >
           <div class="menu-form-panel__icon-field">
             <GrowInput
               v-model="state.formModel.icon"
@@ -142,7 +161,7 @@
           </div>
         </GrowFormItem>
       </GrowCol>
-      <GrowCol :span="24">
+      <GrowCol v-if="!state.allowHierarchy" :span="24">
         <GrowFormItem label="说明" prop="description">
           <GrowInput
             v-model="state.formModel.description"

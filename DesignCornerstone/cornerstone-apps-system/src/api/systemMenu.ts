@@ -22,6 +22,12 @@ export function fetchApplicationFunctionList() {
   })
 }
 
+export function fetchTenantAuthorizedApplicationList() {
+  return useRequest().post<SystemMenuNode[]>({
+    url: '/system/tenant-authorized-applications/list',
+  })
+}
+
 export function createSystemMenu(data: SystemMenuCreatePayload) {
   return useRequest().post<SystemMenuNode>({
     url: '/system/menus',

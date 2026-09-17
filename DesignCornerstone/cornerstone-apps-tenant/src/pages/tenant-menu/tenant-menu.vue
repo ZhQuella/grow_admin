@@ -29,10 +29,7 @@
       <GrowRow justify="space-between" class="tenant-menu__toolbar">
         <GrowCol :span="16">
           <div class="tenant-menu__toolbar-left">
-            <GrowButton :disabled="!selectedTenant" @click="openCreateDirectory">新增目录</GrowButton>
-            <GrowButton type="primary" :disabled="!selectedTenant" @click="openAddFunction">
-              添加应用功能
-            </GrowButton>
+            <GrowButton type="primary" :disabled="!selectedTenant" @click="openCreate">新增</GrowButton>
             <GrowButton
               type="success"
               :disabled="!selectedTenant || !dirty"
@@ -96,6 +93,9 @@
                       {{ menuTypeLabel(row.menuType) }}
                     </GrowTag>
                   </template>
+                  <template v-else-if="col.field === 'path' && row.menuType === MenuTypeEnum.DIRECTORY">
+                    -
+                  </template>
                   <template v-else-if="col.field === 'isVisible'">
                     <GrowTag :type="row.isVisible ? 'success' : 'danger'" size="small">
                       {{ row.isVisible ? '显示' : '隐藏' }}
@@ -146,36 +146,146 @@
       </div>
     </div>
 
-    <GrowDialog v-model="formVisible" :title="formTitle" width="520px" append-to-body destroy-on-close>
+    <GrowDialog v-model="formVisible" :title="formTitle" width="680px" append-to-body destroy-on-close>
       <GrowForm class="tenant-menu__form" :model="formModel" label-width="88px">
-        <GrowFormItem v-if="formKind === 'function'" label="应用功能" required>
-          <GrowSelect
-            v-model="formModel.functionName"
-            :options="functionOptions"
-            :disabled="formMode === 'edit'"
-            filterable
-            placeholder="请选择已授权功能"
-            @change="onFunctionChange"
-          />
-        </GrowFormItem>
-        <GrowFormItem label="显示名称" required>
-          <GrowInput v-model="formModel.title" maxlength="64" clearable />
-        </GrowFormItem>
-        <GrowFormItem label="挂载位置">
-          <GrowTreeSelect
-            v-model="formModel.parentName"
-            :data="parentTreeData"
-            :props="{ label: 'title', value: 'name', children: 'children' }"
-            check-strictly
-            clearable
-            filterable
-            default-expand-all
-            placeholder="不选则为根级"
-          />
-        </GrowFormItem>
-        <GrowFormItem label="排序">
-          <GrowInputNumber v-model="formModel.sort" :min="0" :max="9999" controls-position="right" />
-        </GrowFormItem>
+        <GrowRow :gutter="16">
+          <GrowCol :span="24">
+            <GrowFormItem label="挂载位置">
+              <GrowTreeSelect
+                v-model="formModel.parentName"
+                :data="parentTreeData"
+                :props="{ label: 'title', value: 'name', children: 'children' }"
+                check-strictly
+                clearable
+                filterable
+                default-expand-all
+                placeholder="不选则为根级"
+              />
+            </GrowFormItem>
+          </GrowCol>
+          <GrowCol :span="12">
+            <GrowFormItem label="类型" required>
+              <GrowRadioGroup v-model="formModel.menuType" :options="menuTypeOptions" />
+            </GrowFormItem>
+          </GrowCol>
+          <GrowCol :span="12">
+            <GrowFormItem label="排序">
+              <GrowInputNumber v-model="formModel.sort" :min="0" :max="9999" controls-position="right" />
+            </GrowFormItem>
+          </GrowCol>
+
+          <template v-if="formModel.menuType === MenuTypeEnum.DIRECTORY">
+            <GrowCol :span="12">
+              <GrowFormItem label="标题" required>
+                <GrowInput
+                  v-model="formModel.title"
+                  maxlength="64"
+                  clearable
+                  placeholder="侧边栏显示名称"
+                />
+              </GrowFormItem>
+            </GrowCol>
+            <GrowCol :span="12">
+              <GrowFormItem label="标识" required>
+                <GrowInput
+                  v-model="formModel.name"
+                  maxlength="64"
+                  clearable
+                  placeholder="如 TenantCatalog"
+                />
+              </GrowFormItem>
+            </GrowCol>
+            <GrowCol :span="12">
+              <GrowFormItem label="图标" class="tenant-menu__icon-item">
+                <div class="tenant-menu__icon-field">
+                  <GrowInput
+                    v-model="formModel.icon"
+                    maxlength="128"
+                    clearable
+                    placeholder="ant-design:folder-outlined"
+                  />
+                  <span class="tenant-menu__icon-preview">
+                    <GrowIconify
+                      v-if="formModel.icon.trim()"
+                      :icon="formModel.icon.trim()"
+                      :size="24"
+                    />
+                  </span>
+                </div>
+              </GrowFormItem>
+            </GrowCol>
+          </template>
+
+          <template v-else>
+            <GrowCol :span="12">
+              <GrowFormItem label="应用功能" required>
+                <GrowSelect
+                  v-model="formModel.functionName"
+                  :options="functionOptions"
+                  filterable
+                  :placeholder="functionPlaceholder"
+                  @change="onFunctionChange"
+                />
+              </GrowFormItem>
+            </GrowCol>
+            <GrowCol :span="12">
+              <GrowFormItem label="菜单名称" required>
+                <GrowInput
+                  v-model="formModel.title"
+                  maxlength="64"
+                  clearable
+                  placeholder="侧边栏显示名称"
+                />
+              </GrowFormItem>
+            </GrowCol>
+            <GrowCol :span="12">
+              <GrowFormItem label="菜单图标" class="tenant-menu__icon-item">
+                <div class="tenant-menu__icon-field">
+                  <GrowInput
+                    v-model="formModel.icon"
+                    maxlength="128"
+                    clearable
+                    placeholder="ant-design:menu-outlined"
+                  />
+                  <span class="tenant-menu__icon-preview">
+                    <GrowIconify
+                      v-if="formModel.icon.trim()"
+                      :icon="formModel.icon.trim()"
+                      :size="24"
+                    />
+                  </span>
+                </div>
+              </GrowFormItem>
+            </GrowCol>
+          </template>
+
+          <GrowCol :span="24">
+            <GrowFormItem label="选项">
+              <div class="tenant-menu__switch-group">
+                <label class="tenant-menu__switch">
+                  <GrowSwitch v-model="formModel.enabled" />
+                  <span>启用</span>
+                </label>
+                <label class="tenant-menu__switch">
+                  <GrowSwitch v-model="formModel.isVisible" />
+                  <span>显示</span>
+                </label>
+                <label class="tenant-menu__switch">
+                  <GrowSwitch v-model="formModel.isKeepAlive" />
+                  <span>缓存</span>
+                </label>
+                <label class="tenant-menu__switch">
+                  <GrowSwitch v-model="formModel.affix" />
+                  <span>固定标签</span>
+                </label>
+                <label class="tenant-menu__switch">
+                  <GrowSwitch v-model="formModel.defaultShow" />
+                  <span>默认打开</span>
+                </label>
+              </div>
+            </GrowFormItem>
+          </GrowCol>
+        </GrowRow>
       </GrowForm>
       <template #footer>
         <GrowSpace>
@@ -221,15 +331,14 @@ const {
   tableColumns,
   leafColumns,
   formVisible,
-  formMode,
-  formKind,
   formModel,
   formTitle,
+  menuTypeOptions,
   functionOptions,
+  functionPlaceholder,
   parentTreeData,
   selectTenant,
-  openCreateDirectory,
-  openAddFunction,
+  openCreate,
   openEditItem,
   onFunctionChange,
   submitAssemblyItem,
@@ -380,6 +489,86 @@ const {
 .tenant-menu__form :deep(.el-select),
 .tenant-menu__form :deep(.el-tree-select) {
   width: 100%;
+}
+
+.tenant-menu__icon-field,
+.tenant-menu__switch,
+.tenant-menu__switch-group {
+  display: flex;
+  align-items: center;
+}
+
+.tenant-menu__icon-item :deep(.el-form-item__label) {
+  height: 40px;
+  line-height: 40px;
+}
+
+.tenant-menu__icon-item :deep(.el-form-item__content) {
+  align-items: center;
+  min-height: 40px;
+}
+
+.tenant-menu__icon-field {
+  gap: 8px;
+  width: 100%;
+  height: 40px;
+}
+
+.tenant-menu__icon-field :deep(.el-input) {
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+}
+
+.tenant-menu__icon-field :deep(.el-input__wrapper) {
+  height: 40px;
+  min-height: 40px;
+}
+
+.tenant-menu__icon-preview {
+  position: relative;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  border: 1px solid var(--layout-border-color);
+  border-radius: 4px;
+  background: var(--component-background-color);
+  color: var(--text-color);
+}
+
+.tenant-menu__icon-preview :deep(.grow-iconify) {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block !important;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  font-size: 24px;
+  line-height: 0;
+  transform: translate(-50%, -50%);
+}
+
+.tenant-menu__icon-preview :deep(svg) {
+  display: block;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.tenant-menu__switch-group {
+  flex-wrap: wrap;
+  gap: 16px 20px;
+  min-height: 32px;
+}
+
+.tenant-menu__switch {
+  gap: 8px;
+  margin: 0;
+  color: var(--text-color);
+  font-size: 13px;
+  cursor: pointer;
 }
 
 .tenant-menu :deep(.tenant-menu__row--disabled) {

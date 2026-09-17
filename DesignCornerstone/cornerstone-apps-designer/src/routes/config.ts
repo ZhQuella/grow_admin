@@ -137,14 +137,12 @@ export type DesignerRouteLeaf = DesignerRouteConfig & {
 }
 
 function buildChildParentPath(
-  config: DesignerRouteStructure,
+  config: DesignerRouteConfig,
   parentPath: string,
-  isRootLevel: boolean,
 ): string {
-  if (isRootLevel) {
-    return ''
-  }
-  return parentPath ? `${parentPath}/${config.path}` : config.path
+  return config.menuType === MenuTypeEnum.DIRECTORY
+    ? parentPath
+    : resolveDesignerRouteFullPath(config, parentPath)
 }
 
 export function resolveDesignerRouteFullPath(
@@ -157,7 +155,6 @@ export function resolveDesignerRouteFullPath(
 export function flattenDesignerRouteConfigs(
   configs: DesignerRouteConfig[],
   parentPath = '',
-  isRootLevel = true,
 ): DesignerRouteLeaf[] {
   return configs.flatMap((config) => {
     const selfRoute = config.menuType === MenuTypeEnum.MENU
@@ -168,8 +165,8 @@ export function flattenDesignerRouteConfigs(
       : []
 
     if (config.children?.length) {
-      const nextParentPath = buildChildParentPath(config, parentPath, isRootLevel)
-      const childRoutes = flattenDesignerRouteConfigs(config.children as DesignerRouteConfig[], nextParentPath, false)
+      const nextParentPath = buildChildParentPath(config, parentPath)
+      const childRoutes = flattenDesignerRouteConfigs(config.children as DesignerRouteConfig[], nextParentPath)
       return [...selfRoute, ...childRoutes]
     }
 

@@ -108,7 +108,6 @@ function menuState() {
 function toMenuItem(
   config: DynamicRouteConfig,
   parentPath = '',
-  isRootLevel = true,
 ): Menu {
   const fullPath = resolveWorkspaceRouteFullPath(config, parentPath)
   const routePath = `${HOME_PATH}/${fullPath}`
@@ -129,10 +128,10 @@ function toMenuItem(
   }
 
   if (config.children?.length) {
-    const nextParentPath = isRootLevel
-      ? ''
+    const nextParentPath = config.menuType === MenuTypeEnum.DIRECTORY
+      ? parentPath
       : resolveWorkspaceRouteFullPath(config, parentPath)
-    menu.children = config.children.map((child) => toMenuItem(child, nextParentPath, false))
+    menu.children = config.children.map((child) => toMenuItem(child, nextParentPath))
     if (config.menuType === MenuTypeEnum.MENU) {
       menu.path = routePath
     }

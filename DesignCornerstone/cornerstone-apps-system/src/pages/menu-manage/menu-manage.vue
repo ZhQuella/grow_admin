@@ -50,6 +50,9 @@
                     {{ menuTypeLabel(row.menuType) }}
                   </GrowTag>
                 </template>
+                <template v-else-if="col.field === 'path' && row.menuType === MenuTypeEnum.DIRECTORY">
+                  -
+                </template>
                 <template v-else-if="col.field === 'isVisible'">
                   <GrowTag :type="row.isVisible ? 'success' : 'danger'" size="small">
                     {{ row.isVisible ? '显示' : '隐藏' }}

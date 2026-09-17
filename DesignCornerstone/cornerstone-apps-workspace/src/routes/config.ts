@@ -77,19 +77,14 @@ export type WorkspaceRouteLeaf = WorkspaceRouteConfig & {
   fullPath: string
 }
 
-/**
- * 计算目录节点向下传递的 path 前缀。
- * 顶层目录（如 DashboardCatalog）不参与 URL，子级从空前缀开始。
- */
+/** 目录仅用于菜单分组，不参与子级路由 URL。 */
 function buildChildParentPath(
-  config: WorkspaceRouteStructure,
+  config: WorkspaceRouteConfig,
   parentPath: string,
-  isRootLevel: boolean,
 ): string {
-  if (isRootLevel) {
-    return ''
-  }
-  return parentPath ? `${parentPath}/${config.path}` : config.path
+  return config.menuType === MenuTypeEnum.DIRECTORY
+    ? parentPath
+    : resolveWorkspaceRouteFullPath(config, parentPath)
 }
 
 /** 计算叶子节点相对 Home 的完整 path 段 */
@@ -103,7 +98,6 @@ export function resolveWorkspaceRouteFullPath(
 export function flattenWorkspaceRouteConfigs(
   configs: WorkspaceRouteConfig[],
   parentPath = '',
-  isRootLevel = true,
 ): WorkspaceRouteLeaf[] {
   return configs.flatMap((config) => {
     const selfRoute = config.menuType === MenuTypeEnum.MENU
@@ -114,8 +108,8 @@ export function flattenWorkspaceRouteConfigs(
       : []
 
     if (config.children?.length) {
-      const nextParentPath = buildChildParentPath(config, parentPath, isRootLevel)
-      const childRoutes = flattenWorkspaceRouteConfigs(config.children as WorkspaceRouteConfig[], nextParentPath, false)
+      const nextParentPath = buildChildParentPath(config, parentPath)
+      const childRoutes = flattenWorkspaceRouteConfigs(config.children as WorkspaceRouteConfig[], nextParentPath)
       return [...selfRoute, ...childRoutes]
     }
 

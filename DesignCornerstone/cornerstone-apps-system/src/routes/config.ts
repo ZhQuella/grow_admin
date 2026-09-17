@@ -102,14 +102,12 @@ export type SystemRouteLeaf = SystemRouteConfig & {
 }
 
 function buildChildParentPath(
-  config: SystemRouteStructure,
+  config: SystemRouteConfig,
   parentPath: string,
-  isRootLevel: boolean,
 ): string {
-  if (isRootLevel) {
-    return ''
-  }
-  return parentPath ? `${parentPath}/${config.path}` : config.path
+  return config.menuType === MenuTypeEnum.DIRECTORY
+    ? parentPath
+    : resolveSystemRouteFullPath(config, parentPath)
 }
 
 export function resolveSystemRouteFullPath(
@@ -122,7 +120,6 @@ export function resolveSystemRouteFullPath(
 export function flattenSystemRouteConfigs(
   configs: SystemRouteConfig[],
   parentPath = '',
-  isRootLevel = true,
 ): SystemRouteLeaf[] {
   return configs.flatMap((config) => {
     const selfRoute = config.menuType === MenuTypeEnum.MENU
@@ -133,8 +130,8 @@ export function flattenSystemRouteConfigs(
       : []
 
     if (config.children?.length) {
-      const nextParentPath = buildChildParentPath(config, parentPath, isRootLevel)
-      const childRoutes = flattenSystemRouteConfigs(config.children as SystemRouteConfig[], nextParentPath, false)
+      const nextParentPath = buildChildParentPath(config, parentPath)
+      const childRoutes = flattenSystemRouteConfigs(config.children as SystemRouteConfig[], nextParentPath)
       return [...selfRoute, ...childRoutes]
     }
 

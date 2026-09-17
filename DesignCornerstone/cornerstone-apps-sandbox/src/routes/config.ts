@@ -62,14 +62,12 @@ export type SandboxRouteLeaf = SandboxRouteConfig & {
 }
 
 function buildChildParentPath(
-  config: SandboxRouteStructure,
+  config: SandboxRouteConfig,
   parentPath: string,
-  isRootLevel: boolean,
 ): string {
-  if (isRootLevel) {
-    return ''
-  }
-  return parentPath ? `${parentPath}/${config.path}` : config.path
+  return config.menuType === MenuTypeEnum.DIRECTORY
+    ? parentPath
+    : resolveSandboxRouteFullPath(config, parentPath)
 }
 
 export function resolveSandboxRouteFullPath(
@@ -82,7 +80,6 @@ export function resolveSandboxRouteFullPath(
 export function flattenSandboxRouteConfigs(
   configs: SandboxRouteConfig[],
   parentPath = '',
-  isRootLevel = true,
 ): SandboxRouteLeaf[] {
   return configs.flatMap((config) => {
     const selfRoute = config.menuType === MenuTypeEnum.MENU
@@ -93,8 +90,8 @@ export function flattenSandboxRouteConfigs(
       : []
 
     if (config.children?.length) {
-      const nextParentPath = buildChildParentPath(config, parentPath, isRootLevel)
-      const childRoutes = flattenSandboxRouteConfigs(config.children as SandboxRouteConfig[], nextParentPath, false)
+      const nextParentPath = buildChildParentPath(config, parentPath)
+      const childRoutes = flattenSandboxRouteConfigs(config.children as SandboxRouteConfig[], nextParentPath)
       return [...selfRoute, ...childRoutes]
     }
 

@@ -68,7 +68,7 @@ export function toParentTreeData(
 function matchesKeyword(node: SystemMenuNode, keyword: string) {
   const text = keyword.trim().toLowerCase()
   if (!text) return true
-  return [node.title, node.name, node.path]
+  return [node.title, node.name, node.menuType === MenuTypeEnum.MENU ? node.path : undefined]
     .filter(Boolean)
     .some((value) => String(value).toLowerCase().includes(text))
 }

@@ -68,14 +68,12 @@ export type ExternalRouteLeaf = ExternalRouteConfig & {
 }
 
 function buildChildParentPath(
-  config: ExternalRouteStructure,
+  config: ExternalRouteConfig,
   parentPath: string,
-  isRootLevel: boolean,
 ): string {
-  if (isRootLevel) {
-    return ''
-  }
-  return parentPath ? `${parentPath}/${config.path}` : config.path
+  return config.menuType === MenuTypeEnum.DIRECTORY
+    ? parentPath
+    : resolveExternalRouteFullPath(config, parentPath)
 }
 
 export function resolveExternalRouteFullPath(
@@ -88,7 +86,6 @@ export function resolveExternalRouteFullPath(
 export function flattenExternalRouteConfigs(
   configs: ExternalRouteConfig[],
   parentPath = '',
-  isRootLevel = true,
 ): ExternalRouteLeaf[] {
   return configs.flatMap((config) => {
     const selfRoute = config.menuType === MenuTypeEnum.MENU
@@ -99,8 +96,8 @@ export function flattenExternalRouteConfigs(
       : []
 
     if (config.children?.length) {
-      const nextParentPath = buildChildParentPath(config, parentPath, isRootLevel)
-      const childRoutes = flattenExternalRouteConfigs(config.children as ExternalRouteConfig[], nextParentPath, false)
+      const nextParentPath = buildChildParentPath(config, parentPath)
+      const childRoutes = flattenExternalRouteConfigs(config.children as ExternalRouteConfig[], nextParentPath)
       return [...selfRoute, ...childRoutes]
     }
 
