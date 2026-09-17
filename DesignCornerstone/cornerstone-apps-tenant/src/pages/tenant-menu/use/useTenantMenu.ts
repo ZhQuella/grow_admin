@@ -149,7 +149,6 @@ export function useTenantMenu() {
     { title: '标识', field: 'name', visible: true, minWidth: 140 },
     { title: '类型', field: 'menuType', visible: true, minWidth: 90 },
     { title: '访问路径', field: 'path', visible: true, minWidth: 140 },
-    { title: '组件标识', field: 'componentKey', visible: true, minWidth: 140 },
     { title: '图标', field: 'icon', visible: true, minWidth: 180 },
     { title: '排序', field: 'sort', visible: true, minWidth: 80 },
     { title: '状态', field: 'enabled', visible: true, minWidth: 90 },

@@ -20,7 +20,6 @@ type MenuNode = {
   name: string
   title: string
   path: string
-  componentKey?: string
   icon?: string
   menuType: string
   enabled: boolean
@@ -33,6 +32,8 @@ type MenuNode = {
   isExternalPage?: boolean
   openMode?: string
   link?: string
+  pageDataId?: string
+  pageType?: 'sandbox' | 'lowcode' | 'report'
   children?: MenuNode[]
 }
 
@@ -42,12 +43,9 @@ function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T
 }
 
-function ensureMenuComponentKey(node: MenuNode): MenuNode {
+function ensureMenuDefaults(node: MenuNode): MenuNode {
   if (node.enabled == null) node.enabled = true
-  if (node.menuType === MenuTypeEnum.MENU && !node.componentKey) {
-    node.componentKey = node.name
-  }
-  node.children?.forEach(ensureMenuComponentKey)
+  node.children?.forEach(ensureMenuDefaults)
   return node
 }
 
@@ -107,7 +105,7 @@ function getStore(): MenuNode[] {
     syncSourceMeta(menuStore, source)
     syncMissingChildren(menuStore, source)
   }
-  menuStore.forEach(ensureMenuComponentKey)
+  menuStore.forEach(ensureMenuDefaults)
   sortMenuNodes(menuStore)
   return menuStore
 }
@@ -571,9 +569,6 @@ seedColumns()
 function normalizeNode(node: MenuNode): MenuNode {
   const next: MenuNode = { ...node }
   if (next.enabled == null) next.enabled = true
-  if (next.menuType === MenuTypeEnum.MENU && !next.componentKey) {
-    next.componentKey = next.name
-  }
   if (next.children?.length) {
     next.children = next.children.map(normalizeNode)
   } else {
@@ -595,17 +590,12 @@ function pickNodeFields(payload: Recordable<any>, name: string): MenuNode | stri
   const title = String(payload.title || '').trim()
   const path = String(payload.path || '').trim()
   const menuType = String(payload.menuType || '').trim()
-  const componentKey = String(payload.componentKey || '').trim()
 
   if (!title) return '请填写标题'
   if (!path) return '请填写路径'
   if (menuType !== MenuTypeEnum.DIRECTORY && menuType !== MenuTypeEnum.MENU) {
     return '请选择类型'
   }
-  if (menuType === MenuTypeEnum.MENU && !payload.isExternalPage && !componentKey) {
-    return '菜单类型请填写组件标识'
-  }
-
   const node: MenuNode = {
     name,
     title,
@@ -621,10 +611,11 @@ function pickNodeFields(payload: Recordable<any>, name: string): MenuNode | stri
     isExternalPage: Boolean(payload.isExternalPage),
   }
 
-  if (componentKey) node.componentKey = componentKey
   if (payload.icon) node.icon = String(payload.icon).trim()
   if (payload.openMode) node.openMode = String(payload.openMode)
   if (payload.link) node.link = String(payload.link).trim()
+  if (payload.pageDataId) node.pageDataId = String(payload.pageDataId).trim()
+  if (payload.pageType) node.pageType = payload.pageType
 
   return node
 }

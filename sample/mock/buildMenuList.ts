@@ -33,6 +33,7 @@ import { SANDBOX_MENU_LIST } from './sandboxMenuList'
 import { DESIGNER_MENU_LIST } from './designerMenuList'
 import { SYSTEM_MENU_LIST } from './systemMenuList'
 import { TENANT_MENU_LIST } from './tenantMenuList'
+import { AUTOMATION_MENU_LIST } from './automationMenuList'
 
 type SortableMenu = {
   sort?: number
@@ -59,5 +60,6 @@ export function buildBackMenuList() {
     ...mergeFeatMenuWithStructure(FEAT_MENU_LIST, FEAT_ROUTE_STRUCTURES),
     ...mergeSystemMenuWithStructure(SYSTEM_MENU_LIST, SYSTEM_ROUTE_STRUCTURES),
     ...mergeTenantMenuWithStructure(TENANT_MENU_LIST, TENANT_ROUTE_STRUCTURES),
+    ...AUTOMATION_MENU_LIST,
   ])
 }

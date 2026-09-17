@@ -13,7 +13,6 @@ export type TenantMenuNode = {
   title: string
   originTitle?: string
   path: string
-  componentKey?: string
   icon?: string
   source: TenantMenuSource
   menuType: MenuTypeEnum
@@ -27,6 +26,8 @@ export type TenantMenuNode = {
   isExternalPage?: boolean
   openMode?: PageOpenModeEnum
   link?: string
+  pageDataId?: string
+  pageType?: 'sandbox' | 'lowcode' | 'report'
   children?: TenantMenuNode[]
 }
 

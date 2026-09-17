@@ -17,8 +17,6 @@ type FormModel = {
   name: string
   title: string
   path: string
-  componentKey: string
-  customComponentKey: boolean
   icon: string
   menuType: MenuTypeEnum
   menuKind: MenuKind
@@ -63,8 +61,6 @@ function emptyForm(menuType: MenuTypeEnum): FormModel {
     name: '',
     title: '',
     path: '',
-    componentKey: '',
-    customComponentKey: false,
     icon: '',
     menuType,
     menuKind: 'app',
@@ -98,7 +94,38 @@ function resolveMenuKind(row: SystemMenuNode): MenuKind {
   if (row.isExternalPage || row.openMode === PageOpenModeEnum.IFRAME || row.openMode === PageOpenModeEnum.BROWSER || row.link) {
     return 'external'
   }
+  if (row.pageType) {
+    return 'automation'
+  }
   return 'app'
+}
+
+function collectUsedAutomationPages(
+  nodes: SystemMenuNode[],
+  excludedName = '',
+  result = new Set<string>(),
+) {
+  nodes.forEach((node) => {
+    if (node.name !== excludedName && node.pageDataId) {
+      result.add(node.pageDataId)
+    }
+    if (node.children?.length) {
+      collectUsedAutomationPages(node.children, excludedName, result)
+    }
+  })
+  return result
+}
+
+function normalizeRoutePath(value: string) {
+  return value.trim().split('/').filter(Boolean).join('/')
+}
+
+function resolveAutomationBasePath(path: string, pageId: string) {
+  const normalizedPath = normalizeRoutePath(path)
+  const suffix = `/${pageId}`
+  return normalizedPath.endsWith(suffix)
+    ? normalizedPath.slice(0, -suffix.length)
+    : normalizedPath
 }
 
 export function useMenuForm(options: UseMenuFormOptions) {
@@ -127,8 +154,12 @@ export function useMenuForm(options: UseMenuFormOptions) {
   const isAutomationMenu = computed(() => isMenu.value && formModel.menuKind === 'automation')
   const isExternalMenu = computed(() => isMenu.value && formModel.menuKind === 'external')
   const showMenuType = computed(() => options.allowHierarchy)
+  const showName = computed(() => options.allowHierarchy)
   const showPath = computed(() => !isExternalMenu.value)
-  const showComponentKey = computed(() => isAppMenu.value || isAutomationMenu.value)
+  const usedAutomationPages = computed(() => collectUsedAutomationPages(
+    options.sourceTree.value,
+    formMode.value === 'edit' ? originalName.value : '',
+  ))
 
   const menuTypeOptions = [
     { label: '目录', value: MenuTypeEnum.DIRECTORY },
@@ -148,12 +179,20 @@ export function useMenuForm(options: UseMenuFormOptions) {
   ]
 
   const automationPageOptions = computed(() => {
-    if (formModel.automationType === 'lowcode') return LOWCODE_PAGE_OPTIONS
-    if (formModel.automationType === 'report') return REPORT_PAGE_OPTIONS
-    return SANDBOX_PAGE_OPTIONS
+    const options = formModel.automationType === 'lowcode'
+      ? LOWCODE_PAGE_OPTIONS
+      : formModel.automationType === 'report'
+        ? REPORT_PAGE_OPTIONS
+        : SANDBOX_PAGE_OPTIONS
+    return options.filter((item) => (
+      item.value === formModel.automationPage
+      || !usedAutomationPages.value.has(item.value)
+    ))
   })
 
-  const automationPagePlaceholder = computed(() => '请选择页面')
+  const automationPagePlaceholder = computed(() => (
+    automationPageOptions.value.length ? '请选择页面' : '当前类型没有可用页面'
+  ))
 
   const openModeOptions = [
     { label: '内嵌 iframe', value: PageOpenModeEnum.IFRAME },
@@ -164,6 +203,10 @@ export function useMenuForm(options: UseMenuFormOptions) {
     name: [{
       required: true,
       validator: (_rule: unknown, value: string, callback: (error?: Error) => void) => {
+        if (!showName.value) {
+          callback()
+          return
+        }
         const name = String(value || '').trim()
         if (!name) {
           callback(new Error('请填写标识'))
@@ -231,6 +274,10 @@ export function useMenuForm(options: UseMenuFormOptions) {
           callback(new Error('请选择页面'))
           return
         }
+        if (usedAutomationPages.value.has(String(value))) {
+          callback(new Error('该页面已被使用'))
+          return
+        }
         callback()
       },
       trigger: 'change',
@@ -264,10 +311,6 @@ export function useMenuForm(options: UseMenuFormOptions) {
   function onMenuKindChange(kind: MenuKind) {
     formModel.menuKind = kind
     formModel.automationPage = ''
-    formModel.customComponentKey = kind === 'automation'
-    if (!formModel.customComponentKey) {
-      formModel.componentKey = ''
-    }
     if (kind === 'external') {
       formModel.isExternalPage = true
       if (formModel.openMode === PageOpenModeEnum.ROUTE) {
@@ -278,17 +321,6 @@ export function useMenuForm(options: UseMenuFormOptions) {
     formModel.isExternalPage = false
     formModel.openMode = PageOpenModeEnum.ROUTE
     formModel.link = ''
-  }
-
-  function onCustomComponentKeyChange(value: boolean) {
-    if (isAutomationMenu.value) {
-      formModel.customComponentKey = true
-      return
-    }
-    formModel.customComponentKey = value
-    if (!value) {
-      formModel.componentKey = ''
-    }
   }
 
   function onAutomationTypeChange() {
@@ -313,21 +345,19 @@ export function useMenuForm(options: UseMenuFormOptions) {
     formMode.value = 'edit'
     originalName.value = row.name
     const menuKind = row.menuType === MenuTypeEnum.MENU ? resolveMenuKind(row) : 'app'
-    const storedKey = row.componentKey || ''
-    const customComponentKey = menuKind === 'automation'
-      || (menuKind === 'app' && Boolean(storedKey && storedKey !== row.name))
+    const automationPage = menuKind === 'automation' ? row.pageDataId || '' : ''
     applyForm({
       parentName: row.parentName ?? findParentName(options.sourceTree.value, row.name),
       name: row.name,
       title: row.title,
-      path: row.path,
-      componentKey: customComponentKey ? storedKey : '',
-      customComponentKey,
+      path: menuKind === 'automation'
+        ? resolveAutomationBasePath(row.path, automationPage)
+        : row.path,
       icon: row.icon || '',
       menuType: row.menuType,
       menuKind,
-      automationType: 'lowcode',
-      automationPage: '',
+      automationType: row.pageType || 'lowcode',
+      automationPage,
       enabled: row.enabled !== false,
       description: row.description || '',
       isVisible: row.isVisible !== false,
@@ -352,32 +382,28 @@ export function useMenuForm(options: UseMenuFormOptions) {
   }
 
   function resolveName() {
-    if (formModel.name.trim()) return formModel.name.trim()
-    const fromKey = formModel.customComponentKey ? toMenuName(formModel.componentKey) : ''
-    if (fromKey) return fromKey
+    if (isAutomationMenu.value && formModel.automationPage) {
+      return formModel.automationPage
+    }
+    if (showName.value && formModel.name.trim()) return formModel.name.trim()
+    if (formMode.value === 'edit' && originalName.value) return originalName.value
+    if (isExternalMenu.value) return `ExternalPage_${Date.now()}`
     const fromPath = toMenuName(formModel.path)
     if (fromPath) return fromPath
     return `Menu_${Date.now()}`
   }
 
-  function resolveComponentKey() {
-    if (!isAppMenu.value && !isAutomationMenu.value) {
-      return formModel.componentKey.trim() || undefined
-    }
-    if (formModel.customComponentKey) {
-      const key = formModel.componentKey.trim()
-      if (key) return key
-    }
-    return resolveName() || undefined
-  }
-
   function buildPayload() {
+    const name = resolveName()
+    const basePath = normalizeRoutePath(formModel.path)
+    const path = isAutomationMenu.value && formModel.automationPage
+      ? `${basePath}/${formModel.automationPage}`
+      : basePath || (isExternalMenu.value ? name : '')
     return {
       parentName: formModel.parentName || undefined,
-      name: resolveName(),
+      name,
       title: formModel.title.trim(),
-      path: formModel.path.trim() || (isExternalMenu.value ? resolveName() : ''),
-      componentKey: resolveComponentKey(),
+      path,
       icon: formModel.icon.trim() || undefined,
       menuType: formModel.menuType,
       enabled: formModel.enabled,
@@ -390,11 +416,9 @@ export function useMenuForm(options: UseMenuFormOptions) {
       isExternalPage: isExternalMenu.value,
       openMode: isExternalMenu.value ? formModel.openMode : PageOpenModeEnum.ROUTE,
       link: isExternalMenu.value ? formModel.link.trim() : undefined,
+      pageDataId: isAutomationMenu.value ? formModel.automationPage : undefined,
+      pageType: isAutomationMenu.value ? formModel.automationType : undefined,
     }
-  }
-
-  function shouldPersist() {
-    return !isAutomationMenu.value
   }
 
   function confirmCodeChange(content: string): Promise<boolean> {
@@ -428,11 +452,6 @@ export function useMenuForm(options: UseMenuFormOptions) {
     try {
       await validateGrowForm(formRef)
     } catch {
-      return
-    }
-
-    if (!shouldPersist()) {
-      formVisible.value = false
       return
     }
 
@@ -475,9 +494,8 @@ export function useMenuForm(options: UseMenuFormOptions) {
     isAutomationMenu,
     isExternalMenu,
     showMenuType,
+    showName,
     showPath,
-    showComponentKey,
-    onCustomComponentKeyChange,
     menuTypeOptions,
     menuKindOptions,
     automationTypeOptions,

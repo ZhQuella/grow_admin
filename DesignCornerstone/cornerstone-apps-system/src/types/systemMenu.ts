@@ -6,7 +6,6 @@ export type SystemMenuNode = {
   name: string
   title: string
   path: string
-  componentKey?: string
   icon?: string
   menuType: MenuTypeEnum
   enabled: boolean
@@ -19,6 +18,8 @@ export type SystemMenuNode = {
   isExternalPage?: boolean
   openMode?: PageOpenModeEnum
   link?: string
+  pageDataId?: string
+  pageType?: 'sandbox' | 'lowcode' | 'report'
   children?: SystemMenuNode[]
 }
 

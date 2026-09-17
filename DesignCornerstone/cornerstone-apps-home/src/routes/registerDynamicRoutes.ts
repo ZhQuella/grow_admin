@@ -72,6 +72,7 @@ type DynamicRouteConfig = (
   | SystemRouteConfig
   | TenantRouteConfig
 ) & {
+  pageDataId?: string
   pageType?: DisparkPageType
   dynamicTab?: boolean
   breadcrumbParentName?: string
@@ -109,7 +110,8 @@ function toMenuItem(
   parentPath = '',
   isRootLevel = true,
 ): Menu {
-  const routePath = `${HOME_PATH}/${resolveWorkspaceRouteFullPath(config, parentPath)}`
+  const fullPath = resolveWorkspaceRouteFullPath(config, parentPath)
+  const routePath = `${HOME_PATH}/${fullPath}`
   const menu: Menu = {
     name: String(config.name),
     title: config.title,
@@ -192,7 +194,10 @@ function resolveDynamicCacheName(fullPath: string, routeName: string): string {
 }
 
 function resolveDynamicRoute(config: DynamicRouteConfig, fullPath: string) {
-  const component = resolveDisparkComponent(config) ?? config.component
+  const component = resolveDisparkComponent({
+    pageType: config.pageType,
+    openMode: config.openMode,
+  }) ?? config.component
   if (!component) {
     throw new Error(`Route "${String(config.name)}" is missing its local component`)
   }

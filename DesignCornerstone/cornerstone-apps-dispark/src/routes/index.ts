@@ -13,6 +13,7 @@ export type DisparkRouteConfig = {
   name: string | symbol
   title: string
   icon?: string
+  pageDataId?: string
   pageType?: DisparkPageType
   openMode?: PageOpenModeEnum
   link?: string

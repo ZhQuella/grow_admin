@@ -45,7 +45,7 @@ export function toMessage(error: unknown, fallback: string) {
 function matchesKeyword(node: TenantMenuNode, keyword: string) {
   const text = keyword.trim().toLowerCase()
   if (!text) return true
-  return [node.title, node.originTitle, node.name, node.path, node.componentKey]
+  return [node.title, node.originTitle, node.name, node.path]
     .filter(Boolean)
     .some((value) => String(value).toLowerCase().includes(text))
 }
