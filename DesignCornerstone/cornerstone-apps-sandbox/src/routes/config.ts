@@ -1,10 +1,10 @@
 import { MenuTypeEnum, PageOpenModeEnum } from '@grow-admin-rock/constants'
 
-/** 客户端路由结构：path、组件映射，不含展示信息 */
+/** 可序列化路由结构：path 与行为配置，不含展示信息和组件 */
 export type SandboxRouteStructure = {
   path: string
   name: string
-  componentKey?: string
+  component?: GrowRouteComponent
   children?: SandboxRouteStructure[]
 }
 
@@ -48,12 +48,10 @@ export const SANDBOX_ROUTE_STRUCTURES: SandboxRouteStructure[] = [
       {
         path: 'code-sandbox-demo',
         name: 'CodeSandboxDemo',
-        componentKey: 'CodeSandboxDemo',
       },
       {
         path: 'code-editor-demo',
         name: 'CodeEditorDemo',
-        componentKey: 'CodeEditorDemo',
       },
     ],
   },
@@ -64,14 +62,12 @@ export type SandboxRouteLeaf = SandboxRouteConfig & {
 }
 
 function buildChildParentPath(
-  config: SandboxRouteStructure,
+  config: SandboxRouteConfig,
   parentPath: string,
-  isRootLevel: boolean,
 ): string {
-  if (isRootLevel) {
-    return ''
-  }
-  return parentPath ? `${parentPath}/${config.path}` : config.path
+  return config.menuType === MenuTypeEnum.DIRECTORY
+    ? parentPath
+    : resolveSandboxRouteFullPath(config, parentPath)
 }
 
 export function resolveSandboxRouteFullPath(
@@ -84,25 +80,22 @@ export function resolveSandboxRouteFullPath(
 export function flattenSandboxRouteConfigs(
   configs: SandboxRouteConfig[],
   parentPath = '',
-  isRootLevel = true,
 ): SandboxRouteLeaf[] {
   return configs.flatMap((config) => {
+    const selfRoute = config.menuType === MenuTypeEnum.MENU
+      ? [{
+          ...config,
+          fullPath: resolveSandboxRouteFullPath(config, parentPath),
+        }]
+      : []
+
     if (config.children?.length) {
-      const nextParentPath = buildChildParentPath(config, parentPath, isRootLevel)
-      const childRoutes = flattenSandboxRouteConfigs(config.children, nextParentPath, false)
-      const selfRoute = config.componentKey != null
-        ? [{
-            ...config,
-            fullPath: resolveSandboxRouteFullPath(config, parentPath),
-          }]
-        : []
+      const nextParentPath = buildChildParentPath(config, parentPath)
+      const childRoutes = flattenSandboxRouteConfigs(config.children as SandboxRouteConfig[], nextParentPath)
       return [...selfRoute, ...childRoutes]
     }
 
-    return [{
-      ...config,
-      fullPath: resolveSandboxRouteFullPath(config, parentPath),
-    }]
+    return selfRoute
   })
 }
 
@@ -120,23 +113,4 @@ export function toSandboxRouteConfigs(
   structures: SandboxRouteStructure[] = SANDBOX_ROUTE_STRUCTURES,
 ): SandboxRouteConfig[] {
   return structures.map(withDefaultTitle)
-}
-
-export const SANDBOX_COMPONENT_KEYS = new Set([
-  'CodeSandboxDemo',
-  'CodeEditorDemo',
-])
-
-export const SANDBOX_COMPONENT_PAGE_NAMES: Record<string, string> = {
-  CodeSandboxDemo: 'CodeSandboxDemoPage',
-  CodeEditorDemo: 'CodeEditorDemoPage',
-}
-
-export function resolveSandboxPageComponentName(componentKey: string): string {
-  return SANDBOX_COMPONENT_PAGE_NAMES[componentKey] ?? componentKey
-}
-
-export function isSandboxRouteConfig(config: { componentKey?: string; name: string | symbol }): boolean {
-  const key = String(config.componentKey ?? config.name)
-  return SANDBOX_COMPONENT_KEYS.has(key)
 }

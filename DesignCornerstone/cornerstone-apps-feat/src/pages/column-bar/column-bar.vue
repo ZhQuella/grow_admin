@@ -29,7 +29,6 @@
 <script lang="ts" setup>
 import { computed, defineComponent, h, ref, resolveComponent } from 'vue'
 import type { ColumnBarItem } from '@grow-admin-rock/components/column-bar'
-import { GrowColumnBar } from '@grow-admin-rock/components/column-bar'
 
 defineOptions({
   name: 'ColumnBarPage',

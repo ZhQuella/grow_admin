@@ -120,8 +120,6 @@
 
 <script lang="ts" setup>
 import { computed, reactive, ref, watch } from 'vue'
-import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
-import { RockScrollbar as GrowScrollbar } from '@grow-admin-rock/components/scrollbar'
 import type {
   CodeDependency,
   CodeDependencyKind,

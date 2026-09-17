@@ -32,7 +32,7 @@
         </GrowFormItem>
       </GrowCol>
       <GrowCol v-if="state.formModel.menuType === MenuTypeEnum.MENU" :span="24">
-        <GrowFormItem label="菜单类型" prop="menuKind">
+        <GrowFormItem label="菜单类型" prop="menuKind" required>
           <GrowRadioGroup
             :model-value="state.formModel.menuKind"
             :options="state.menuKindOptions"
@@ -40,47 +40,110 @@
           />
         </GrowFormItem>
       </GrowCol>
-      <GrowCol :span="12">
-        <GrowFormItem label="标题" prop="title">
-          <GrowInput v-model="state.formModel.title" maxlength="64" clearable placeholder="侧边栏显示名称" />
+      <GrowCol v-if="state.showApplication" :span="12">
+        <GrowFormItem label="应用功能" prop="applicationName" required>
+          <GrowSelect
+            v-model="state.formModel.applicationName"
+            :options="state.applicationOptions"
+            :loading="state.tenantApplicationsLoading"
+            :placeholder="state.applicationPlaceholder"
+            filterable
+            @change="state.onApplicationChange"
+          />
         </GrowFormItem>
       </GrowCol>
       <GrowCol :span="12">
+        <GrowFormItem
+          :label="state.allowHierarchy && state.formModel.menuType === MenuTypeEnum.DIRECTORY ? '标题' : '菜单名称'"
+          prop="title"
+        >
+          <GrowInput v-model="state.formModel.title" maxlength="64" clearable placeholder="侧边栏显示名称" />
+        </GrowFormItem>
+      </GrowCol>
+      <GrowCol v-if="state.showName" :span="12">
         <GrowFormItem label="标识" prop="name">
           <GrowInput v-model="state.formModel.name" maxlength="64" clearable placeholder="如 MenuManage" />
         </GrowFormItem>
       </GrowCol>
-      <GrowCol v-if="state.showComponentKey" :span="12">
-        <GrowFormItem label="组件标识">
-          <div class="menu-form-panel__custom-component">
-            <GrowSwitch
-              :model-value="state.formModel.customComponentKey"
-              :disabled="state.isAutomationMenu"
-              @update:model-value="state.onCustomComponentKeyChange"
-            />
-            <GrowInput
-              v-if="state.formModel.customComponentKey"
-              v-model="state.formModel.componentKey"
-              class="menu-form-panel__custom-component-input"
-              maxlength="64"
-              clearable
-              placeholder="请填写组件标识"
-            />
-          </div>
-        </GrowFormItem>
-      </GrowCol>
       <GrowCol v-if="state.showPath" :span="12">
         <GrowFormItem label="访问路径" prop="path" required>
-          <GrowInput v-model="state.formModel.path" maxlength="128" clearable placeholder="如 menu-manage" />
+          <GrowInput
+            v-model="state.formModel.path"
+            maxlength="128"
+            clearable
+            :placeholder="state.allowHierarchy ? '如 menu-manage' : '如 demo'"
+          />
         </GrowFormItem>
       </GrowCol>
       <GrowCol v-if="state.isExternalMenu" :span="12">
-        <GrowFormItem label="打开方式" prop="openMode">
+        <GrowFormItem label="打开方式" prop="openMode" required>
           <GrowSelect v-model="state.formModel.openMode" :options="state.openModeOptions" />
         </GrowFormItem>
       </GrowCol>
+      <GrowCol
+        v-if="!state.allowHierarchy"
+        :span="24"
+        class="menu-form-panel__required-extension"
+      >
+        <GrowRow :gutter="16">
+          <GrowCol v-if="state.isAutomationMenu" :span="12">
+            <GrowFormItem label="页面类型" prop="automationType" required>
+              <GrowSelect
+                v-model="state.formModel.automationType"
+                :options="state.automationTypeOptions"
+                @change="state.onAutomationTypeChange"
+              />
+            </GrowFormItem>
+          </GrowCol>
+          <GrowCol v-if="state.isAutomationMenu" :span="12">
+            <GrowFormItem label="选择页面" prop="automationPage" required>
+              <GrowSelect
+                v-model="state.formModel.automationPage"
+                :options="state.automationPageOptions"
+                :placeholder="state.automationPagePlaceholder"
+                clearable
+              />
+            </GrowFormItem>
+          </GrowCol>
+          <GrowCol v-if="state.isExternalMenu" :span="24">
+            <GrowFormItem label="链接" prop="link" required>
+              <GrowInput v-model="state.formModel.link" maxlength="256" clearable placeholder="外链或 iframe 地址" />
+            </GrowFormItem>
+          </GrowCol>
+        </GrowRow>
+      </GrowCol>
+      <template v-else>
+        <GrowCol v-if="state.isAutomationMenu" :span="12">
+          <GrowFormItem label="页面类型" prop="automationType" required>
+            <GrowSelect
+              v-model="state.formModel.automationType"
+              :options="state.automationTypeOptions"
+              @change="state.onAutomationTypeChange"
+            />
+          </GrowFormItem>
+        </GrowCol>
+        <GrowCol v-if="state.isAutomationMenu" :span="12">
+          <GrowFormItem label="选择页面" prop="automationPage" required>
+            <GrowSelect
+              v-model="state.formModel.automationPage"
+              :options="state.automationPageOptions"
+              :placeholder="state.automationPagePlaceholder"
+              clearable
+            />
+          </GrowFormItem>
+        </GrowCol>
+        <GrowCol v-if="state.isExternalMenu" :span="24">
+          <GrowFormItem label="链接" prop="link" required>
+            <GrowInput v-model="state.formModel.link" maxlength="256" clearable placeholder="外链或 iframe 地址" />
+          </GrowFormItem>
+        </GrowCol>
+      </template>
       <GrowCol :span="12">
-        <GrowFormItem label="图标" prop="icon" class="menu-form-panel__icon-item">
+        <GrowFormItem
+          :label="state.showApplication ? '菜单图标' : '图标'"
+          prop="icon"
+          class="menu-form-panel__icon-item"
+        >
           <div class="menu-form-panel__icon-field">
             <GrowInput
               v-model="state.formModel.icon"
@@ -98,31 +161,7 @@
           </div>
         </GrowFormItem>
       </GrowCol>
-      <GrowCol v-if="state.isAutomationMenu" :span="12">
-        <GrowFormItem label="页面类型" prop="automationType" required>
-          <GrowSelect
-            v-model="state.formModel.automationType"
-            :options="state.automationTypeOptions"
-            @change="state.onAutomationTypeChange"
-          />
-        </GrowFormItem>
-      </GrowCol>
-      <GrowCol v-if="state.isAutomationMenu" :span="12">
-        <GrowFormItem label="选择页面" prop="automationPage" required>
-          <GrowSelect
-            v-model="state.formModel.automationPage"
-            :options="state.automationPageOptions"
-            :placeholder="state.automationPagePlaceholder"
-            clearable
-          />
-        </GrowFormItem>
-      </GrowCol>
-      <GrowCol v-if="state.isExternalMenu" :span="24">
-        <GrowFormItem label="链接" prop="link" required>
-          <GrowInput v-model="state.formModel.link" maxlength="256" clearable placeholder="外链或 iframe 地址" />
-        </GrowFormItem>
-      </GrowCol>
-      <GrowCol :span="24">
+      <GrowCol v-if="!state.allowHierarchy" :span="24">
         <GrowFormItem label="说明" prop="description">
           <GrowInput
             v-model="state.formModel.description"
@@ -186,7 +225,6 @@ const state = proxyRefs(props.state)
   width: 100%;
 }
 
-.menu-form-panel__custom-component,
 .menu-form-panel__icon-field,
 .menu-form-panel__switch,
 .menu-form-panel__switch-group {
@@ -194,21 +232,8 @@ const state = proxyRefs(props.state)
   align-items: center;
 }
 
-.menu-form-panel__custom-component {
-  gap: 8px;
-  width: 100%;
-  min-height: 32px;
-}
-
-.menu-form-panel__custom-component :deep(.el-switch) {
-  flex-shrink: 0;
-}
-
-.menu-form-panel__custom-component-input,
-.menu-form-panel__custom-component :deep(.el-input) {
-  flex: 1 1 0;
-  min-width: 0;
-  width: auto;
+.menu-form-panel__required-extension {
+  min-height: 56px;
 }
 
 .menu-form-panel__icon-item :deep(.el-form-item__label) {

@@ -2,7 +2,7 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import type { SearchBarField } from '@grow-admin-rock/components/search-bar'
 import type { ColumnBarItem } from '@grow-admin-rock/components/column-bar'
 import { useMsg } from '@grow-admin-rock/components'
-import { MenuTypeEnum } from '@grow-admin-rock/constants'
+import { MenuTypeEnum, PageOpenModeEnum } from '@grow-admin-rock/constants'
 import { fetchSystemTenantOptions } from '../../../api/systemTenant'
 import {
   fetchTenantMenuAssembly,
@@ -30,13 +30,19 @@ export type ManageTableColumn = ColumnBarItem & {
   fixed?: string | boolean
 }
 
-type AssemblyItemKind = 'directory' | 'function'
-
 type AssemblyFormModel = {
+  menuType: MenuTypeEnum
   functionName: string
   title: string
+  name: string
+  icon: string
   parentName: string
   sort: number
+  enabled: boolean
+  isVisible: boolean
+  isKeepAlive: boolean
+  affix: boolean
+  defaultShow: boolean
 }
 
 function collectLeafColumns(list: ManageTableColumn[]): ManageTableColumn[] {
@@ -67,13 +73,20 @@ export function useTenantMenu() {
   const dirty = ref(false)
   const formVisible = ref(false)
   const formMode = ref<'create' | 'edit'>('create')
-  const formKind = ref<AssemblyItemKind>('directory')
   const editingName = ref('')
   const formModel = reactive<AssemblyFormModel>({
+    menuType: MenuTypeEnum.MENU,
     functionName: '',
     title: '',
+    name: '',
+    icon: '',
     parentName: '',
     sort: 10,
+    enabled: true,
+    isVisible: true,
+    isKeepAlive: true,
+    affix: false,
+    defaultShow: false,
   })
 
   const searchList = reactive<SearchBarField[]>([
@@ -149,7 +162,6 @@ export function useTenantMenu() {
     { title: '标识', field: 'name', visible: true, minWidth: 140 },
     { title: '类型', field: 'menuType', visible: true, minWidth: 90 },
     { title: '访问路径', field: 'path', visible: true, minWidth: 140 },
-    { title: '组件标识', field: 'componentKey', visible: true, minWidth: 140 },
     { title: '图标', field: 'icon', visible: true, minWidth: 180 },
     { title: '排序', field: 'sort', visible: true, minWidth: 80 },
     { title: '状态', field: 'enabled', visible: true, minWidth: 90 },
@@ -180,11 +192,11 @@ export function useTenantMenu() {
 
   const tableData = computed(() => filterMenuTree(sourceTree.value, query.value || {}))
 
-  const usedFunctionNames = computed(() => {
+  const usedMenuNames = computed(() => {
     const result = new Set<string>()
     const collect = (nodes: TenantMenuNode[]) => {
       nodes.forEach((node) => {
-        if (node.menuType === MenuTypeEnum.MENU) result.add(node.name)
+        result.add(node.name)
         if (node.children?.length) collect(node.children)
       })
     }
@@ -192,15 +204,35 @@ export function useTenantMenu() {
     return result
   })
 
-  const functionOptions = computed(() => availableFunctions.value
-    .filter((item) => item.name === editingName.value || !usedFunctionNames.value.has(item.name))
+  const functionCandidates = computed(() => {
+    const items = [...availableFunctions.value]
+    if (formMode.value === 'edit' && editingName.value && !items.some((item) => item.name === editingName.value)) {
+      const current = findMenuNode(sourceTree.value, editingName.value)
+      if (current?.menuType === MenuTypeEnum.MENU) items.push(current)
+    }
+    return items.filter((item) => (
+      item.menuType === MenuTypeEnum.MENU
+      && !item.isExternalPage
+      && !item.pageType
+      && item.openMode !== PageOpenModeEnum.IFRAME
+      && item.openMode !== PageOpenModeEnum.BROWSER
+      && (item.enabled !== false || item.name === editingName.value)
+      && (item.name === editingName.value || !usedMenuNames.value.has(item.name))
+    ))
+  })
+
+  const functionOptions = computed(() => functionCandidates.value
     .map((item) => ({
       label: `${item.title}（${item.name}）`,
       value: item.name,
     })))
 
+  const functionPlaceholder = computed(() => (
+    functionOptions.value.length ? '请选择已授权功能' : '当前没有可用应用功能'
+  ))
+
   const parentTreeData = computed(() => {
-    const editing = formMode.value === 'edit' && formKind.value === 'directory'
+    const editing = formMode.value === 'edit'
       ? findMenuNode(sourceTree.value, editingName.value)
       : undefined
     const excluded = editing ? new Set(collectMenuNames(editing)) : new Set<string>()
@@ -208,9 +240,13 @@ export function useTenantMenu() {
   })
 
   const formTitle = computed(() => {
-    const action = formMode.value === 'create' ? '新增' : '编辑'
-    return `${action}${formKind.value === 'directory' ? '目录' : '应用功能'}`
+    return formMode.value === 'create' ? '新增' : '编辑'
   })
+
+  const menuTypeOptions = [
+    { label: '目录', value: MenuTypeEnum.DIRECTORY },
+    { label: '菜单', value: MenuTypeEnum.MENU },
+  ]
 
   async function loadTenants() {
     try {
@@ -253,59 +289,102 @@ export function useTenantMenu() {
 
   function resetAssemblyForm() {
     Object.assign(formModel, {
+      menuType: MenuTypeEnum.MENU,
       functionName: '',
       title: '',
+      name: '',
+      icon: '',
       parentName: '',
       sort: 10,
+      enabled: true,
+      isVisible: true,
+      isKeepAlive: true,
+      affix: false,
+      defaultShow: false,
     })
   }
 
-  function openCreateDirectory() {
+  function openCreate() {
     if (!selectedTenantId.value) return
     formMode.value = 'create'
-    formKind.value = 'directory'
     editingName.value = ''
     resetAssemblyForm()
-    formVisible.value = true
-  }
-
-  function openAddFunction() {
-    if (!selectedTenantId.value) return
-    formMode.value = 'create'
-    formKind.value = 'function'
-    editingName.value = ''
-    resetAssemblyForm()
-    if (!functionOptions.value.length) {
-      message.warning('没有可添加的已授权应用功能')
-      return
-    }
     formVisible.value = true
   }
 
   function openEditItem(row: TenantMenuNode) {
     formMode.value = 'edit'
-    formKind.value = row.menuType === MenuTypeEnum.DIRECTORY ? 'directory' : 'function'
     editingName.value = row.name
     Object.assign(formModel, {
+      menuType: row.menuType,
       functionName: row.menuType === MenuTypeEnum.MENU ? row.name : '',
       title: row.title,
+      name: row.name,
+      icon: row.icon || '',
       parentName: findMenuParentName(sourceTree.value, row.name),
       sort: Number(row.sort ?? 0),
+      enabled: row.enabled !== false,
+      isVisible: row.isVisible !== false,
+      isKeepAlive: Boolean(row.isKeepAlive),
+      affix: Boolean(row.affix),
+      defaultShow: Boolean(row.defaultShow),
     })
     formVisible.value = true
   }
 
   function onFunctionChange(name: string) {
-    const item = availableFunctions.value.find((option) => option.name === name)
+    const item = functionCandidates.value.find((option) => option.name === name)
     if (!item) return
-    formModel.title = item.title
-    formModel.sort = Number(item.sort ?? 10)
+    Object.assign(formModel, {
+      functionName: item.name,
+      title: item.title,
+      name: item.name,
+      icon: item.icon || '',
+      sort: Number(item.sort ?? 10),
+      enabled: item.enabled !== false,
+      isVisible: item.isVisible !== false,
+      isKeepAlive: item.isKeepAlive !== false,
+      affix: Boolean(item.affix),
+      defaultShow: Boolean(item.defaultShow),
+    })
   }
 
   function submitAssemblyItem() {
     const title = formModel.title.trim()
     if (!title) {
-      message.warning('请填写显示名称')
+      message.warning(formModel.menuType === MenuTypeEnum.DIRECTORY ? '请填写标题' : '请填写菜单名称')
+      return
+    }
+
+    const currentNode = formMode.value === 'edit'
+      ? findMenuNode(sourceTree.value, editingName.value)
+      : undefined
+    if (
+      formModel.menuType === MenuTypeEnum.MENU
+      && currentNode?.menuType === MenuTypeEnum.DIRECTORY
+      && currentNode.children?.length
+    ) {
+      message.warning('包含子菜单的目录不能改为菜单')
+      return
+    }
+
+    if (formModel.menuType === MenuTypeEnum.DIRECTORY) {
+      const name = formModel.name.trim()
+      if (!name) {
+        message.warning('请填写标识')
+        return
+      }
+      if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(name)) {
+        message.warning('标识需以字母开头，仅含字母、数字和下划线')
+        return
+      }
+      const duplicate = findMenuNode(sourceTree.value, name)
+      if (duplicate && duplicate.name !== editingName.value) {
+        message.warning('标识已存在')
+        return
+      }
+    } else if (!formModel.functionName) {
+      message.warning('请选择应用功能')
       return
     }
 
@@ -315,27 +394,34 @@ export function useTenantMenu() {
       : undefined
     let node: TenantMenuNode
 
-    if (formKind.value === 'directory') {
+    if (formModel.menuType === MenuTypeEnum.DIRECTORY) {
       const originalTitle = current?.originTitle || current?.title || title
-      const timestamp = Date.now()
       node = {
         ...(current || {
-          name: `TenantDirectory_${timestamp}`,
-          path: `tenant-directory-${timestamp}`,
-          icon: 'ant-design:folder-outlined',
           source: 'tenant' as const,
-          menuType: MenuTypeEnum.DIRECTORY,
-          enabled: true,
-          isVisible: true,
-          isKeepAlive: false,
           children: [],
         }),
+        source: current?.menuType === MenuTypeEnum.DIRECTORY ? current.source : 'tenant',
+        name: formModel.name.trim(),
         title,
         originTitle: title === originalTitle ? undefined : originalTitle,
+        path: current?.menuType === MenuTypeEnum.DIRECTORY ? current.path : '',
+        icon: formModel.icon.trim() || undefined,
+        menuType: MenuTypeEnum.DIRECTORY,
+        enabled: formModel.enabled,
+        isVisible: formModel.isVisible,
+        isKeepAlive: formModel.isKeepAlive,
+        affix: formModel.affix,
+        defaultShow: formModel.defaultShow,
         sort: Number(formModel.sort ?? 0),
+        isExternalPage: false,
+        openMode: undefined,
+        link: undefined,
+        pageDataId: undefined,
+        pageType: undefined,
       }
     } else {
-      const available = availableFunctions.value.find((item) => item.name === formModel.functionName)
+      const available = functionCandidates.value.find((item) => item.name === formModel.functionName)
       if (!available) {
         message.warning('请选择应用功能')
         return
@@ -345,6 +431,12 @@ export function useTenantMenu() {
         ...cloneMenuTree([available])[0],
         title,
         originTitle: title === originalTitle ? undefined : originalTitle,
+        icon: formModel.icon.trim() || undefined,
+        enabled: formModel.enabled,
+        isVisible: formModel.isVisible,
+        isKeepAlive: formModel.isKeepAlive,
+        affix: formModel.affix,
+        defaultShow: formModel.defaultShow,
         sort: Number(formModel.sort ?? 0),
         children: undefined,
       }
@@ -424,14 +516,14 @@ export function useTenantMenu() {
     leafColumns,
     formVisible,
     formMode,
-    formKind,
     formModel,
     formTitle,
+    menuTypeOptions,
     functionOptions,
+    functionPlaceholder,
     parentTreeData,
     selectTenant,
-    openCreateDirectory,
-    openAddFunction,
+    openCreate,
     openEditItem,
     onFunctionChange,
     submitAssemblyItem,

@@ -1,7 +1,9 @@
 import { MenuTypeEnum } from '@grow-admin-rock/constants'
 import {
+  SANDBOX_ROUTE_STRUCTURES,
   flattenSandboxRouteConfigs,
   type SandboxRouteConfig,
+  type SandboxRouteStructure,
 } from './config'
 import { toSandboxRouteConfigsFromMenu } from './mergeMenu'
 
@@ -13,11 +15,7 @@ export type {
 } from './config'
 export {
   SANDBOX_ROUTE_STRUCTURES,
-  SANDBOX_COMPONENT_KEYS,
-  SANDBOX_COMPONENT_PAGE_NAMES,
   flattenSandboxRouteConfigs,
-  isSandboxRouteConfig,
-  resolveSandboxPageComponentName,
   resolveSandboxRouteFullPath,
   toSandboxRouteConfigs,
 } from './config'
@@ -27,27 +25,37 @@ export {
   toSandboxRouteConfigsFromMenu,
 } from './mergeMenu'
 
-const SANDBOX_COMPONENTS: Record<string, GrowRouteComponent> = {
+const SANDBOX_ROUTE_COMPONENTS: Record<string, GrowRouteComponent> = {
   CodeSandboxDemo: () => import('../pages/code-sandbox-demo/code-sandbox-demo.vue'),
   CodeEditorDemo: () => import('../pages/code-editor-demo/code-editor-demo.vue'),
 }
 
+function bindSandboxRouteComponents(
+  structures: SandboxRouteStructure[],
+): SandboxRouteStructure[] {
+  return structures.map((structure) => ({
+    ...structure,
+    component: SANDBOX_ROUTE_COMPONENTS[structure.name],
+    children: structure.children?.length
+      ? bindSandboxRouteComponents(structure.children)
+      : structure.children,
+  }))
+}
+
+export const SANDBOX_CLIENT_ROUTE_STRUCTURES = bindSandboxRouteComponents(
+  SANDBOX_ROUTE_STRUCTURES,
+)
+
 function resolveSandboxComponent(config: SandboxRouteConfig): GrowRouteComponent {
-  const componentKey = String(config.componentKey ?? config.name)
-  const component = SANDBOX_COMPONENTS[componentKey]
-  if (!component) {
-    throw new Error(`Unknown sandbox component: ${componentKey}`)
+  if (!config.component) {
+    throw new Error(`Sandbox route "${String(config.name)}" is missing its component`)
   }
-  return component
+  return config.component
 }
 
 export const SANDBOX_ROUTES: RouteRecordItem[] = flattenSandboxRouteConfigs(
-  toSandboxRouteConfigsFromMenu(),
-).map(({ fullPath, ...config }) => ({
-  ...config,
-  path: fullPath,
-  component: resolveSandboxComponent(config),
-}))
+  toSandboxRouteConfigsFromMenu(undefined, SANDBOX_CLIENT_ROUTE_STRUCTURES),
+).map(({ fullPath, ...config }) => resolveSandboxRoute(config, fullPath))
 
 export function resolveSandboxRoute(
   config: SandboxRouteConfig,

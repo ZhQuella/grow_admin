@@ -97,7 +97,6 @@
 <script lang="ts" setup>
 import { computed, reactive, ref } from 'vue'
 import { useMsg } from '@grow-admin-rock/components'
-import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
 import { fetchSystemDeptTree } from '../../../api/systemDept'
 import { createSystemPost, getSystemPostDetail, updateSystemPost } from '../../../api/systemPost'
 import type { SystemDeptNode } from '../../../types/systemDept'

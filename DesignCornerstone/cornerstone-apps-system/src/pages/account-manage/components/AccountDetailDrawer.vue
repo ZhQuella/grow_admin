@@ -57,7 +57,6 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { useMsg } from '@grow-admin-rock/components'
-import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
 import { getSystemAccountDetail } from '../../../api/systemAccount'
 import type { SystemAccountDetail, SystemAccountListItem } from '../../../types/systemAccount'
 import { accountPersonStatusLabel, formatTime, toMessage } from '../use/helpers'

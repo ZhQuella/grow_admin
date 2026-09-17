@@ -3,54 +3,48 @@ import { getMenuList } from '#/api/routers'
 import { getUserInfo } from '#/api/user'
 import { extendComponent } from '#/utils/extendComponent'
 import { Lib as routeLib } from '@grow-admin-rock/middleware-router'
-import { resolveExternalRoute } from '@grow-admin-cornerstone/apps-external'
-import type { ExternalRouteConfig } from '@grow-admin-cornerstone/apps-external'
+import {
+  resolveDisparkComponent,
+  type DisparkPageType,
+} from '@grow-admin-cornerstone/apps-dispark'
 import {
   FEAT_HIDDEN_ROUTES,
+  FEAT_CLIENT_ROUTE_STRUCTURES,
+  FEAT_FRONT_ONLY_CLIENT_STRUCTURES,
   canAccessRouteByRoles,
   filterConfigsByRoles,
-  isFeatRouteConfig,
-  resolveFeatPageComponentName,
-  resolveFeatRoute,
   toFeatRouteConfigs,
   type FeatRouteConfig,
 } from '@grow-admin-cornerstone/apps-feat'
 import {
+  WORKSPACE_CLIENT_ROUTE_STRUCTURES,
   flattenWorkspaceRouteConfigs,
-  resolveWorkspaceRoute,
   resolveWorkspaceRouteFullPath,
   type WorkspaceRouteConfig,
 } from '@grow-admin-cornerstone/apps-workspace'
 import {
-  isSandboxRouteConfig,
-  resolveSandboxPageComponentName,
-  resolveSandboxRoute,
+  SANDBOX_CLIENT_ROUTE_STRUCTURES,
   toSandboxRouteConfigsFromMenu,
   type SandboxRouteConfig,
 } from '@grow-admin-cornerstone/apps-sandbox'
 import {
-  isDesignerRouteConfig,
-  resolveDesignerPageComponentName,
-  resolveDesignerRoute,
+  DESIGNER_CLIENT_ROUTE_STRUCTURES,
   toDesignerRouteConfigsFromMenu,
   type DesignerRouteConfig,
 } from '@grow-admin-cornerstone/apps-designer'
 import {
+  SYSTEM_CLIENT_ROUTE_STRUCTURES,
   SYSTEM_ROUTE_AUTHORITY,
-  isSystemRouteConfig,
-  resolveSystemPageComponentName,
-  resolveSystemRoute,
   toSystemRouteConfigsFromMenu,
   type SystemRouteConfig,
 } from '@grow-admin-cornerstone/apps-system'
 import {
+  TENANT_CLIENT_ROUTE_STRUCTURES,
   TENANT_ROUTE_AUTHORITY,
-  isTenantRouteConfig,
-  resolveTenantPageComponentName,
-  resolveTenantRoute,
   toTenantRouteConfigsFromMenu,
   type TenantRouteConfig,
 } from '@grow-admin-cornerstone/apps-tenant'
+import { EXTERNAL_ROUTE_STRUCTURES } from '@grow-admin-cornerstone/apps-external'
 import { resolveByKeyOrThrow } from '@grow-admin-rock/ioc'
 import {
   resolveTabCacheName,
@@ -70,7 +64,38 @@ const HOME_ROUTE_NAME = 'Home'
 const HOME_PATH = '/home'
 const HOME_INDEX_REDIRECT_NAME = 'HomeIndexRedirect'
 
-type DynamicRouteConfig = WorkspaceRouteConfig | FeatRouteConfig | SandboxRouteConfig | DesignerRouteConfig | SystemRouteConfig | TenantRouteConfig
+type DynamicRouteConfig = (
+  WorkspaceRouteConfig
+  | FeatRouteConfig
+  | SandboxRouteConfig
+  | DesignerRouteConfig
+  | SystemRouteConfig
+  | TenantRouteConfig
+) & {
+  pageDataId?: string
+  pageType?: DisparkPageType
+  dynamicTab?: boolean
+  breadcrumbParentName?: string
+}
+
+type LocalRouteStructure = {
+  name: string
+  component?: GrowRouteComponent
+  dynamicTab?: boolean
+  breadcrumbParentName?: string
+  children?: LocalRouteStructure[]
+}
+
+const LOCAL_ROUTE_STRUCTURES: LocalRouteStructure[] = [
+  ...WORKSPACE_CLIENT_ROUTE_STRUCTURES,
+  ...FEAT_CLIENT_ROUTE_STRUCTURES,
+  ...FEAT_FRONT_ONLY_CLIENT_STRUCTURES,
+  ...SANDBOX_CLIENT_ROUTE_STRUCTURES,
+  ...DESIGNER_CLIENT_ROUTE_STRUCTURES,
+  ...SYSTEM_CLIENT_ROUTE_STRUCTURES,
+  ...TENANT_CLIENT_ROUTE_STRUCTURES,
+  ...EXTERNAL_ROUTE_STRUCTURES,
+]
 
 function routeTable() {
   return resolveByKeyOrThrow(routeLib.types.RouteTable)
@@ -83,9 +108,9 @@ function menuState() {
 function toMenuItem(
   config: DynamicRouteConfig,
   parentPath = '',
-  isRootLevel = true,
 ): Menu {
-  const routePath = `${HOME_PATH}/${resolveWorkspaceRouteFullPath(config, parentPath)}`
+  const fullPath = resolveWorkspaceRouteFullPath(config, parentPath)
+  const routePath = `${HOME_PATH}/${fullPath}`
   const menu: Menu = {
     name: String(config.name),
     title: config.title,
@@ -103,10 +128,10 @@ function toMenuItem(
   }
 
   if (config.children?.length) {
-    const nextParentPath = isRootLevel
-      ? ''
+    const nextParentPath = config.menuType === MenuTypeEnum.DIRECTORY
+      ? parentPath
       : resolveWorkspaceRouteFullPath(config, parentPath)
-    menu.children = config.children.map((child) => toMenuItem(child, nextParentPath, false))
+    menu.children = config.children.map((child) => toMenuItem(child, nextParentPath))
     if (config.menuType === MenuTypeEnum.MENU) {
       menu.path = routePath
     }
@@ -127,31 +152,40 @@ function shouldRegisterRoute(config: DynamicRouteConfig): boolean {
   if (config.openMode === PageOpenModeEnum.BROWSER) {
     return false
   }
-  if (config.children?.length) {
-    return Boolean(config.componentKey)
-  }
   return config.menuType === MenuTypeEnum.MENU
 }
 
-function resolveMetaComponentName(config: DynamicRouteConfig, routeName: string): string {
-  if (config.componentKey && config.componentKey !== routeName) {
-    if (isFeatRouteConfig(config)) {
-      return resolveFeatPageComponentName(config.componentKey)
+function findLocalRouteStructure(
+  name: string,
+  structures: LocalRouteStructure[] = LOCAL_ROUTE_STRUCTURES,
+): LocalRouteStructure | undefined {
+  for (const structure of structures) {
+    if (structure.name === name) {
+      return structure
     }
-    if (isSandboxRouteConfig(config)) {
-      return resolveSandboxPageComponentName(config.componentKey)
-    }
-    if (isDesignerRouteConfig(config)) {
-      return resolveDesignerPageComponentName(config.componentKey)
-    }
-    if (isSystemRouteConfig(config)) {
-      return resolveSystemPageComponentName(config.componentKey)
-    }
-    if (isTenantRouteConfig(config)) {
-      return resolveTenantPageComponentName(config.componentKey)
+    const child = structure.children?.length
+      ? findLocalRouteStructure(name, structure.children)
+      : undefined
+    if (child) {
+      return child
     }
   }
-  return routeName
+  return undefined
+}
+
+function hydrateLocalRouteStructures(configs: DynamicRouteConfig[]): DynamicRouteConfig[] {
+  return configs.map((config) => {
+    const structure = findLocalRouteStructure(String(config.name))
+    return {
+      ...config,
+      component: config.component ?? structure?.component,
+      dynamicTab: config.dynamicTab ?? structure?.dynamicTab,
+      breadcrumbParentName: config.breadcrumbParentName ?? structure?.breadcrumbParentName,
+      children: config.children?.length
+        ? hydrateLocalRouteStructures(config.children as DynamicRouteConfig[])
+        : config.children,
+    }
+  })
 }
 
 function resolveDynamicCacheName(fullPath: string, routeName: string): string {
@@ -159,25 +193,25 @@ function resolveDynamicCacheName(fullPath: string, routeName: string): string {
 }
 
 function resolveDynamicRoute(config: DynamicRouteConfig, fullPath: string) {
-  if (config.componentKey === 'EmbedPage' || config.openMode === PageOpenModeEnum.IFRAME) {
-    return resolveExternalRoute(config as ExternalRouteConfig, fullPath)
+  const component = resolveDisparkComponent({
+    pageType: config.pageType,
+    openMode: config.openMode,
+  }) ?? config.component
+  if (!component) {
+    throw new Error(`Route "${String(config.name)}" is missing its local component`)
   }
-  if (isFeatRouteConfig(config)) {
-    return resolveFeatRoute(config, fullPath)
+  return {
+    path: fullPath,
+    name: config.name,
+    component,
+    meta: {
+      title: config.title,
+      isKeepAlive: config.isKeepAlive !== false,
+      dynamicTab: config.dynamicTab,
+      breadcrumbParentName: config.breadcrumbParentName,
+    },
+    icon: config.icon,
   }
-  if (isSandboxRouteConfig(config)) {
-    return resolveSandboxRoute(config, fullPath)
-  }
-  if (isDesignerRouteConfig(config)) {
-    return resolveDesignerRoute(config, fullPath)
-  }
-  if (isSystemRouteConfig(config)) {
-    return resolveSystemRoute(config, fullPath)
-  }
-  if (isTenantRouteConfig(config)) {
-    return resolveTenantRoute(config, fullPath)
-  }
-  return resolveWorkspaceRoute(config as WorkspaceRouteConfig, fullPath)
 }
 
 function registerHomeIndexRedirect(menus: Menu[]) {
@@ -245,13 +279,11 @@ function registerRoutesFromConfigs(configs: DynamicRouteConfig[]) {
 
     const route = resolveDynamicRoute(config, fullPath)
     const routeName = String(route.name)
-    const metaComponentName = resolveMetaComponentName(config, routeName)
     const keepAlive = config.isKeepAlive ?? true
 
     if (router.hasRoute(route.name)) {
       const existing = router.getRoutes().find((item) => item.name === route.name)
       if (existing?.meta) {
-        existing.meta.componentName = metaComponentName
         existing.meta.isKeepAlive = keepAlive
       }
       return
@@ -266,7 +298,6 @@ function registerRoutesFromConfigs(configs: DynamicRouteConfig[]) {
         : extendComponent(route.component!, { name: cacheName }),
       meta: {
         ...route.meta,
-        componentName: metaComponentName,
         isKeepAlive: keepAlive,
         affix: config.affix ?? false,
         defaultShow: config.defaultShow ?? false,
@@ -280,17 +311,17 @@ function registerRoutesFromConfigs(configs: DynamicRouteConfig[]) {
 
 async function fetchBackConfigs(): Promise<DynamicRouteConfig[]> {
   const { menuList } = await getMenuList() as { menuList: DynamicRouteConfig[] }
-  return menuList
+  return hydrateLocalRouteStructures(menuList)
 }
 
 function buildFrontConfigs(roleValues: string[]): DynamicRouteConfig[] {
-  return [
+  return hydrateLocalRouteStructures([
     ...filterConfigsByRoles(toFeatRouteConfigs(), roleValues),
     ...toSandboxRouteConfigsFromMenu(),
     ...toDesignerRouteConfigsFromMenu(),
     ...filterConfigsByRoles(toSystemRouteConfigsFromMenu(), roleValues, SYSTEM_ROUTE_AUTHORITY),
     ...filterConfigsByRoles(toTenantRouteConfigsFromMenu(), roleValues, TENANT_ROUTE_AUTHORITY),
-  ]
+  ])
 }
 
 async function registerBackMenuRoutes(authStore: AuthStore) {

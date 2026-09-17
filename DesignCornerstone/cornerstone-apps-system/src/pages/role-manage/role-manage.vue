@@ -221,9 +221,6 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { GrowSearchBar } from '@grow-admin-rock/components/search-bar'
-import { GrowColumnBar } from '@grow-admin-rock/components/column-bar'
-import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
 import type { SystemRoleListItem } from '../../types/systemRole'
 import RoleMemberDrawer from './components/RoleMemberDrawer.vue'
 import RoleDataPermDrawer from './components/RoleDataPermDrawer.vue'

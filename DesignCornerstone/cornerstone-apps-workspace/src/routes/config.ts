@@ -1,10 +1,10 @@
 import { MenuTypeEnum, PageOpenModeEnum } from '@grow-admin-rock/constants'
 
-/** 客户端路由结构：path、组件映射，不含展示信息 */
+/** 可序列化路由结构：path 与行为配置，不含展示信息和组件 */
 export type WorkspaceRouteStructure = {
   path: string
   name: string
-  componentKey?: string
+  component?: GrowRouteComponent
   children?: WorkspaceRouteStructure[]
 }
 
@@ -50,12 +50,10 @@ export const WORKSPACE_ROUTE_STRUCTURES: WorkspaceRouteStructure[] = [
       {
         path: 'data-report',
         name: 'DataReport',
-        componentKey: 'DataReport',
       },
       {
         path: 'analysis',
         name: 'Analysis',
-        componentKey: 'Analysis',
       },
     ],
   },
@@ -66,7 +64,6 @@ export const WORKSPACE_ROUTE_STRUCTURES: WorkspaceRouteStructure[] = [
       {
         path: 'mixture-back-demo',
         name: 'MixtureBackDemo',
-        componentKey: 'MixtureBackDemo',
       },
     ],
   },
@@ -80,19 +77,14 @@ export type WorkspaceRouteLeaf = WorkspaceRouteConfig & {
   fullPath: string
 }
 
-/**
- * 计算目录节点向下传递的 path 前缀。
- * 顶层目录（如 DashboardCatalog）不参与 URL，子级从空前缀开始。
- */
+/** 目录仅用于菜单分组，不参与子级路由 URL。 */
 function buildChildParentPath(
-  config: WorkspaceRouteStructure,
+  config: WorkspaceRouteConfig,
   parentPath: string,
-  isRootLevel: boolean,
 ): string {
-  if (isRootLevel) {
-    return ''
-  }
-  return parentPath ? `${parentPath}/${config.path}` : config.path
+  return config.menuType === MenuTypeEnum.DIRECTORY
+    ? parentPath
+    : resolveWorkspaceRouteFullPath(config, parentPath)
 }
 
 /** 计算叶子节点相对 Home 的完整 path 段 */
@@ -106,25 +98,22 @@ export function resolveWorkspaceRouteFullPath(
 export function flattenWorkspaceRouteConfigs(
   configs: WorkspaceRouteConfig[],
   parentPath = '',
-  isRootLevel = true,
 ): WorkspaceRouteLeaf[] {
   return configs.flatMap((config) => {
+    const selfRoute = config.menuType === MenuTypeEnum.MENU
+      ? [{
+          ...config,
+          fullPath: resolveWorkspaceRouteFullPath(config, parentPath),
+        }]
+      : []
+
     if (config.children?.length) {
-      const nextParentPath = buildChildParentPath(config, parentPath, isRootLevel)
-      const childRoutes = flattenWorkspaceRouteConfigs(config.children, nextParentPath, false)
-      const selfRoute = config.componentKey != null
-        ? [{
-            ...config,
-            fullPath: resolveWorkspaceRouteFullPath(config, parentPath),
-          }]
-        : []
+      const nextParentPath = buildChildParentPath(config, parentPath)
+      const childRoutes = flattenWorkspaceRouteConfigs(config.children as WorkspaceRouteConfig[], nextParentPath)
       return [...selfRoute, ...childRoutes]
     }
 
-    return [{
-      ...config,
-      fullPath: resolveWorkspaceRouteFullPath(config, parentPath),
-    }]
+    return selfRoute
   })
 }
 

@@ -16,7 +16,6 @@ type MenuNode = {
   title: string
   originTitle?: string
   path: string
-  componentKey?: string
   icon?: string
   source: 'platform' | 'tenant'
   menuType: string
@@ -29,6 +28,8 @@ type MenuNode = {
   isExternalPage?: boolean
   openMode?: string
   link?: string
+  pageDataId?: string
+  pageType?: 'sandbox' | 'lowcode' | 'report'
   children?: MenuNode[]
 }
 
@@ -96,7 +97,6 @@ const SELF_MENUS: Record<string, MenuNode[]> = {
       name: 'acme_sales_report',
       title: '销售报表',
       path: 'sales-report',
-      componentKey: 'AcmeSalesReport',
       icon: 'ant-design:bar-chart-outlined',
       source: 'tenant',
       menuType: MenuTypeEnum.MENU,
@@ -132,7 +132,6 @@ const SELF_MENUS: Record<string, MenuNode[]> = {
       name: 'gov_form',
       title: '材料申报',
       path: 'material-form',
-      componentKey: 'GovMaterialForm',
       icon: 'ant-design:form-outlined',
       source: 'tenant',
       menuType: MenuTypeEnum.MENU,
@@ -149,7 +148,6 @@ const SELF_MENUS: Record<string, MenuNode[]> = {
       name: 'gov_board',
       title: '公示看板',
       path: 'notice-board',
-      componentKey: 'GovNoticeBoard',
       icon: 'ant-design:appstore-outlined',
       source: 'tenant',
       menuType: MenuTypeEnum.MENU,
@@ -182,7 +180,6 @@ function toMenuNode(node: GrantNode, aliases: Record<string, string>, sort = 0):
     title,
     originTitle: title !== originTitle ? originTitle : undefined,
     path: toPath(node.id),
-    componentKey: isDirectory ? undefined : node.id,
     icon: ICON_MAP[node.id],
     source: 'platform',
     menuType: isDirectory ? MenuTypeEnum.DIRECTORY : MenuTypeEnum.MENU,
@@ -286,6 +283,12 @@ function sanitizeAssembly(nodes: MenuNode[], availableMap: Map<string, MenuNode>
       originTitle: node.title === available.title
         ? available.originTitle
         : (available.originTitle || available.title),
+      icon: text(node.icon) || undefined,
+      enabled: node.enabled !== false,
+      isVisible: node.isVisible !== false,
+      isKeepAlive: Boolean(node.isKeepAlive),
+      affix: Boolean(node.affix),
+      defaultShow: Boolean(node.defaultShow),
       sort: Number(node.sort ?? available.sort ?? 0),
     })
     return list

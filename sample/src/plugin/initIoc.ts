@@ -28,6 +28,7 @@ import { Lib as componentsLib } from '@grow-admin-rock/components'
 
 import { Lib as appsLoginLib } from '@grow-admin-cornerstone/apps-login'
 import { Lib as appsHomeLib } from '@grow-admin-cornerstone/apps-home'
+import { Lib as appsDisparkLib } from '@grow-admin-cornerstone/apps-dispark'
 import { Lib as appsExternalLib } from '@grow-admin-cornerstone/apps-external'
 import { Lib as appsFeatLib } from '@grow-admin-cornerstone/apps-feat'
 import { Lib as appsWorkspaceLib } from '@grow-admin-cornerstone/apps-workspace'
@@ -73,6 +74,8 @@ export const initIoc = async (app: App) => {
     .use(routeLib, appContext)
     // 使用登录模块
     .use(appsLoginLib, appContext)
+    // 使用特殊页面路由承载模块
+    .use(appsDisparkLib, appContext)
     // 使用首页模块
     .use(appsHomeLib, appContext)
     // 使用工作区模块

@@ -1,7 +1,10 @@
 import { MenuTypeEnum } from '@grow-admin-rock/constants'
 import {
+  FEAT_FRONT_ONLY_STRUCTURES,
+  FEAT_ROUTE_STRUCTURES,
   flattenFeatRouteConfigs,
   type FeatRouteConfig,
+  type FeatRouteStructure,
 } from './config'
 import { toFeatRouteConfigs } from './mergeMenu'
 
@@ -14,11 +17,7 @@ export type {
 export {
   FEAT_ROUTE_STRUCTURES,
   FEAT_FRONT_ONLY_STRUCTURES,
-  FEAT_COMPONENT_KEYS,
-  FEAT_COMPONENT_PAGE_NAMES,
   flattenFeatRouteConfigs,
-  isFeatRouteConfig,
-  resolveFeatPageComponentName,
   resolveFeatRouteFullPath,
 } from './config'
 export { FEAT_MENU_LIST, FEAT_FRONT_ONLY_MENU_LIST } from './menuList'
@@ -30,11 +29,12 @@ export {
 } from './authority'
 export { mergeFeatMenuWithStructure, toFeatRouteConfigs } from './mergeMenu'
 
-const FEAT_COMPONENTS: Record<string, GrowRouteComponent> = {
+const FEAT_ROUTE_COMPONENTS: Record<string, GrowRouteComponent> = {
+  SharedDemoA: () => import('../pages/shared-demo/shared-demo.vue'),
+  SharedDemoB: () => import('../pages/shared-demo/shared-demo.vue'),
   OpenSubpage: () => import('../pages/open-subpage/open-subpage.vue'),
   MenuChildTest: () => import('../pages/menu-child-test/menu-child-test.vue'),
   MenuChildTestSub: () => import('../pages/menu-child-test/menu-child-test-sub.vue'),
-  SharedDemo: () => import('../pages/shared-demo/shared-demo.vue'),
   SplitPane: () => import('../pages/split-pane/split-pane.vue'),
   DownExcel: () => import('../pages/down-excel/down-excel.vue'),
   SearchBar: () => import('../pages/search-bar/search-bar.vue'),
@@ -42,22 +42,32 @@ const FEAT_COMPONENTS: Record<string, GrowRouteComponent> = {
   MixtureFrontDemo: () => import('../pages/mixture-front-demo/mixture-front-demo.vue'),
 }
 
+function bindFeatRouteComponents(structures: FeatRouteStructure[]): FeatRouteStructure[] {
+  return structures.map((structure) => ({
+    ...structure,
+    component: FEAT_ROUTE_COMPONENTS[structure.name],
+    children: structure.children?.length
+      ? bindFeatRouteComponents(structure.children)
+      : structure.children,
+  }))
+}
+
+export const FEAT_CLIENT_ROUTE_STRUCTURES = bindFeatRouteComponents(FEAT_ROUTE_STRUCTURES)
+export const FEAT_FRONT_ONLY_CLIENT_STRUCTURES = bindFeatRouteComponents(FEAT_FRONT_ONLY_STRUCTURES)
+
 function resolveFeatComponent(config: FeatRouteConfig): GrowRouteComponent {
-  const componentKey = String(config.componentKey ?? config.name)
-  const component = FEAT_COMPONENTS[componentKey]
-  if (!component) {
-    throw new Error(`Unknown feat component: ${componentKey}`)
+  if (!config.component) {
+    throw new Error(`Feat route "${String(config.name)}" is missing its component`)
   }
-  return component
+  return config.component
 }
 
 export const FEAT_ROUTES: RouteRecordItem[] = flattenFeatRouteConfigs(
-  toFeatRouteConfigs(),
-).map(({ fullPath, ...config }) => ({
-  ...config,
-  path: fullPath,
-  component: resolveFeatComponent(config),
-}))
+  toFeatRouteConfigs(undefined, [
+    ...FEAT_CLIENT_ROUTE_STRUCTURES,
+    ...FEAT_FRONT_ONLY_CLIENT_STRUCTURES,
+  ]),
+).map(({ fullPath, ...config }) => resolveFeatRoute(config, fullPath))
 
 /** 不在菜单中注册的隐藏动态路由 */
 export const FEAT_HIDDEN_ROUTES: RouteRecordItem[] = [
@@ -67,7 +77,6 @@ export const FEAT_HIDDEN_ROUTES: RouteRecordItem[] = [
     component: () => import('../pages/open-subpage/child-page.vue'),
     meta: {
       title: '子页面',
-      componentName: 'ChildPage',
       isKeepAlive: true,
       dynamicTab: true,
       breadcrumbParentName: 'OpenSubpage',

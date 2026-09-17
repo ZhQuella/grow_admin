@@ -98,7 +98,6 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 import { useMsg } from '@grow-admin-rock/components'
-import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
 import { fetchAllSystemMenuFunctions } from '../../../api/systemMenuFunction'
 import { fetchAllSystemMenuColumns } from '../../../api/systemMenuColumn'
 import { fetchSystemMenuTree } from '../../../api/systemMenu'

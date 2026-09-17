@@ -119,7 +119,6 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { useMsg } from '@grow-admin-rock/components'
-import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
 import { getSystemPostDetail } from '../../../api/systemPost'
 import { assignmentTypeLabel, employeeStatusLabel } from '../../../types/systemPerson'
 import { postTypeLabel, type SystemPostDetail, type SystemPostListItem } from '../../../types/systemPost'

@@ -1,10 +1,9 @@
 import { MenuTypeEnum, PageOpenModeEnum } from '@grow-admin-rock/constants'
 
-/** 客户端路由结构：path、组件映射，不含展示信息 */
+/** 可序列化路由结构：path 与行为配置，不含展示信息和组件 */
 export type ExternalRouteStructure = {
   path: string
   name: string
-  componentKey?: string
   children?: ExternalRouteStructure[]
 }
 
@@ -50,12 +49,10 @@ export const EXTERNAL_ROUTE_STRUCTURES: ExternalRouteStructure[] = [
       {
         path: 'element-plus-doc',
         name: 'ElementPlusDoc',
-        componentKey: 'EmbedPage',
       },
       {
         path: 'grow-admin-doc',
         name: 'GrowAdminDoc',
-        componentKey: 'EmbedPage',
       },
       {
         path: 'component-document',
@@ -71,14 +68,12 @@ export type ExternalRouteLeaf = ExternalRouteConfig & {
 }
 
 function buildChildParentPath(
-  config: ExternalRouteStructure,
+  config: ExternalRouteConfig,
   parentPath: string,
-  isRootLevel: boolean,
 ): string {
-  if (isRootLevel) {
-    return ''
-  }
-  return parentPath ? `${parentPath}/${config.path}` : config.path
+  return config.menuType === MenuTypeEnum.DIRECTORY
+    ? parentPath
+    : resolveExternalRouteFullPath(config, parentPath)
 }
 
 export function resolveExternalRouteFullPath(
@@ -91,25 +86,22 @@ export function resolveExternalRouteFullPath(
 export function flattenExternalRouteConfigs(
   configs: ExternalRouteConfig[],
   parentPath = '',
-  isRootLevel = true,
 ): ExternalRouteLeaf[] {
   return configs.flatMap((config) => {
+    const selfRoute = config.menuType === MenuTypeEnum.MENU
+      ? [{
+          ...config,
+          fullPath: resolveExternalRouteFullPath(config, parentPath),
+        }]
+      : []
+
     if (config.children?.length) {
-      const nextParentPath = buildChildParentPath(config, parentPath, isRootLevel)
-      const childRoutes = flattenExternalRouteConfigs(config.children, nextParentPath, false)
-      const selfRoute = config.componentKey != null
-        ? [{
-            ...config,
-            fullPath: resolveExternalRouteFullPath(config, parentPath),
-          }]
-        : []
+      const nextParentPath = buildChildParentPath(config, parentPath)
+      const childRoutes = flattenExternalRouteConfigs(config.children as ExternalRouteConfig[], nextParentPath)
       return [...selfRoute, ...childRoutes]
     }
 
-    return [{
-      ...config,
-      fullPath: resolveExternalRouteFullPath(config, parentPath),
-    }]
+    return selfRoute
   })
 }
 

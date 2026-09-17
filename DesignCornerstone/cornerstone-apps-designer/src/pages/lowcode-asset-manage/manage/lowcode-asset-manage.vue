@@ -297,9 +297,6 @@
 </template>
 
 <script lang="ts" setup>
-import { GrowSearchBar } from '@grow-admin-rock/components/search-bar'
-import { GrowColumnBar } from '@grow-admin-rock/components/column-bar'
-import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
 import { useLowcodeAssetManage } from './use/useLowcodeAssetManage'
 
 defineOptions({

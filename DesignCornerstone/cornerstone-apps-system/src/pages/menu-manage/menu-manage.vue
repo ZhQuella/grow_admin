@@ -45,13 +45,13 @@
                     {{ row.title }}
                   </span>
                 </template>
-                <template v-else-if="col.field === 'componentKey'">
-                  {{ row.componentKey || (row.menuType === MenuTypeEnum.MENU ? row.name : '-') }}
-                </template>
                 <template v-else-if="col.field === 'menuType'">
                   <GrowTag :type="menuTypeTagType(row.menuType)" size="small">
                     {{ menuTypeLabel(row.menuType) }}
                   </GrowTag>
+                </template>
+                <template v-else-if="col.field === 'path' && row.menuType === MenuTypeEnum.DIRECTORY">
+                  -
                 </template>
                 <template v-else-if="col.field === 'isVisible'">
                   <GrowTag :type="row.isVisible ? 'success' : 'danger'" size="small">

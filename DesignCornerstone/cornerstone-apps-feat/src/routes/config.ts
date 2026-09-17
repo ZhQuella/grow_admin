@@ -1,10 +1,10 @@
 import { MenuTypeEnum, PageOpenModeEnum } from '@grow-admin-rock/constants'
 
-/** 客户端路由结构：path、组件映射，不含展示信息 */
+/** 可序列化路由结构：path 与行为配置，不含展示信息和组件 */
 export type FeatRouteStructure = {
   path: string
   name: string
-  componentKey?: string
+  component?: GrowRouteComponent
   children?: FeatRouteStructure[]
 }
 
@@ -54,51 +54,42 @@ export const FEAT_ROUTE_STRUCTURES: FeatRouteStructure[] = [
           {
             path: 'shared-demo-a',
             name: 'SharedDemoA',
-            componentKey: 'SharedDemo',
           },
           {
             path: 'shared-demo-b',
             name: 'SharedDemoB',
-            componentKey: 'SharedDemo',
           },
         ],
       },
       {
         path: 'open-subpage',
         name: 'OpenSubpage',
-        componentKey: 'OpenSubpage',
       },
       {
         path: 'menu-child-test',
         name: 'MenuChildTest',
-        componentKey: 'MenuChildTest',
         children: [
           {
             path: 'menu-child-test-sub',
             name: 'MenuChildTestSub',
-            componentKey: 'MenuChildTestSub',
           },
         ],
       },
       {
         path: 'split-pane',
         name: 'SplitPane',
-        componentKey: 'SplitPane',
       },
       {
         path: 'down-excel',
         name: 'DownExcel',
-        componentKey: 'DownExcel',
       },
       {
         path: 'search-bar',
         name: 'SearchBar',
-        componentKey: 'SearchBar',
       },
       {
         path: 'column-bar',
         name: 'ColumnBar',
-        componentKey: 'ColumnBar',
       },
     ],
   },
@@ -113,7 +104,6 @@ export const FEAT_FRONT_ONLY_STRUCTURES: FeatRouteStructure[] = [
       {
         path: 'mixture-front-demo',
         name: 'MixtureFrontDemo',
-        componentKey: 'MixtureFrontDemo',
       },
     ],
   },
@@ -125,14 +115,12 @@ export type FeatRouteLeaf = FeatRouteConfig & {
 }
 
 function buildChildParentPath(
-  config: FeatRouteStructure,
+  config: FeatRouteConfig,
   parentPath: string,
-  isRootLevel: boolean,
 ): string {
-  if (isRootLevel) {
-    return ''
-  }
-  return parentPath ? `${parentPath}/${config.path}` : config.path
+  return config.menuType === MenuTypeEnum.DIRECTORY
+    ? parentPath
+    : resolveFeatRouteFullPath(config, parentPath)
 }
 
 export function resolveFeatRouteFullPath(
@@ -145,58 +133,21 @@ export function resolveFeatRouteFullPath(
 export function flattenFeatRouteConfigs(
   configs: FeatRouteConfig[],
   parentPath = '',
-  isRootLevel = true,
 ): FeatRouteLeaf[] {
   return configs.flatMap((config) => {
+    const selfRoute = config.menuType === MenuTypeEnum.MENU
+      ? [{
+          ...config,
+          fullPath: resolveFeatRouteFullPath(config, parentPath),
+        }]
+      : []
+
     if (config.children?.length) {
-      const nextParentPath = buildChildParentPath(config, parentPath, isRootLevel)
-      const childRoutes = flattenFeatRouteConfigs(config.children, nextParentPath, false)
-      const selfRoute = config.componentKey != null
-        ? [{
-            ...config,
-            fullPath: resolveFeatRouteFullPath(config, parentPath),
-          }]
-        : []
+      const nextParentPath = buildChildParentPath(config, parentPath)
+      const childRoutes = flattenFeatRouteConfigs(config.children as FeatRouteConfig[], nextParentPath)
       return [...selfRoute, ...childRoutes]
     }
 
-    return [{
-      ...config,
-      fullPath: resolveFeatRouteFullPath(config, parentPath),
-    }]
+    return selfRoute
   })
-}
-
-export const FEAT_COMPONENT_KEYS = new Set([
-  'OpenSubpage',
-  'MenuChildTest',
-  'MenuChildTestSub',
-  'SharedDemo',
-  'SplitPane',
-  'DownExcel',
-  'SearchBar',
-  'ColumnBar',
-  'MixtureFrontDemo',
-])
-
-/** componentKey 对应的页面组件 name（与 .vue 中 defineOptions.name 一致） */
-export const FEAT_COMPONENT_PAGE_NAMES: Record<string, string> = {
-  OpenSubpage: 'OpenSubpagePage',
-  MenuChildTest: 'MenuChildTestPage',
-  MenuChildTestSub: 'MenuChildTestSubPage',
-  SharedDemo: 'SharedDemoPage',
-  SplitPane: 'SplitPanePage',
-  DownExcel: 'DownExcelPage',
-  SearchBar: 'SearchBarPage',
-  ColumnBar: 'ColumnBarPage',
-  MixtureFrontDemo: 'MixtureFrontDemoPage',
-}
-
-export function resolveFeatPageComponentName(componentKey: string): string {
-  return FEAT_COMPONENT_PAGE_NAMES[componentKey] ?? componentKey
-}
-
-export function isFeatRouteConfig(config: { componentKey?: string, name: string | symbol }): boolean {
-  const key = String(config.componentKey ?? config.name)
-  return FEAT_COMPONENT_KEYS.has(key)
 }

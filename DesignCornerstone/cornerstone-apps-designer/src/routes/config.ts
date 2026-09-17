@@ -3,7 +3,9 @@ import { MenuTypeEnum, PageOpenModeEnum } from '@grow-admin-rock/constants'
 export type DesignerRouteStructure = {
   path: string
   name: string
-  componentKey?: string
+  component?: GrowRouteComponent
+  dynamicTab?: boolean
+  breadcrumbParentName?: string
   children?: DesignerRouteStructure[]
 }
 
@@ -45,84 +47,84 @@ export const DESIGNER_ROUTE_STRUCTURES: DesignerRouteStructure[] = [
       {
         path: 'online-page-manage',
         name: 'OnlinePageManage',
-        componentKey: 'OnlinePageManage',
         children: [
           {
             path: 'design/:id',
             name: 'OnlinePageDesign',
-            componentKey: 'OnlinePageDesign',
+            dynamicTab: true,
+            breadcrumbParentName: 'OnlinePageManage',
           },
         ],
       },
       {
         path: 'lowcode-asset-manage',
         name: 'LowcodeAssetManage',
-        componentKey: 'LowcodeAssetManage',
         children: [
           {
             path: 'design/:id',
             name: 'LowcodeAssetDesign',
-            componentKey: 'LowcodeAssetDesign',
+            dynamicTab: true,
+            breadcrumbParentName: 'LowcodeAssetManage',
           },
         ],
       },
       {
         path: 'report-asset-manage',
         name: 'ReportAssetManage',
-        componentKey: 'ReportAssetManage',
         children: [
           {
             path: 'design/:id',
             name: 'ReportAssetDesign',
-            componentKey: 'ReportAssetDesign',
+            dynamicTab: true,
+            breadcrumbParentName: 'ReportAssetManage',
           },
         ],
       },
       {
         path: 'schema-asset-manage',
         name: 'SchemaAssetManage',
-        componentKey: 'SchemaAssetManage',
         children: [
           {
             path: 'design/:id',
             name: 'SchemaAssetDesign',
-            componentKey: 'SchemaAssetDesign',
+            dynamicTab: true,
+            breadcrumbParentName: 'SchemaAssetManage',
           },
         ],
       },
       {
         path: 'data-prep-asset-manage',
         name: 'DataPrepAssetManage',
-        componentKey: 'DataPrepAssetManage',
         children: [
           {
             path: 'design/:id',
             name: 'DataPrepAssetDesign',
-            componentKey: 'DataPrepAssetDesign',
+            dynamicTab: true,
+            breadcrumbParentName: 'DataPrepAssetManage',
           },
         ],
       },
       {
         path: 'data-clean-asset-manage',
         name: 'DataCleanAssetManage',
-        componentKey: 'DataCleanAssetManage',
         children: [
           {
             path: 'design/:id',
             name: 'DataCleanAssetDesign',
-            componentKey: 'DataCleanAssetDesign',
+            dynamicTab: true,
+            breadcrumbParentName: 'DataCleanAssetManage',
           },
         ],
       },
       {
         path: 'process-asset-manage',
         name: 'ProcessAssetManage',
-        componentKey: 'ProcessAssetManage',
         children: [
           {
             path: 'design/:id',
             name: 'ProcessAssetDesign',
-            componentKey: 'ProcessAssetDesign',
+            dynamicTab: true,
+            breadcrumbParentName: 'ProcessAssetManage',
           },
         ],
       },
@@ -135,14 +137,12 @@ export type DesignerRouteLeaf = DesignerRouteConfig & {
 }
 
 function buildChildParentPath(
-  config: DesignerRouteStructure,
+  config: DesignerRouteConfig,
   parentPath: string,
-  isRootLevel: boolean,
 ): string {
-  if (isRootLevel) {
-    return ''
-  }
-  return parentPath ? `${parentPath}/${config.path}` : config.path
+  return config.menuType === MenuTypeEnum.DIRECTORY
+    ? parentPath
+    : resolveDesignerRouteFullPath(config, parentPath)
 }
 
 export function resolveDesignerRouteFullPath(
@@ -155,25 +155,22 @@ export function resolveDesignerRouteFullPath(
 export function flattenDesignerRouteConfigs(
   configs: DesignerRouteConfig[],
   parentPath = '',
-  isRootLevel = true,
 ): DesignerRouteLeaf[] {
   return configs.flatMap((config) => {
+    const selfRoute = config.menuType === MenuTypeEnum.MENU
+      ? [{
+          ...config,
+          fullPath: resolveDesignerRouteFullPath(config, parentPath),
+        }]
+      : []
+
     if (config.children?.length) {
-      const nextParentPath = buildChildParentPath(config, parentPath, isRootLevel)
-      const childRoutes = flattenDesignerRouteConfigs(config.children, nextParentPath, false)
-      const selfRoute = config.componentKey != null
-        ? [{
-            ...config,
-            fullPath: resolveDesignerRouteFullPath(config, parentPath),
-          }]
-        : []
+      const nextParentPath = buildChildParentPath(config, parentPath)
+      const childRoutes = flattenDesignerRouteConfigs(config.children as DesignerRouteConfig[], nextParentPath)
       return [...selfRoute, ...childRoutes]
     }
 
-    return [{
-      ...config,
-      fullPath: resolveDesignerRouteFullPath(config, parentPath),
-    }]
+    return selfRoute
   })
 }
 
@@ -191,47 +188,4 @@ export function toDesignerRouteConfigs(
   structures: DesignerRouteStructure[] = DESIGNER_ROUTE_STRUCTURES,
 ): DesignerRouteConfig[] {
   return structures.map(withDefaultTitle)
-}
-
-export const DESIGNER_COMPONENT_KEYS = new Set([
-  'OnlinePageManage',
-  'OnlinePageDesign',
-  'LowcodeAssetManage',
-  'LowcodeAssetDesign',
-  'ReportAssetManage',
-  'ReportAssetDesign',
-  'SchemaAssetManage',
-  'SchemaAssetDesign',
-  'DataPrepAssetManage',
-  'DataPrepAssetDesign',
-  'DataCleanAssetManage',
-  'DataCleanAssetDesign',
-  'ProcessAssetManage',
-  'ProcessAssetDesign',
-])
-
-export const DESIGNER_COMPONENT_PAGE_NAMES: Record<string, string> = {
-  OnlinePageManage: 'OnlinePageManagePage',
-  OnlinePageDesign: 'OnlinePageDesignPage',
-  LowcodeAssetManage: 'LowcodeAssetManagePage',
-  LowcodeAssetDesign: 'LowcodeAssetDesignPage',
-  ReportAssetManage: 'ReportAssetManagePage',
-  ReportAssetDesign: 'ReportAssetDesignPage',
-  SchemaAssetManage: 'SchemaAssetManagePage',
-  SchemaAssetDesign: 'SchemaAssetDesignPage',
-  DataPrepAssetManage: 'DataPrepAssetManagePage',
-  DataPrepAssetDesign: 'DataPrepAssetDesignPage',
-  DataCleanAssetManage: 'DataCleanAssetManagePage',
-  DataCleanAssetDesign: 'DataCleanAssetDesignPage',
-  ProcessAssetManage: 'ProcessAssetManagePage',
-  ProcessAssetDesign: 'ProcessAssetDesignPage',
-}
-
-export function resolveDesignerPageComponentName(componentKey: string): string {
-  return DESIGNER_COMPONENT_PAGE_NAMES[componentKey] ?? componentKey
-}
-
-export function isDesignerRouteConfig(config: { componentKey?: string; name: string | symbol }): boolean {
-  const key = String(config.componentKey ?? config.name)
-  return DESIGNER_COMPONENT_KEYS.has(key)
 }

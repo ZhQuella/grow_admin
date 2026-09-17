@@ -1,10 +1,12 @@
 import { MenuTypeEnum, PageOpenModeEnum } from '@grow-admin-rock/constants'
 
-/** 客户端路由结构：path、组件映射，不含展示信息 */
+/** 可序列化路由结构：path 与行为配置，不含展示信息和组件 */
 export type SystemRouteStructure = {
   path: string
   name: string
-  componentKey?: string
+  component?: GrowRouteComponent
+  dynamicTab?: boolean
+  breadcrumbParentName?: string
   children?: SystemRouteStructure[]
 }
 
@@ -48,54 +50,48 @@ export const SYSTEM_ROUTE_STRUCTURES: SystemRouteStructure[] = [
       {
         path: 'menu-manage',
         name: 'MenuManage',
-        componentKey: 'MenuManage',
       },
       {
         path: 'role-manage',
         name: 'RoleManage',
-        componentKey: 'RoleManage',
       },
       {
         path: 'account-manage',
         name: 'AccountManage',
-        componentKey: 'AccountManage',
       },
       {
         path: 'person-manage',
         name: 'PersonManage',
-        componentKey: 'PersonManage',
         children: [
           {
             path: 'create',
             name: 'PersonCreate',
-            componentKey: 'PersonCreate',
+            dynamicTab: true,
+            breadcrumbParentName: 'PersonManage',
           },
           {
             path: 'detail/:id',
             name: 'PersonDetail',
-            componentKey: 'PersonDetail',
+            dynamicTab: true,
+            breadcrumbParentName: 'PersonManage',
           },
         ],
       },
       {
         path: 'dept-manage',
         name: 'DeptManage',
-        componentKey: 'DeptManage',
       },
       {
         path: 'post-manage',
         name: 'PostManage',
-        componentKey: 'PostManage',
       },
       {
         path: 'position-manage',
         name: 'PositionManage',
-        componentKey: 'PositionManage',
       },
       {
         path: 'org-chart',
         name: 'OrgChart',
-        componentKey: 'OrgChart',
       },
     ],
   },
@@ -106,14 +102,12 @@ export type SystemRouteLeaf = SystemRouteConfig & {
 }
 
 function buildChildParentPath(
-  config: SystemRouteStructure,
+  config: SystemRouteConfig,
   parentPath: string,
-  isRootLevel: boolean,
 ): string {
-  if (isRootLevel) {
-    return ''
-  }
-  return parentPath ? `${parentPath}/${config.path}` : config.path
+  return config.menuType === MenuTypeEnum.DIRECTORY
+    ? parentPath
+    : resolveSystemRouteFullPath(config, parentPath)
 }
 
 export function resolveSystemRouteFullPath(
@@ -126,25 +120,22 @@ export function resolveSystemRouteFullPath(
 export function flattenSystemRouteConfigs(
   configs: SystemRouteConfig[],
   parentPath = '',
-  isRootLevel = true,
 ): SystemRouteLeaf[] {
   return configs.flatMap((config) => {
+    const selfRoute = config.menuType === MenuTypeEnum.MENU
+      ? [{
+          ...config,
+          fullPath: resolveSystemRouteFullPath(config, parentPath),
+        }]
+      : []
+
     if (config.children?.length) {
-      const nextParentPath = buildChildParentPath(config, parentPath, isRootLevel)
-      const childRoutes = flattenSystemRouteConfigs(config.children, nextParentPath, false)
-      const selfRoute = config.componentKey != null
-        ? [{
-            ...config,
-            fullPath: resolveSystemRouteFullPath(config, parentPath),
-          }]
-        : []
+      const nextParentPath = buildChildParentPath(config, parentPath)
+      const childRoutes = flattenSystemRouteConfigs(config.children as SystemRouteConfig[], nextParentPath)
       return [...selfRoute, ...childRoutes]
     }
 
-    return [{
-      ...config,
-      fullPath: resolveSystemRouteFullPath(config, parentPath),
-    }]
+    return selfRoute
   })
 }
 
@@ -162,39 +153,4 @@ export function toSystemRouteConfigs(
   structures: SystemRouteStructure[] = SYSTEM_ROUTE_STRUCTURES,
 ): SystemRouteConfig[] {
   return structures.map(withDefaultTitle)
-}
-
-export const SYSTEM_COMPONENT_KEYS = new Set([
-  'MenuManage',
-  'RoleManage',
-  'AccountManage',
-  'PersonManage',
-  'PersonCreate',
-  'PersonDetail',
-  'DeptManage',
-  'PostManage',
-  'PositionManage',
-  'OrgChart',
-])
-
-export const SYSTEM_COMPONENT_PAGE_NAMES: Record<string, string> = {
-  MenuManage: 'MenuManagePage',
-  RoleManage: 'RoleManagePage',
-  AccountManage: 'AccountManagePage',
-  PersonManage: 'PersonManagePage',
-  PersonCreate: 'PersonFormPage',
-  PersonDetail: 'PersonDetailPage',
-  DeptManage: 'DeptManagePage',
-  PostManage: 'PostManagePage',
-  PositionManage: 'PositionManagePage',
-  OrgChart: 'OrgChartPage',
-}
-
-export function resolveSystemPageComponentName(componentKey: string): string {
-  return SYSTEM_COMPONENT_PAGE_NAMES[componentKey] ?? componentKey
-}
-
-export function isSystemRouteConfig(config: { componentKey?: string, name: string | symbol }): boolean {
-  const key = String(config.componentKey ?? config.name)
-  return SYSTEM_COMPONENT_KEYS.has(key)
 }
