@@ -21,7 +21,6 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 import type { SearchBarField } from '@grow-admin-rock/components/search-bar'
-import { GrowSearchBar } from '@grow-admin-rock/components/search-bar'
 
 defineOptions({
   name: 'SearchBarPage',

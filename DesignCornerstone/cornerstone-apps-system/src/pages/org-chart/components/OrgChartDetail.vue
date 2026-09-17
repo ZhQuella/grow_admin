@@ -311,7 +311,6 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
 import {
   assignmentTypeLabel,
   employeeStatusLabel,

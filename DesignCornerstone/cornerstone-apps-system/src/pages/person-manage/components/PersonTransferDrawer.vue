@@ -37,7 +37,6 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 import { useMsg } from '@grow-admin-rock/components'
-import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
 import { getSystemPersonDetail } from '../../../api/systemPerson'
 import {
   TRANSFER_ACTION_LABELS,

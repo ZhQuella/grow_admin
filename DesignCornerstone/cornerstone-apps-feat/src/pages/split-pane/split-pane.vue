@@ -23,7 +23,6 @@
 
 <script lang="ts" setup>
 import type { SplitPaneItem } from '@grow-admin-rock/components/split-pane'
-import { GrowSplitPane } from '@grow-admin-rock/components/split-pane'
 
 defineOptions({
   name: 'SplitPanePage',

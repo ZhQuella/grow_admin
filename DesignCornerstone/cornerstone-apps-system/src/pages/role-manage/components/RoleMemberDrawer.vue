@@ -168,7 +168,6 @@
 <script lang="ts" setup>
 import { computed, ref, watch } from 'vue'
 import { useMsg } from '@grow-admin-rock/components'
-import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
 import { fetchSystemAccountBriefs } from '../../../api/systemAccount'
 import { getSystemRoleDetail, saveSystemRoleMembers } from '../../../api/systemRole'
 import type { SystemAccountBrief } from '../../../types/systemAccount'

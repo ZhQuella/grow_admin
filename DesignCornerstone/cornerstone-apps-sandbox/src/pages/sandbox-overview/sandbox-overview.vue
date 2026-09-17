@@ -77,7 +77,6 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 import type { SplitPaneItem } from '@grow-admin-rock/components/split-pane'
-import { GrowSplitPane } from '@grow-admin-rock/components/split-pane'
 import { diKT } from '@grow-admin-rock/ioc'
 import { Lib as infrastructureLib } from '@grow-admin-rock/infrastructure'
 import * as GrowState from '@grow-admin-rock/state'

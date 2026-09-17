@@ -291,7 +291,6 @@
 <script lang="ts" setup>
 import { computed, nextTick, ref, watch } from 'vue'
 import { useMsg } from '@grow-admin-rock/components'
-import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
 import { fetchAllSystemMenuColumns } from '../../../api/systemMenuColumn'
 import { fetchSystemMenuTree } from '../../../api/systemMenu'
 import {

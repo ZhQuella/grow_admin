@@ -277,9 +277,6 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 import { useMsg } from '@grow-admin-rock/components'
-import { GrowSearchBar } from '@grow-admin-rock/components/search-bar'
-import { GrowColumnBar } from '@grow-admin-rock/components/column-bar'
-import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
 import type { SystemAccountListItem } from '../../types/systemAccount'
 import AccountCreateForm from './components/AccountCreateForm.vue'
 import AccountEditForm from './components/AccountEditForm.vue'

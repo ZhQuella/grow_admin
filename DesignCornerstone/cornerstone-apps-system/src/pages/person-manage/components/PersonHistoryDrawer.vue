@@ -41,7 +41,6 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { useMsg } from '@grow-admin-rock/components'
-import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
 import { fetchSystemPersonHistory } from '../../../api/systemPerson'
 import type { PersonEventType, PersonHistoryItem, SystemPersonListItem } from '../../../types/systemPerson'
 import { formatTime, toMessage } from '../use/helpers'

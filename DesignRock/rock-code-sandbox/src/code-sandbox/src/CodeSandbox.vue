@@ -21,8 +21,6 @@
 
 <script lang="ts" setup>
 import { computed, getCurrentInstance, ref, watch } from 'vue'
-import { GrowWatchBox } from '@grow-admin-rock/components/watch-box'
-import { RockScrollbar as GrowScrollbar } from '@grow-admin-rock/components/scrollbar'
 import {
   createPreviewComponent,
   resolveActiveExpose,
