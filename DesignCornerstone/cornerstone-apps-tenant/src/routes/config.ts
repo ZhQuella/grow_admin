@@ -1,10 +1,10 @@
 import { MenuTypeEnum, PageOpenModeEnum } from '@grow-admin-rock/constants'
 
-/** 客户端路由结构：path、组件映射，不含展示信息 */
+/** 可序列化路由结构：path 与行为配置，不含展示信息和组件 */
 export type TenantRouteStructure = {
   path: string
   name: string
-  componentKey?: string
+  component?: GrowRouteComponent
   children?: TenantRouteStructure[]
 }
 
@@ -48,27 +48,22 @@ export const TENANT_ROUTE_STRUCTURES: TenantRouteStructure[] = [
       {
         path: 'tenant-manage',
         name: 'TenantManage',
-        componentKey: 'TenantManage',
       },
       {
         path: 'application-function',
         name: 'ApplicationFunction',
-        componentKey: 'ApplicationFunction',
       },
       {
         path: 'tenant-menu',
         name: 'TenantMenu',
-        componentKey: 'TenantMenu',
       },
       {
         path: 'tenant-admin-role',
         name: 'TenantAdminRole',
-        componentKey: 'TenantAdminRole',
       },
       {
         path: 'tenant-account',
         name: 'TenantAccount',
-        componentKey: 'TenantAccount',
       },
     ],
   },
@@ -102,22 +97,20 @@ export function flattenTenantRouteConfigs(
   isRootLevel = true,
 ): TenantRouteLeaf[] {
   return configs.flatMap((config) => {
+    const selfRoute = config.menuType === MenuTypeEnum.MENU
+      ? [{
+          ...config,
+          fullPath: resolveTenantRouteFullPath(config, parentPath),
+        }]
+      : []
+
     if (config.children?.length) {
       const nextParentPath = buildChildParentPath(config, parentPath, isRootLevel)
-      const childRoutes = flattenTenantRouteConfigs(config.children, nextParentPath, false)
-      const selfRoute = config.componentKey != null
-        ? [{
-            ...config,
-            fullPath: resolveTenantRouteFullPath(config, parentPath),
-          }]
-        : []
+      const childRoutes = flattenTenantRouteConfigs(config.children as TenantRouteConfig[], nextParentPath, false)
       return [...selfRoute, ...childRoutes]
     }
 
-    return [{
-      ...config,
-      fullPath: resolveTenantRouteFullPath(config, parentPath),
-    }]
+    return selfRoute
   })
 }
 
@@ -135,29 +128,4 @@ export function toTenantRouteConfigs(
   structures: TenantRouteStructure[] = TENANT_ROUTE_STRUCTURES,
 ): TenantRouteConfig[] {
   return structures.map(withDefaultTitle)
-}
-
-export const TENANT_COMPONENT_KEYS = new Set([
-  'TenantManage',
-  'ApplicationFunction',
-  'TenantMenu',
-  'TenantAdminRole',
-  'TenantAccount',
-])
-
-export const TENANT_COMPONENT_PAGE_NAMES: Record<string, string> = {
-  TenantManage: 'TenantManagePage',
-  ApplicationFunction: 'ApplicationFunctionPage',
-  TenantMenu: 'TenantMenuPage',
-  TenantAdminRole: 'TenantAdminRolePage',
-  TenantAccount: 'TenantAccountPage',
-}
-
-export function resolveTenantPageComponentName(componentKey: string): string {
-  return TENANT_COMPONENT_PAGE_NAMES[componentKey] ?? componentKey
-}
-
-export function isTenantRouteConfig(config: { componentKey?: string, name: string | symbol }): boolean {
-  const key = String(config.componentKey ?? config.name)
-  return TENANT_COMPONENT_KEYS.has(key)
 }

@@ -1,19 +1,14 @@
 {
-  "name": "@grow-admin-cornerstone/apps-external",
+  "name": "@grow-admin-cornerstone/apps-dispark",
   "version": "0.0.0",
   "main": "index.ts",
   "module": "index.ts",
-  "exports": {
-    ".": "./index.ts",
-    "./route-config": "./src/routes/route-config.ts"
-  },
   "license": "MIT",
-  "description": "GrowAdmin-外部页面与 iframe 嵌入演示",
+  "description": "GrowAdmin-特殊页面路由承载模块",
   "scripts": {
     "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
   },
   "dependencies": {
-    "@grow-admin-cornerstone/apps-dispark": "workspace:*",
     "@grow-admin-rock/constants": "workspace:*"
   },
   "devDependencies": {

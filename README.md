@@ -176,13 +176,17 @@ export const WORKSPACE_ROUTE_CONFIGS: WorkspaceRouteConfig[] = [
 ]
 ```
 
-**组件映射**（`routes/index.ts`）——API 只返回元数据，组件在客户端解析：
+**客户端组件绑定**（`routes/index.ts`）——API 只返回可序列化数据，客户端结构直接持有组件：
 
 ```typescript
-const WORKSPACE_COMPONENTS: Record<string, GrowRouteComponent> = {
+const WORKSPACE_ROUTE_COMPONENTS: Record<string, GrowRouteComponent> = {
   Workspace: () => import('../pages/workspace.vue'),
   WorkspaceSettings: () => import('../pages/settings.vue'),
 }
+
+export const WORKSPACE_CLIENT_ROUTE_STRUCTURES = bindWorkspaceRouteComponents(
+  WORKSPACE_ROUTE_STRUCTURES,
+)
 ```
 
 Mock 通过子路径导出引用纯配置，避免 vite-plugin-mock 打包 `.vue` 文件：
@@ -207,10 +211,12 @@ import { WORKSPACE_ROUTE_CONFIGS } from '@grow-admin-cornerstone/apps-workspace/
 
 | 节点类型 | `Menu.path` | 是否注册路由 | 点击行为 |
 |----------|-------------|-------------|----------|
-| 目录（有 `children`） | `name` 字符串（如 `WorkspaceCatalog`） | ❌ | 展开/收起，不跳转 |
-| 叶子（无 `children`） | 完整路径（如 `/home/workspace`） | ✅ | `router.push(path)` |
+| `menuType = directory` | `name` 字符串（如 `WorkspaceCatalog`） | ❌ | 展开/收起，不跳转 |
+| `menuType = menu` | 完整路径（如 `/home/workspace`） | ✅ | `router.push(path)`；即使存在子节点也注册自身路由 |
 
 菜单状态按 `permissionMode` 写入 `authStore.backMenuList` / `frontMenuList`，侧边栏通过 `useAuthMenuList()` / `getMenuList` 取**当前模式生效**的菜单树（详见下方「权限模式」）。
+
+低代码、沙箱和报表等特殊页面通过 `pageType`（`lowcode` / `sandbox` / `report`）交给 `cornerstone-apps-dispark` 的固定承载组件；iframe 同样由该模块处理。普通页面不设置 `pageType`，直接使用客户端路由结构中的 `component`。
 
 ### 菜单渲染（rock-layouts）
 
@@ -254,7 +260,7 @@ Home 页面通过 Teleport 将 Menu 挂载到布局插槽：
 
 1. **新建页面组件** — `src/pages/xxx.vue`
 2. **更新树形配置** — 在 `src/routes/config.ts` 的 `children` 中追加节点（或新增目录）
-3. **注册组件映射** — 在 `src/routes/index.ts` 的 `WORKSPACE_COMPONENTS` 中添加 `name → import()` 对应关系
+3. **绑定客户端组件** — 在 `src/routes/index.ts` 的 `WORKSPACE_ROUTE_COMPONENTS` 中添加页面组件，由客户端结构直接携带 `component`
 4. **Mock 自动生效** — `sample/mock/routers.ts` 引用 `route-config`，无需额外修改
 5. **重启/刷新** — 重新登录或清除 `isDynamicAddedRoute` 状态后验证
 
@@ -263,7 +269,7 @@ Home 页面通过 Teleport 将 Menu 挂载到布局插槽：
 | 文件 | 职责 |
 |------|------|
 | `DesignCornerstone/cornerstone-apps-workspace/src/routes/config.ts` | 树形路由/菜单元数据（Mock 安全导出） |
-| `DesignCornerstone/cornerstone-apps-workspace/src/routes/index.ts` | 组件映射、`resolveWorkspaceRoute()` |
+| `DesignCornerstone/cornerstone-apps-workspace/src/routes/index.ts` | 客户端组件绑定、`resolveWorkspaceRoute()` |
 | `DesignCornerstone/cornerstone-apps-home/src/routes/index.ts` | Home 静态路由 |
 | `DesignCornerstone/cornerstone-apps-home/src/routes/guard.ts` | 登录守卫 + 动态路由注册触发 |
 | `DesignCornerstone/cornerstone-apps-home/src/routes/registerDynamicRoutes.ts` | 拉取菜单、注册路由、写入 state |
@@ -377,24 +383,24 @@ export const FEAT_ROUTE_AUTHORITY: Record<string, string[]> = {
 |------|------|
 | `apps-feat/.../menuList.ts` | `FEAT_MENU_LIST`：title / icon / sort 等（可与 BACK Mock 共用） |
 | `apps-feat/.../menuList.ts` | `FEAT_FRONT_ONLY_MENU_LIST`：**仅前端**项（勿放进 `/menu/list` Mock） |
-| `apps-feat/.../config.ts` | `FEAT_ROUTE_STRUCTURES` / `FEAT_FRONT_ONLY_STRUCTURES`：path、componentKey |
+| `apps-feat/.../config.ts` | `FEAT_ROUTE_STRUCTURES` / `FEAT_FRONT_ONLY_STRUCTURES`：可序列化 path 与行为配置 |
 | `apps-feat/.../mergeMenu.ts` | `toFeatRouteConfigs()` |
-| `apps-feat/.../index.ts` | 组件映射 `resolveFeatRoute` |
+| `apps-feat/.../index.ts` | 客户端组件绑定、`resolveFeatRoute` |
 
 ### 如何新增带权限的页面
 
 **仅 FRONT / MIXTURE 前端侧：**
 
 1. 页面组件 → `apps-feat/src/pages/...`
-2. `config.ts` 增加 structure（`name` / `path` / `componentKey`）
+2. `config.ts` 增加可序列化 structure（`name` / `path`）
 3. `menuList.ts` 增加 title、icon、`sort`；若只要前端有，放 `FEAT_FRONT_ONLY_*`
-4. `index.ts` 注册组件映射
+4. `index.ts` 将组件绑定到客户端路由结构
 5. `authority.ts` 配置该 `name` 允许的角色
 6. 切换到 `FRONT` 或 `MIXTURE` 验证
 
 **仅 BACK / MIXTURE 后端侧：**
 
-1. 业务包 `config` + 组件映射（如 `apps-workspace`）
+1. 业务包 `config` + 客户端组件绑定（如 `apps-workspace`）
 2. Mock / 真实接口 `/menu/list` 返回对应节点
 3. MIXTURE 下与前端同名时，整条展示以后端为准
 

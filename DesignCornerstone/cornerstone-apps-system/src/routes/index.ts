@@ -1,8 +1,9 @@
 import { MenuTypeEnum } from '@grow-admin-rock/constants'
 import {
+  SYSTEM_ROUTE_STRUCTURES,
   flattenSystemRouteConfigs,
-  resolveSystemPageComponentName,
   type SystemRouteConfig,
+  type SystemRouteStructure,
 } from './config'
 import { toSystemRouteConfigsFromMenu } from './mergeMenu'
 
@@ -14,11 +15,7 @@ export type {
 } from './config'
 export {
   SYSTEM_ROUTE_STRUCTURES,
-  SYSTEM_COMPONENT_KEYS,
-  SYSTEM_COMPONENT_PAGE_NAMES,
   flattenSystemRouteConfigs,
-  isSystemRouteConfig,
-  resolveSystemPageComponentName,
   resolveSystemRouteFullPath,
   toSystemRouteConfigs,
 } from './config'
@@ -29,7 +26,7 @@ export {
   toSystemRouteConfigsFromMenu,
 } from './mergeMenu'
 
-const SYSTEM_COMPONENTS: Record<string, GrowRouteComponent> = {
+const SYSTEM_ROUTE_COMPONENTS: Record<string, GrowRouteComponent> = {
   MenuManage: () => import('../pages/menu-manage/menu-manage.vue'),
   RoleManage: () => import('../pages/role-manage/role-manage.vue'),
   AccountManage: () => import('../pages/account-manage/account-manage.vue'),
@@ -42,46 +39,48 @@ const SYSTEM_COMPONENTS: Record<string, GrowRouteComponent> = {
   OrgChart: () => import('../pages/org-chart/org-chart.vue'),
 }
 
+function bindSystemRouteComponents(
+  structures: SystemRouteStructure[],
+): SystemRouteStructure[] {
+  return structures.map((structure) => ({
+    ...structure,
+    component: SYSTEM_ROUTE_COMPONENTS[structure.name],
+    children: structure.children?.length
+      ? bindSystemRouteComponents(structure.children)
+      : structure.children,
+  }))
+}
+
+export const SYSTEM_CLIENT_ROUTE_STRUCTURES = bindSystemRouteComponents(
+  SYSTEM_ROUTE_STRUCTURES,
+)
+
 function resolveSystemComponent(config: SystemRouteConfig): GrowRouteComponent {
-  const componentKey = String(config.componentKey ?? config.name)
-  const component = SYSTEM_COMPONENTS[componentKey]
-  if (!component) {
-    throw new Error(`Unknown system component: ${componentKey}`)
+  if (!config.component) {
+    throw new Error(`System route "${String(config.name)}" is missing its component`)
   }
-  return component
+  return config.component
 }
 
 export const SYSTEM_ROUTES: RouteRecordItem[] = flattenSystemRouteConfigs(
-  toSystemRouteConfigsFromMenu(),
-).map(({ fullPath, ...config }) => ({
-  ...config,
-  path: fullPath,
-  component: resolveSystemComponent(config),
-}))
-
-const PERSON_FORM_PARENT_BY_NAME: Record<string, string> = {
-  PersonCreate: 'PersonManage',
-  PersonDetail: 'PersonManage',
-}
+  toSystemRouteConfigsFromMenu(undefined, SYSTEM_CLIENT_ROUTE_STRUCTURES),
+).map(({ fullPath, ...config }) => resolveSystemRoute(config, fullPath))
 
 export function resolveSystemRoute(
   config: SystemRouteConfig,
   fullPath = config.path,
 ): RouteRecordItem {
-  const breadcrumbParentName = PERSON_FORM_PARENT_BY_NAME[config.name]
-  const componentKey = String(config.componentKey ?? config.name)
   return {
     path: fullPath,
     name: config.name,
     component: resolveSystemComponent(config),
     meta: {
       title: config.title,
-      componentName: resolveSystemPageComponentName(componentKey),
       isKeepAlive: config.isKeepAlive !== false,
-      ...(breadcrumbParentName
+      ...(config.breadcrumbParentName
         ? {
-            dynamicTab: true,
-            breadcrumbParentName,
+            dynamicTab: config.dynamicTab,
+            breadcrumbParentName: config.breadcrumbParentName,
           }
         : {}),
     },

@@ -1,8 +1,9 @@
 import { MenuTypeEnum } from '@grow-admin-rock/constants'
 import {
+  TENANT_ROUTE_STRUCTURES,
   flattenTenantRouteConfigs,
-  resolveTenantPageComponentName,
   type TenantRouteConfig,
+  type TenantRouteStructure,
 } from './config'
 import { toTenantRouteConfigsFromMenu } from './mergeMenu'
 
@@ -14,11 +15,7 @@ export type {
 } from './config'
 export {
   TENANT_ROUTE_STRUCTURES,
-  TENANT_COMPONENT_KEYS,
-  TENANT_COMPONENT_PAGE_NAMES,
   flattenTenantRouteConfigs,
-  isTenantRouteConfig,
-  resolveTenantPageComponentName,
   resolveTenantRouteFullPath,
   toTenantRouteConfigs,
 } from './config'
@@ -29,7 +26,7 @@ export {
   toTenantRouteConfigsFromMenu,
 } from './mergeMenu'
 
-const TENANT_COMPONENTS: Record<string, GrowRouteComponent> = {
+const TENANT_ROUTE_COMPONENTS: Record<string, GrowRouteComponent> = {
   TenantManage: () => import('../pages/tenant-manage/tenant-manage.vue'),
   ApplicationFunction: () => import('../pages/application-function/application-function.vue'),
   TenantMenu: () => import('../pages/tenant-menu/tenant-menu.vue'),
@@ -37,22 +34,32 @@ const TENANT_COMPONENTS: Record<string, GrowRouteComponent> = {
   TenantAccount: () => import('../pages/tenant-account/tenant-account.vue'),
 }
 
+function bindTenantRouteComponents(
+  structures: TenantRouteStructure[],
+): TenantRouteStructure[] {
+  return structures.map((structure) => ({
+    ...structure,
+    component: TENANT_ROUTE_COMPONENTS[structure.name],
+    children: structure.children?.length
+      ? bindTenantRouteComponents(structure.children)
+      : structure.children,
+  }))
+}
+
+export const TENANT_CLIENT_ROUTE_STRUCTURES = bindTenantRouteComponents(
+  TENANT_ROUTE_STRUCTURES,
+)
+
 function resolveTenantComponent(config: TenantRouteConfig): GrowRouteComponent {
-  const componentKey = String(config.componentKey ?? config.name)
-  const component = TENANT_COMPONENTS[componentKey]
-  if (!component) {
-    throw new Error(`Unknown tenant component: ${componentKey}`)
+  if (!config.component) {
+    throw new Error(`Tenant route "${String(config.name)}" is missing its component`)
   }
-  return component
+  return config.component
 }
 
 export const TENANT_ROUTES: RouteRecordItem[] = flattenTenantRouteConfigs(
-  toTenantRouteConfigsFromMenu(),
-).map(({ fullPath, ...config }) => ({
-  ...config,
-  path: fullPath,
-  component: resolveTenantComponent(config),
-}))
+  toTenantRouteConfigsFromMenu(undefined, TENANT_CLIENT_ROUTE_STRUCTURES),
+).map(({ fullPath, ...config }) => resolveTenantRoute(config, fullPath))
 
 export function resolveTenantRoute(
   config: TenantRouteConfig,
@@ -64,7 +71,6 @@ export function resolveTenantRoute(
     component: resolveTenantComponent(config),
     meta: {
       title: config.title,
-      componentName: resolveTenantPageComponentName(String(config.componentKey ?? config.name)),
       isKeepAlive: config.isKeepAlive !== false,
     },
     icon: config.icon,

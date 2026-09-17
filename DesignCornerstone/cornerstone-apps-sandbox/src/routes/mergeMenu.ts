@@ -27,7 +27,7 @@ export function mergeSandboxMenuWithStructure(
       affix: menuItem.affix,
       defaultShow: menuItem.defaultShow,
       sort: menuItem.sort,
-      componentKey: structure.componentKey,
+      component: structure.component,
       isExternalPage: menuItem.isExternalPage,
       openMode: menuItem.openMode,
       link: menuItem.link,

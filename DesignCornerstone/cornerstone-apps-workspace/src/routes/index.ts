@@ -1,8 +1,10 @@
 import { MenuTypeEnum } from '@grow-admin-rock/constants'
 import {
+  WORKSPACE_ROUTE_STRUCTURES,
   flattenWorkspaceRouteConfigs,
   toWorkspaceRouteConfigs,
   type WorkspaceRouteConfig,
+  type WorkspaceRouteStructure,
 } from './config'
 
 export type {
@@ -20,28 +22,38 @@ export {
 } from './config'
 export { mergeMenuWithStructure } from './mergeMenu'
 
-const WORKSPACE_COMPONENTS: Record<string, GrowRouteComponent> = {
+const WORKSPACE_ROUTE_COMPONENTS: Record<string, GrowRouteComponent> = {
   DataReport: () => import('../pages/data-report/data-report.vue'),
   Analysis: () => import('../pages/analysis/analysis.vue'),
   MixtureBackDemo: () => import('../pages/mixture-back-demo/mixture-back-demo.vue'),
 }
 
+function bindWorkspaceRouteComponents(
+  structures: WorkspaceRouteStructure[],
+): WorkspaceRouteStructure[] {
+  return structures.map((structure) => ({
+    ...structure,
+    component: WORKSPACE_ROUTE_COMPONENTS[structure.name],
+    children: structure.children?.length
+      ? bindWorkspaceRouteComponents(structure.children)
+      : structure.children,
+  }))
+}
+
+export const WORKSPACE_CLIENT_ROUTE_STRUCTURES = bindWorkspaceRouteComponents(
+  WORKSPACE_ROUTE_STRUCTURES,
+)
+
 function resolveWorkspaceComponent(config: WorkspaceRouteConfig): GrowRouteComponent {
-  const componentKey = String(config.componentKey ?? config.name)
-  const component = WORKSPACE_COMPONENTS[componentKey]
-  if (!component) {
-    throw new Error(`Unknown workspace component: ${componentKey}`)
+  if (!config.component) {
+    throw new Error(`Workspace route "${String(config.name)}" is missing its component`)
   }
-  return component
+  return config.component
 }
 
 export const WORKSPACE_ROUTES: RouteRecordItem[] = flattenWorkspaceRouteConfigs(
-  toWorkspaceRouteConfigs(),
-).map(({ fullPath, ...config }) => ({
-  ...config,
-  path: fullPath,
-  component: resolveWorkspaceComponent(config),
-}))
+  toWorkspaceRouteConfigs(WORKSPACE_CLIENT_ROUTE_STRUCTURES),
+).map(({ fullPath, ...config }) => resolveWorkspaceRoute(config, fullPath))
 
 export const WORKSPACE_ROUTE = WORKSPACE_ROUTES[0]
 

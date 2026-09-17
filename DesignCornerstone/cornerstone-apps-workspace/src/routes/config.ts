@@ -1,10 +1,10 @@
 import { MenuTypeEnum, PageOpenModeEnum } from '@grow-admin-rock/constants'
 
-/** 客户端路由结构：path、组件映射，不含展示信息 */
+/** 可序列化路由结构：path 与行为配置，不含展示信息和组件 */
 export type WorkspaceRouteStructure = {
   path: string
   name: string
-  componentKey?: string
+  component?: GrowRouteComponent
   children?: WorkspaceRouteStructure[]
 }
 
@@ -50,12 +50,10 @@ export const WORKSPACE_ROUTE_STRUCTURES: WorkspaceRouteStructure[] = [
       {
         path: 'data-report',
         name: 'DataReport',
-        componentKey: 'DataReport',
       },
       {
         path: 'analysis',
         name: 'Analysis',
-        componentKey: 'Analysis',
       },
     ],
   },
@@ -66,7 +64,6 @@ export const WORKSPACE_ROUTE_STRUCTURES: WorkspaceRouteStructure[] = [
       {
         path: 'mixture-back-demo',
         name: 'MixtureBackDemo',
-        componentKey: 'MixtureBackDemo',
       },
     ],
   },
@@ -109,22 +106,20 @@ export function flattenWorkspaceRouteConfigs(
   isRootLevel = true,
 ): WorkspaceRouteLeaf[] {
   return configs.flatMap((config) => {
+    const selfRoute = config.menuType === MenuTypeEnum.MENU
+      ? [{
+          ...config,
+          fullPath: resolveWorkspaceRouteFullPath(config, parentPath),
+        }]
+      : []
+
     if (config.children?.length) {
       const nextParentPath = buildChildParentPath(config, parentPath, isRootLevel)
-      const childRoutes = flattenWorkspaceRouteConfigs(config.children, nextParentPath, false)
-      const selfRoute = config.componentKey != null
-        ? [{
-            ...config,
-            fullPath: resolveWorkspaceRouteFullPath(config, parentPath),
-          }]
-        : []
+      const childRoutes = flattenWorkspaceRouteConfigs(config.children as WorkspaceRouteConfig[], nextParentPath, false)
       return [...selfRoute, ...childRoutes]
     }
 
-    return [{
-      ...config,
-      fullPath: resolveWorkspaceRouteFullPath(config, parentPath),
-    }]
+    return selfRoute
   })
 }
 
