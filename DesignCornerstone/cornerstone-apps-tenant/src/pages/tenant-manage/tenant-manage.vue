@@ -50,6 +50,8 @@
                 <template v-else-if="col.field === 'servicePeriod'">{{ formatServicePeriod(row) }}</template>
                 <template v-else-if="col.field === 'lastLoginAt'">{{ formatTime(row.lastLoginAt) }}</template>
                 <template v-else-if="col.field === 'createdAt'">{{ formatTime(row.createdAt) }}</template>
+                <template v-else-if="col.field === 'updatedAt'">{{ formatTime(row.updatedAt) }}</template>
+                <template v-else-if="col.field === 'deletedAt'">{{ formatTime(row.deletedAt) }}</template>
                 <template v-else-if="col.field === 'actions'">
                   <div class="tenant-manage__actions">
                     <GrowTooltip v-if="hasAction(row, 'view')" content="查看" placement="top">

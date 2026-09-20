@@ -11,6 +11,7 @@ export default {
     state3: '开箱即用的',
   },
   word: {
+    tenantCodeMsg: '请输入租户代码',
     accessMsg: '请输入账号',
     passwordMsg: '请输入密码',
     loginText: '登 录',
@@ -22,6 +23,9 @@ export default {
     forgetPassword: '忘记密码',
     mobilePhone: '请输入手机号',
     verificationCode: '请输入验证码',
+    refreshCaptcha: '点击刷新验证码',
+    captchaLoading: '加载中…',
+    captchaLoadFailed: '验证码加载失败，请点击刷新',
     getCode: '获取验证码',
     confirmText: '确认',
     enterPasswordContext: '再次输入新密码',

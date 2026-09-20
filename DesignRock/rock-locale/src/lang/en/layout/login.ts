@@ -11,6 +11,7 @@ export default {
     state3: 'Out of the box',
   },
   word: {
+    tenantCodeMsg: 'Please enter the tenant code',
     accessMsg: 'Please enter the account number',
     passwordMsg: 'Please enter password',
     loginText: 'Log in',
@@ -22,6 +23,9 @@ export default {
     forgetPassword: 'Forget your password',
     mobilePhone: 'Please enter your mobile phone number',
     verificationCode: 'Please enter the verification code',
+    refreshCaptcha: 'Click to refresh the captcha',
+    captchaLoading: 'Loading…',
+    captchaLoadFailed: 'Captcha failed to load. Click to refresh.',
     getCode: 'Get Code',
     confirmText: 'Confirm',
     enterPasswordContext: 'Enter the new password again',

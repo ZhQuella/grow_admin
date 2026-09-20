@@ -1,5 +1,6 @@
 import type { RequestOptions } from '@grow-admin-rock/types'
 import { AUTHORITY_TOKEN } from '@grow-admin-rock/constants'
+import { useMsg } from '@grow-admin-rock/components'
 import { Autowired, Bean, diKT } from '@grow-admin-rock/ioc'
 import { isString } from '@grow-admin-rock/utils'
 import {
@@ -60,7 +61,15 @@ export class GrowAxiosTransform extends AxiosTransform {
       }
 
       if (data.type === 'error') {
-        throw new Error(data.message || '请求失败')
+        const error = new Error(data.message || '请求失败')
+        if (options.errorMessageMode === 'message') useMsg().error?.(error.message)
+        throw error
+      }
+
+      if (typeof data.code === 'number' && data.code !== 0 && data.code !== 200) {
+        const error = new Error(data.message || '请求失败')
+        if (options.errorMessageMode === 'message') useMsg().error?.(error.message)
+        throw error
       }
 
       if (data.data !== undefined) {
@@ -72,6 +81,25 @@ export class GrowAxiosTransform extends AxiosTransform {
       }
 
       return data
+    }
+
+    this.responseInterceptorsCatch = (error: unknown) => {
+      const requestError = error as {
+        config?: { requestOptions?: RequestOptions }
+        message?: string
+        response?: { data?: { message?: string; error?: { message?: string } } }
+      }
+      const message =
+        requestError.response?.data?.message ||
+        requestError.response?.data?.error?.message ||
+        requestError.message ||
+        '网络请求失败'
+      if (requestError.config?.requestOptions?.errorMessageMode === 'message') {
+        useMsg().error?.(message)
+      }
+      return Promise.reject(
+        error instanceof Error && error.message === message ? error : new Error(message),
+      )
     }
   }
 }

@@ -33,16 +33,19 @@ export type SystemTenantListItem = {
   tenantCode: string
   tenantName: string
   shortName: string
-  tenantType: TenantType
+  tenantType?: TenantType
   status: TenantStatus
   startedAt: string | null
   expiredAt: string | null
+  gracedDays: number
   contactName: string
   contactMobile: string
   accountCount: number
   personCount: number
   lastLoginAt: string | null
   createdAt: string
+  updatedAt: string
+  deletedAt: string | null
   builtIn: boolean
 }
 
@@ -55,8 +58,6 @@ export type SystemTenantDetail = SystemTenantListItem & {
   remark: string
   createdBy: string
   updatedBy: string
-  updatedAt: string
-  deletedAt: string | null
 }
 
 export type SystemTenantQuery = {

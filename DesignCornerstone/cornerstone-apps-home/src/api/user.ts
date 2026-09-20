@@ -3,6 +3,7 @@ import { Lib as infrastructureLib } from '@grow-admin-rock/infrastructure'
 import type { UserInfo } from '@grow-admin-rock/types'
 
 const useRequest = () => diKT(infrastructureLib.types.InfrastructureAxios)
+const accountApiUrl = import.meta.env.VITE_ACCOUNT_API_URL
 
 export function getUserInfo() {
   return useRequest().get<UserInfo>({
@@ -11,7 +12,11 @@ export function getUserInfo() {
 }
 
 export function logout() {
-  return useRequest().post({
-    url: '/logout',
-  })
+  return useRequest().post<void>(
+    {
+      url: '/account/logout',
+      baseURL: accountApiUrl,
+    },
+    { errorMessageMode: 'message' },
+  )
 }

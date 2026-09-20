@@ -18,12 +18,25 @@ import type {
 } from '../types/systemTenant'
 
 const useRequest = () => diKT(infrastructureLib.types.InfrastructureAxios)
+const platformApiUrl = import.meta.env.VITE_ACCOUNT_API_URL
 
 export function fetchSystemTenantPage(params: SystemTenantQuery) {
-  return useRequest().post<SystemTenantPageResult>({
-    url: '/platform/tenants/page',
-    data: params,
-  })
+  if (!platformApiUrl) {
+    return useRequest().post<SystemTenantPageResult>({
+      url: '/platform/tenants/page',
+      data: params,
+    })
+  }
+
+  const { page = 1, pageSize = 10, ...filters } = params
+  return useRequest().post<SystemTenantPageResult>(
+    {
+      url: `/platform/tenants/${page}/${pageSize}`,
+      baseURL: platformApiUrl,
+      data: filters,
+    },
+    { errorMessageMode: 'message' },
+  )
 }
 
 export function fetchSystemTenantOptions() {

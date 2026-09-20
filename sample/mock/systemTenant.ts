@@ -383,12 +383,15 @@ function toListItem(item: TenantRecord) {
     status: item.status,
     startedAt: item.startedAt,
     expiredAt: item.expiredAt,
+    gracedDays: item.builtIn ? 0 : 7,
     contactName: item.contactName,
     contactMobile: item.contactMobile,
     accountCount: item.accountCount,
     personCount: item.personCount,
     lastLoginAt: item.lastLoginAt,
     createdAt: item.createdAt,
+    updatedAt: item.updatedAt,
+    deletedAt: item.deletedAt,
     builtIn: item.builtIn,
   }
 }

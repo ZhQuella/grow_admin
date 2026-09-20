@@ -79,6 +79,7 @@ declare global {
     VITE_USE_MOCK: boolean
     VITE_PUBLIC_PATH: string
     VITE_PROXY: [string, string][]
+    VITE_ACCOUNT_API_URL: string
     /**
      * UNOCSS 独立创建配置文件还是Vite插件集成
      */

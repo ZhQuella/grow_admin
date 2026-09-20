@@ -20,6 +20,37 @@ type AuthUser = {
   roles: Array<{ name: string; value: string }>;
 };
 
+type CaptchaStore = Record<string, string>;
+
+function accountResultSuccess<T>(data: T) {
+  return {
+    code: 200,
+    message: '操作成功',
+    data,
+  };
+}
+
+function captchaStore() {
+  const g = globalThis as typeof globalThis & { __GROW_CAPTCHAS__?: CaptchaStore };
+  g.__GROW_CAPTCHAS__ = g.__GROW_CAPTCHAS__ || {};
+  return g.__GROW_CAPTCHAS__;
+}
+
+function createCaptcha() {
+  const captchaId = `mock-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const captchaCode = Array.from(
+    { length: 4 },
+    () => chars[Math.floor(Math.random() * chars.length)],
+  ).join('');
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="40" viewBox="0 0 120 40"><rect width="120" height="40" fill="#f1f5f9"/><path d="M4 31L116 9M8 8L112 33" stroke="#cbd5e1"/><text x="60" y="28" text-anchor="middle" font-family="monospace" font-size="24" font-weight="700" letter-spacing="5" fill="#334155">${captchaCode}</text></svg>`;
+  captchaStore()[captchaId] = captchaCode;
+  return {
+    captchaId,
+    imageBase64: `data:image/svg+xml;base64,${btoa(svg)}`,
+  };
+}
+
 function toAuthUser(account: AccountRecord, person?: PersonRecord): AuthUser {
   const hasSuper = account.roleIds.includes('role_super');
   return {
@@ -68,6 +99,33 @@ export function createFakeUserList() {
 }
 
 const mocks = [
+  {
+    url: mockUrl('/account/captcha'),
+    timeout: 200,
+    method: 'get',
+    response: () => accountResultSuccess(createCaptcha()),
+  },
+  {
+    url: mockUrl('/account/login'),
+    timeout: 200,
+    method: 'post',
+    response: ({ body }) => {
+      const { tenantCode, account, password, captchaId, captchaCode } = body;
+      const expectedCaptchaCode = captchaStore()[String(captchaId || '')];
+      delete captchaStore()[String(captchaId || '')];
+      if (!tenantCode) return resultError('请输入租户代码');
+      if (!expectedCaptchaCode || expectedCaptchaCode !== String(captchaCode || '').toUpperCase()) {
+        return resultError('验证码错误或已失效');
+      }
+      const result = recordAccountLogin(String(account || ''), String(password || ''));
+      if (!result || 'error' in result) {
+        return resultError(result?.error || '账号或密码错误');
+      }
+      const user = toAuthUser(result.account, result.person);
+      rememberAuthUser(user);
+      return accountResultSuccess({ accessToken: user.accessToken });
+    },
+  },
   {
     url: mockUrl('/login'),
     timeout: 200,

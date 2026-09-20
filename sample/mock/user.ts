@@ -12,6 +12,14 @@ function toUserInfo(user = createFakeUserList()[0]) {
   return userInfo;
 }
 
+function accountLogoutSuccess() {
+  return {
+    code: 200,
+    message: '操作成功',
+    data: null,
+  };
+}
+
 const mocks = [
   {
     url: mockUrl('/user/info'),
@@ -24,6 +32,18 @@ const mocks = [
       }
       const current = findAuthUserByToken(token) || createFakeUserList()[0];
       return resultSuccess(toUserInfo(current), { message: '获取用户信息成功' });
+    },
+  },
+  {
+    url: mockUrl('/account/logout'),
+    method: 'post',
+    timeout: 200,
+    response: (req) => {
+      const token = getRequestToken(req);
+      if (!token) {
+        return resultError('未登录或登录已过期');
+      }
+      return accountLogoutSuccess();
     },
   },
   {

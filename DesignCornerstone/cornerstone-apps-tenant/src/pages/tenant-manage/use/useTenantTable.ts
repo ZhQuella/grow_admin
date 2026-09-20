@@ -1,11 +1,9 @@
 import { computed, ref } from 'vue'
 import type { SearchBarField } from '@grow-admin-rock/components/search-bar'
 import type { ColumnBarItem } from '@grow-admin-rock/components/column-bar'
-import { useMsg } from '@grow-admin-rock/components'
 import { fetchSystemTenantPage } from '../../../api/systemTenant'
 import type { SystemTenantListItem, TenantStatus } from '../../../types/systemTenant'
 import { TENANT_STATUS_LABELS, TENANT_STATUS_VALUES } from '../../../types/systemTenant'
-import { toMessage } from './helpers'
 
 export type ManageTableColumn = ColumnBarItem & {
   width?: number
@@ -37,8 +35,6 @@ function lastDate(value: unknown) {
 }
 
 export function useTenantTable() {
-  const message = useMsg() as any
-
   const loading = ref(false)
   const tableData = ref<SystemTenantListItem[]>([])
   const total = ref(0)
@@ -92,6 +88,7 @@ export function useTenantTable() {
   ]
 
   const tableColumns = ref<ManageTableColumn[]>([
+    { title: '租户ID', field: 'id', visible: false, minWidth: 100 },
     { title: '租户编码', field: 'tenantCode', visible: true, minWidth: 120 },
     { title: '租户名称', field: 'tenantName', visible: true, minWidth: 160 },
     { title: '租户简称', field: 'shortName', visible: true, minWidth: 100 },
@@ -101,8 +98,11 @@ export function useTenantTable() {
     { title: '账号数', field: 'accountCount', visible: true, minWidth: 80 },
     { title: '人员数', field: 'personCount', visible: true, minWidth: 80 },
     { title: '服务期限', field: 'servicePeriod', visible: true, minWidth: 200 },
+    { title: '宽限天数', field: 'gracedDays', visible: false, minWidth: 90 },
     { title: '最后登录时间', field: 'lastLoginAt', visible: true, minWidth: 170 },
     { title: '创建时间', field: 'createdAt', visible: true, minWidth: 170 },
+    { title: '更新时间', field: 'updatedAt', visible: false, minWidth: 170 },
+    { title: '删除时间', field: 'deletedAt', visible: false, minWidth: 170 },
     { title: '操作', field: 'actions', visible: true, minWidth: 260, fixed: 'right' },
   ])
 
@@ -123,8 +123,9 @@ export function useTenantTable() {
       })
       tableData.value = Array.isArray(data?.items) ? data.items : []
       total.value = Number(data?.total || 0)
-    } catch (error) {
-      message.error(toMessage(error, '加载失败'))
+    } catch {
+      tableData.value = []
+      total.value = 0
     } finally {
       loading.value = false
     }

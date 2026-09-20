@@ -78,7 +78,7 @@ export const defaultRequestOptions: RequestOptions = {
   // 格式化提交参数时间
   formatDate: true,
   // 消息提示类型
-  errorMessageMode: 'message',
+  errorMessageMode: 'none',
   // 接口地址
   apiUrl: '',
   //  是否加入时间戳
