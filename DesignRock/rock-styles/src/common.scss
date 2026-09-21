@@ -15,6 +15,45 @@ body {
   box-sizing: border-box;
 }
 
+/* 弹窗、抽屉正文统一使用上 5px、左右 10px、下 0 的容器内边距。 */
+.el-dialog__body,
+.el-drawer__body,
+.ant-modal-body,
+.ant-drawer-body,
+.n-dialog__content,
+.n-drawer-body-content-wrapper,
+.n-modal.n-card > .n-card__content {
+  padding: 5px 10px 0 !important;
+}
+
+/* Element Plus 将弹窗 padding 设在外层，移到头尾以保留原有标题/按钮位置。 */
+.el-dialog {
+  padding: 0 !important;
+}
+
+.el-dialog > .el-dialog__header,
+.el-dialog > .el-dialog__footer {
+  padding: var(--el-dialog-padding-primary, 16px) !important;
+}
+
+.el-dialog > .el-dialog__header.show-close {
+  padding-right: calc(
+    var(--el-dialog-padding-primary, 16px) * 2 + var(--el-message-close-size, 16px)
+  ) !important;
+}
+
+/* 弹窗、抽屉标题统一字号和字重。 */
+.el-dialog__title,
+.el-drawer__title,
+.ant-modal-title,
+.ant-drawer-title,
+.n-dialog__title,
+.n-drawer-header__main,
+.n-modal.n-card > .n-card-header .n-card-header__main {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+}
+
 a:focus,
 a:active,
 button,

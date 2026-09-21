@@ -89,7 +89,7 @@ export function useTenantTable() {
 
   const tableColumns = ref<ManageTableColumn[]>([
     { title: '租户ID', field: 'id', visible: false, minWidth: 100 },
-    { title: '租户编码', field: 'tenantCode', visible: true, minWidth: 120 },
+    { title: '租户编码', field: 'tenantCode', visible: true, minWidth: 160 },
     { title: '租户名称', field: 'tenantName', visible: true, minWidth: 160 },
     { title: '租户简称', field: 'shortName', visible: true, minWidth: 100 },
     { title: '状态', field: 'status', visible: true, minWidth: 100 },
@@ -102,8 +102,7 @@ export function useTenantTable() {
     { title: '最后登录时间', field: 'lastLoginAt', visible: true, minWidth: 170 },
     { title: '创建时间', field: 'createdAt', visible: true, minWidth: 170 },
     { title: '更新时间', field: 'updatedAt', visible: false, minWidth: 170 },
-    { title: '删除时间', field: 'deletedAt', visible: false, minWidth: 170 },
-    { title: '操作', field: 'actions', visible: true, minWidth: 260, fixed: 'right' },
+    { title: '操作', field: 'actions', visible: true, minWidth: 340, fixed: 'right' },
   ])
 
   const leafColumns = computed(() => collectLeafColumns(tableColumns.value))

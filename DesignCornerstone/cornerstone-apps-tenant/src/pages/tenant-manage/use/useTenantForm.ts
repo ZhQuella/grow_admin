@@ -6,12 +6,10 @@ import {
   updateSystemTenant,
 } from '../../../api/systemTenant'
 import {
-  TENANT_TYPE_OPTIONS,
   type SystemTenantDetail,
   type SystemTenantListItem,
-  type TenantType,
 } from '../../../types/systemTenant'
-import { toMessage, validateGrowForm } from './helpers'
+import { validateGrowForm } from './helpers'
 
 export type TenantFormMode = 'create' | 'edit' | 'view'
 
@@ -20,15 +18,8 @@ export type TenantFormModel = {
   tenantCode: string
   tenantName: string
   shortName: string
-  tenantType: TenantType
   contactName: string
   contactMobile: string
-  contactEmail: string
-  creditCode: string
-  industry: string
-  regionCode: string
-  address: string
-  remark: string
 }
 
 function emptyForm(): TenantFormModel {
@@ -37,20 +28,12 @@ function emptyForm(): TenantFormModel {
     tenantCode: '',
     tenantName: '',
     shortName: '',
-    tenantType: 'company',
     contactName: '',
     contactMobile: '',
-    contactEmail: '',
-    creditCode: '',
-    industry: '',
-    regionCode: '',
-    address: '',
-    remark: '',
   }
 }
 
-const TENANT_CODE_PATTERN = /^[A-Za-z0-9_-]+$/
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const TENANT_CODE_PATTERN = /^[A-Za-z0-9_]+$/
 
 type UseTenantFormOptions = {
   onSuccess: () => void | Promise<void>
@@ -77,12 +60,12 @@ export function useTenantForm(options: UseTenantFormOptions) {
             callback()
             return
           }
-          if (text.length < 2 || text.length > 64) {
-            callback(new Error('租户编码为 2-64 位'))
+          if (text.length < 5 || text.length > 12) {
+            callback(new Error('租户编码为 5～12 个字符'))
             return
           }
           if (!TENANT_CODE_PATTERN.test(text)) {
-            callback(new Error('只能包含字母、数字、下划线和短横线'))
+            callback(new Error('只能包含大小写字母、数字和下划线'))
             return
           }
           callback()
@@ -99,19 +82,6 @@ export function useTenantForm(options: UseTenantFormOptions) {
         trigger: 'blur',
       },
     ],
-    contactEmail: [
-      {
-        validator: (_: unknown, value: string, callback: (error?: Error) => void) => {
-          const text = String(value || '').trim()
-          if (text && !EMAIL_PATTERN.test(text)) {
-            callback(new Error('邮箱格式不正确'))
-            return
-          }
-          callback()
-        },
-        trigger: 'blur',
-      },
-    ],
   }
 
   function assignForm(detail: Partial<SystemTenantDetail> & Partial<TenantFormModel>) {
@@ -120,15 +90,8 @@ export function useTenantForm(options: UseTenantFormOptions) {
       tenantCode: detail.tenantCode || '',
       tenantName: detail.tenantName || '',
       shortName: detail.shortName || '',
-      tenantType: (detail.tenantType || 'company') as TenantType,
       contactName: detail.contactName || '',
       contactMobile: detail.contactMobile || '',
-      contactEmail: detail.contactEmail || '',
-      creditCode: detail.creditCode || '',
-      industry: detail.industry || '',
-      regionCode: detail.regionCode || '',
-      address: detail.address || '',
-      remark: detail.remark || '',
     })
   }
 
@@ -149,8 +112,7 @@ export function useTenantForm(options: UseTenantFormOptions) {
       const detail = await getSystemTenantDetail(row.id)
       formDetail.value = detail
       assignForm(detail)
-    } catch (error) {
-      message.error(toMessage(error, '加载详情失败'))
+    } catch {
       formVisible.value = false
     } finally {
       formLoading.value = false
@@ -181,15 +143,8 @@ export function useTenantForm(options: UseTenantFormOptions) {
       const payload = {
         tenantName: formModel.tenantName.trim(),
         shortName: formModel.shortName.trim(),
-        tenantType: formModel.tenantType,
         contactName: formModel.contactName.trim(),
         contactMobile: formModel.contactMobile.trim(),
-        contactEmail: formModel.contactEmail.trim(),
-        creditCode: formModel.creditCode.trim(),
-        industry: formModel.industry.trim(),
-        regionCode: formModel.regionCode.trim(),
-        address: formModel.address.trim(),
-        remark: formModel.remark.trim(),
       }
       if (formMode.value === 'create') {
         await createSystemTenant({
@@ -203,8 +158,8 @@ export function useTenantForm(options: UseTenantFormOptions) {
       }
       formVisible.value = false
       await options.onSuccess()
-    } catch (error) {
-      message.error(toMessage(error, '保存失败'))
+    } catch {
+      // 错误消息由请求拦截器统一展示。
     } finally {
       formSubmitting.value = false
     }
@@ -223,6 +178,5 @@ export function useTenantForm(options: UseTenantFormOptions) {
     openEdit,
     openView,
     submitForm,
-    typeOptions: TENANT_TYPE_OPTIONS,
   }
 }

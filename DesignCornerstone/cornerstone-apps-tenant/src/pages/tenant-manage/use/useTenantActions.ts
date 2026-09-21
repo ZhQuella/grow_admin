@@ -8,17 +8,19 @@ import {
   fetchSystemTenantApplicationFunctions,
   fetchSystemTenantClearImpact,
   fetchSystemTenantGrantDetail,
+  fetchSystemTenantGrantColumns,
   saveSystemTenantGrant,
   trialSystemTenant,
   updateSystemTenantCode,
 } from '../../../api/systemTenant'
 import type {
   SystemTenantClearImpact,
+  SystemTenantGrantColumn,
   SystemTenantGrantDetail,
   SystemTenantGrantMenu,
   SystemTenantListItem,
 } from '../../../types/systemTenant'
-import { todayDate, toMessage, validateGrowForm } from './helpers'
+import { availableTenantActions, todayDate, toMessage, validateGrowForm } from './helpers'
 
 type UseTenantActionsOptions = {
   onSuccess: () => void | Promise<void>
@@ -38,21 +40,33 @@ export function useTenantActions(options: UseTenantActionsOptions) {
   const periodFormRef = ref()
   const periodForm = reactive({
     expiredOn: '',
-    reason: '',
+    graceDays: 0,
+    remark: '',
   })
   const periodRules = {
-    expiredOn: [{ required: true, message: '请选择结束日期', trigger: 'change' }],
-    reason: [{ required: true, message: '请填写原因', trigger: 'blur' }],
+    expiredOn: [
+      { required: true, message: '请选择结束日期', trigger: 'change' },
+      {
+        validator: (_: unknown, value: string, callback: (error?: Error) => void) => {
+          if (value && value < todayDate()) {
+            callback(new Error('结束日期不能早于开始日期'))
+            return
+          }
+          callback()
+        },
+        trigger: 'change',
+      },
+    ],
+    graceDays: [
+      { required: true, type: 'number', min: 0, message: '宽限天数不能小于 0', trigger: 'change' },
+    ],
   }
 
   const disableVisible = ref(false)
   const disableSubmitting = ref(false)
   const disableTarget = ref<SystemTenantListItem | null>(null)
   const disableFormRef = ref()
-  const disableForm = reactive({ reason: '' })
-  const disableRules = {
-    reason: [{ required: true, message: '请填写原因', trigger: 'blur' }],
-  }
+  const disableForm = reactive({ remark: '' })
 
   const codeVisible = ref(false)
   const codeSubmitting = ref(false)
@@ -61,12 +75,13 @@ export function useTenantActions(options: UseTenantActionsOptions) {
   const codeForm = reactive({
     newTenantCode: '',
     confirmTenantCode: '',
-    reason: '',
+    remark: '',
   })
   const codeRules = {
     newTenantCode: [
       { required: true, message: '请填写新编码', trigger: 'blur' },
-      { min: 2, max: 64, message: '编码为 2-64 位', trigger: 'blur' },
+      { min: 5, max: 12, message: '租户编码为 5～12 个字符', trigger: 'blur' },
+      { pattern: /^[A-Za-z0-9_]+$/, message: '只能包含大小写字母、数字和下划线', trigger: 'blur' },
     ],
     confirmTenantCode: [
       { required: true, message: '请再次输入新编码', trigger: 'blur' },
@@ -81,7 +96,6 @@ export function useTenantActions(options: UseTenantActionsOptions) {
         trigger: 'blur',
       },
     ],
-    reason: [{ required: true, message: '请填写修改原因', trigger: 'blur' }],
   }
 
   const deleteVisible = ref(false)
@@ -90,7 +104,7 @@ export function useTenantActions(options: UseTenantActionsOptions) {
   const deleteFormRef = ref()
   const deleteForm = reactive({
     confirmTenantCode: '',
-    reason: '',
+    remark: '',
   })
   const deleteRules = {
     confirmTenantCode: [
@@ -106,7 +120,6 @@ export function useTenantActions(options: UseTenantActionsOptions) {
         trigger: 'blur',
       },
     ],
-    reason: [{ required: true, message: '请填写原因', trigger: 'blur' }],
   }
 
   const clearVisible = ref(false)
@@ -117,7 +130,7 @@ export function useTenantActions(options: UseTenantActionsOptions) {
   const clearFormRef = ref()
   const clearForm = reactive({
     confirmTenantCode: '',
-    reason: '',
+    remark: '',
   })
   const clearRules = {
     confirmTenantCode: [
@@ -133,7 +146,6 @@ export function useTenantActions(options: UseTenantActionsOptions) {
         trigger: 'blur',
       },
     ],
-    reason: [{ required: true, message: '请填写原因', trigger: 'blur' }],
   }
 
   const grantVisible = ref(false)
@@ -142,9 +154,12 @@ export function useTenantActions(options: UseTenantActionsOptions) {
   const grantTarget = ref<SystemTenantListItem | null>(null)
   const grantDetail = ref<SystemTenantGrantDetail | null>(null)
   const grantApplications = ref<SystemTenantGrantMenu[]>([])
+  const grantColumns = ref<SystemTenantGrantColumn[]>([])
   const grantMenuIds = ref<string[]>([])
   const grantFunctionIds = ref<string[]>([])
+  const grantColumnIds = ref<string[]>([])
   const grantActiveMenuId = ref('')
+  const grantPermissionTab = ref<'functions' | 'columns'>('functions')
   const grantFunctionsWithMenu = ref(true)
 
   const grantActiveMenu = computed(() => {
@@ -152,6 +167,22 @@ export function useTenantActions(options: UseTenantActionsOptions) {
     return grantApplications.value.find((item) => item.id === grantActiveMenuId.value) || null
   })
   const grantActiveFunctions = computed(() => grantActiveMenu.value?.functions || [])
+  const grantActiveColumns = computed(() => grantColumns.value.filter(
+    (item) => item.menuName === grantActiveMenuId.value,
+  ))
+  const grantActiveColumnGroups = computed(() => {
+    const groups = new Map<string, { code: string; title: string; items: SystemTenantGrantColumn[] }>()
+    grantActiveColumns.value.forEach((item) => {
+      const group = groups.get(item.tableCode) || {
+        code: item.tableCode,
+        title: item.tableTitle || item.tableCode,
+        items: [],
+      }
+      group.items.push(item)
+      groups.set(item.tableCode, group)
+    })
+    return [...groups.values()]
+  })
   const grantAllActiveFunctionsChecked = computed(() => {
     return grantActiveFunctions.value.length > 0
       && grantActiveFunctions.value.every((item) => grantFunctionIds.value.includes(item.id))
@@ -159,6 +190,15 @@ export function useTenantActions(options: UseTenantActionsOptions) {
   const grantSomeActiveFunctionsChecked = computed(() => {
     return !grantAllActiveFunctionsChecked.value
       && grantActiveFunctions.value.some((item) => grantFunctionIds.value.includes(item.id))
+  })
+  const grantToggleableActiveColumns = computed(() => grantActiveColumns.value.filter((item) => item.enabled))
+  const grantAllActiveColumnsChecked = computed(() => {
+    return grantToggleableActiveColumns.value.length > 0
+      && grantToggleableActiveColumns.value.every((item) => grantColumnIds.value.includes(item.id))
+  })
+  const grantSomeActiveColumnsChecked = computed(() => {
+    return !grantAllActiveColumnsChecked.value
+      && grantToggleableActiveColumns.value.some((item) => grantColumnIds.value.includes(item.id))
   })
 
   function functionIdsForMenus(menuIds: string[]) {
@@ -175,8 +215,15 @@ export function useTenantActions(options: UseTenantActionsOptions) {
     periodMode.value = mode
     periodTarget.value = row
     periodForm.expiredOn = ''
-    periodForm.reason = ''
+    periodForm.graceDays = row.gracedDays || 0
+    periodForm.remark = ''
     periodVisible.value = true
+  }
+
+  function disablePastPeriodDate(date: Date) {
+    const start = new Date()
+    start.setHours(0, 0, 0, 0)
+    return date.getTime() < start.getTime()
   }
 
   async function submitPeriod() {
@@ -187,16 +234,13 @@ export function useTenantActions(options: UseTenantActionsOptions) {
     } catch {
       return
     }
-    if (periodForm.expiredOn < todayDate()) {
-      message.warning('结束日期不能早于今天')
-      return
-    }
     periodSubmitting.value = true
     try {
       const payload = {
-        tenantId: target.id,
+        tenantId: Number(target.id),
         expiredOn: periodForm.expiredOn,
-        reason: periodForm.reason.trim(),
+        graceDays: periodForm.graceDays,
+        remark: periodForm.remark.trim(),
       }
       if (periodMode.value === 'trial') {
         await trialSystemTenant(payload)
@@ -207,8 +251,8 @@ export function useTenantActions(options: UseTenantActionsOptions) {
       }
       periodVisible.value = false
       await options.onSuccess()
-    } catch (error) {
-      message.error(toMessage(error, '操作失败'))
+    } catch {
+      // 错误消息由请求拦截器统一展示。
     } finally {
       periodSubmitting.value = false
     }
@@ -216,7 +260,7 @@ export function useTenantActions(options: UseTenantActionsOptions) {
 
   function openDisable(row: SystemTenantListItem) {
     disableTarget.value = row
-    disableForm.reason = ''
+    disableForm.remark = ''
     disableVisible.value = true
   }
 
@@ -230,12 +274,12 @@ export function useTenantActions(options: UseTenantActionsOptions) {
     }
     disableSubmitting.value = true
     try {
-      await disableSystemTenant({ tenantId: target.id, reason: disableForm.reason.trim() })
+      await disableSystemTenant({ tenantId: target.id, remark: disableForm.remark.trim() })
       message.success('已停用')
       disableVisible.value = false
       await options.onSuccess()
-    } catch (error) {
-      message.error(toMessage(error, '停用失败'))
+    } catch {
+      return
     } finally {
       disableSubmitting.value = false
     }
@@ -245,7 +289,7 @@ export function useTenantActions(options: UseTenantActionsOptions) {
     codeTarget.value = row
     codeForm.newTenantCode = ''
     codeForm.confirmTenantCode = ''
-    codeForm.reason = ''
+    codeForm.remark = ''
     codeVisible.value = true
   }
 
@@ -263,22 +307,23 @@ export function useTenantActions(options: UseTenantActionsOptions) {
         tenantId: target.id,
         newTenantCode: codeForm.newTenantCode.trim(),
         confirmTenantCode: codeForm.confirmTenantCode.trim(),
-        reason: codeForm.reason.trim(),
+        remark: codeForm.remark.trim(),
       })
       message.success('编码已修改')
       codeVisible.value = false
       await options.onSuccess()
-    } catch (error) {
-      message.error(toMessage(error, '修改编码失败'))
+    } catch {
+      return
     } finally {
       codeSubmitting.value = false
     }
   }
 
   function openDelete(row: SystemTenantListItem) {
+    if (!availableTenantActions(row).includes('delete')) return
     deleteTarget.value = row
     deleteForm.confirmTenantCode = ''
-    deleteForm.reason = ''
+    deleteForm.remark = ''
     deleteVisible.value = true
   }
 
@@ -290,28 +335,33 @@ export function useTenantActions(options: UseTenantActionsOptions) {
     } catch {
       return
     }
+    if (!availableTenantActions(target).includes('delete')) {
+      message.warning('仅未开通或已停用的非内置租户可以删除')
+      return
+    }
     deleteSubmitting.value = true
     try {
       await deleteSystemTenant({
         tenantId: target.id,
         confirmTenantCode: deleteForm.confirmTenantCode.trim(),
-        reason: deleteForm.reason.trim(),
+        remark: deleteForm.remark.trim(),
       })
       message.success('已删除')
       deleteVisible.value = false
       await options.onSuccess()
-    } catch (error) {
-      message.error(toMessage(error, '删除失败'))
+    } catch {
+      return
     } finally {
       deleteSubmitting.value = false
     }
   }
 
   async function openClear(row: SystemTenantListItem) {
+    if (!availableTenantActions(row).includes('clear')) return
     clearTarget.value = row
     clearImpact.value = null
     clearForm.confirmTenantCode = ''
-    clearForm.reason = ''
+    clearForm.remark = ''
     clearVisible.value = true
     clearLoading.value = true
     try {
@@ -332,12 +382,16 @@ export function useTenantActions(options: UseTenantActionsOptions) {
     } catch {
       return
     }
+    if (!availableTenantActions(target).includes('clear')) {
+      message.warning('仅未开通或已停用的非内置租户可以清空')
+      return
+    }
     clearSubmitting.value = true
     try {
       await clearSystemTenantData({
         tenantId: target.id,
         confirmTenantCode: clearForm.confirmTenantCode.trim(),
-        reason: clearForm.reason.trim(),
+        remark: clearForm.remark.trim(),
       })
       message.success('已清空租户数据')
       clearVisible.value = false
@@ -353,16 +407,20 @@ export function useTenantActions(options: UseTenantActionsOptions) {
     grantTarget.value = row
     grantDetail.value = null
     grantApplications.value = []
+    grantColumns.value = []
     grantMenuIds.value = []
     grantFunctionIds.value = []
+    grantColumnIds.value = []
     grantActiveMenuId.value = ''
+    grantPermissionTab.value = 'functions'
     grantFunctionsWithMenu.value = true
     grantVisible.value = true
     grantLoading.value = true
     try {
-      const [detail, applicationFunctions] = await Promise.all([
+      const [detail, applicationFunctions, allColumns] = await Promise.all([
         fetchSystemTenantGrantDetail(row.id),
         fetchSystemTenantApplicationFunctions(),
+        fetchSystemTenantGrantColumns(),
       ])
       const detailMenus = flattenGrantMenus(detail.tree)
       const applications = (Array.isArray(applicationFunctions) ? applicationFunctions : []).map((item) => {
@@ -375,10 +433,19 @@ export function useTenantActions(options: UseTenantActionsOptions) {
         }
       })
       const applicationIds = new Set(applications.map((item) => item.id))
+      const detailColumnIds = new Set(detail.columnIds || [])
+      const columns = (Array.isArray(allColumns) ? allColumns : []).filter((item) => (
+        applicationIds.has(item.menuName)
+        && item.columnPermission
+        && (item.enabled || detailColumnIds.has(item.id))
+      ))
+      const columnIds = new Set(columns.map((item) => item.id))
       grantDetail.value = detail
       grantApplications.value = applications
+      grantColumns.value = columns
       grantMenuIds.value = detail.menuIds.filter((id) => applicationIds.has(id))
       grantFunctionIds.value = [...detail.functionIds]
+      grantColumnIds.value = [...detailColumnIds].filter((id) => columnIds.has(id))
       grantActiveMenuId.value = applications[0]?.id || ''
     } catch (error) {
       message.error(toMessage(error, '加载授权失败'))
@@ -403,6 +470,19 @@ export function useTenantActions(options: UseTenantActionsOptions) {
       functionIds.forEach((id) => nextFunctionIds.delete(id))
     }
     grantFunctionIds.value = [...nextFunctionIds]
+
+    if (checked && grantFunctionsWithMenu.value) {
+      const nextColumnIds = new Set(grantColumnIds.value)
+      grantColumns.value
+        .filter((item) => item.menuName === menuId && item.enabled)
+        .forEach((item) => nextColumnIds.add(item.id))
+      grantColumnIds.value = [...nextColumnIds]
+    } else if (!checked) {
+      const activeColumnIds = grantColumns.value
+        .filter((item) => item.menuName === menuId)
+        .map((item) => item.id)
+      grantColumnIds.value = grantColumnIds.value.filter((id) => !activeColumnIds.includes(id))
+    }
   }
 
   function onGrantApplicationClick(data: SystemTenantGrantMenu) {
@@ -422,6 +502,11 @@ export function useTenantActions(options: UseTenantActionsOptions) {
     const set = new Set(grantFunctionIds.value)
     functionIdsForMenus(grantMenuIds.value).forEach((id) => set.add(id))
     grantFunctionIds.value = [...set]
+    const columnIds = new Set(grantColumnIds.value)
+    grantColumns.value
+      .filter((item) => grantMenuIds.value.includes(item.menuName) && item.enabled)
+      .forEach((item) => columnIds.add(item.id))
+    grantColumnIds.value = [...columnIds]
   }
 
   function toggleAllGrantActiveFunctions(checked: boolean) {
@@ -433,6 +518,22 @@ export function useTenantActions(options: UseTenantActionsOptions) {
     grantFunctionIds.value = [...set]
   }
 
+  function toggleGrantColumn(columnId: string, checked: boolean) {
+    const set = new Set(grantColumnIds.value)
+    if (checked) set.add(columnId)
+    else set.delete(columnId)
+    grantColumnIds.value = [...set]
+  }
+
+  function toggleAllGrantActiveColumns(checked: boolean) {
+    const set = new Set(grantColumnIds.value)
+    grantToggleableActiveColumns.value.forEach((item) => {
+      if (checked) set.add(item.id)
+      else set.delete(item.id)
+    })
+    grantColumnIds.value = [...set]
+  }
+
   async function submitGrant() {
     const target = grantTarget.value
     if (!target) return
@@ -442,6 +543,7 @@ export function useTenantActions(options: UseTenantActionsOptions) {
         tenantId: target.id,
         menuIds: grantMenuIds.value,
         functionIds: grantFunctionIds.value,
+        columnIds: grantColumnIds.value,
       })
       message.success('授权已保存')
       grantVisible.value = false
@@ -462,6 +564,7 @@ export function useTenantActions(options: UseTenantActionsOptions) {
     periodFormRef,
     periodForm,
     periodRules,
+    disablePastPeriodDate,
     openPeriod,
     submitPeriod,
     disableVisible,
@@ -469,7 +572,6 @@ export function useTenantActions(options: UseTenantActionsOptions) {
     disableTarget,
     disableFormRef,
     disableForm,
-    disableRules,
     openDisable,
     submitDisable,
     codeVisible,
@@ -504,20 +606,30 @@ export function useTenantActions(options: UseTenantActionsOptions) {
     grantTarget,
     grantDetail,
     grantApplications,
+    grantColumns,
     grantMenuIds,
     grantFunctionIds,
+    grantColumnIds,
     grantActiveMenuId,
     grantActiveMenu,
     grantActiveFunctions,
+    grantActiveColumns,
+    grantToggleableActiveColumns,
+    grantActiveColumnGroups,
+    grantPermissionTab,
     grantFunctionsWithMenu,
     grantAllActiveFunctionsChecked,
     grantSomeActiveFunctionsChecked,
+    grantAllActiveColumnsChecked,
+    grantSomeActiveColumnsChecked,
     openGrant,
     toggleGrantApplication,
     onGrantApplicationClick,
     toggleGrantFunction,
     toggleGrantFunctionsWithMenu,
     toggleAllGrantActiveFunctions,
+    toggleGrantColumn,
+    toggleAllGrantActiveColumns,
     submitGrant,
   }
 }

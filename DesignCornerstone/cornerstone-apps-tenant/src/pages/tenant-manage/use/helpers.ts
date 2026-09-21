@@ -1,8 +1,7 @@
 import { driverRef } from '@grow-admin-rock/components'
-import type { TenantActionKey, TenantStatus, TenantType } from '../../../types/systemTenant'
+import type { TenantActionKey, TenantStatus } from '../../../types/systemTenant'
 import {
   TENANT_STATUS_LABELS,
-  TENANT_TYPE_OPTIONS,
   type SystemTenantListItem,
 } from '../../../types/systemTenant'
 
@@ -32,10 +31,6 @@ export function tenantStatusTagType(status: TenantStatus) {
   return 'info'
 }
 
-export function tenantTypeLabel(value?: TenantType | string) {
-  return TENANT_TYPE_OPTIONS.find((item) => item.value === value)?.label || value || '-'
-}
-
 export function toMessage(error: unknown, fallback: string) {
   return error instanceof Error ? error.message : fallback
 }
@@ -48,16 +43,17 @@ export function todayDate() {
 }
 
 export function availableTenantActions(row: SystemTenantListItem): TenantActionKey[] {
-  if (row.builtIn) return ['view', 'edit']
-  if (row.status === 'deleted') return ['view', 'clear']
+  if (row.builtIn) return ['view', 'edit', 'history']
+  if (row.status === 'deleted') return ['view', 'history']
 
-  const actions: TenantActionKey[] = ['view', 'edit', 'grant']
+  const actions: TenantActionKey[] = ['view', 'edit', 'history', 'grant']
   if (row.status === 'not_opened' || row.status === 'expired' || row.status === 'disabled') {
     actions.push('trial', 'activate')
   }
   if (row.status === 'trial') actions.push('activate')
   if (row.status === 'trial' || row.status === 'active') actions.push('disable')
-  actions.push('code', 'clear', 'delete')
+  actions.push('code')
+  if (row.status === 'not_opened' || row.status === 'disabled') actions.push('clear', 'delete')
   return actions
 }
 

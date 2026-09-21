@@ -2,27 +2,19 @@ import type { MockMethod } from '@grow-admin-rock/mock/types'
 import { mockUrl } from '@grow-admin-rock/mock/constants'
 import { resultError, resultSuccess } from '@grow-admin-rock/mock/util'
 import { clearTenantAccounts } from './tenantAccountStore'
+import type { SystemTenantHistoryItem, TenantHistoryAction } from '../../DesignCornerstone/cornerstone-apps-tenant/src/types/systemTenant'
 
 type TenantStatus = 'not_opened' | 'trial' | 'active' | 'expired' | 'disabled' | 'deleted'
-type TenantType = 'company' | 'school' | 'government' | 'organization' | 'other'
-
 type TenantRecord = {
   id: string
   tenantCode: string
   tenantName: string
   shortName: string
-  tenantType: TenantType
   status: TenantStatus
   startedAt: string | null
   expiredAt: string | null
   contactName: string
   contactMobile: string
-  contactEmail: string
-  creditCode: string
-  industry: string
-  regionCode: string
-  address: string
-  remark: string
   builtIn: boolean
   lastLoginAt: string | null
   createdBy: string
@@ -42,8 +34,10 @@ type TenantRecord = {
   processCount: number
   menuIds: string[]
   functionIds: string[]
+  columnIds: string[]
   grantedAt: string | null
   grantedBy: string
+  history?: SystemTenantHistoryItem[]
 }
 
 const GRANT_TREE = [
@@ -147,18 +141,11 @@ function createTenantStore(): TenantRecord[] {
     tenantCode: 'platform',
     tenantName: '平台管理组织',
     shortName: '平台',
-    tenantType: 'organization',
     status: 'active',
     startedAt: null,
     expiredAt: null,
     contactName: '系统管理员',
     contactMobile: '13800000000',
-    contactEmail: 'admin@platform.local',
-    creditCode: '',
-    industry: '',
-    regionCode: '',
-    address: '',
-    remark: '内置平台租户',
     builtIn: true,
     lastLoginAt: '2026-09-07T08:00:00.000Z',
     createdBy: 'system',
@@ -178,6 +165,7 @@ function createTenantStore(): TenantRecord[] {
     processCount: 0,
     menuIds: [...ALL_GRANT_MENU_IDS],
     functionIds: [...ALL_GRANT_FUNCTION_IDS],
+    columnIds: [],
     grantedAt: '2026-01-01T00:00:00.000Z',
     grantedBy: 'system',
   },
@@ -186,18 +174,11 @@ function createTenantStore(): TenantRecord[] {
     tenantCode: 'acme',
     tenantName: '艾可米科技',
     shortName: '艾可米',
-    tenantType: 'company',
     status: 'trial',
     startedAt: '2026-09-01T00:00:00.000',
     expiredAt: '2026-09-30T23:59:59.000',
     contactName: '张敏',
     contactMobile: '13900001111',
-    contactEmail: 'zhangmin@acme.test',
-    creditCode: '91310000MA0000001X',
-    industry: '软件',
-    regionCode: '310000',
-    address: '上海市浦东新区',
-    remark: '',
     builtIn: false,
     lastLoginAt: '2026-09-06T10:12:00.000Z',
     createdBy: 'admin',
@@ -217,6 +198,7 @@ function createTenantStore(): TenantRecord[] {
     processCount: 0,
     menuIds: ['SystemCatalog', 'AccountManage', 'PersonManage', 'DeptManage'],
     functionIds: ['af_query', 'af_create', 'pf_query', 'df_query'],
+    columnIds: ['ac_username', 'ac_person', 'pc_name', 'pc_no', 'dc_name'],
     grantedAt: '2026-08-21T04:00:00.000Z',
     grantedBy: 'admin',
   },
@@ -225,18 +207,11 @@ function createTenantStore(): TenantRecord[] {
     tenantCode: 'west-school',
     tenantName: '西城实验学校',
     shortName: '西城校',
-    tenantType: 'school',
     status: 'not_opened',
     startedAt: null,
     expiredAt: null,
     contactName: '李华',
     contactMobile: '13700002222',
-    contactEmail: 'lihua@school.test',
-    creditCode: '',
-    industry: '教育',
-    regionCode: '110000',
-    address: '',
-    remark: '待授权后开通',
     builtIn: false,
     lastLoginAt: null,
     createdBy: 'admin',
@@ -256,6 +231,7 @@ function createTenantStore(): TenantRecord[] {
     processCount: 0,
     menuIds: [],
     functionIds: [],
+    columnIds: [],
     grantedAt: null,
     grantedBy: '',
   },
@@ -264,18 +240,11 @@ function createTenantStore(): TenantRecord[] {
     tenantCode: 'city-gov',
     tenantName: '市政服务中心',
     shortName: '市政',
-    tenantType: 'government',
     status: 'expired',
     startedAt: '2026-06-01T00:00:00.000',
     expiredAt: '2026-08-31T23:59:59.000',
     contactName: '王强',
     contactMobile: '13600003333',
-    contactEmail: '',
-    creditCode: '',
-    industry: '政务',
-    regionCode: '440100',
-    address: '',
-    remark: '',
     builtIn: false,
     lastLoginAt: '2026-08-30T02:00:00.000Z',
     createdBy: 'admin',
@@ -295,6 +264,7 @@ function createTenantStore(): TenantRecord[] {
     processCount: 1,
     menuIds: [...ALL_GRANT_MENU_IDS],
     functionIds: [...ALL_GRANT_FUNCTION_IDS],
+    columnIds: [],
     grantedAt: '2026-05-21T01:00:00.000Z',
     grantedBy: 'admin',
   },
@@ -303,18 +273,11 @@ function createTenantStore(): TenantRecord[] {
     tenantCode: 'north-org',
     tenantName: '北区联合会',
     shortName: '北联',
-    tenantType: 'organization',
     status: 'disabled',
     startedAt: '2026-07-01T00:00:00.000',
     expiredAt: '2026-12-31T23:59:59.000',
     contactName: '赵倩',
     contactMobile: '13500004444',
-    contactEmail: 'zhao@org.test',
-    creditCode: '',
-    industry: '',
-    regionCode: '',
-    address: '',
-    remark: '主动停用',
     builtIn: false,
     lastLoginAt: '2026-08-01T09:00:00.000Z',
     createdBy: 'admin',
@@ -334,13 +297,14 @@ function createTenantStore(): TenantRecord[] {
     processCount: 0,
     menuIds: ['SystemCatalog', 'AccountManage'],
     functionIds: ['af_query'],
+    columnIds: ['ac_username', 'ac_person'],
     grantedAt: '2026-06-19T02:00:00.000Z',
     grantedBy: 'admin',
   },
   ]
 }
 
-const TENANT_STORE_VERSION = 2
+const TENANT_STORE_VERSION = 3
 
 export function getTenantStore() {
   const g = globalThis as typeof globalThis & {
@@ -379,7 +343,6 @@ function toListItem(item: TenantRecord) {
     tenantCode: item.tenantCode,
     tenantName: item.tenantName,
     shortName: item.shortName,
-    tenantType: item.tenantType,
     status: item.status,
     startedAt: item.startedAt,
     expiredAt: item.expiredAt,
@@ -399,12 +362,6 @@ function toListItem(item: TenantRecord) {
 function toDetail(item: TenantRecord) {
   return {
     ...toListItem(item),
-    contactEmail: item.contactEmail,
-    creditCode: item.creditCode,
-    industry: item.industry,
-    regionCode: item.regionCode,
-    address: item.address,
-    remark: item.remark,
     createdBy: item.createdBy,
     updatedBy: item.updatedBy,
     updatedAt: item.updatedAt,
@@ -415,15 +372,8 @@ function toDetail(item: TenantRecord) {
 function applyInfo(item: TenantRecord, payload: Recordable<any>) {
   item.tenantName = text(payload.tenantName)
   item.shortName = text(payload.shortName)
-  item.tenantType = (text(payload.tenantType) || 'company') as TenantType
   item.contactName = text(payload.contactName)
   item.contactMobile = text(payload.contactMobile)
-  item.contactEmail = text(payload.contactEmail)
-  item.creditCode = text(payload.creditCode)
-  item.industry = text(payload.industry)
-  item.regionCode = text(payload.regionCode)
-  item.address = text(payload.address)
-  item.remark = text(payload.remark)
   item.updatedBy = 'admin'
   item.updatedAt = now()
 }
@@ -433,11 +383,9 @@ function validateInfo(payload: Recordable<any>, requireCode: boolean) {
   if (tenantName.length < 2 || tenantName.length > 128) return '租户名称为 2-128 位'
   if (requireCode) {
     const tenantCode = text(payload.tenantCode)
-    if (tenantCode.length < 2 || tenantCode.length > 64) return '租户编码为 2-64 位'
-    if (!/^[A-Za-z0-9_-]+$/.test(tenantCode)) return '租户编码只能包含字母、数字、下划线和短横线'
+    if (tenantCode.length < 5 || tenantCode.length > 12) return '租户编码为 5～12 个字符'
+    if (!/^[A-Za-z0-9_]+$/.test(tenantCode)) return '租户编码只能包含大小写字母、数字和下划线'
   }
-  const email = text(payload.contactEmail)
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return '邮箱格式不正确'
   return ''
 }
 
@@ -469,7 +417,60 @@ function rejectBuiltIn(item: TenantRecord, action: string) {
   return null
 }
 
+const HISTORY_DESCRIPTIONS: Record<TenantHistoryAction, string> = {
+  create: '创建租户并保存基本信息',
+  edit: '更新租户基本信息',
+  code: '更新租户登录使用的租户编码',
+  trial: '启用租户试用服务',
+  activate: '正式开通租户服务',
+  disable: '停用租户服务',
+  grant: '更新租户菜单、按钮及列权限授权配置',
+  clear: '清空租户业务数据，保留租户记录及授权',
+  delete: '逻辑删除租户，保留历史记录',
+}
+
+function tenantHistory(item: TenantRecord) {
+  // 仅根据 mock 租户的创建信息初始化，不虚构此前的编辑、开通等操作。
+  return item.history ??= [{
+    id: `${item.id}-history-1`,
+    tenantId: item.id,
+    action: 'create',
+    description: HISTORY_DESCRIPTIONS.create,
+    operatedAt: item.createdAt,
+    operatorName: item.createdBy,
+    remark: '',
+  }]
+}
+
+function recordTenantHistory(item: TenantRecord, action: TenantHistoryAction, remark?: unknown) {
+  const history = tenantHistory(item)
+  history.unshift({
+    id: `${item.id}-history-${history.length + 1}`,
+    tenantId: item.id,
+    action,
+    description: HISTORY_DESCRIPTIONS[action],
+    operatedAt: now(),
+    operatorName: 'admin',
+    remark: text(remark),
+  })
+}
+
 export default [
+  {
+    url: mockUrl('/platform/tenant/history/page'),
+    method: 'post',
+    timeout: 60,
+    response: ({ body }) => {
+      const payload = (body || {}) as Recordable<any>
+      const item = findTenant(text(payload.tenantId))
+      if (!item) return resultError('租户不存在')
+      const page = Math.max(1, Math.floor(Number(payload.page) || 1))
+      const pageSize = Math.min(100, Math.max(1, Math.floor(Number(payload.pageSize) || 10)))
+      const history = tenantHistory(item)
+      const start = (page - 1) * pageSize
+      return resultSuccess({ items: history.slice(start, start + pageSize), total: history.length })
+    },
+  },
   {
     url: mockUrl('/platform/tenants/page'),
     method: 'post',
@@ -539,18 +540,11 @@ export default [
         tenantCode,
         tenantName: text(payload.tenantName),
         shortName: text(payload.shortName),
-        tenantType: (text(payload.tenantType) || 'company') as TenantType,
         status: 'not_opened',
         startedAt: null,
         expiredAt: null,
         contactName: text(payload.contactName),
         contactMobile: text(payload.contactMobile),
-        contactEmail: text(payload.contactEmail),
-        creditCode: text(payload.creditCode),
-        industry: text(payload.industry),
-        regionCode: text(payload.regionCode),
-        address: text(payload.address),
-        remark: text(payload.remark),
         builtIn: false,
         lastLoginAt: null,
         createdBy: 'admin',
@@ -570,10 +564,12 @@ export default [
         processCount: 0,
         menuIds: [],
         functionIds: [],
+        columnIds: [],
         grantedAt: null,
         grantedBy: '',
       }
       getTenantStore().unshift(item)
+      tenantHistory(item)
       return resultSuccess(toListItem(item), { message: '创建成功' })
     },
   },
@@ -589,6 +585,7 @@ export default [
       const error = validateInfo(payload, false)
       if (error) return resultError(error)
       applyInfo(item, payload)
+      recordTenantHistory(item, 'edit')
       return resultSuccess(toListItem(item), { message: '保存成功' })
     },
   },
@@ -604,13 +601,13 @@ export default [
       if (builtInError) return builtInError
       const newCode = text(payload.newTenantCode)
       if (newCode !== text(payload.confirmTenantCode)) return resultError('确认编码必须等于新编码')
-      if (newCode.length < 2 || newCode.length > 64) return resultError('租户编码为 2-64 位')
-      if (!/^[A-Za-z0-9_-]+$/.test(newCode)) return resultError('租户编码只能包含字母、数字、下划线和短横线')
-      if (!text(payload.reason)) return resultError('请填写修改原因')
+      if (newCode.length < 5 || newCode.length > 12) return resultError('租户编码为 5～12 个字符')
+      if (!/^[A-Za-z0-9_]+$/.test(newCode)) return resultError('租户编码只能包含大小写字母、数字和下划线')
       if (isActiveCodeTaken(newCode, item.id)) return resultError('新编码与当前试用中或已开通租户重复')
       item.tenantCode = newCode
       item.updatedAt = now()
       item.updatedBy = 'admin'
+      recordTenantHistory(item, 'code', payload.remark)
       return resultSuccess(toListItem(item), { message: '编码已修改' })
     },
   },
@@ -630,9 +627,9 @@ export default [
       const expiredOn = text(payload.expiredOn)
       if (!expiredOn) return resultError('请选择结束日期')
       if (expiredOn < todayDate()) return resultError('结束日期不能早于今天')
-      if (!text(payload.reason)) return resultError('请填写原因')
       if (isActiveCodeTaken(item.tenantCode, item.id)) return resultError('租户编码与当前试用中或已开通租户重复')
       applyPeriod(item, expiredOn, 'trial')
+      recordTenantHistory(item, 'trial', payload.remark)
       return resultSuccess(toListItem(item), { message: '已设为试用中' })
     },
   },
@@ -652,9 +649,9 @@ export default [
       const expiredOn = text(payload.expiredOn)
       if (!expiredOn) return resultError('请选择结束日期')
       if (expiredOn < todayDate()) return resultError('结束日期不能早于今天')
-      if (!text(payload.reason)) return resultError('请填写原因')
       if (isActiveCodeTaken(item.tenantCode, item.id)) return resultError('租户编码与当前试用中或已开通租户重复')
       applyPeriod(item, expiredOn, 'active')
+      recordTenantHistory(item, 'activate', payload.remark)
       return resultSuccess(toListItem(item), { message: '已开通' })
     },
   },
@@ -669,10 +666,10 @@ export default [
       const builtInError = rejectBuiltIn(item, '停用')
       if (builtInError) return builtInError
       if (!['trial', 'active'].includes(item.status)) return resultError('当前状态不可停用')
-      if (!text(payload.reason)) return resultError('请填写原因')
       item.status = 'disabled'
       item.updatedAt = now()
       item.updatedBy = 'admin'
+      recordTenantHistory(item, 'disable', payload.remark)
       return resultSuccess(toListItem(item), { message: '已停用' })
     },
   },
@@ -687,12 +684,13 @@ export default [
       const builtInError = rejectBuiltIn(item, '删除')
       if (builtInError) return builtInError
       if (item.status === 'deleted') return resultError('租户已删除')
+      if (!['not_opened', 'disabled'].includes(item.status)) return resultError('仅未开通或已停用的租户可以删除')
       if (text(payload.confirmTenantCode) !== item.tenantCode) return resultError('确认编码不正确')
-      if (!text(payload.reason)) return resultError('请填写原因')
       item.status = 'deleted'
       item.deletedAt = now()
       item.updatedAt = now()
       item.updatedBy = 'admin'
+      recordTenantHistory(item, 'delete', payload.remark)
       return resultSuccess(toListItem(item), { message: '已删除' })
     },
   },
@@ -705,6 +703,7 @@ export default [
       if (!item) return resultError('租户不存在')
       const builtInError = rejectBuiltIn(item, '清空')
       if (builtInError) return builtInError
+      if (!['not_opened', 'disabled'].includes(item.status)) return resultError('仅未开通或已停用的租户可以清空')
       return resultSuccess(toImpact(item))
     },
   },
@@ -718,8 +717,8 @@ export default [
       if (!item) return resultError('租户不存在')
       const builtInError = rejectBuiltIn(item, '清空')
       if (builtInError) return builtInError
+      if (!['not_opened', 'disabled'].includes(item.status)) return resultError('仅未开通或已停用的租户可以清空')
       if (text(payload.confirmTenantCode) !== item.tenantCode) return resultError('确认编码不正确')
-      if (!text(payload.reason)) return resultError('请填写原因')
       clearTenantAccounts(item.id)
       item.accountCount = 0
       item.personCount = 0
@@ -734,6 +733,7 @@ export default [
       item.lastLoginAt = null
       item.updatedAt = now()
       item.updatedBy = 'admin'
+      recordTenantHistory(item, 'clear', payload.remark)
       return resultSuccess({ tenantId: item.id }, { message: '已清空' })
     },
   },
@@ -755,6 +755,7 @@ export default [
         tree: GRANT_TREE,
         menuIds: [...item.menuIds],
         functionIds: [...item.functionIds],
+        columnIds: [...item.columnIds],
       })
     },
   },
@@ -770,9 +771,11 @@ export default [
       if (builtInError) return builtInError
       item.menuIds = Array.isArray(payload.menuIds) ? payload.menuIds.map(String) : []
       item.functionIds = Array.isArray(payload.functionIds) ? payload.functionIds.map(String) : []
+      item.columnIds = Array.isArray(payload.columnIds) ? payload.columnIds.map(String) : []
       item.grantedAt = now()
       item.grantedBy = 'admin'
       item.updatedAt = now()
+      recordTenantHistory(item, 'grant')
       return resultSuccess({
         tenantId: item.id,
         tenantName: item.tenantName,
@@ -782,6 +785,7 @@ export default [
         tree: GRANT_TREE,
         menuIds: [...item.menuIds],
         functionIds: [...item.functionIds],
+        columnIds: [...item.columnIds],
       }, { message: '授权已保存' })
     },
   },
