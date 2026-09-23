@@ -1,10 +1,17 @@
 <template>
-  <GrowSubMenu v-if="shouldRender && displayAsSubMenu" :index="item.name">
+  <GrowSubMenu
+    v-if="shouldRender && displayAsSubMenu"
+    :index="item.name"
+    :class="{
+      'is-active': active,
+      'ant-menu-submenu-selected': active,
+    }"
+  >
     <template #title>
-      <i v-if="item.icon" class="el-icon">
+      <i v-if="item.icon" class="el-icon" @click="handleTitleClick">
         <GrowIconify :icon="item.icon" :size="18" hover-pointer />
       </i>
-      <span>{{ item.title }}</span>
+      <span @click="handleTitleClick">{{ item.title }}</span>
     </template>
     <MenuTreeNode
       v-for="child in item.children"
@@ -35,8 +42,22 @@ const props = defineProps<{
   item: Menu
   canEmbedIFramePage?: boolean
   forceMenuItem?: boolean
+  clickableTitle?: boolean
+  active?: boolean
   index?: string
 }>()
+
+const emit = defineEmits<{
+  (event: 'title-click'): void
+}>()
+
+function handleTitleClick(event: MouseEvent) {
+  if (!props.clickableTitle) {
+    return
+  }
+  event.stopPropagation()
+  emit('title-click')
+}
 
 const displayAsSubMenu = computed(() => {
   return !props.forceMenuItem

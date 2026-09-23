@@ -6,6 +6,7 @@ import {
   saveSystemMenuFunctions,
 } from '../../../../api/systemMenuFunction'
 import type { SystemMenuNode } from '../../../../types/systemMenu'
+import type { SystemMenuApiScope } from '../../../../api/systemMenuApiScope'
 import {
   MENU_FUNCTION_CODE_MESSAGE,
   MENU_FUNCTION_CODE_PATTERN,
@@ -70,7 +71,7 @@ function confirmWarning(dialog: any, options: {
   return Promise.resolve(window.confirm(content))
 }
 
-export function useMenuFunctions() {
+export function useMenuFunctions(apiScope: SystemMenuApiScope = 'system') {
   const message = useMsg() as any
   const dialog = useDialog() as any
 
@@ -112,7 +113,7 @@ export function useMenuFunctions() {
     if (!menuName) return
 
     try {
-      const data = await fetchSystemMenuFunctions(menuName)
+      const data = await fetchSystemMenuFunctions(menuName, apiScope)
       list.value = sortFunctions(Array.isArray(data) ? data.map((item) => ({ ...item })) : [])
       persistedIds.value = new Set(list.value.map((item) => item.id))
     } catch (error) {
@@ -171,7 +172,7 @@ export function useMenuFunctions() {
     let roleGrantCount = 0
     if (persistedIds.value.has(row.id)) {
       try {
-        const impact = await fetchSystemMenuFunctionDeleteImpact(row.id)
+        const impact = await fetchSystemMenuFunctionDeleteImpact(row.id, apiScope)
         roleGrantCount = impact.roleGrantCount
       } catch (error) {
         message.error(toMessage(error, '加载影响范围失败'))
@@ -205,6 +206,7 @@ export function useMenuFunctions() {
         menuName,
         items: list.value.map((item, index) => ({
           id: item.id,
+          menuName,
           title: item.title.trim(),
           code: item.code.trim(),
           group: '',
@@ -212,7 +214,7 @@ export function useMenuFunctions() {
           sort: (index + 1) * 10,
           enabled: item.enabled,
         })),
-      })
+      }, apiScope)
       message.success('保存成功')
       listVisible.value = false
     } catch (error) {

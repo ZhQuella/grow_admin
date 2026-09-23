@@ -1,5 +1,5 @@
 <template>
-  <SystemMenuManage :allow-hierarchy="false" />
+  <SystemMenuManage :allow-hierarchy="false" api-scope="platform" />
 </template>
 
 <script lang="ts" setup>

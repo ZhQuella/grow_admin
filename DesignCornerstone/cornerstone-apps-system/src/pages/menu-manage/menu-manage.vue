@@ -133,6 +133,7 @@
 
 <script lang="ts" setup>
 import { MenuTypeEnum } from '@grow-admin-rock/constants'
+import type { SystemMenuApiScope } from '../../api/systemMenuApiScope'
 import type { SystemMenuNode } from '../../types/systemMenu'
 import MenuManageDialog from './components/MenuManageDialog.vue'
 import { useMenuManage } from './use/useMenuManage'
@@ -141,8 +142,10 @@ defineOptions({ name: 'MenuManagePage' })
 
 const props = withDefaults(defineProps<{
   allowHierarchy?: boolean
+  apiScope?: SystemMenuApiScope
 }>(), {
   allowHierarchy: true,
+  apiScope: 'system',
 })
 
 function menuRowClassName({ row }: { row: SystemMenuNode }) {
@@ -163,7 +166,10 @@ const {
   columnConfig,
   menuTypeLabel,
   menuTypeTagType,
-} = useMenuManage({ allowHierarchy: props.allowHierarchy })
+} = useMenuManage({
+  allowHierarchy: props.allowHierarchy,
+  apiScope: props.apiScope,
+})
 
 const {
   deleteLoading,

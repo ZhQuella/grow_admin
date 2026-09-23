@@ -215,7 +215,7 @@ export function useTenantActions(options: UseTenantActionsOptions) {
     periodMode.value = mode
     periodTarget.value = row
     periodForm.expiredOn = ''
-    periodForm.graceDays = row.gracedDays || 0
+    periodForm.graceDays = row.graceDays || 0
     periodForm.remark = ''
     periodVisible.value = true
   }

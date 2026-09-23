@@ -16,6 +16,7 @@ export type SystemMenuFunctionSavePayload = {
   menuName: string
   items: Array<{
     id?: string
+    menuName: string
     title: string
     code: string
     group: string

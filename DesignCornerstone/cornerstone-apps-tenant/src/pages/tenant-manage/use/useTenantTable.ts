@@ -98,7 +98,7 @@ export function useTenantTable() {
     { title: '账号数', field: 'accountCount', visible: true, minWidth: 80 },
     { title: '人员数', field: 'personCount', visible: true, minWidth: 80 },
     { title: '服务期限', field: 'servicePeriod', visible: true, minWidth: 200 },
-    { title: '宽限天数', field: 'gracedDays', visible: false, minWidth: 90 },
+    { title: '宽限天数', field: 'graceDays', visible: false, minWidth: 90 },
     { title: '最后登录时间', field: 'lastLoginAt', visible: true, minWidth: 170 },
     { title: '创建时间', field: 'createdAt', visible: true, minWidth: 170 },
     { title: '更新时间', field: 'updatedAt', visible: false, minWidth: 170 },

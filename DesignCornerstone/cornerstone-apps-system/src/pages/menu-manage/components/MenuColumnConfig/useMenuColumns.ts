@@ -7,6 +7,7 @@ import {
   saveSystemMenuColumns,
 } from '../../../../api/systemMenuColumn'
 import type { SystemMenuNode } from '../../../../types/systemMenu'
+import type { SystemMenuApiScope } from '../../../../api/systemMenuApiScope'
 import {
   MENU_COLUMN_CODE_MESSAGE,
   MENU_COLUMN_CODE_PATTERN,
@@ -72,7 +73,7 @@ function confirmWarning(dialog: any, options: {
   return Promise.resolve(window.confirm(content))
 }
 
-export function useMenuColumns() {
+export function useMenuColumns(apiScope: SystemMenuApiScope = 'system') {
   const message = useMsg() as any
   const dialog = useDialog() as any
 
@@ -154,7 +155,7 @@ export function useMenuColumns() {
     if (!menuName) return
 
     try {
-      const data = await fetchSystemMenuColumns(menuName)
+      const data = await fetchSystemMenuColumns(menuName, apiScope)
       const nextTables = (Array.isArray(data?.tables) ? data.tables : [])
         .slice()
         .sort((a, b) => a.sort - b.sort || a.title.localeCompare(b.title, 'zh-CN'))
@@ -244,7 +245,7 @@ export function useMenuColumns() {
     const persistedCode = persistedTableCodeByUid.value.get(row.uid)
     if (persistedCode) {
       try {
-        impact = await fetchSystemMenuTableDeleteImpact(menuName, persistedCode)
+        impact = await fetchSystemMenuTableDeleteImpact(menuName, persistedCode, apiScope)
       } catch (error) {
         message.error(toMessage(error, '加载影响范围失败'))
         return
@@ -290,7 +291,7 @@ export function useMenuColumns() {
     for (const item of changed) {
       let impact
       try {
-        impact = await fetchSystemMenuColumnImpact(item.id)
+        impact = await fetchSystemMenuColumnImpact(item.id, apiScope)
       } catch (error) {
         message.error(toMessage(error, '加载影响范围失败'))
         return false
@@ -337,7 +338,9 @@ export function useMenuColumns() {
             .filter((item) => item.tableUid === table.uid)
             .map((item, index) => ({
               id: item.id,
+              menuName,
               tableCode: table.code.trim(),
+              tableTitle: table.title.trim(),
               title: item.title.trim(),
               code: item.code.trim(),
               columnType: item.columnType,
@@ -349,7 +352,7 @@ export function useMenuColumns() {
               description: item.description.trim(),
             }))
         )),
-      })
+      }, apiScope)
       message.success('保存成功')
       listVisible.value = false
     } catch (error) {

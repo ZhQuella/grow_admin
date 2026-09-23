@@ -13,6 +13,7 @@ export default {
   layoutRoof: 'Top Menu',
   layoutSide: 'Side Menu',
   layoutMixed: 'Mixed Menu',
+  layoutDoubleSide: 'Double-column Menu',
   reset: 'Reset',
   close: 'Close',
   transition: {

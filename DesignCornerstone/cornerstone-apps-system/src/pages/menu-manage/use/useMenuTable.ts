@@ -8,6 +8,7 @@ import {
   fetchSystemMenuTree,
 } from '../../../api/systemMenu'
 import type { SystemMenuNode } from '../../../types/systemMenu'
+import type { SystemMenuApiScope } from '../../../api/systemMenuApiScope'
 import { filterMenuTree, sortMenuTree } from './helpers'
 
 export type ManageTableColumn = ColumnBarItem & {
@@ -31,6 +32,7 @@ function collectLeafColumns(list: ManageTableColumn[]): ManageTableColumn[] {
 
 type UseMenuTableOptions = {
   allowHierarchy: boolean
+  apiScope: SystemMenuApiScope
 }
 
 export function useMenuTable(options: UseMenuTableOptions) {
@@ -122,8 +124,8 @@ export function useMenuTable(options: UseMenuTableOptions) {
     loading.value = true
     try {
       const data = await (options.allowHierarchy
-        ? fetchSystemMenuTree()
-        : fetchApplicationFunctionList())
+        ? fetchSystemMenuTree(options.apiScope)
+        : fetchApplicationFunctionList(options.apiScope))
       sourceTree.value = sortMenuTree(Array.isArray(data) ? data : [])
       tableKey.value += 1
     } catch (error) {

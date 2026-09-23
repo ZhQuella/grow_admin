@@ -21,22 +21,12 @@ import type {
 } from '../types/systemTenant'
 
 const useRequest = () => diKT(infrastructureLib.types.InfrastructureAxios)
-const platformApiUrl = import.meta.env.VITE_ACCOUNT_API_URL
+const platformApiUrl = import.meta.env.VITE_ACCOUNT_API_URL || '/api'
 
-export async function fetchSystemTenantHistory(tenantId: string, page: number, pageSize: number) {
-  if (!platformApiUrl) {
-    return useRequest().post<SystemTenantHistoryPageResult>(
-      {
-        url: '/platform/tenant/history/page',
-        data: { tenantId, page, pageSize },
-      },
-      { errorMessageMode: 'none' },
-    )
-  }
-
+export function fetchSystemTenantHistory(tenantId: string, page: number, pageSize: number) {
   return useRequest().post<SystemTenantHistoryPageResult>(
     {
-      url: `/platform/tenant/change-history/${page}/${pageSize}`,
+      url: `/system/platform/tenant/change-history/${page}/${pageSize}`,
       baseURL: platformApiUrl,
       data: { tenantId: Number(tenantId) },
     },
@@ -45,17 +35,10 @@ export async function fetchSystemTenantHistory(tenantId: string, page: number, p
 }
 
 export function fetchSystemTenantPage(params: SystemTenantQuery) {
-  if (!platformApiUrl) {
-    return useRequest().post<SystemTenantPageResult>({
-      url: '/platform/tenants/page',
-      data: params,
-    })
-  }
-
   const { page = 1, pageSize = 10, ...filters } = params
   return useRequest().post<SystemTenantPageResult>(
     {
-      url: `/platform/tenants/${page}/${pageSize}`,
+      url: `/system/platform/tenant/${page}/${pageSize}`,
       baseURL: platformApiUrl,
       data: filters,
     },
@@ -65,24 +48,15 @@ export function fetchSystemTenantPage(params: SystemTenantQuery) {
 
 export function fetchSystemTenantOptions() {
   return useRequest().post<SystemTenantOption[]>({
-    url: '/platform/tenants/options',
+    url: '/system/platform/tenant/options',
+    baseURL: platformApiUrl,
   })
 }
 
 export function getSystemTenantDetail(tenantId: string) {
-  if (!platformApiUrl) {
-    return useRequest().post<SystemTenantDetail>(
-      {
-        url: '/platform/tenant/detail',
-        data: { tenantId },
-      },
-      { errorMessageMode: 'message' },
-    )
-  }
-
   return useRequest().get<SystemTenantDetail>(
     {
-      url: `/platform/tenant/detail/${tenantId}`,
+      url: `/system/platform/tenant/detail/${tenantId}`,
       baseURL: platformApiUrl,
     },
     { errorMessageMode: 'message' },
@@ -92,8 +66,8 @@ export function getSystemTenantDetail(tenantId: string) {
 export function createSystemTenant(data: SystemTenantCreatePayload) {
   return useRequest().post<SystemTenantListItem>(
     {
-      url: '/platform/tenant/create',
-      baseURL: platformApiUrl || undefined,
+      url: '/system/platform/tenant/create',
+      baseURL: platformApiUrl,
       data,
     },
     { errorMessageMode: 'message' },
@@ -103,8 +77,8 @@ export function createSystemTenant(data: SystemTenantCreatePayload) {
 export function updateSystemTenant(tenantId: string, data: SystemTenantUpdatePayload) {
   return useRequest().put<SystemTenantListItem>(
     {
-      url: '/platform/tenant',
-      baseURL: platformApiUrl || undefined,
+      url: '/system/platform/tenant',
+      baseURL: platformApiUrl,
       data: { tenantId: Number(tenantId), ...data },
     },
     { errorMessageMode: 'message' },
@@ -114,9 +88,9 @@ export function updateSystemTenant(tenantId: string, data: SystemTenantUpdatePay
 export function updateSystemTenantCode(data: SystemTenantCodePayload) {
   return useRequest().put<SystemTenantListItem>(
     {
-      url: '/platform/tenant/code',
-      baseURL: platformApiUrl || undefined,
-      data: { ...data, tenantId: platformApiUrl ? Number(data.tenantId) : data.tenantId },
+      url: '/system/platform/tenant/code',
+      baseURL: platformApiUrl,
+      data: { ...data, tenantId: Number(data.tenantId) },
     },
     { errorMessageMode: 'message' },
   )
@@ -125,8 +99,8 @@ export function updateSystemTenantCode(data: SystemTenantCodePayload) {
 export function trialSystemTenant(data: SystemTenantPeriodPayload) {
   return useRequest().post<SystemTenantListItem>(
     {
-      url: '/platform/tenant/trial',
-      baseURL: platformApiUrl || undefined,
+      url: '/system/platform/tenant/trial',
+      baseURL: platformApiUrl,
       data,
     },
     { errorMessageMode: 'message' },
@@ -136,8 +110,8 @@ export function trialSystemTenant(data: SystemTenantPeriodPayload) {
 export function activateSystemTenant(data: SystemTenantPeriodPayload) {
   return useRequest().post<SystemTenantListItem>(
     {
-      url: '/platform/tenant/activate',
-      baseURL: platformApiUrl || undefined,
+      url: '/system/platform/tenant/activate',
+      baseURL: platformApiUrl,
       data,
     },
     { errorMessageMode: 'message' },
@@ -147,9 +121,9 @@ export function activateSystemTenant(data: SystemTenantPeriodPayload) {
 export function disableSystemTenant(data: SystemTenantRemarkPayload) {
   return useRequest().post<SystemTenantListItem>(
     {
-      url: '/platform/tenant/disable',
-      baseURL: platformApiUrl || undefined,
-      data: { ...data, tenantId: platformApiUrl ? Number(data.tenantId) : data.tenantId },
+      url: '/system/platform/tenant/disable',
+      baseURL: platformApiUrl,
+      data: { ...data, tenantId: Number(data.tenantId) },
     },
     { errorMessageMode: 'message' },
   )
@@ -158,9 +132,9 @@ export function disableSystemTenant(data: SystemTenantRemarkPayload) {
 export function deleteSystemTenant(data: SystemTenantDeletePayload) {
   return useRequest().post<SystemTenantListItem>(
     {
-      url: '/platform/tenant/delete',
-      baseURL: platformApiUrl || undefined,
-      data: { ...data, tenantId: platformApiUrl ? Number(data.tenantId) : data.tenantId },
+      url: '/system/platform/tenant/delete',
+      baseURL: platformApiUrl,
+      data: { ...data, tenantId: Number(data.tenantId) },
     },
     { errorMessageMode: 'message' },
   )
@@ -168,40 +142,46 @@ export function deleteSystemTenant(data: SystemTenantDeletePayload) {
 
 export function fetchSystemTenantClearImpact(tenantId: string) {
   return useRequest().post<SystemTenantClearImpact>({
-    url: '/platform/tenant/clear-impact',
-    data: { tenantId },
+    url: '/system/platform/tenant/clear-impact',
+    baseURL: platformApiUrl,
+    data: { tenantId: Number(tenantId) },
   })
 }
 
 export function clearSystemTenantData(data: SystemTenantDeletePayload) {
   return useRequest().post<{ tenantId: string }>({
-    url: '/platform/tenant/clear-data',
-    data,
+    url: '/system/platform/tenant/clear-data',
+    baseURL: platformApiUrl,
+    data: { ...data, tenantId: Number(data.tenantId) },
   })
 }
 
 export function fetchSystemTenantGrantDetail(tenantId: string) {
   return useRequest().post<SystemTenantGrantDetail>({
-    url: '/platform/tenant/grant/detail',
-    data: { tenantId },
+    url: '/system/platform/tenant/grant/detail',
+    baseURL: platformApiUrl,
+    data: { tenantId: Number(tenantId) },
   })
 }
 
 export function fetchSystemTenantApplicationFunctions() {
   return useRequest().post<SystemTenantApplicationFunction[]>({
-    url: '/platform/application-functions/list',
+    url: '/system/platform/application/functions/list',
+    baseURL: platformApiUrl,
   })
 }
 
 export function fetchSystemTenantGrantColumns() {
   return useRequest().post<SystemTenantGrantColumn[]>({
-    url: '/system/menu-columns/all',
+    url: '/system/platform/application/menu-columns/all',
+    baseURL: platformApiUrl,
   })
 }
 
 export function saveSystemTenantGrant(data: SystemTenantGrantPayload) {
   return useRequest().put<SystemTenantGrantDetail>({
-    url: '/platform/tenant/grant',
-    data,
+    url: '/system/platform/tenant/grant',
+    baseURL: platformApiUrl,
+    data: { ...data, tenantId: Number(data.tenantId) },
   })
 }

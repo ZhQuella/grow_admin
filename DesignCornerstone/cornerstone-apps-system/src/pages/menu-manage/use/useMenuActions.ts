@@ -6,9 +6,11 @@ import {
   setSystemMenuEnabled,
 } from '../../../api/systemMenu'
 import type { SystemMenuDeleteImpact, SystemMenuNode } from '../../../types/systemMenu'
+import type { SystemMenuApiScope } from '../../../api/systemMenuApiScope'
 
 type UseMenuActionsOptions = {
   onSuccess: () => void | Promise<void>
+  apiScope: SystemMenuApiScope
 }
 
 export function useMenuActions(options: UseMenuActionsOptions) {
@@ -27,7 +29,7 @@ export function useMenuActions(options: UseMenuActionsOptions) {
     deleteImpact.value = null
     deleteLoading.value = true
     try {
-      deleteImpact.value = await fetchSystemMenuDeleteImpact(row.name)
+      deleteImpact.value = await fetchSystemMenuDeleteImpact(row.name, options.apiScope)
       deleteVisible.value = true
     } catch (error) {
       message.error(error instanceof Error ? error.message : '加载影响范围失败')
@@ -70,7 +72,7 @@ export function useMenuActions(options: UseMenuActionsOptions) {
 
     statusSubmittingName.value = row.name
     try {
-      await setSystemMenuEnabled(row.name, enabled)
+      await setSystemMenuEnabled(row.name, enabled, options.apiScope)
       message.success(enabled ? '已启用' : '已停用')
       await options.onSuccess()
     } catch (error) {
@@ -86,7 +88,7 @@ export function useMenuActions(options: UseMenuActionsOptions) {
 
     deleteSubmitting.value = true
     try {
-      await deleteSystemMenu(target.name)
+      await deleteSystemMenu(target.name, options.apiScope)
       message.success('删除成功')
       deleteVisible.value = false
       await options.onSuccess()

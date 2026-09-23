@@ -17,8 +17,11 @@
         :key="item.path"
         :item="item"
         :can-embed-i-frame-page="canEmbedIFramePage"
-        :force-menu-item="isFirstLevel"
+        :force-menu-item="shouldForceMenuItem(item)"
+        :clickable-title="isFirstLevel && item.menuType === MenuTypeEnum.MENU"
+        :active="isFirstLevel && item.name === props.activeRootMenu"
         :index="isFirstLevel ? item.name : undefined"
+        @title-click="handleRootMenuTitleClick(item)"
       />
     </GrowMenu>
   </div>
@@ -26,7 +29,7 @@
 
 <script lang="ts" setup>
 import { computed, watch } from 'vue'
-import { PageOpenModeEnum } from '@grow-admin-rock/constants'
+import { MenuTypeEnum, PageOpenModeEnum } from '@grow-admin-rock/constants'
 import { Lib as routeLib } from '@grow-admin-rock/middleware-router'
 import { resolveByKeyOrThrow } from '@grow-admin-rock/ioc'
 import { storeToRefs, useAppConfig, useAuthMenuList, useLayout } from '@grow-admin-rock/state'
@@ -45,12 +48,18 @@ const props = withDefaults(defineProps<{
 })
 
 const emit = defineEmits<{
-  (event: 'select-root', name: string, hasChildren: boolean): void
+  (event: 'select-root', name: string, hasChildren: boolean, revealChildren?: boolean): void
 }>()
 
 const useRouter = () => resolveByKeyOrThrow(routeLib.types.RouteTable).router
 
-const { isPutAway, isRoofLayout, isSideLayout, isMixedLayout } = useLayout()
+const {
+  isPutAway,
+  isRoofLayout,
+  isSideLayout,
+  isMixedLayout,
+  isDoubleSideLayout,
+} = useLayout()
 const appConfig = useAppConfig()
 const menuList = useAuthMenuList()
 const { canEmbedIFramePage } = storeToRefs(appConfig)
@@ -71,14 +80,27 @@ const visibleMenuList = computed(() => {
 const activeMenu = computed(() => useRouter().currentRoute.value.path)
 
 const isFirstLevel = computed(() => props.level === 'first')
-const isHorizontalMenu = computed(() => isRoofLayout.value || isFirstLevel.value)
+const isHorizontalMenu = computed(() => {
+  return isRoofLayout.value || (isFirstLevel.value && !isDoubleSideLayout.value)
+})
 const menuMode = computed(() => (isHorizontalMenu.value ? 'horizontal' : 'vertical'))
 const menuCollapse = computed(() => {
-  return !isFirstLevel.value
-    && (isSideLayout.value || isMixedLayout.value)
+  if (isFirstLevel.value) {
+    return isDoubleSideLayout.value
+  }
+  return (isSideLayout.value || isMixedLayout.value || isDoubleSideLayout.value)
     && !isPutAway.value
 })
 const selectedMenu = computed(() => {
+  if (
+    isFirstLevel.value
+    && isDoubleSideLayout.value
+    && !isPutAway.value
+    && activeRoot.value
+    && hasVisibleChildren(activeRoot.value)
+  ) {
+    return activeMenu.value
+  }
   return isFirstLevel.value ? props.activeRootMenu : activeMenu.value
 })
 
@@ -88,8 +110,27 @@ function hasVisibleChildren(menu: Menu): boolean {
   ) ?? false
 }
 
-function selectRoot(menu: Menu) {
-  emit('select-root', menu.name, hasVisibleChildren(menu))
+function selectRoot(menu: Menu, revealChildren = false) {
+  emit('select-root', menu.name, hasVisibleChildren(menu), revealChildren)
+}
+
+function shouldForceMenuItem(menu: Menu): boolean {
+  if (!isFirstLevel.value) {
+    return false
+  }
+  return !(
+    isDoubleSideLayout.value
+    && !isPutAway.value
+    && hasVisibleChildren(menu)
+  )
+}
+
+function handleRootMenuTitleClick(menu: Menu) {
+  if (!isFirstLevel.value || menu.menuType !== MenuTypeEnum.MENU) {
+    return
+  }
+  selectRoot(menu, true)
+  openMenu(menu)
 }
 
 watch(
@@ -135,14 +176,19 @@ function getMenuIndex(item: Menu): string {
 function handleMenuSelect(index: string) {
   if (isFirstLevel.value) {
     const rootMenu = visibleRootMenuList.value.find((item) => item.name === index)
-    if (!rootMenu) {
+    if (rootMenu) {
+      selectRoot(rootMenu, true)
+      if (rootMenu.menuType !== MenuTypeEnum.MENU && hasVisibleChildren(rootMenu)) {
+        return
+      }
+      openMenu(rootMenu)
       return
     }
-    selectRoot(rootMenu)
-    if (hasVisibleChildren(rootMenu)) {
-      return
+
+    const childMenu = findMenuByIndex(menuList.value, index)
+    if (childMenu) {
+      openMenu(childMenu)
     }
-    openMenu(rootMenu)
     return
   }
 

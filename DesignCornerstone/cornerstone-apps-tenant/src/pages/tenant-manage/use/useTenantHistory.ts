@@ -7,7 +7,6 @@ export function useTenantHistory() {
   const visible = ref(false)
   const target = ref<SystemTenantListItem>()
   const loading = ref(false)
-  const isMock = !import.meta.env.VITE_ACCOUNT_API_URL
   const error = ref('')
   const items = ref<SystemTenantHistoryItem[]>([])
   const page = ref(0)
@@ -64,5 +63,5 @@ export function useTenantHistory() {
     }
   }, { flush: 'sync' })
 
-  return { visible, target, loading, isMock, error, items, total, hasMore, loadMore, open }
+  return { visible, target, loading, error, items, total, hasMore, loadMore, open }
 }

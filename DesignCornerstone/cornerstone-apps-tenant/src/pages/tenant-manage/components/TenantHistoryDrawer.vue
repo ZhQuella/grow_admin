@@ -8,9 +8,6 @@
     append-to-body
     destroy-on-close
   >
-    <div v-if="isMock" class="tenant-history-drawer__mock">
-      <GrowTag size="small" type="info">Mock 演示记录</GrowTag>
-    </div>
     <div ref="viewportRef" class="tenant-history-drawer__viewport">
       <GrowScrollbar :key="target?.id" height="100%" class="tenant-history-drawer__scrollbar">
         <template v-if="!items.length">
@@ -65,7 +62,7 @@ import { TENANT_HISTORY_ACTION_LABELS } from '../../../types/systemTenant'
 import { formatTime } from '../use/helpers'
 import { useTenantHistory } from '../use/useTenantHistory'
 
-const { visible, target, loading, isMock, error, items, hasMore, loadMore, open } = useTenantHistory()
+const { visible, target, loading, error, items, hasMore, loadMore, open } = useTenantHistory()
 const viewportRef = ref<HTMLElement>()
 const loadMoreRef = ref<HTMLElement>()
 
@@ -91,16 +88,6 @@ defineExpose({ open })
 </script>
 
 <style scoped>
-.tenant-history-drawer__mock {
-  display: flex;
-  flex-shrink: 0;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-  overflow-wrap: anywhere;
-}
-
 .tenant-history-drawer__viewport {
   flex: 1;
   min-height: 0;

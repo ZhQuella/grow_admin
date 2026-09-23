@@ -8,6 +8,7 @@ import {
   updateSystemMenu,
 } from '../../../api/systemMenu'
 import type { SystemMenuNode } from '../../../types/systemMenu'
+import type { SystemMenuApiScope } from '../../../api/systemMenuApiScope'
 import { toParentTreeData, findParentName, findNodeByName, collectNodeNames } from './helpers'
 
 export type MenuKind = 'app' | 'automation' | 'external'
@@ -40,6 +41,7 @@ type UseMenuFormOptions = {
   sourceTree: { value: SystemMenuNode[] }
   onSuccess: () => void | Promise<void>
   allowHierarchy: boolean
+  apiScope: SystemMenuApiScope
 }
 
 const LOWCODE_PAGE_OPTIONS = [
@@ -366,7 +368,7 @@ export function useMenuForm(options: UseMenuFormOptions) {
     if (!options.allowHierarchy || tenantApplicationsLoading.value) return
     tenantApplicationsLoading.value = true
     try {
-      const data = await fetchTenantAuthorizedApplicationList()
+      const data = await fetchTenantAuthorizedApplicationList(options.apiScope)
       tenantApplications.value = Array.isArray(data) ? data : []
     } catch (error) {
       tenantApplications.value = []
@@ -513,7 +515,9 @@ export function useMenuForm(options: UseMenuFormOptions) {
       icon: formModel.icon.trim() || undefined,
       menuType: formModel.menuType,
       enabled: formModel.enabled,
-      description: options.allowHierarchy ? undefined : formModel.description.trim() || undefined,
+      description: options.allowHierarchy
+        ? undefined
+        : String(formModel.description || '').trim() || undefined,
       isVisible: formModel.isVisible,
       isKeepAlive: formModel.isKeepAlive,
       affix: formModel.affix,
@@ -565,17 +569,17 @@ export function useMenuForm(options: UseMenuFormOptions) {
     try {
       const payload = buildPayload()
       if (formMode.value === 'create') {
-        await createSystemMenu(payload)
+        await createSystemMenu(payload, options.apiScope)
         message.success('创建成功')
       } else {
         if (payload.name !== originalName.value) {
-          const impact = await fetchSystemMenuCodeImpact(originalName.value)
+          const impact = await fetchSystemMenuCodeImpact(originalName.value, options.apiScope)
           const ok = await confirmCodeChange(
             `菜单标识将由「${originalName.value}」改为「${payload.name}」。受影响：角色菜单授权 ${impact.roleMenuGrantCount} 项、功能 ${impact.functionCount} 项、数据表 ${impact.tableCount} 张、数据权限 ${impact.dataPermissionCount} 项；确认后将同步更新引用。`,
           )
           if (!ok) return
         }
-        await updateSystemMenu(originalName.value, payload)
+        await updateSystemMenu(originalName.value, payload, options.apiScope)
         message.success('保存成功')
       }
       formVisible.value = false

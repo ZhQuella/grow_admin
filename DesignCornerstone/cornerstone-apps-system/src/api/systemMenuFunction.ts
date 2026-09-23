@@ -5,32 +5,55 @@ import type {
   SystemMenuFunctionDeleteImpact,
   SystemMenuFunctionSavePayload,
 } from '../types/systemMenuFunction'
+import { resolveSystemMenuRequest, type SystemMenuApiScope } from './systemMenuApiScope'
 
 const useRequest = () => diKT(infrastructureLib.types.InfrastructureAxios)
 
-export function fetchSystemMenuFunctions(menuName: string) {
+export function fetchSystemMenuFunctions(menuName: string, scope: SystemMenuApiScope = 'system') {
   return useRequest().post<SystemMenuFunction[]>({
-    url: '/system/menu/functions',
+    ...resolveSystemMenuRequest(
+      scope,
+      '/system/menu/functions',
+      '/system/platform/application/menu/functions',
+    ),
     data: { menuName },
   })
 }
 
-export function saveSystemMenuFunctions(data: SystemMenuFunctionSavePayload) {
+export function saveSystemMenuFunctions(
+  data: SystemMenuFunctionSavePayload,
+  scope: SystemMenuApiScope = 'system',
+) {
   return useRequest().put<SystemMenuFunction[]>({
-    url: '/system/menu/functions',
+    ...resolveSystemMenuRequest(
+      scope,
+      '/system/menu/functions',
+      '/system/platform/application/menu/functions',
+    ),
     data,
   })
 }
 
-export function fetchAllSystemMenuFunctions() {
+export function fetchAllSystemMenuFunctions(scope: SystemMenuApiScope = 'system') {
   return useRequest().post<SystemMenuFunction[]>({
-    url: '/system/menu-functions/all',
+    ...resolveSystemMenuRequest(
+      scope,
+      '/system/menu-functions/all',
+      '/system/platform/application/menu-functions/all',
+    ),
   })
 }
 
-export function fetchSystemMenuFunctionDeleteImpact(id: string) {
+export function fetchSystemMenuFunctionDeleteImpact(
+  id: string,
+  scope: SystemMenuApiScope = 'system',
+) {
   return useRequest().post<SystemMenuFunctionDeleteImpact>({
-    url: '/system/menu/function/delete-impact',
+    ...resolveSystemMenuRequest(
+      scope,
+      '/system/menu/function/delete-impact',
+      '/system/platform/application/menu/function/delete-impact',
+    ),
     data: { id },
   })
 }

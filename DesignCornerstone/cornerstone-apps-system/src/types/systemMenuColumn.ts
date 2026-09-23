@@ -56,7 +56,9 @@ export type SystemMenuColumnSavePayload = {
   tables: SystemMenuTable[]
   items: Array<{
     id?: string
+    menuName: string
     tableCode: string
+    tableTitle: string
     title: string
     code: string
     columnType: ColumnType

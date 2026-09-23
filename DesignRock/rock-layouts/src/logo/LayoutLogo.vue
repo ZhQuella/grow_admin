@@ -13,9 +13,11 @@ const props = withDefaults(
 
 const appConfig = useAppConfig()
 const { systemName } = storeToRefs(appConfig)
-const { collapsed, isRoofLayout, isMixedLayout } = useLayout()
+const { collapsed, isRoofLayout, isMixedLayout, isDoubleSideLayout } = useLayout()
 
-const isTopLayout = computed(() => isRoofLayout.value || isMixedLayout.value)
+const isTopLayout = computed(() => {
+  return isRoofLayout.value || isMixedLayout.value || isDoubleSideLayout.value
+})
 const showSystemName = computed(() => isTopLayout.value || !collapsed.value)
 </script>
 

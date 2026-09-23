@@ -346,7 +346,7 @@ function toListItem(item: TenantRecord) {
     status: item.status,
     startedAt: item.startedAt,
     expiredAt: item.expiredAt,
-    gracedDays: item.builtIn ? 0 : 7,
+    graceDays: item.builtIn ? 0 : 7,
     contactName: item.contactName,
     contactMobile: item.contactMobile,
     accountCount: item.accountCount,
@@ -354,6 +354,7 @@ function toListItem(item: TenantRecord) {
     lastLoginAt: item.lastLoginAt,
     createdAt: item.createdAt,
     updatedAt: item.updatedAt,
+    isDelete: item.status === 'deleted',
     deletedAt: item.deletedAt,
     builtIn: item.builtIn,
   }
@@ -501,7 +502,7 @@ export default [
     },
   },
   {
-    url: mockUrl('/platform/tenants/options'),
+    url: mockUrl('/system/platform/tenant/options'),
     method: 'post',
     timeout: 40,
     response: () => resultSuccess(
@@ -527,7 +528,7 @@ export default [
     },
   },
   {
-    url: mockUrl('/platform/tenant/create'),
+    url: mockUrl('/system/platform/tenant/create'),
     method: 'post',
     timeout: 80,
     response: ({ body }) => {
@@ -574,7 +575,7 @@ export default [
     },
   },
   {
-    url: mockUrl('/platform/tenant'),
+    url: mockUrl('/system/platform/tenant'),
     method: 'put',
     timeout: 80,
     response: ({ body }) => {
@@ -590,7 +591,7 @@ export default [
     },
   },
   {
-    url: mockUrl('/platform/tenant/code'),
+    url: mockUrl('/system/platform/tenant/code'),
     method: 'put',
     timeout: 80,
     response: ({ body }) => {
@@ -612,7 +613,7 @@ export default [
     },
   },
   {
-    url: mockUrl('/platform/tenant/trial'),
+    url: mockUrl('/system/platform/tenant/trial'),
     method: 'post',
     timeout: 80,
     response: ({ body }) => {
@@ -634,7 +635,7 @@ export default [
     },
   },
   {
-    url: mockUrl('/platform/tenant/activate'),
+    url: mockUrl('/system/platform/tenant/activate'),
     method: 'post',
     timeout: 80,
     response: ({ body }) => {
@@ -656,7 +657,7 @@ export default [
     },
   },
   {
-    url: mockUrl('/platform/tenant/disable'),
+    url: mockUrl('/system/platform/tenant/disable'),
     method: 'post',
     timeout: 80,
     response: ({ body }) => {
@@ -674,7 +675,7 @@ export default [
     },
   },
   {
-    url: mockUrl('/platform/tenant/delete'),
+    url: mockUrl('/system/platform/tenant/delete'),
     method: 'post',
     timeout: 80,
     response: ({ body }) => {

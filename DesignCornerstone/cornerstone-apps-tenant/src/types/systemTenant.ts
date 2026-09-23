@@ -26,7 +26,7 @@ export type SystemTenantListItem = {
   status: TenantStatus
   startedAt: string | null
   expiredAt: string | null
-  gracedDays: number
+  graceDays: number
   contactName: string
   contactMobile: string
   accountCount: number
@@ -34,14 +34,12 @@ export type SystemTenantListItem = {
   lastLoginAt: string | null
   createdAt: string
   updatedAt: string
+  isDelete: boolean
   deletedAt: string | null
   builtIn: boolean
 }
 
-export type SystemTenantDetail = SystemTenantListItem & {
-  createdBy: string
-  updatedBy: string
-}
+export type SystemTenantDetail = SystemTenantListItem
 
 export type SystemTenantQuery = {
   keyword?: string
@@ -77,7 +75,7 @@ export type SystemTenantHistoryItem = {
   id: string
   tenantId: string
   action: TenantHistoryAction
-  description: string
+  description?: string
   operatedAt: string
   operatorName: string
   remark: string

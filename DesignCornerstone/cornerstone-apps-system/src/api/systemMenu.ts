@@ -7,65 +7,110 @@ import type {
   SystemMenuNode,
   SystemMenuUpdatePayload,
 } from '../types/systemMenu'
+import { resolveSystemMenuRequest, type SystemMenuApiScope } from './systemMenuApiScope'
 
 const useRequest = () => diKT(infrastructureLib.types.InfrastructureAxios)
 
-export function fetchSystemMenuTree() {
+export function fetchSystemMenuTree(scope: SystemMenuApiScope = 'system') {
   return useRequest().post<SystemMenuNode[]>({
-    url: '/system/menus/tree',
+    ...resolveSystemMenuRequest(
+      scope,
+      '/system/menus/tree',
+      '/system/platform/application/menus/tree',
+    ),
   })
 }
 
-export function fetchApplicationFunctionList() {
+export function fetchApplicationFunctionList(scope: SystemMenuApiScope = 'platform') {
   return useRequest().post<SystemMenuNode[]>({
-    url: '/platform/application-functions/list',
+    ...resolveSystemMenuRequest(
+      scope,
+      '/system/platform/application/functions/list',
+      '/system/platform/application/functions/list',
+    ),
   })
 }
 
-export function fetchTenantAuthorizedApplicationList() {
+export function fetchTenantAuthorizedApplicationList(scope: SystemMenuApiScope = 'system') {
   return useRequest().post<SystemMenuNode[]>({
-    url: '/system/tenant-authorized-applications/list',
+    ...resolveSystemMenuRequest(
+      scope,
+      '/system/tenant-authorized-applications/list',
+      '/system/platform/application/tenant-authorized/list',
+    ),
   })
 }
 
-export function createSystemMenu(data: SystemMenuCreatePayload) {
+export function createSystemMenu(data: SystemMenuCreatePayload, scope: SystemMenuApiScope = 'system') {
   return useRequest().post<SystemMenuNode>({
-    url: '/system/menus',
+    ...resolveSystemMenuRequest(
+      scope,
+      '/system/menus',
+      '/system/platform/application/menus',
+    ),
     data,
   })
 }
 
-export function updateSystemMenu(name: string, data: SystemMenuUpdatePayload) {
+export function updateSystemMenu(
+  name: string,
+  data: SystemMenuUpdatePayload,
+  scope: SystemMenuApiScope = 'system',
+) {
   return useRequest().put<SystemMenuNode>({
-    url: '/system/menu',
+    ...resolveSystemMenuRequest(
+      scope,
+      '/system/menu',
+      '/system/platform/application/menu',
+    ),
     data: { originalName: name, ...data },
   })
 }
 
-export function setSystemMenuEnabled(name: string, enabled: boolean) {
+export function setSystemMenuEnabled(
+  name: string,
+  enabled: boolean,
+  scope: SystemMenuApiScope = 'system',
+) {
   return useRequest().put<SystemMenuNode>({
-    url: '/system/menu/enabled',
+    ...resolveSystemMenuRequest(
+      scope,
+      '/system/menu/enabled',
+      '/system/platform/application/menu/enabled',
+    ),
     data: { name, enabled },
   })
 }
 
-export function fetchSystemMenuDeleteImpact(name: string) {
+export function fetchSystemMenuDeleteImpact(name: string, scope: SystemMenuApiScope = 'system') {
   return useRequest().post<SystemMenuDeleteImpact>({
-    url: '/system/menu/delete-impact',
+    ...resolveSystemMenuRequest(
+      scope,
+      '/system/menu/delete-impact',
+      '/system/platform/application/menu/delete-impact',
+    ),
     data: { name },
   })
 }
 
-export function fetchSystemMenuCodeImpact(name: string) {
+export function fetchSystemMenuCodeImpact(name: string, scope: SystemMenuApiScope = 'system') {
   return useRequest().post<SystemMenuCodeImpact>({
-    url: '/system/menu/code-impact',
+    ...resolveSystemMenuRequest(
+      scope,
+      '/system/menu/code-impact',
+      '/system/platform/application/menu/code-impact',
+    ),
     data: { name },
   })
 }
 
-export function deleteSystemMenu(name: string) {
+export function deleteSystemMenu(name: string, scope: SystemMenuApiScope = 'system') {
   return useRequest().post<{ name: string }>({
-    url: '/system/menu/delete',
+    ...resolveSystemMenuRequest(
+      scope,
+      '/system/menu/delete',
+      '/system/platform/application/menu/delete',
+    ),
     data: { name },
   })
 }
