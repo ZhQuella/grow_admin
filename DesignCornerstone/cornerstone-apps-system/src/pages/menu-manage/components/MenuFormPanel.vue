@@ -7,7 +7,7 @@
     label-width="88px"
   >
     <GrowRow :gutter="16">
-      <GrowCol v-if="state.allowHierarchy" :span="24">
+      <GrowCol :span="24">
         <GrowFormItem label="挂载位置" prop="parentName">
           <GrowTreeSelect
             v-model="state.formModel.parentName"
@@ -21,12 +21,12 @@
           />
         </GrowFormItem>
       </GrowCol>
-      <GrowCol v-if="state.showMenuType" :span="12">
+      <GrowCol :span="12">
         <GrowFormItem label="类型" prop="menuType">
           <GrowRadioGroup v-model="state.formModel.menuType" :options="state.menuTypeOptions" />
         </GrowFormItem>
       </GrowCol>
-      <GrowCol v-if="state.showMenuType" :span="12">
+      <GrowCol :span="12">
         <GrowFormItem label="排序" prop="sort">
           <GrowInputNumber v-model="state.formModel.sort" :min="0" :max="9999" controls-position="right" />
         </GrowFormItem>
@@ -54,7 +54,7 @@
       </GrowCol>
       <GrowCol :span="12">
         <GrowFormItem
-          :label="state.allowHierarchy && state.formModel.menuType === MenuTypeEnum.DIRECTORY ? '标题' : '菜单名称'"
+          :label="state.formModel.menuType === MenuTypeEnum.DIRECTORY ? '标题' : '菜单名称'"
           prop="title"
         >
           <GrowInput v-model="state.formModel.title" maxlength="64" clearable placeholder="侧边栏显示名称" />
@@ -71,7 +71,7 @@
             v-model="state.formModel.path"
             maxlength="128"
             clearable
-            :placeholder="state.allowHierarchy ? '如 menu-manage' : '如 demo'"
+            placeholder="如 menu-manage"
           />
         </GrowFormItem>
       </GrowCol>
@@ -80,40 +80,7 @@
           <GrowSelect v-model="state.formModel.openMode" :options="state.openModeOptions" />
         </GrowFormItem>
       </GrowCol>
-      <GrowCol
-        v-if="!state.allowHierarchy"
-        :span="24"
-        class="menu-form-panel__required-extension"
-      >
-        <GrowRow :gutter="16">
-          <GrowCol v-if="state.isAutomationMenu" :span="12">
-            <GrowFormItem label="页面类型" prop="automationType" required>
-              <GrowSelect
-                v-model="state.formModel.automationType"
-                :options="state.automationTypeOptions"
-                @change="state.onAutomationTypeChange"
-              />
-            </GrowFormItem>
-          </GrowCol>
-          <GrowCol v-if="state.isAutomationMenu" :span="12">
-            <GrowFormItem label="选择页面" prop="automationPage" required>
-              <GrowSelect
-                v-model="state.formModel.automationPage"
-                :options="state.automationPageOptions"
-                :placeholder="state.automationPagePlaceholder"
-                clearable
-              />
-            </GrowFormItem>
-          </GrowCol>
-          <GrowCol v-if="state.isExternalMenu" :span="24">
-            <GrowFormItem label="链接" prop="link" required>
-              <GrowInput v-model="state.formModel.link" maxlength="256" clearable placeholder="外链或 iframe 地址" />
-            </GrowFormItem>
-          </GrowCol>
-        </GrowRow>
-      </GrowCol>
-      <template v-else>
-        <GrowCol v-if="state.isAutomationMenu" :span="12">
+      <GrowCol v-if="state.isAutomationMenu" :span="12">
           <GrowFormItem label="页面类型" prop="automationType" required>
             <GrowSelect
               v-model="state.formModel.automationType"
@@ -122,7 +89,7 @@
             />
           </GrowFormItem>
         </GrowCol>
-        <GrowCol v-if="state.isAutomationMenu" :span="12">
+      <GrowCol v-if="state.isAutomationMenu" :span="12">
           <GrowFormItem label="选择页面" prop="automationPage" required>
             <GrowSelect
               v-model="state.formModel.automationPage"
@@ -132,12 +99,11 @@
             />
           </GrowFormItem>
         </GrowCol>
-        <GrowCol v-if="state.isExternalMenu" :span="24">
+      <GrowCol v-if="state.isExternalMenu" :span="24">
           <GrowFormItem label="链接" prop="link" required>
             <GrowInput v-model="state.formModel.link" maxlength="256" clearable placeholder="外链或 iframe 地址" />
           </GrowFormItem>
         </GrowCol>
-      </template>
       <GrowCol :span="12">
         <GrowFormItem
           :label="state.showApplication ? '菜单图标' : '图标'"
@@ -159,18 +125,6 @@
               />
             </span>
           </div>
-        </GrowFormItem>
-      </GrowCol>
-      <GrowCol v-if="!state.allowHierarchy" :span="24">
-        <GrowFormItem label="说明" prop="description">
-          <GrowInput
-            v-model="state.formModel.description"
-            type="textarea"
-            :rows="2"
-            maxlength="200"
-            show-word-limit
-            placeholder="选填"
-          />
         </GrowFormItem>
       </GrowCol>
       <GrowCol :span="24">
@@ -230,10 +184,6 @@ const state = proxyRefs(props.state)
 .menu-form-panel__switch-group {
   display: flex;
   align-items: center;
-}
-
-.menu-form-panel__required-extension {
-  min-height: 56px;
 }
 
 .menu-form-panel__icon-item :deep(.el-form-item__label) {

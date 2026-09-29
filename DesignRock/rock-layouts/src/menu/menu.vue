@@ -18,7 +18,7 @@
         :item="item"
         :can-embed-i-frame-page="canEmbedIFramePage"
         :force-menu-item="isFirstLevel"
-        :index="isFirstLevel ? item.name : undefined"
+        :index="isFirstLevel ? item.name : isCollapsedRoot && item.menuType === MenuTypeEnum.MENU ? item.path : undefined"
       />
     </GrowMenu>
   </div>
@@ -26,7 +26,7 @@
 
 <script lang="ts" setup>
 import { computed, watch } from 'vue'
-import { PageOpenModeEnum } from '@grow-admin-rock/constants'
+import { MenuTypeEnum, PageOpenModeEnum } from '@grow-admin-rock/constants'
 import { Lib as routeLib } from '@grow-admin-rock/middleware-router'
 import { resolveByKeyOrThrow } from '@grow-admin-rock/ioc'
 import { storeToRefs, useAppConfig, useAuthMenuList, useLayout } from '@grow-admin-rock/state'
@@ -34,7 +34,7 @@ import type { Menu } from '@grow-admin-rock/types'
 import MenuTreeNode from './MenuTreeNode.vue'
 import { findRootMenuByPath, shouldRenderMenuItem } from './menuUtils'
 
-type MenuLevel = 'all' | 'first' | 'children'
+type MenuLevel = 'all' | 'first' | 'children' | 'double-first' | 'double-collapsed'
 
 const props = withDefaults(defineProps<{
   level?: MenuLevel
@@ -50,7 +50,7 @@ const emit = defineEmits<{
 
 const useRouter = () => resolveByKeyOrThrow(routeLib.types.RouteTable).router
 
-const { isPutAway, isRoofLayout, isSideLayout, isMixedLayout } = useLayout()
+const { isPutAway, isRoofLayout, isSideLayout, isMixedLayout, isDoubleSideLayout } = useLayout()
 const appConfig = useAppConfig()
 const menuList = useAuthMenuList()
 const { canEmbedIFramePage } = storeToRefs(appConfig)
@@ -70,10 +70,13 @@ const visibleMenuList = computed(() => {
 })
 const activeMenu = computed(() => useRouter().currentRoute.value.path)
 
-const isFirstLevel = computed(() => props.level === 'first')
-const isHorizontalMenu = computed(() => isRoofLayout.value || isFirstLevel.value)
+const isFirstLevel = computed(() => props.level === 'first' || props.level === 'double-first')
+const isCollapsedRoot = computed(() => props.level === 'double-collapsed')
+const isHorizontalMenu = computed(() => isRoofLayout.value || props.level === 'first')
 const menuMode = computed(() => (isHorizontalMenu.value ? 'horizontal' : 'vertical'))
 const menuCollapse = computed(() => {
+  if (isDoubleSideLayout.value && (isFirstLevel.value || isCollapsedRoot.value)) return true
+  if (isDoubleSideLayout.value && props.level === 'children') return false
   return !isFirstLevel.value
     && (isSideLayout.value || isMixedLayout.value)
     && !isPutAway.value
@@ -95,7 +98,7 @@ function selectRoot(menu: Menu) {
 watch(
   [activeMenu, visibleRootMenuList],
   ([currentPath, roots]) => {
-    if (!isFirstLevel.value) {
+    if (!isFirstLevel.value && !isCollapsedRoot.value) {
       return
     }
     const routeRoot = findRootMenuByPath(roots, currentPath)
@@ -139,7 +142,7 @@ function handleMenuSelect(index: string) {
       return
     }
     selectRoot(rootMenu)
-    if (hasVisibleChildren(rootMenu)) {
+    if (hasVisibleChildren(rootMenu) && !(props.level === 'double-first' && rootMenu.menuType === MenuTypeEnum.MENU)) {
       return
     }
     openMenu(rootMenu)

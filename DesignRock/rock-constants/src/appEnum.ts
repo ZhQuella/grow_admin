@@ -53,10 +53,11 @@ export enum RouterTransitionEnum {
 }
 
 
-export type SystemLayoutType = "side" | "roof" | "mixed"
+export type SystemLayoutType = "side" | "roof" | "mixed" | "double-side"
 
 export enum SystemLayoutEnum {
   SIDE = "side",
   ROOF = "roof",
-  MIXED = "mixed"
+  MIXED = "mixed",
+  DOUBLE_SIDE = "double-side"
 }

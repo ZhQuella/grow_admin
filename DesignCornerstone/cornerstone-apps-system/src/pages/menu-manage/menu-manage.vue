@@ -23,8 +23,8 @@
             :data="tableData"
             :height="`${height}px`"
             row-key="name"
-            :default-expand-all="props.allowHierarchy"
-            :tree-props="props.allowHierarchy ? { children: 'children' } : {}"
+            default-expand-all
+            :tree-props="{ children: 'children' }"
             :row-class-name="menuRowClassName"
             border
           >
@@ -80,7 +80,7 @@
                 </template>
                 <template v-else-if="col.field === 'actions'">
                   <div class="menu-manage__actions">
-                    <GrowTooltip v-if="props.allowHierarchy" content="新增子级" placement="top">
+                    <GrowTooltip content="新增子级" placement="top">
                       <GrowButton link type="primary" @click="menuForm.openCreateChild(row)">
                         <GrowIconify icon="ant-design:plus-outlined" :size="16" />
                       </GrowButton>
@@ -139,12 +139,6 @@ import { useMenuManage } from './use/useMenuManage'
 
 defineOptions({ name: 'MenuManagePage' })
 
-const props = withDefaults(defineProps<{
-  allowHierarchy?: boolean
-}>(), {
-  allowHierarchy: true,
-})
-
 function menuRowClassName({ row }: { row: SystemMenuNode }) {
   return row.enabled === false ? 'menu-manage__row--disabled' : ''
 }
@@ -163,7 +157,7 @@ const {
   columnConfig,
   menuTypeLabel,
   menuTypeTagType,
-} = useMenuManage({ allowHierarchy: props.allowHierarchy })
+} = useMenuManage()
 
 const {
   deleteLoading,

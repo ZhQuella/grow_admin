@@ -1,5 +1,5 @@
 <template>
-  <GrowSubMenu v-if="shouldRender && displayAsSubMenu" :index="item.name">
+  <GrowSubMenu v-if="shouldRender && displayAsSubMenu" :index="index || item.name">
     <template #title>
       <i v-if="item.icon" class="el-icon">
         <GrowIconify :icon="item.icon" :size="18" hover-pointer />

@@ -10,21 +10,22 @@ const {
   isSideLayout,
   isRoofLayout,
   isMixedLayout,
+  isDoubleSideLayout,
 } = useLayout()
 
 const activeRootMenu = ref('')
-const mixedMenuHasChildren = ref(false)
+const rootMenuHasChildren = ref(false)
 
 function selectRootMenu(name: string, hasChildren: boolean) {
   activeRootMenu.value = name
-  mixedMenuHasChildren.value = hasChildren
+  rootMenuHasChildren.value = hasChildren
 }
 </script>
 
 <template>
   <div class="flex h-full flex-col">
     <div
-      v-if="!isFullScreen && (isRoofLayout || isMixedLayout)"
+      v-if="!isFullScreen && (isRoofLayout || isMixedLayout || isDoubleSideLayout)"
       class="relative z-10 box-border flex h-[50px] shrink-0 items-center justify-between gap-2 overflow-hidden border-b border-solid border-border bg-component px-[10px]"
     >
       <div class="-enter-y flex h-full min-w-0 flex-1 items-center overflow-hidden">
@@ -33,6 +34,7 @@ function selectRootMenu(name: string, hasChildren: boolean) {
           <slot name="bread" />
         </div>
         <div
+          v-if="!isDoubleSideLayout"
           class="h-full min-w-0 flex-1 overflow-hidden"
           :class="isMixedLayout ? 'ml-4' : ''"
         >
@@ -51,7 +53,46 @@ function selectRootMenu(name: string, hasChildren: boolean) {
 
     <div class="flex min-h-0 flex-1">
       <div
-        v-if="!isFullScreen && (isSideLayout || (isMixedLayout && mixedMenuHasChildren))"
+        v-if="!isFullScreen && isDoubleSideLayout"
+        class="relative z-10 flex h-full w-[65px] shrink-0 flex-col border-r border-solid border-border bg-component"
+      >
+        <div class="relative min-h-0 flex-1">
+          <GrowScrollbar class="h-full">
+            <slot
+              name="menu"
+              :menu-level="isPutAway ? 'double-first' : 'double-collapsed'"
+              :active-root-menu="activeRootMenu"
+              :select-root-menu="selectRootMenu"
+            />
+          </GrowScrollbar>
+          <div
+            v-if="!isPutAway || !rootMenuHasChildren"
+            class="side-show-btn"
+            :class="isPutAway ? 'max' : 'min'"
+            @click="onChangeSide"
+          />
+        </div>
+      </div>
+
+      <div
+        v-if="!isFullScreen && isDoubleSideLayout && isPutAway && rootMenuHasChildren"
+        class="relative z-10 flex h-full w-[210px] shrink-0 flex-col border-r border-solid border-border bg-component transition-all duration-350"
+      >
+        <div class="relative min-h-0 flex-1">
+          <GrowScrollbar class="h-full">
+            <slot
+              name="menu"
+              menu-level="children"
+              :active-root-menu="activeRootMenu"
+              :select-root-menu="selectRootMenu"
+            />
+          </GrowScrollbar>
+          <div class="side-show-btn max" @click="onChangeSide" />
+        </div>
+      </div>
+
+      <div
+        v-if="!isFullScreen && (isSideLayout || (isMixedLayout && rootMenuHasChildren))"
         class="h-full flex w-[210px] shrink-0 grow-0 flex-col border-r border-solid border-border bg-component -enter-x transition-all duration-350"
         :class="[
           {
@@ -122,7 +163,7 @@ $sode-deg: 5deg;
   position: absolute;
   height: 100px;
   width: 5px;
-  right: -13px;
+  right: -9px;
   top: 50%;
   transform: translateY(-50%);
   cursor: pointer;

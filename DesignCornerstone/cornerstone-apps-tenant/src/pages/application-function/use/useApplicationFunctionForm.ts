@@ -1,26 +1,19 @@
 import { computed, reactive, ref } from 'vue'
-import { driverRef, useDialog, useMsg } from '@grow-admin-rock/components'
+import { driverRef, useMsg } from '@grow-admin-rock/components'
 import { MenuTypeEnum, PageOpenModeEnum } from '@grow-admin-rock/constants'
 import {
-  createSystemMenu,
-  fetchSystemMenuCodeImpact,
-  fetchTenantAuthorizedApplicationList,
-  updateSystemMenu,
-} from '../../../api/systemMenu'
-import type { SystemMenuNode } from '../../../types/systemMenu'
-import { toParentTreeData, findParentName, findNodeByName, collectNodeNames } from './helpers'
+  createApplicationFunction,
+  updateApplicationFunction,
+} from '../../../api/applicationFunction'
+import type { ApplicationFunctionNode } from '../../../types/applicationFunction'
 
 export type MenuKind = 'app' | 'automation' | 'external'
 export type AutomationType = 'sandbox' | 'lowcode' | 'report'
 
 type FormModel = {
-  parentName?: string
-  name: string
   title: string
   path: string
-  applicationName: string
   icon: string
-  menuType: MenuTypeEnum
   menuKind: MenuKind
   automationType: AutomationType
   automationPage: string
@@ -37,7 +30,7 @@ type FormModel = {
 }
 
 type UseMenuFormOptions = {
-  sourceTree: { value: SystemMenuNode[] }
+  sourceList: { value: ApplicationFunctionNode[] }
   onSuccess: () => void | Promise<void>
 }
 
@@ -56,22 +49,18 @@ const SANDBOX_PAGE_OPTIONS = [
   { label: '示例工作台', value: 'demo_workbench' },
 ]
 
-function emptyForm(menuType: MenuTypeEnum): FormModel {
+function emptyForm(): FormModel {
   return {
-    parentName: undefined,
-    name: '',
     title: '',
     path: '',
-    applicationName: '',
     icon: '',
-    menuType,
     menuKind: 'app',
     automationType: 'lowcode',
     automationPage: '',
     enabled: true,
     description: '',
     isVisible: true,
-    isKeepAlive: menuType === MenuTypeEnum.MENU,
+    isKeepAlive: true,
     affix: false,
     defaultShow: false,
     sort: 10,
@@ -92,7 +81,7 @@ async function validateGrowForm(formRef: { value: unknown }) {
   }
 }
 
-function resolveMenuKind(row: SystemMenuNode): MenuKind {
+function resolveMenuKind(row: ApplicationFunctionNode): MenuKind {
   if (row.isExternalPage || row.openMode === PageOpenModeEnum.IFRAME || row.openMode === PageOpenModeEnum.BROWSER || row.link) {
     return 'external'
   }
@@ -103,7 +92,7 @@ function resolveMenuKind(row: SystemMenuNode): MenuKind {
 }
 
 function collectUsedAutomationPages(
-  nodes: SystemMenuNode[],
+  nodes: ApplicationFunctionNode[],
   excludedName = '',
   result = new Set<string>(),
 ) {
@@ -113,16 +102,6 @@ function collectUsedAutomationPages(
     }
     if (node.children?.length) {
       collectUsedAutomationPages(node.children, excludedName, result)
-    }
-  })
-  return result
-}
-
-function collectMenuNames(nodes: SystemMenuNode[], result = new Set<string>()) {
-  nodes.forEach((node) => {
-    result.add(node.name)
-    if (node.children?.length) {
-      collectMenuNames(node.children, result)
     }
   })
   return result
@@ -140,50 +119,26 @@ function resolveAutomationBasePath(path: string, pageId: string) {
     : normalizedPath
 }
 
-export function useMenuForm(options: UseMenuFormOptions) {
+export function useApplicationFunctionForm(options: UseMenuFormOptions) {
   const message = useMsg() as any
-  const dialog = useDialog() as any
 
   const formVisible = ref(false)
   const formMode = ref<'create' | 'edit'>('create')
   const formSubmitting = ref(false)
   const formRef = ref()
   const originalName = ref('')
-  const formModel = reactive<FormModel>(emptyForm(MenuTypeEnum.MENU))
-  const tenantApplications = ref<SystemMenuNode[]>([])
-  const tenantApplicationsLoading = ref(false)
-
-  const parentTreeData = computed(() => {
-    const disabledNames = new Set<string>()
-    if (formMode.value === 'edit' && originalName.value) {
-      const current = findNodeByName(options.sourceTree.value, originalName.value)
-      if (current) {
-        collectNodeNames(current).forEach((name) => disabledNames.add(name))
-      }
-    }
-    return toParentTreeData(options.sourceTree.value, disabledNames)
-  })
-  const isMenu = computed(() => formModel.menuType === MenuTypeEnum.MENU)
-  const isAppMenu = computed(() => isMenu.value && formModel.menuKind === 'app')
-  const isAutomationMenu = computed(() => isMenu.value && formModel.menuKind === 'automation')
-  const isExternalMenu = computed(() => isMenu.value && formModel.menuKind === 'external')
-  const showApplication = computed(() => isAppMenu.value)
-  const showName = computed(() => !isMenu.value)
-  const showPath = computed(() => isMenu.value && !isExternalMenu.value && !showApplication.value)
-  const usedMenuNames = computed(() => collectMenuNames(options.sourceTree.value))
+  const formModel = reactive<FormModel>(emptyForm())
+  const isAutomationMenu = computed(() => formModel.menuKind === 'automation')
+  const isExternalMenu = computed(() => formModel.menuKind === 'external')
+  const showPath = computed(() => !isExternalMenu.value)
   const usedAutomationPages = computed(() => collectUsedAutomationPages(
-    options.sourceTree.value,
+    options.sourceList.value,
     formMode.value === 'edit' ? originalName.value : '',
   ))
 
-  const menuTypeOptions = [
-    { label: '目录', value: MenuTypeEnum.DIRECTORY },
-    { label: '菜单', value: MenuTypeEnum.MENU },
-  ]
-
   const menuKindOptions = [
-    { label: '系统内应用', value: 'app' },
-    { label: '自动化菜单', value: 'automation' },
+    { label: '应用页面', value: 'app' },
+    { label: '自动化页面', value: 'automation' },
     { label: '外部页面', value: 'external' },
   ]
 
@@ -209,81 +164,23 @@ export function useMenuForm(options: UseMenuFormOptions) {
     automationPageOptions.value.length ? '请选择页面' : '当前类型没有可用页面'
   ))
 
-  const applicationCandidates = computed(() => {
-    const items = [...tenantApplications.value]
-    if (formMode.value === 'edit' && originalName.value && !items.some((item) => item.name === originalName.value)) {
-      const current = findNodeByName(options.sourceTree.value, originalName.value)
-      if (current && resolveMenuKind(current) === 'app') {
-        items.push(current)
-      }
-    }
-    return items.filter((item) => (
-      item.menuType === MenuTypeEnum.MENU
-      && resolveMenuKind(item) === 'app'
-      && (item.enabled !== false || item.name === originalName.value)
-      && (item.name === originalName.value || !usedMenuNames.value.has(item.name))
-    ))
-  })
-
-  const applicationOptions = computed(() => applicationCandidates.value.map((item) => ({
-    label: item.title,
-    value: item.name,
-  })))
-
-  const applicationPlaceholder = computed(() => (
-    tenantApplicationsLoading.value
-      ? '正在加载应用功能'
-      : applicationOptions.value.length ? '请选择应用功能' : '当前没有可用应用功能'
-  ))
-
   const openModeOptions = [
     { label: '内嵌 iframe', value: PageOpenModeEnum.IFRAME },
     { label: '浏览器新标签', value: PageOpenModeEnum.BROWSER },
   ]
 
   const formRules = {
-    name: [{
-      required: true,
-      validator: (_rule: unknown, value: string, callback: (error?: Error) => void) => {
-        if (!showName.value) {
-          callback()
-          return
-        }
-        const name = String(value || '').trim()
-        if (!name) {
-          callback(new Error('请填写标识'))
-          return
-        }
-        if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(name)) {
-          callback(new Error('标识需以字母开头，仅含字母、数字和下划线'))
-          return
-        }
-        callback()
-      },
-      trigger: 'blur',
-    }],
-    menuType: [{ required: true, message: '请选择类型', trigger: 'change' }],
     menuKind: [{
       validator: (_rule: unknown, value: string, callback: (error?: Error) => void) => {
-        if (isMenu.value && !value) {
-          callback(new Error('请选择菜单类型'))
+        if (!value) {
+          callback(new Error('请选择功能类型'))
           return
         }
         callback()
       },
       trigger: 'change',
     }],
-    applicationName: [{
-      validator: (_rule: unknown, value: string, callback: (error?: Error) => void) => {
-        if (showApplication.value && !String(value || '').trim()) {
-          callback(new Error('请选择应用功能'))
-          return
-        }
-        callback()
-      },
-      trigger: 'change',
-    }],
-    title: [{ required: true, message: '请填写菜单名称', trigger: 'blur' }],
+    title: [{ required: true, message: '请填写功能名称', trigger: 'blur' }],
     path: [{
       validator: (_rule: unknown, value: string, callback: (error?: Error) => void) => {
         if (!showPath.value) {
@@ -360,47 +257,13 @@ export function useMenuForm(options: UseMenuFormOptions) {
     Object.assign(formModel, model)
   }
 
-  async function loadTenantApplications() {
-    if (tenantApplicationsLoading.value) return
-    tenantApplicationsLoading.value = true
-    try {
-      const data = await fetchTenantAuthorizedApplicationList()
-      tenantApplications.value = Array.isArray(data) ? data : []
-    } catch (error) {
-      tenantApplications.value = []
-      message.error(error instanceof Error ? error.message : '加载应用功能失败')
-    } finally {
-      tenantApplicationsLoading.value = false
-    }
-  }
-
-  function onApplicationChange(name: string) {
-    const application = applicationCandidates.value.find((item) => item.name === name)
-    if (!application) return
-    Object.assign(formModel, {
-      applicationName: application.name,
-      name: application.name,
-      title: application.title,
-      path: application.path,
-      icon: application.icon || '',
-      enabled: application.enabled !== false,
-      isVisible: application.isVisible !== false,
-      isKeepAlive: application.isKeepAlive !== false,
-      affix: Boolean(application.affix),
-      defaultShow: Boolean(application.defaultShow),
-      sort: Number(application.sort ?? 10),
-    })
-  }
-
   function onMenuKindChange(kind: MenuKind) {
     formModel.menuKind = kind
-    formModel.applicationName = ''
     formModel.automationPage = ''
     if (kind === 'app') {
       formModel.isExternalPage = false
       formModel.openMode = PageOpenModeEnum.ROUTE
       formModel.link = ''
-      void loadTenantApplications()
       return
     }
     if (kind === 'external') {
@@ -419,38 +282,24 @@ export function useMenuForm(options: UseMenuFormOptions) {
     formModel.automationPage = ''
   }
 
-  function openCreate(menuType: MenuTypeEnum = MenuTypeEnum.MENU, parentName?: string) {
+  function openCreate() {
     formMode.value = 'create'
     originalName.value = ''
-    applyForm({
-      ...emptyForm(menuType),
-      parentName,
-    })
+    applyForm(emptyForm())
     formVisible.value = true
-    if (menuType === MenuTypeEnum.MENU) {
-      void loadTenantApplications()
-    }
   }
 
-  function openCreateChild(row: SystemMenuNode, menuType: MenuTypeEnum = MenuTypeEnum.MENU) {
-    openCreate(menuType, row.name)
-  }
-
-  function openEdit(row: SystemMenuNode) {
+  function openEdit(row: ApplicationFunctionNode) {
     formMode.value = 'edit'
     originalName.value = row.name
-    const menuKind = row.menuType === MenuTypeEnum.MENU ? resolveMenuKind(row) : 'app'
+    const menuKind = resolveMenuKind(row)
     const automationPage = menuKind === 'automation' ? row.pageDataId || '' : ''
     applyForm({
-      parentName: row.parentName ?? findParentName(options.sourceTree.value, row.name),
-      name: row.name,
       title: row.title,
       path: menuKind === 'automation'
         ? resolveAutomationBasePath(row.path, automationPage)
         : row.path,
-      applicationName: menuKind === 'app' && row.menuType === MenuTypeEnum.MENU ? row.name : '',
       icon: row.icon || '',
-      menuType: row.menuType,
       menuKind,
       automationType: row.pageType || 'lowcode',
       automationPage,
@@ -468,9 +317,6 @@ export function useMenuForm(options: UseMenuFormOptions) {
       link: row.link || '',
     })
     formVisible.value = true
-    if (menuKind === 'app' && row.menuType === MenuTypeEnum.MENU) {
-      void loadTenantApplications()
-    }
   }
 
   function toMenuName(value: string) {
@@ -481,13 +327,9 @@ export function useMenuForm(options: UseMenuFormOptions) {
   }
 
   function resolveName() {
-    if (showApplication.value && formModel.applicationName) {
-      return formModel.applicationName
-    }
     if (isAutomationMenu.value && formModel.automationPage) {
       return formModel.automationPage
     }
-    if (showName.value && formModel.name.trim()) return formModel.name.trim()
     if (formMode.value === 'edit' && originalName.value) return originalName.value
     if (isExternalMenu.value) return `ExternalPage_${Date.now()}`
     const fromPath = toMenuName(formModel.path)
@@ -498,20 +340,18 @@ export function useMenuForm(options: UseMenuFormOptions) {
   function buildPayload() {
     const name = resolveName()
     const basePath = normalizeRoutePath(formModel.path)
-    const path = !isMenu.value
-      ? ''
-      : isAutomationMenu.value && formModel.automationPage
-        ? `${basePath}/${formModel.automationPage}`
-        : basePath || (isExternalMenu.value ? name : '')
+    const path = isAutomationMenu.value && formModel.automationPage
+      ? `${basePath}/${formModel.automationPage}`
+      : basePath || (isExternalMenu.value ? name : '')
     return {
-      parentName: formModel.parentName || undefined,
+      parentName: undefined,
       name,
       title: formModel.title.trim(),
       path,
       icon: formModel.icon.trim() || undefined,
-      menuType: formModel.menuType,
+      menuType: MenuTypeEnum.MENU,
       enabled: formModel.enabled,
-      description: undefined,
+      description: formModel.description.trim() || undefined,
       isVisible: formModel.isVisible,
       isKeepAlive: formModel.isKeepAlive,
       affix: formModel.affix,
@@ -525,33 +365,6 @@ export function useMenuForm(options: UseMenuFormOptions) {
     }
   }
 
-  function confirmCodeChange(content: string): Promise<boolean> {
-    if (dialog && typeof (dialog as any).warning === 'function' && (dialog as any).warning.length <= 1) {
-      return new Promise((resolve) => {
-        ;(dialog as any).warning({
-          title: '修改标识确认',
-          content,
-          positiveText: '确认修改',
-          negativeText: '取消',
-          onPositiveClick: () => resolve(true),
-          onNegativeClick: () => resolve(false),
-          onClose: () => resolve(false),
-        })
-      })
-    }
-    if (dialog && typeof (dialog as any).confirm === 'function') {
-      const result = (dialog as any).confirm(content, '修改标识确认', {
-        type: 'warning',
-        confirmButtonText: '确认修改',
-        cancelButtonText: '取消',
-      })
-      if (result && typeof result.then === 'function') {
-        return result.then(() => true).catch(() => false)
-      }
-    }
-    return Promise.resolve(window.confirm(content))
-  }
-
   async function submitForm() {
     try {
       await validateGrowForm(formRef)
@@ -563,17 +376,10 @@ export function useMenuForm(options: UseMenuFormOptions) {
     try {
       const payload = buildPayload()
       if (formMode.value === 'create') {
-        await createSystemMenu(payload)
+        await createApplicationFunction(payload)
         message.success('创建成功')
       } else {
-        if (payload.name !== originalName.value) {
-          const impact = await fetchSystemMenuCodeImpact(originalName.value)
-          const ok = await confirmCodeChange(
-            `菜单标识将由「${originalName.value}」改为「${payload.name}」。受影响：角色菜单授权 ${impact.roleMenuGrantCount} 项、功能 ${impact.functionCount} 项、数据表 ${impact.tableCount} 张、数据权限 ${impact.dataPermissionCount} 项；确认后将同步更新引用。`,
-          )
-          if (!ok) return
-        }
-        await updateSystemMenu(originalName.value, payload)
+        await updateApplicationFunction(originalName.value, payload)
         message.success('保存成功')
       }
       formVisible.value = false
@@ -592,27 +398,17 @@ export function useMenuForm(options: UseMenuFormOptions) {
     formRef,
     formModel,
     formRules,
-    parentTreeData,
-    isAppMenu,
     isAutomationMenu,
     isExternalMenu,
-    showApplication,
-    showName,
     showPath,
-    menuTypeOptions,
     menuKindOptions,
     automationTypeOptions,
     automationPageOptions,
     automationPagePlaceholder,
-    applicationOptions,
-    applicationPlaceholder,
-    tenantApplicationsLoading,
     openModeOptions,
-    onApplicationChange,
     onMenuKindChange,
     onAutomationTypeChange,
     openCreate,
-    openCreateChild,
     openEdit,
     submitForm,
   }

@@ -68,5 +68,6 @@ export function useLayout() {
     isSideLayout: computed(() => layoutType.value === SystemLayoutEnum.SIDE),
     isRoofLayout: computed(() => layoutType.value === SystemLayoutEnum.ROOF),
     isMixedLayout: computed(() => layoutType.value === SystemLayoutEnum.MIXED),
+    isDoubleSideLayout: computed(() => layoutType.value === SystemLayoutEnum.DOUBLE_SIDE),
   }
 }

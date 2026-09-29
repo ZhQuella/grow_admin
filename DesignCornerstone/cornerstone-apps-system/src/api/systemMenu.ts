@@ -16,12 +16,6 @@ export function fetchSystemMenuTree() {
   })
 }
 
-export function fetchApplicationFunctionList() {
-  return useRequest().post<SystemMenuNode[]>({
-    url: '/platform/application-functions/list',
-  })
-}
-
 export function fetchTenantAuthorizedApplicationList() {
   return useRequest().post<SystemMenuNode[]>({
     url: '/system/tenant-authorized-applications/list',

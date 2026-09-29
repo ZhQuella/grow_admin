@@ -2,10 +2,9 @@ import { computed, ref } from 'vue'
 import type { SearchBarField } from '@grow-admin-rock/components/search-bar'
 import type { ColumnBarItem } from '@grow-admin-rock/components/column-bar'
 import { useMsg } from '@grow-admin-rock/components'
-import { MenuTypeEnum } from '@grow-admin-rock/constants'
-import { fetchSystemMenuTree } from '../../../api/systemMenu'
-import type { SystemMenuNode } from '../../../types/systemMenu'
-import { filterMenuTree, sortMenuTree } from './helpers'
+import { fetchApplicationFunctionList } from '../../../api/applicationFunction'
+import type { ApplicationFunctionNode } from '../../../types/applicationFunction'
+import { filterApplicationFunctions, sortApplicationFunctions } from './helpers'
 
 export type ManageTableColumn = ColumnBarItem & {
   width?: number
@@ -26,37 +25,23 @@ function collectLeafColumns(list: ManageTableColumn[]): ManageTableColumn[] {
   return result
 }
 
-export function useMenuTable() {
-  const message = useMsg()
+export function useApplicationFunctionTable() {
+  const message = useMsg() as any
 
   const loading = ref(false)
-  const sourceTree = ref<SystemMenuNode[]>([])
+  const sourceList = ref<ApplicationFunctionNode[]>([])
   const tableKey = ref(0)
   const query = ref<Recordable<any>>({})
 
   const searchList: SearchBarField[] = [
     {
       labelText: '关键字',
-      placeholder: '标题 / 标识 / 访问路径',
+      placeholder: '标题 / 访问路径',
       elType: 'GrowInput',
       isDefault: true,
       model: 'keyword',
       noDelete: true,
       clearable: true,
-    },
-    {
-      labelText: '类型',
-      elType: 'GrowSelect',
-      isDefault: true,
-      model: 'menuType',
-      label: 'label',
-      value: 'value',
-      placeholder: '请选择',
-      clearable: true,
-      options: [
-        { label: '目录', value: MenuTypeEnum.DIRECTORY },
-        { label: '菜单', value: MenuTypeEnum.MENU },
-      ],
     },
     {
       labelText: '显示',
@@ -89,8 +74,6 @@ export function useMenuTable() {
 
   const tableColumns = ref<ManageTableColumn[]>([
     { title: '标题', field: 'title', visible: true, width: 280 },
-    { title: '标识', field: 'name', visible: true, minWidth: 140 },
-    { title: '类型', field: 'menuType', visible: true, minWidth: 90 },
     { title: '访问路径', field: 'path', visible: true, minWidth: 140 },
     { title: '图标', field: 'icon', visible: true, minWidth: 180 },
     { title: '排序', field: 'sort', visible: true, minWidth: 80 },
@@ -107,13 +90,13 @@ export function useMenuTable() {
 
   const leafColumns = computed(() => collectLeafColumns(tableColumns.value))
 
-  const tableData = computed(() => filterMenuTree(sourceTree.value, query.value || {}))
+  const tableData = computed(() => filterApplicationFunctions(sourceList.value, query.value || {}))
 
   async function loadList() {
     loading.value = true
     try {
-      const data = await fetchSystemMenuTree()
-      sourceTree.value = sortMenuTree(Array.isArray(data) ? data : [])
+      const data = await fetchApplicationFunctionList()
+      sourceList.value = sortApplicationFunctions(Array.isArray(data) ? data : [])
       tableKey.value += 1
     } catch (error) {
       message.error(error instanceof Error ? error.message : '加载失败')
@@ -132,7 +115,7 @@ export function useMenuTable() {
 
   return {
     loading,
-    sourceTree,
+    sourceList,
     tableKey,
     tableData,
     searchList,
